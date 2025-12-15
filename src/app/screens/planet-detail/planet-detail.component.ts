@@ -115,7 +115,10 @@ import { Planet } from '../../models/game.model';
           </span>
         </div>
         <ul>
-          <li *ngFor="let it of planet.buildQueue ?? []; let i = index">
+          <li
+            *ngFor="let it of planet.buildQueue ?? []; let i = index"
+            [style.color]="queueColor(it, i)"
+          >
             {{ it.project }} — cost {{ it.cost.resources }} R
             <button (click)="remove(i)">×</button>
           </li>
@@ -307,6 +310,40 @@ export class PlanetDetailComponent {
     const val = (event.target as HTMLInputElement).valueAsNumber;
     this.shipyardLimit = Number.isFinite(val) ? val : this.shipyardLimit;
     this.onGovernorType(new Event('change'));
+  }
+
+  queueColor(item: any, index: number): string {
+    // Green: first item will be built next turn
+    if (index === 0) return '#2ecc71';
+    // Red: cannot be built with current stockpile across empire
+    const game = this.gs.game();
+    if (!game) return 'inherit';
+    const neededR = item.cost?.resources ?? 0;
+    const neededFe = item.cost?.iron ?? 0;
+    const neededBo = item.cost?.boranium ?? 0;
+    const neededGe = item.cost?.germanium ?? 0;
+    const haveR = game.playerEconomy.resources;
+    const empireFe =
+      game.playerEconomy.minerals.iron +
+      this.gs
+        .stars()
+        .flatMap((s) => s.planets)
+        .reduce((sum, p) => sum + p.surfaceMinerals.iron, 0);
+    const empireBo =
+      game.playerEconomy.minerals.boranium +
+      this.gs
+        .stars()
+        .flatMap((s) => s.planets)
+        .reduce((sum, p) => sum + p.surfaceMinerals.boranium, 0);
+    const empireGe =
+      game.playerEconomy.minerals.germanium +
+      this.gs
+        .stars()
+        .flatMap((s) => s.planets)
+        .reduce((sum, p) => sum + p.surfaceMinerals.germanium, 0);
+    const cannot =
+      haveR < neededR || empireFe < neededFe || empireBo < neededBo || empireGe < neededGe;
+    return cannot ? '#e74c3c' : 'inherit';
   }
 
   projectionDelta(): number {

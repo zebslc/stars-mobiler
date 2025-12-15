@@ -102,6 +102,28 @@ import { getDesign } from '../../data/ships.data';
                 />
               </ng-container>
             </ng-container>
+            <ng-container *ngIf="selectedFleetId as fid">
+              <ng-container *ngIf="orderDest(fid) as dest">
+                <line
+                  [attr.x1]="fleetPos(fid).x"
+                  [attr.y1]="fleetPos(fid).y"
+                  [attr.x2]="dest.x"
+                  [attr.y2]="dest.y"
+                  stroke="#34495e"
+                  stroke-dasharray="4,3"
+                  style="pointer-events:none"
+                />
+                <ng-container *ngFor="let m of pathMarkersTo(fid, dest)">
+                  <circle
+                    [attr.cx]="m.x"
+                    [attr.cy]="m.y"
+                    r="3"
+                    fill="#34495e"
+                    style="pointer-events:none"
+                  />
+                </ng-container>
+              </ng-container>
+            </ng-container>
             <!-- Draw stars on top for clear selection -->
             <ng-container *ngFor="let star of stars()">
               <circle
@@ -352,6 +374,14 @@ export class GalaxyMapComponent {
     if (fleet.location.type === 'orbit') return this.planetPos(fleet.location.planetId);
     return { x: fleet.location.x, y: fleet.location.y };
   }
+  orderDest(id: string): { x: number; y: number } | null {
+    const game = this.gs.game();
+    if (!game) return null;
+    const fleet = game.fleets.find((f) => f.id === id);
+    const ord = fleet?.orders[0];
+    if (!ord || ord.type !== 'move') return null;
+    return ord.destination;
+  }
   canTravelTo(star: Star): boolean {
     const fr = this.selectedFleetId ? this.fleetRange(this.selectedFleetId) : null;
     if (!fr) return false;
@@ -379,6 +409,32 @@ export class GalaxyMapComponent {
     const perTurnDistance = maxWarp * 20;
     const start = this.fleetPos(fid);
     const end = star.position;
+    const dist = Math.hypot(end.x - start.x, end.y - start.y);
+    if (dist === 0) return [];
+    const steps = Math.floor(dist / perTurnDistance);
+    const marks: Array<{ x: number; y: number }> = [];
+    for (let i = 1; i <= steps; i++) {
+      const ratio = (perTurnDistance * i) / dist;
+      marks.push({
+        x: start.x + (end.x - start.x) * ratio,
+        y: start.y + (end.y - start.y) * ratio,
+      });
+    }
+    return marks;
+  }
+  pathMarkersTo(fid: string, dest: { x: number; y: number }): Array<{ x: number; y: number }> {
+    const game = this.gs.game();
+    if (!game) return [];
+    const fleet = game.fleets.find((f) => f.id === fid);
+    if (!fleet) return [];
+    let maxWarp = Infinity;
+    for (const s of fleet.ships) {
+      const d = getDesign(s.designId);
+      maxWarp = Math.min(maxWarp, d.warpSpeed);
+    }
+    const perTurnDistance = maxWarp * 20;
+    const start = this.fleetPos(fid);
+    const end = dest;
     const dist = Math.hypot(end.x - start.x, end.y - start.y);
     if (dist === 0) return [];
     const steps = Math.floor(dist / perTurnDistance);

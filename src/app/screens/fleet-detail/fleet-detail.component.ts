@@ -135,15 +135,19 @@ export class FleetDetailComponent {
 
   colonize() {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return;
+    const planetId = this.fleet.location.planetId;
+    const hab = this.gs.habitabilityFor(planetId);
+    if (hab <= 0) {
+      const ok = confirm(
+        'Warning: This world is inhospitable. Colonists will die each turn. Proceed?',
+      );
+      if (!ok) return;
+    }
     const pid = this.gs.colonizeNow(this.fleet.id);
     if (pid) {
       this.router.navigateByUrl(`/planet/${pid}`);
     } else {
-      // Fallback to scheduled colonize if immediate failed
-      this.gs.issueFleetOrder(this.fleet.id, {
-        type: 'colonize',
-        planetId: this.fleet.location.planetId,
-      });
+      this.gs.issueFleetOrder(this.fleet.id, { type: 'colonize', planetId });
       this.router.navigateByUrl('/map');
     }
   }
