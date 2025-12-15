@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
@@ -21,18 +21,21 @@ import { getDesign } from '../../data/ships.data';
       <section style="display:grid;gap:0.75rem;margin-top:1rem">
         <div>
           Location:
-          <span *ngIf="fleet.location.type === 'orbit'">Orbiting planet {{ fleet.location.planetId }}</span>
-          <span *ngIf="fleet.location.type === 'space'">In space ({{ fleet.location.x | number:'1.0-0' }}, {{ fleet.location.y | number:'1.0-0' }})</span>
+          <span *ngIf="fleet.location.type === 'orbit'"
+            >Orbiting planet {{ fleet.location.planetId }}</span
+          >
+          <span *ngIf="fleet.location.type === 'space'"
+            >In space ({{ fleet.location.x | number: '1.0-0' }},
+            {{ fleet.location.y | number: '1.0-0' }})</span
+          >
         </div>
         <div>
-          Fuel: {{ fleet.fuel | number:'1.0-0' }}
+          Fuel: {{ fleet.fuel | number: '1.0-0' }} • Range: {{ rangeLy | number: '1.0-0' }} ly
         </div>
         <div>
           Ships:
           <ul>
-            <li *ngFor="let s of fleet.ships">
-              {{ getDesignName(s.designId) }} ×{{ s.count }}
-            </li>
+            <li *ngFor="let s of fleet.ships">{{ getDesignName(s.designId) }} ×{{ s.count }}</li>
           </ul>
         </div>
       </section>
@@ -40,12 +43,17 @@ import { getDesign } from '../../data/ships.data';
       <section style="display:grid;gap:0.5rem">
         <h3>Orders</h3>
         <div>
-          <label>Move to star:
+          <label>Move to star:</label>
+          <div style="display:flex;gap:0.5rem;align-items:center">
             <select [value]="selectedStarId" (change)="onStarChange($event)">
-              <option *ngFor="let st of stars" [value]="st.id">{{ st.name }}</option>
+              <option *ngFor="let st of visibleStars()" [value]="st.id">{{ st.name }}</option>
             </select>
+            <label style="display:flex;gap:0.25rem;align-items:center">
+              <input type="checkbox" [checked]="showAll" (change)="onShowAll($event)" />
+              Show all systems
+            </label>
             <button (click)="move()">Set Move</button>
-          </label>
+          </div>
         </div>
         <div>
           <button (click)="colonize()" [disabled]="!canColonize()">Colonize current planet</button>
@@ -58,21 +66,25 @@ import { getDesign } from '../../data/ships.data';
       </main>
     </ng-template>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FleetDetailComponent {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   readonly gs = inject(GameStateService);
   fleet: Fleet | null = null;
   stars: Star[] = [];
   selectedStarId = '';
+  showAll = false;
+  rangeLy = 0;
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
-    const f = this.gs.game()?.fleets.find(fl => fl.id === id) ?? null;
+    const f = this.gs.game()?.fleets.find((fl) => fl.id === id) ?? null;
     this.fleet = f;
     this.stars = this.gs.stars();
     if (this.stars.length) this.selectedStarId = this.stars[0].id;
+    this.computeRange();
   }
 
   getDesignName(id: string) {
@@ -85,24 +97,71 @@ export class FleetDetailComponent {
 
   move() {
     if (!this.fleet) return;
-    const star = this.stars.find(s => s.id === this.selectedStarId);
+    const star = this.stars.find((s) => s.id === this.selectedStarId);
     if (!star) return;
     this.gs.issueFleetOrder(this.fleet.id, { type: 'move', destination: star.position });
+    this.router.navigateByUrl('/map');
   }
 
   canColonize(): boolean {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return false;
-    const hasColony = this.fleet.ships.some(s => getDesign(s.designId).colonyModule && s.count > 0);
+    const hasColony = this.fleet.ships.some(
+      (s) => getDesign(s.designId).colonyModule && s.count > 0,
+    );
     return hasColony;
   }
 
   colonize() {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return;
-    this.gs.issueFleetOrder(this.fleet.id, { type: 'colonize', planetId: this.fleet.location.planetId });
+    this.gs.issueFleetOrder(this.fleet.id, {
+      type: 'colonize',
+      planetId: this.fleet.location.planetId,
+    });
+    this.router.navigateByUrl('/map');
   }
 
   back() {
     history.back();
   }
-}
 
+  computeRange() {
+    if (!this.fleet) return;
+    let maxWarp = Infinity;
+    let totalMass = 0;
+    let bestEfficiency = Infinity;
+    for (const s of this.fleet.ships) {
+      const d = getDesign(s.designId);
+      maxWarp = Math.min(maxWarp, d.warpSpeed);
+      totalMass += (d.armor + d.shields + d.firepower) * s.count;
+      if (d.fuelEfficiency < bestEfficiency && d.fuelEfficiency >= 0)
+        bestEfficiency = d.fuelEfficiency;
+    }
+    totalMass = Math.max(1, totalMass);
+    const perLy =
+      bestEfficiency === 0
+        ? 0
+        : ((totalMass * bestEfficiency) / 1000) * Math.pow(Math.max(1, maxWarp) / 5, 2);
+    this.rangeLy = perLy === 0 ? 1000 : this.fleet.fuel / perLy;
+  }
+
+  visibleStars(): Star[] {
+    if (this.showAll || !this.fleet) return this.stars;
+    let curr: { x: number; y: number } | undefined;
+    if (this.fleet.location.type === 'orbit') {
+      const planetId = (this.fleet.location as { type: 'orbit'; planetId: string }).planetId;
+      const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === planetId));
+      curr = star?.position;
+    } else {
+      const loc = this.fleet.location as { type: 'space'; x: number; y: number };
+      curr = { x: loc.x, y: loc.y };
+    }
+    if (!curr) return this.stars;
+    return this.stars.filter((s) => {
+      const dist = Math.hypot(s.position.x - curr.x, s.position.y - curr.y);
+      return dist <= this.rangeLy;
+    });
+  }
+  onShowAll(event: Event) {
+    this.showAll = (event.target as HTMLInputElement).checked;
+  }
+}

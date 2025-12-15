@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { Star } from '../../models/game.model';
+import { getDesign } from '../../data/ships.data';
 
 @Component({
   standalone: true,
@@ -60,7 +61,7 @@ import { Star } from '../../models/game.model';
                       [attr.stroke]="'#000'"
                       [attr.stroke-width]="0.5"
                       [attr.transform]="'rotate(45 ' + pos.x + ' ' + pos.y + ')'"
-                      (click)="openFleet(fleet.id)"
+                      (click)="selectFleet(fleet.id)"
                     />
                   </ng-container>
                 </ng-container>
@@ -73,9 +74,29 @@ import { Star } from '../../models/game.model';
                     [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
                     [attr.stroke]="'#000'"
                     [attr.stroke-width]="0.5"
-                    (click)="openFleet(fleet.id)"
+                    (click)="selectFleet(fleet.id)"
                   />
                 </ng-container>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="selectedFleetId as fid">
+              <ng-container *ngIf="fleetRange(fid) as fr">
+                <circle
+                  [attr.cx]="fr.x"
+                  [attr.cy]="fr.y"
+                  [attr.r]="fr.roundTrip"
+                  fill="rgba(46,204,113,0.08)"
+                  stroke="#2ecc71"
+                  stroke-dasharray="4,3"
+                />
+                <circle
+                  [attr.cx]="fr.x"
+                  [attr.cy]="fr.y"
+                  [attr.r]="fr.oneWay"
+                  fill="rgba(241,196,15,0.06)"
+                  stroke="#f1c40f"
+                  stroke-dasharray="4,3"
+                />
               </ng-container>
             </ng-container>
             <!-- Draw stars on top for clear selection -->
@@ -125,6 +146,7 @@ import { Star } from '../../models/game.model';
               <li *ngFor="let f of fleetsAtStar(selectedStar)">
                 Fleet {{ f.id }} — Ships {{ totalShips(f) }} — Fuel {{ f.fuel | number: '1.0-0' }}
                 <button (click)="openFleet(f.id)">View</button>
+                <button (click)="selectFleet(f.id)">Show Range</button>
               </li>
             </ul>
           </div>
@@ -151,6 +173,7 @@ export class GalaxyMapComponent {
   readonly turn = this.gs.turn;
   showTransfer = true;
   selectedStar: Star | null = null;
+  selectedFleetId: string | null = null;
 
   colorForStar(star: Star): string {
     const owned = star.planets.some((p) => p.ownerId === this.gs.player()?.id);
@@ -209,6 +232,9 @@ export class GalaxyMapComponent {
   openFleet(id: string) {
     this.router.navigateByUrl(`/fleet/${id}`);
   }
+  selectFleet(id: string) {
+    this.selectedFleetId = id;
+  }
 
   planetPos(planetId: string): { x: number; y: number } {
     const star = this.stars().find((s) => s.planets.some((p) => p.id === planetId));
@@ -243,5 +269,34 @@ export class GalaxyMapComponent {
       x: star.position.x + Math.cos(angle) * radius,
       y: star.position.y + Math.sin(angle) * radius,
     };
+  }
+  fleetRange(id: string): { x: number; y: number; oneWay: number; roundTrip: number } | null {
+    const game = this.gs.game();
+    if (!game) return null;
+    const fleet = game.fleets.find((f) => f.id === id);
+    if (!fleet) return null;
+    let maxWarp = Infinity;
+    let totalMass = 0;
+    let bestEfficiency = Infinity;
+    for (const s of fleet.ships) {
+      const d = getDesign(s.designId);
+      maxWarp = Math.min(maxWarp, d.warpSpeed);
+      totalMass += (d.armor + d.shields + d.firepower) * s.count;
+      if (d.fuelEfficiency < bestEfficiency && d.fuelEfficiency >= 0)
+        bestEfficiency = d.fuelEfficiency;
+    }
+    totalMass = Math.max(1, totalMass);
+    const perLy =
+      bestEfficiency === 0
+        ? 0
+        : ((totalMass * bestEfficiency) / 1000) * Math.pow(Math.max(1, maxWarp) / 5, 2);
+    const oneWay = perLy === 0 ? 1000 : fleet.fuel / perLy;
+    const roundTrip = perLy === 0 ? 500 : fleet.fuel / perLy / 2;
+    if (fleet.location.type === 'orbit') {
+      const pos = this.planetPos(fleet.location.planetId);
+      return { x: pos.x, y: pos.y, oneWay, roundTrip };
+    } else {
+      return { x: fleet.location.x, y: fleet.location.y, oneWay, roundTrip };
+    }
   }
 }
