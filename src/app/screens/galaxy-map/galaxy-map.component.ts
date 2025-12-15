@@ -79,7 +79,7 @@ export class GalaxyMapComponent {
   private router = inject(Router);
   readonly stars = this.gs.stars;
   readonly turn = this.gs.turn;
-  showTransfer = false;
+  showTransfer = true;
 
   colorForStar(star: Star): string {
     const owned = star.planets.some((p) => p.ownerId === this.gs.player()?.id);

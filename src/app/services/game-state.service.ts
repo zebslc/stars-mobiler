@@ -232,19 +232,26 @@ export class GameStateService {
             cost: { resources: 15, iron: 2, boranium: 2 },
           });
           break;
+        case 'shipyard': {
+          const designId = planet.governor.shipDesignId ?? 'scout';
+          const limit = planet.governor.buildLimit ?? 0;
+          const queuedShips = (planet.buildQueue ?? []).filter((i) => i.project === 'ship').length;
+          if (limit === 0 || queuedShips < limit) {
+            const cost = this.getShipCost(designId);
+            this.addToBuildQueue(planet.id, { project: 'ship', cost });
+          }
+          break;
+        }
       }
     }
   }
 
-  setGovernor(
-    planetId: string,
-    type: Planet['governor'] extends infer T ? (T extends { type: infer K } ? K : never) : never,
-  ) {
+  setGovernor(planetId: string, governor: Planet['governor']) {
     const game = this._game();
     if (!game) return;
     const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
     if (!planet || planet.ownerId !== game.humanPlayer.id) return;
-    planet.governor = { type: type as any };
+    planet.governor = governor ?? { type: 'manual' };
     this._game.set({ ...game });
   }
 
@@ -255,5 +262,23 @@ export class GameStateService {
     if (!planet || !planet.buildQueue) return;
     planet.buildQueue = planet.buildQueue.filter((_, i) => i !== index);
     this._game.set({ ...game });
+  }
+
+  private getShipCost(designId: string): {
+    resources: number;
+    iron?: number;
+    boranium?: number;
+    germanium?: number;
+  } {
+    switch (designId) {
+      case 'scout':
+        return { resources: 20, iron: 5 };
+      case 'frigate':
+        return { resources: 40, iron: 10, boranium: 5 };
+      case 'destroyer':
+        return { resources: 60, iron: 15, boranium: 10, germanium: 5 };
+      default:
+        return { resources: 25, iron: 5 };
+    }
   }
 }
