@@ -217,6 +217,11 @@ export class GameStateService {
           else fleet.ships.push({ designId, count: 1, damage: 0 });
           // Add starting fuel based on design
           fleet.fuel += getDesign(designId).fuelCapacity;
+          // If colony ship, preload colonists based on design capacity
+          const design = getDesign(designId);
+          if (design.colonyModule && design.colonistCapacity) {
+            fleet.cargo.colonists += design.colonistCapacity;
+          }
           break;
         }
         default:
@@ -316,22 +321,135 @@ export class GameStateService {
       .flatMap((s) => s.planets)
       .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
     if (!planet) return null;
-    const hasColony = fleet.ships.some((s) => getDesign(s.designId).colonyModule && s.count > 0);
+    const colonyStack = fleet.ships.find((s) => getDesign(s.designId).colonyModule && s.count > 0);
+    const hasColony = !!colonyStack;
     const hab = this.habitabilityFor(planet.id);
     if (!hasColony || hab <= 0) return null;
-    const stack = fleet.ships.find((s) => getDesign(s.designId).colonyModule);
-    if (stack) {
-      stack.count -= 1;
-      if (stack.count <= 0) {
-        fleet.ships = fleet.ships.filter((s) => s !== stack);
-      }
+    colonyStack!.count -= 1;
+    if (colonyStack!.count <= 0) {
+      fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
     }
+    // Absorb ship cargo into the new colony
     planet.ownerId = game.humanPlayer.id;
-    planet.population = Math.max(planet.population, 25_000);
-    planet.maxPopulation = Math.max(planet.maxPopulation, 250_000);
+    const addedColonists = Math.max(0, fleet.cargo.colonists);
+    planet.population = addedColonists;
+    planet.surfaceMinerals.iron += fleet.cargo.minerals.iron;
+    planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
+    planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
+    // Broken-down ship parts contribute minerals based on its build cost
+    const cost = this.getShipCost(colonyStack!.designId);
+    planet.surfaceMinerals.iron += cost.iron ?? 0;
+    planet.surfaceMinerals.boranium += cost.boranium ?? 0;
+    planet.surfaceMinerals.germanium += cost.germanium ?? 0;
+    // Clear cargo after colonization
+    fleet.cargo.minerals = { iron: 0, boranium: 0, germanium: 0 };
+    fleet.cargo.colonists = 0;
     fleet.orders = [];
+    // Remove empty fleets
+    if (fleet.ships.length === 0) {
+      game.fleets = game.fleets.filter((f) => f.id !== fleet.id);
+    }
     this._game.set({ ...game });
     return planet.id;
+  }
+
+  private fleetCargoCapacity(fleet: import('../models/game.model').Fleet): number {
+    return fleet.ships.reduce((sum, s) => {
+      const d = getDesign(s.designId);
+      return sum + d.cargoCapacity * s.count;
+    }, 0);
+  }
+  private fleetCargoUsed(fleet: import('../models/game.model').Fleet): number {
+    const mineralsUsed =
+      fleet.cargo.minerals.iron + fleet.cargo.minerals.boranium + fleet.cargo.minerals.germanium;
+    const colonistUsed = Math.floor(fleet.cargo.colonists / 1000); // 1 kT per 1000 colonists
+    return mineralsUsed + colonistUsed;
+  }
+  loadCargo(
+    fleetId: string,
+    planetId: string,
+    manifest: {
+      iron?: number | 'all' | 'fill';
+      boranium?: number | 'all' | 'fill';
+      germanium?: number | 'all' | 'fill';
+      colonists?: number | 'all' | 'fill';
+    },
+  ) {
+    const game = this._game();
+    if (!game) return;
+    const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    if (!fleet || !planet) return;
+    const capacity = this.fleetCargoCapacity(fleet);
+    let used = this.fleetCargoUsed(fleet);
+    const free = Math.max(0, capacity - used);
+    const takeMineral = (key: 'iron' | 'boranium' | 'germanium', req?: number | 'all' | 'fill') => {
+      if (!req) return;
+      const available = planet.surfaceMinerals[key];
+      const room = Math.max(0, free - (this.fleetCargoUsed(fleet) - used));
+      const wanted =
+        req === 'all' ? available : req === 'fill' ? room : Math.max(0, Math.floor(req));
+      const take = Math.min(wanted, available, room);
+      planet.surfaceMinerals[key] -= take;
+      fleet.cargo.minerals[key] += take;
+      used += take;
+    };
+    takeMineral('iron', manifest.iron);
+    takeMineral('boranium', manifest.boranium);
+    takeMineral('germanium', manifest.germanium);
+    if (manifest.colonists) {
+      const availablePeople = planet.population;
+      const roomKT = Math.max(0, capacity - this.fleetCargoUsed(fleet));
+      const roomPeople = roomKT * 1000;
+      const wantedPeople =
+        manifest.colonists === 'all'
+          ? availablePeople
+          : manifest.colonists === 'fill'
+            ? roomPeople
+            : Math.max(0, Math.floor(manifest.colonists));
+      const takePeople = Math.min(wantedPeople, availablePeople, roomPeople);
+      planet.population = Math.max(0, planet.population - takePeople);
+      fleet.cargo.colonists += takePeople;
+    }
+    this._game.set({ ...game });
+  }
+  unloadCargo(
+    fleetId: string,
+    planetId: string,
+    manifest: {
+      iron?: number | 'all';
+      boranium?: number | 'all';
+      germanium?: number | 'all';
+      colonists?: number | 'all';
+    },
+  ) {
+    const game = this._game();
+    if (!game) return;
+    const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    if (!fleet || !planet) return;
+    const giveMineral = (key: 'iron' | 'boranium' | 'germanium', req?: number | 'all') => {
+      if (!req) return;
+      const available = fleet.cargo.minerals[key];
+      const wanted = req === 'all' ? available : Math.max(0, Math.floor(req));
+      const give = Math.min(wanted, available);
+      fleet.cargo.minerals[key] -= give;
+      planet.surfaceMinerals[key] += give;
+    };
+    giveMineral('iron', manifest.iron);
+    giveMineral('boranium', manifest.boranium);
+    giveMineral('germanium', manifest.germanium);
+    if (manifest.colonists) {
+      const availablePeople = fleet.cargo.colonists;
+      const wantedPeople =
+        manifest.colonists === 'all'
+          ? availablePeople
+          : Math.max(0, Math.floor(manifest.colonists));
+      const givePeople = Math.min(wantedPeople, availablePeople);
+      fleet.cargo.colonists -= givePeople;
+      planet.population += givePeople;
+    }
+    this._game.set({ ...game });
   }
 
   private processFleets(game: GameState) {
@@ -392,23 +510,36 @@ export class GameStateService {
       } else if (order.type === 'colonize') {
         const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === order.planetId);
         if (!planet) continue;
-        const hasColony = fleet.ships.some(
+        const colonyStack = fleet.ships.find(
           (s) => getDesign(s.designId).colonyModule && s.count > 0,
         );
+        const hasColony = !!colonyStack;
         const hab = this.habitabilityFor(order.planetId);
         if (hasColony && hab > 0) {
           // consume one colony ship
-          const stack = fleet.ships.find((s) => getDesign(s.designId).colonyModule);
-          if (stack) {
-            stack.count -= 1;
-            if (stack.count <= 0) {
-              fleet.ships = fleet.ships.filter((s) => s !== stack);
-            }
+          colonyStack!.count -= 1;
+          if (colonyStack!.count <= 0) {
+            fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
           }
           planet.ownerId = game.humanPlayer.id;
-          planet.population = Math.max(planet.population, 25_000);
-          planet.maxPopulation = Math.max(planet.maxPopulation, 250_000);
+          const addedColonists = Math.max(0, fleet.cargo.colonists);
+          planet.population = addedColonists;
+          // Cargo minerals
+          planet.surfaceMinerals.iron += fleet.cargo.minerals.iron;
+          planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
+          planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
+          // Ship breakdown minerals
+          const cost = this.getShipCost(colonyStack!.designId);
+          planet.surfaceMinerals.iron += cost.iron ?? 0;
+          planet.surfaceMinerals.boranium += cost.boranium ?? 0;
+          planet.surfaceMinerals.germanium += cost.germanium ?? 0;
+          // Clear cargo after colonization
+          fleet.cargo.minerals = { iron: 0, boranium: 0, germanium: 0 };
+          fleet.cargo.colonists = 0;
           fleet.orders = [];
+          if (fleet.ships.length === 0) {
+            game.fleets = game.fleets.filter((f) => f.id !== fleet.id);
+          }
         }
       }
     }
@@ -433,12 +564,12 @@ export class GameStateService {
       totalFuel += d.fuelCapacity * stack.count;
       worstEfficiency = Math.max(worstEfficiency, d.fuelEfficiency);
     }
-    // Cargo mass: minerals (kT) + colonists (1 kT per 1000)
+    // Cargo mass: minerals (kT) + colonists (1 kT per 1000 colonists)
     totalMass +=
       fleet.cargo.minerals.iron +
       fleet.cargo.minerals.boranium +
       fleet.cargo.minerals.germanium +
-      fleet.cargo.colonists;
+      Math.floor(fleet.cargo.colonists / 1000);
     return {
       maxWarp: Math.max(1, maxWarp),
       idealWarp: Math.max(1, idealWarp),

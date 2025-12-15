@@ -59,6 +59,28 @@ import { getDesign } from '../../data/ships.data';
           <button (click)="colonize()" [disabled]="!canColonize()">Colonize current planet</button>
         </div>
       </section>
+      <hr />
+      <section style="display:grid;gap:0.5rem">
+        <h3>Cargo</h3>
+        <div>Cargo capacity: {{ cargoCapacity() }} kT • Used: {{ cargoUsed() }} kT</div>
+        <div>
+          Minerals: Fe {{ fleet.cargo.minerals.iron }} • Bo {{ fleet.cargo.minerals.boranium }} • Ge
+          {{ fleet.cargo.minerals.germanium }}
+        </div>
+        <div>Colonists: {{ fleet.cargo.colonists | number }}</div>
+        <div *ngIf="fleet.location.type === 'orbit'">
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+            <input type="number" min="0" placeholder="Fe" #fe />
+            <input type="number" min="0" placeholder="Bo" #bo />
+            <input type="number" min="0" placeholder="Ge" #ge />
+            <input type="number" min="0" placeholder="Colonists" #col />
+            <button (click)="load(fe.value, bo.value, ge.value, col.value)">Load</button>
+            <button (click)="unload(fe.value, bo.value, ge.value, col.value)">Unload</button>
+            <button (click)="loadFill()">Load Fill</button>
+            <button (click)="unloadAll()">Unload All</button>
+          </div>
+        </div>
+      </section>
     </main>
     <ng-template #missing>
       <main style="padding:1rem">
@@ -177,5 +199,60 @@ export class FleetDetailComponent {
   }
   onShowAll(event: Event) {
     this.showAll = (event.target as HTMLInputElement).checked;
+  }
+
+  cargoCapacity(): number {
+    if (!this.fleet) return 0;
+    return this.fleet.ships.reduce(
+      (sum, s) => sum + getDesign(s.designId).cargoCapacity * s.count,
+      0,
+    );
+  }
+  cargoUsed(): number {
+    if (!this.fleet) return 0;
+    const m = this.fleet.cargo.minerals;
+    const mineralsUsed = m.iron + m.boranium + m.germanium;
+    const colonistUsed = Math.floor(this.fleet.cargo.colonists / 1000);
+    return mineralsUsed + colonistUsed;
+  }
+  load(fe: string, bo: string, ge: string, col: string) {
+    if (!this.fleet || this.fleet.location.type !== 'orbit') return;
+    const pid = this.fleet.location.planetId;
+    this.gs.loadCargo(this.fleet.id, pid, {
+      iron: fe ? Number(fe) : undefined,
+      boranium: bo ? Number(bo) : undefined,
+      germanium: ge ? Number(ge) : undefined,
+      colonists: col ? Number(col) : undefined,
+    });
+  }
+  unload(fe: string, bo: string, ge: string, col: string) {
+    if (!this.fleet || this.fleet.location.type !== 'orbit') return;
+    const pid = this.fleet.location.planetId;
+    this.gs.unloadCargo(this.fleet.id, pid, {
+      iron: fe ? Number(fe) : undefined,
+      boranium: bo ? Number(bo) : undefined,
+      germanium: ge ? Number(ge) : undefined,
+      colonists: col ? Number(col) : undefined,
+    });
+  }
+  loadFill() {
+    if (!this.fleet || this.fleet.location.type !== 'orbit') return;
+    const pid = this.fleet.location.planetId;
+    this.gs.loadCargo(this.fleet.id, pid, {
+      iron: 'fill',
+      boranium: 'fill',
+      germanium: 'fill',
+      colonists: 'fill',
+    });
+  }
+  unloadAll() {
+    if (!this.fleet || this.fleet.location.type !== 'orbit') return;
+    const pid = this.fleet.location.planetId;
+    this.gs.unloadCargo(this.fleet.id, pid, {
+      iron: 'all',
+      boranium: 'all',
+      germanium: 'all',
+      colonists: 'all',
+    });
   }
 }
