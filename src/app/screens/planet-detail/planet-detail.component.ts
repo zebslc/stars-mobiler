@@ -4,12 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { HabitabilityService } from '../../services/habitability.service';
 import { Planet } from '../../models/game.model';
-import { getDesign } from '../../data/ships.data';
+import { getDesign, COMPILED_DESIGNS } from '../../data/ships.data';
+import { ShipSelectorComponent, ShipOption } from '../../components/ship-selector.component';
 
 @Component({
   standalone: true,
   selector: 'app-planet-detail',
-  imports: [CommonModule],
+  imports: [CommonModule, ShipSelectorComponent],
   template: `
     <main *ngIf="planet(); else missing" style="padding:var(--space-lg)">
       <header
@@ -237,19 +238,12 @@ import { getDesign } from '../../data/ships.data';
               Ship Construction
             </div>
             <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
-              <select
-                [value]="selectedDesign"
-                (change)="onDesignChange($event)"
+              <app-ship-selector
+                [options]="shipOptions()"
+                [selectedShip]="selectedShipOption()"
+                (shipSelected)="onShipSelected($event)"
                 style="flex-grow:1;min-width:200px"
-              >
-                <option value="scout">Scout (20R 5Fe)</option>
-                <option value="frigate">Frigate (40R 10Fe 5Bo)</option>
-                <option value="destroyer">Destroyer (60R 15Fe 10Bo 5Ge)</option>
-                <option value="freighter">Freighter (35R 8Fe 5Bo 3Ge)</option>
-                <option value="super_freighter">Super Freighter (60R 15Fe 8Bo 6Ge)</option>
-                <option value="tanker">Fuel Tanker (30R 6Fe 6Bo 2Ge)</option>
-                <option value="settler">Colony Ship (80R 10Fe 10Bo 8Ge)</option>
-              </select>
+              ></app-ship-selector>
               <button
                 (click)="queue('ship')"
                 [disabled]="!canAfford('ship')"
@@ -500,6 +494,49 @@ export class PlanetDetailComponent {
     });
   });
 
+  shipOptions = computed(() => {
+    const game = this.gs.game();
+    if (!game) return [];
+
+    const shipDesigns = ['scout', 'frigate', 'destroyer', 'freighter', 'super_freighter', 'tanker', 'settler'];
+
+    return shipDesigns.map(designId => {
+      const design = COMPILED_DESIGNS[designId];
+      const cost = this.getShipCost(designId);
+
+      // Determine ship type
+      let shipType: 'attack' | 'cargo' | 'support' | 'colony';
+      if (design.colonyModule) {
+        shipType = 'colony';
+      } else if (design.cargoCapacity > 0) {
+        shipType = 'cargo';
+      } else if (design.firepower > 0) {
+        shipType = 'attack';
+      } else {
+        shipType = 'support';
+      }
+
+      // Check if affordable
+      const econ = game.playerEconomy;
+      const canAfford =
+        econ.resources >= cost.resources &&
+        econ.minerals.iron >= (cost.iron ?? 0) &&
+        econ.minerals.boranium >= (cost.boranium ?? 0) &&
+        econ.minerals.germanium >= (cost.germanium ?? 0);
+
+      return {
+        design,
+        cost,
+        shipType,
+        canAfford,
+      } as ShipOption;
+    });
+  });
+
+  selectedShipOption = computed(() => {
+    return this.shipOptions().find(opt => opt.design.id === this.selectedDesign) || null;
+  });
+
   selectedDesign = 'scout';
   shipyardDesign = 'scout';
   shipyardLimit = 0;
@@ -649,6 +686,11 @@ export class PlanetDetailComponent {
   onDesignChange(event: Event) {
     this.selectedDesign = (event.target as HTMLSelectElement).value;
   }
+
+  onShipSelected(option: ShipOption) {
+    this.selectedDesign = option.design.id;
+  }
+
   onShipyardDesignChange(event: Event) {
     this.shipyardDesign = (event.target as HTMLSelectElement).value;
     this.onGovernorType(new Event('change'));
