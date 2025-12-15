@@ -161,6 +161,36 @@ button.btn-icon {
   justify-content: center;
 }
 
+button.btn-primary-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+button.btn-primary-outline:hover:not(:disabled) {
+  background: var(--color-primary-light);
+}
+
+button.btn-success-outline {
+  background: transparent;
+  color: var(--color-success);
+  border: 2px solid var(--color-success);
+}
+
+button.btn-success-outline:hover:not(:disabled) {
+  background: var(--color-success-light);
+}
+
+button.btn-danger-outline {
+  background: transparent;
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+}
+
+button.btn-danger-outline:hover:not(:disabled) {
+  background: var(--color-danger-light);
+}
+
 /* Input System */
 input, select, textarea {
   font: inherit;

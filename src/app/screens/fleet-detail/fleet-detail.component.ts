@@ -1,14 +1,15 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
+import { StarSelectorComponent, StarOption } from '../../components/star-selector.component';
 
 @Component({
   standalone: true,
   selector: 'app-fleet-detail',
-  imports: [CommonModule],
+  imports: [CommonModule, StarSelectorComponent],
   template: `
     <main style="padding:var(--space-lg)" *ngIf="fleet; else missing">
       <header class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap;margin-bottom:var(--space-lg)">
@@ -47,10 +48,13 @@ import { getDesign } from '../../data/ships.data';
           <div>
             <label>Move to star</label>
             <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
-              <select [value]="selectedStarId" (change)="onStarChange($event)" style="flex-grow:1;min-width:200px">
-                <option *ngFor="let st of visibleStars()" [value]="st.id">{{ st.name }}</option>
-              </select>
-              <button (click)="move()" class="btn-primary">Set Move Order</button>
+              <app-star-selector
+                [options]="starOptions()"
+                [selectedStar]="selectedStarOption()"
+                (starSelected)="onStarSelected($event)"
+                style="flex-grow:1;min-width:200px"
+              ></app-star-selector>
+              <button (click)="move()" class="btn-primary" [disabled]="!selectedStarOption()">Set Move Order</button>
             </div>
             <label style="display:flex;gap:var(--space-sm);align-items:center;margin-top:var(--space-md);cursor:pointer">
               <input type="checkbox" [checked]="showAll" (change)="onShowAll($event)" />
@@ -145,19 +149,76 @@ export class FleetDetailComponent {
     this.computeRange();
   }
 
+  starOptions = computed(() => {
+    const visibleStars = this.visibleStars();
+    const playerId = this.gs.player()?.id;
+
+    return visibleStars
+      .map(star => {
+        const planet = star.planets[0];
+        const isHome = planet?.ownerId === playerId;
+        const isEnemy = planet?.ownerId && planet.ownerId !== playerId;
+        const isUnoccupied = !planet?.ownerId;
+        const habitability = planet ? this.gs.habitabilityFor(planet.id) : 0;
+
+        const fleetPos = this.getFleetPosition();
+        const distance = Math.hypot(star.position.x - fleetPos.x, star.position.y - fleetPos.y);
+        const turnsAway = this.calculateTurns(distance);
+        const isInRange = distance <= this.rangeLy;
+
+        return {
+          star,
+          isHome,
+          isEnemy,
+          isUnoccupied,
+          habitability,
+          turnsAway,
+          isInRange,
+          distance,
+        } as StarOption;
+      })
+      .sort((a, b) => a.star.name.localeCompare(b.star.name));
+  });
+
+  selectedStarOption = computed(() => {
+    return this.starOptions().find(opt => opt.star.id === this.selectedStarId) || null;
+  });
+
+  private getFleetPosition(): { x: number; y: number } {
+    if (!this.fleet) return { x: 0, y: 0 };
+    if (this.fleet.location.type === 'orbit') {
+      const orbitLocation = this.fleet.location as { type: 'orbit'; planetId: string };
+      const star = this.stars.find(s => s.planets.some(p => p.id === orbitLocation.planetId));
+      return star ? star.position : { x: 0, y: 0 };
+    }
+    const spaceLocation = this.fleet.location as { type: 'space'; x: number; y: number };
+    return { x: spaceLocation.x, y: spaceLocation.y };
+  }
+
+  private calculateTurns(distance: number): number {
+    if (!this.fleet || distance === 0) return 0;
+    let maxWarp = Infinity;
+    for (const s of this.fleet.ships) {
+      const d = getDesign(s.designId);
+      maxWarp = Math.min(maxWarp, d.warpSpeed);
+    }
+    const speed = Math.max(1, maxWarp * 20);
+    return Math.ceil(distance / speed);
+  }
+
+  onStarSelected(option: StarOption) {
+    this.selectedStarId = option.star.id;
+  }
+
   getDesignName(id: string) {
     return getDesign(id).name;
   }
 
-  onStarChange(event: Event) {
-    this.selectedStarId = (event.target as HTMLSelectElement).value;
-  }
-
   move() {
     if (!this.fleet) return;
-    const star = this.stars.find((s) => s.id === this.selectedStarId);
-    if (!star) return;
-    this.gs.issueFleetOrder(this.fleet.id, { type: 'move', destination: star.position });
+    const selectedOption = this.selectedStarOption();
+    if (!selectedOption) return;
+    this.gs.issueFleetOrder(this.fleet.id, { type: 'move', destination: selectedOption.star.position });
     this.router.navigateByUrl('/map');
   }
 
