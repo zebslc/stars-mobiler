@@ -225,34 +225,62 @@ import { getDesign } from '../../data/ships.data';
           *ngIf="selectedStar"
           style="margin-top:0.5rem;border-top:1px solid #ddd;padding-top:0.5rem; flex-shrink: 0;"
         >
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong>{{ selectedStar.name }}</strong>
-            <button (click)="openFirstPlanet(selectedStar!)">Open Planet</button>
-          </div>
-          <div>
-            <ul>
-              <li *ngFor="let p of selectedStar.planets">
-                {{ p.name }} — {{ planetOwner(p.ownerId) }} — Habitability
-                {{ gs.habitabilityFor(p.id) }}%
-                <button (click)="openPlanet(p.id)">View</button>
-                <button
-                  *ngIf="selectedFleetId && canTravelTo(selectedStar)"
-                  (click)="travelTo(selectedStar)"
-                >
-                  Travel here
-                </button>
-              </li>
-            </ul>
-          </div>
-          <div>
-            Fleets:
-            <ul>
-              <li *ngFor="let f of fleetsAtStar(selectedStar)">
-                Fleet {{ f.id }} — Ships {{ totalShips(f) }} — Fuel {{ f.fuel | number: '1.0-0' }}
-                <button (click)="openFleet(f.id)">View</button>
-                <button (click)="selectFleet(f.id)">Show Range</button>
-              </li>
-            </ul>
+          <ng-container *ngIf="selectedStar.planets[0] as p">
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem"
+            >
+              <strong style="font-size:1.1rem">{{ p.name }}</strong>
+              <span
+                [style.color]="
+                  p.ownerId === gs.player()?.id ? '#2e86de' : p.ownerId ? '#d63031' : '#7f8c8d'
+                "
+              >
+                {{ planetOwner(p.ownerId) }}
+              </span>
+            </div>
+
+            <div style="display:flex;gap:1rem;font-size:0.9rem;color:#555;margin-bottom:0.5rem">
+              <span
+                >Habitability: <strong>{{ gs.habitabilityFor(p.id) }}%</strong></span
+              >
+            </div>
+
+            <div style="display:flex;gap:0.5rem">
+              <button
+                (click)="openPlanet(p.id)"
+                style="flex:1;padding:0.5rem;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
+              >
+                View Surface
+              </button>
+              <button
+                *ngIf="selectedFleetId && canTravelTo(selectedStar)"
+                (click)="travelTo(selectedStar)"
+                style="flex:1;padding:0.5rem;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer"
+              >
+                Travel Here
+              </button>
+            </div>
+          </ng-container>
+
+          <div
+            *ngIf="fleetsAtStar(selectedStar).length > 0"
+            style="margin-top:0.75rem;border-top:1px solid #eee;padding-top:0.5rem"
+          >
+            <div style="font-size:0.9rem;font-weight:bold;margin-bottom:0.25rem">
+              Fleets in Orbit
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <div
+                *ngFor="let f of fleetsAtStar(selectedStar)"
+                style="display:flex;justify-content:space-between;align-items:center;background:#f9f9f9;padding:0.5rem;border-radius:4px"
+              >
+                <span style="font-size:0.9rem">Fleet {{ f.id }} ({{ totalShips(f) }} ships)</span>
+                <div style="display:flex;gap:0.5rem">
+                  <button (click)="openFleet(f.id)" style="padding:0.25rem 0.5rem">View</button>
+                  <button (click)="selectFleet(f.id)" style="padding:0.25rem 0.5rem">Select</button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </ng-container>
