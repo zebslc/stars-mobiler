@@ -74,10 +74,28 @@ export interface Species {
   >;
 }
 
+export interface ShipStack {
+  designId: string;
+  count: number;
+  damage: number;
+}
+
+export type FleetOrder =
+  | { type: 'move'; destination: { x: number; y: number } }
+  | { type: 'colonize'; planetId: string }
+  | { type: 'attack'; targetFleetId: string };
+
 export type Fleet = {
   id: string;
   ownerId: string;
   location: { type: 'orbit'; planetId: string } | { type: 'space'; x: number; y: number };
+  ships: ShipStack[];
+  fuel: number;
+  cargo: {
+    minerals: { iron: number; boranium: number; germanium: number };
+    colonists: number;
+  };
+  orders: FleetOrder[];
 };
 
 export interface PlayerEconomy {
@@ -91,6 +109,7 @@ export type BuildProject = 'mine' | 'factory' | 'defense' | 'terraform' | 'ship'
 export interface BuildItem {
   project: BuildProject;
   cost: { resources: number; iron?: number; boranium?: number; germanium?: number };
+  shipDesignId?: string;
 }
 
 export type GovernorType =

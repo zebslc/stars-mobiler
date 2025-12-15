@@ -13,6 +13,7 @@ import { GalaxyGeneratorService } from './galaxy-generator.service';
 import { SPECIES } from '../data/species.data';
 import { HabitabilityService } from './habitability.service';
 import { EconomyService } from './economy.service';
+import { getDesign } from '../data/ships.data';
 
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
@@ -143,6 +144,8 @@ export class GameStateService {
     // Mining already applied above; increment turn
     // Process one build item per owned planet
     this.processBuildQueues(game);
+    // Movement and colonization
+    this.processFleets(game);
     game.turn++;
     this._game.set({ ...game });
   }
@@ -185,6 +188,34 @@ export class GameStateService {
           planet.atmosphere +=
             planet.atmosphere < game.humanPlayer.species.habitat.idealAtmosphere ? 1 : -1;
           break;
+        case 'ship': {
+          const designId = item.shipDesignId ?? 'scout';
+          const orbitFleets = game.fleets.filter(
+            (f) =>
+              f.ownerId === game.humanPlayer.id &&
+              f.location.type === 'orbit' &&
+              f.location.planetId === planet.id,
+          );
+          let fleet = orbitFleets[0];
+          if (!fleet) {
+            fleet = {
+              id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              ownerId: game.humanPlayer.id,
+              location: { type: 'orbit', planetId: planet.id },
+              ships: [],
+              fuel: 0,
+              cargo: { minerals: { iron: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+              orders: [],
+            };
+            game.fleets.push(fleet);
+          }
+          const stack = fleet.ships.find((s) => s.designId === designId);
+          if (stack) stack.count += 1;
+          else fleet.ships.push({ designId, count: 1, damage: 0 });
+          // Add starting fuel based on design
+          fleet.fuel += getDesign(designId).fuelCapacity;
+          break;
+        }
         default:
           break;
       }
@@ -262,6 +293,105 @@ export class GameStateService {
     if (!planet || !planet.buildQueue) return;
     planet.buildQueue = planet.buildQueue.filter((_, i) => i !== index);
     this._game.set({ ...game });
+  }
+
+  issueFleetOrder(fleetId: string, order: import('../models/game.model').FleetOrder) {
+    const game = this._game();
+    if (!game) return;
+    const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    if (!fleet) return;
+    fleet.orders = [order];
+    this._game.set({ ...game });
+  }
+
+  private processFleets(game: GameState) {
+    for (const fleet of game.fleets) {
+      if (fleet.ownerId !== game.humanPlayer.id) continue;
+      const order = fleet.orders[0];
+      if (!order) continue;
+      if (order.type === 'move') {
+        const stats = this.calculateMovementStats(fleet);
+        const dest = order.destination;
+        const curr =
+          fleet.location.type === 'orbit'
+            ? this.planetPosition(game, fleet.location.planetId)
+            : { x: fleet.location.x, y: fleet.location.y };
+        const dist = Math.hypot(dest.x - curr.x, dest.y - curr.y);
+        const perLy = this.fuelCostPerLightYear(
+          stats.totalMass,
+          stats.maxWarp,
+          stats.bestEfficiency,
+        );
+        const maxLy = perLy > 0 ? fleet.fuel / perLy : 1000;
+        if (dist <= maxLy) {
+          fleet.fuel = Math.max(0, fleet.fuel - perLy * dist);
+          fleet.location = { type: 'space', x: dest.x, y: dest.y };
+          fleet.orders = [];
+        } else {
+          // Move as far as fuel allows
+          const ratio = maxLy / dist;
+          const nx = curr.x + (dest.x - curr.x) * ratio;
+          const ny = curr.y + (dest.y - curr.y) * ratio;
+          fleet.fuel = 0;
+          fleet.location = { type: 'space', x: nx, y: ny };
+        }
+      } else if (order.type === 'colonize') {
+        const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === order.planetId);
+        if (!planet) continue;
+        const hasColony = fleet.ships.some(
+          (s) => getDesign(s.designId).colonyModule && s.count > 0,
+        );
+        const hab = this.habitabilityFor(order.planetId);
+        if (hasColony && hab > 0) {
+          // consume one colony ship
+          const stack = fleet.ships.find((s) => getDesign(s.designId).colonyModule);
+          if (stack) {
+            stack.count -= 1;
+            if (stack.count <= 0) {
+              fleet.ships = fleet.ships.filter((s) => s !== stack);
+            }
+          }
+          planet.ownerId = game.humanPlayer.id;
+          planet.population = Math.max(planet.population, 25_000);
+          planet.maxPopulation = Math.max(planet.maxPopulation, 250_000);
+          fleet.orders = [];
+        }
+      }
+    }
+  }
+
+  private planetPosition(game: GameState, planetId: string): { x: number; y: number } {
+    const star = game.stars.find((s) => s.planets.some((p) => p.id === planetId));
+    return star ? star.position : { x: 0, y: 0 };
+  }
+
+  private calculateMovementStats(fleet: import('../models/game.model').Fleet) {
+    let maxWarp = Infinity;
+    let totalMass = 0;
+    let totalFuel = 0;
+    let bestEfficiency = Infinity;
+    for (const stack of fleet.ships) {
+      const d = getDesign(stack.designId);
+      maxWarp = Math.min(maxWarp, d.warpSpeed);
+      totalMass += (d.armor + d.shields + d.firepower) * stack.count;
+      totalFuel += d.fuelCapacity * stack.count;
+      if (d.fuelEfficiency < bestEfficiency && d.fuelEfficiency >= 0)
+        bestEfficiency = d.fuelEfficiency;
+    }
+    totalMass += fleet.cargo.colonists / 100;
+    totalMass +=
+      fleet.cargo.minerals.iron + fleet.cargo.minerals.boranium + fleet.cargo.minerals.germanium;
+    return {
+      maxWarp: Math.max(1, maxWarp),
+      totalMass: Math.max(1, totalMass),
+      totalFuel,
+      bestEfficiency,
+    };
+  }
+
+  private fuelCostPerLightYear(mass: number, warp: number, efficiency: number): number {
+    if (efficiency === 0) return 0;
+    return ((mass * efficiency) / 1000) * Math.pow(warp / 5, 2);
   }
 
   private getShipCost(designId: string): {

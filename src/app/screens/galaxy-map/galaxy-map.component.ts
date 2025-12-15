@@ -57,6 +57,24 @@ import { Star } from '../../models/game.model';
                 (click)="openFirstPlanet(star)"
               />
             </ng-container>
+            <ng-container *ngFor="let fleet of gs.game()?.fleets ?? []">
+              <rect
+                [attr.x]="
+                  fleet.location.type === 'space'
+                    ? fleet.location.x - 4
+                    : planetPos(fleet.location.planetId).x - 4
+                "
+                [attr.y]="
+                  fleet.location.type === 'space'
+                    ? fleet.location.y - 4
+                    : planetPos(fleet.location.planetId).y - 4
+                "
+                width="8"
+                height="8"
+                [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
+                (click)="openFleet(fleet.id)"
+              />
+            </ng-container>
           </svg>
         </section>
       </ng-container>
@@ -130,5 +148,14 @@ export class GalaxyMapComponent {
       return dist <= econ.transferRange;
     });
     return !withinRange;
+  }
+
+  openFleet(id: string) {
+    this.router.navigateByUrl(`/fleet/${id}`);
+  }
+
+  planetPos(planetId: string): { x: number; y: number } {
+    const star = this.stars().find((s) => s.planets.some((p) => p.id === planetId));
+    return star ? star.position : { x: 0, y: 0 };
   }
 }
