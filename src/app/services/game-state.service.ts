@@ -15,6 +15,8 @@ import { HabitabilityService } from './habitability.service';
 import { EconomyService } from './economy.service';
 import { getDesign } from '../data/ships.data';
 
+import { SettingsService } from './settings.service';
+
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
   private _game = signal<GameState | null>(null);
@@ -30,6 +32,7 @@ export class GameStateService {
     private galaxy: GalaxyGeneratorService,
     private hab: HabitabilityService,
     private economy: EconomyService,
+    private settings: SettingsService,
   ) {}
 
   newGame(settings: GameSettings) {
@@ -331,6 +334,9 @@ export class GameStateService {
     }
     // Absorb ship cargo into the new colony
     planet.ownerId = game.humanPlayer.id;
+    // Apply default governor from settings
+    planet.governor = { type: this.settings.defaultGovernor() };
+
     const addedColonists = Math.max(0, fleet.cargo.colonists);
     planet.population = addedColonists;
     planet.surfaceMinerals.iron += fleet.cargo.minerals.iron;
@@ -522,6 +528,9 @@ export class GameStateService {
             fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
           }
           planet.ownerId = game.humanPlayer.id;
+          // Apply default governor from settings
+          planet.governor = { type: this.settings.defaultGovernor() };
+
           const addedColonists = Math.max(0, fleet.cargo.colonists);
           planet.population = addedColonists;
           // Cargo minerals

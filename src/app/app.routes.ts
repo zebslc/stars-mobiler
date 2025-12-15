@@ -23,4 +23,9 @@ export const appRoutes: Routes = [
     loadComponent: () =>
       import('./screens/fleet-detail/fleet-detail.component').then((m) => m.FleetDetailComponent),
   },
+  {
+    path: 'settings',
+    loadComponent: () =>
+      import('./screens/settings/settings.component').then((m) => m.SettingsComponent),
+  },
 ];
