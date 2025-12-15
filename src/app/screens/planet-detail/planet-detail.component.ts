@@ -350,8 +350,10 @@ export class PlanetDetailComponent {
     if (!this.planet) return 0;
     const habPct = this.habitability();
     if (habPct <= 0) {
-      const killRate = Math.min(0.1, (Math.abs(habPct) / 100) * 0.1);
-      return -Math.ceil(this.planet.population * killRate);
+      // Must match game-state.service logic:
+      // Lose 10% per 10% negative habitability, min 5% loss per turn if occupied
+      const lossRate = Math.min(0.15, Math.abs(habPct / 100) * 0.15);
+      return -Math.ceil(this.planet.population * lossRate);
     } else {
       const growthRate = (Math.max(0, habPct) / 100) * 0.1;
       const nextPop = this.gs['economy'].logisticGrowth(

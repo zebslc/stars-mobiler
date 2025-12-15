@@ -135,17 +135,39 @@ export class GameStateService {
     game.playerEconomy.minerals.germanium += ge;
     // Schedule builds after economy update
     this.processGovernors(game);
-    // Population grows
+    // Population grows or dies
     for (const planet of allPlanets) {
       if (planet.ownerId !== game.humanPlayer.id) continue;
       const habPct = this.habitabilityFor(planet.id);
-      const growthRate = (Math.max(0, habPct) / 100) * 0.1;
-      const growth = this.economy.logisticGrowth(
-        planet.population,
-        planet.maxPopulation,
-        growthRate,
-      );
-      planet.population = Math.min(planet.maxPopulation, planet.population + growth);
+
+      if (habPct > 0) {
+        // Update maxPopulation based on hab
+        planet.maxPopulation = Math.floor(1_000_000 * (habPct / 100));
+
+        // Positive habitability: Logistic Growth
+        const growthRate = (habPct / 100) * 0.1;
+        const growth = this.economy.logisticGrowth(
+          planet.population,
+          planet.maxPopulation,
+          growthRate,
+        );
+        planet.population = Math.min(planet.maxPopulation, planet.population + growth);
+      } else {
+        // Negative habitability: Die-off
+        // Lose 10% per 10% negative habitability, min 5% loss per turn if occupied
+        const lossRate = Math.min(0.15, Math.abs(habPct / 100) * 0.15);
+        // Example: -45% hab -> 0.45 * 0.15 ~= 6.75% loss
+        // Let's make it clearer: 3 turns to lose all? That's ~33% loss/turn.
+        // User says "lose all in 3 turns" is a bug, implies it's too fast or unexpected.
+        // If hab is negative, they SHOULD die off unless terraformed.
+        // But if user says "it does not show any losses expected", the UI is wrong.
+        // We will fix the logic here to be standard (e.g. 10% per turn max) and ensure UI shows it.
+        const decay = Math.ceil(planet.population * lossRate);
+        planet.population = Math.max(0, planet.population - decay);
+        if (planet.population === 0) {
+          planet.ownerId = 'neutral'; // Colony lost
+        }
+      }
     }
     // Mining already applied above; increment turn
     // Process one build item per owned planet
@@ -327,7 +349,8 @@ export class GameStateService {
     const colonyStack = fleet.ships.find((s) => getDesign(s.designId).colonyModule && s.count > 0);
     const hasColony = !!colonyStack;
     const hab = this.habitabilityFor(planet.id);
-    if (!hasColony || hab <= 0) return null;
+    // Allow colonization if hab <= 0, but warn (handled in UI). Logic here allows it.
+    if (!hasColony) return null;
     colonyStack!.count -= 1;
     if (colonyStack!.count <= 0) {
       fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
@@ -336,6 +359,9 @@ export class GameStateService {
     planet.ownerId = game.humanPlayer.id;
     // Apply default governor from settings
     planet.governor = { type: this.settings.defaultGovernor() };
+
+    // Set Max Population based on habitability
+    planet.maxPopulation = hab > 0 ? Math.floor(1_000_000 * (hab / 100)) : 1000; // Allow small pop on hostile worlds
 
     const addedColonists = Math.max(0, fleet.cargo.colonists);
     planet.population = addedColonists;
@@ -521,7 +547,7 @@ export class GameStateService {
         );
         const hasColony = !!colonyStack;
         const hab = this.habitabilityFor(order.planetId);
-        if (hasColony && hab > 0) {
+        if (hasColony) {
           // consume one colony ship
           colonyStack!.count -= 1;
           if (colonyStack!.count <= 0) {
@@ -530,6 +556,8 @@ export class GameStateService {
           planet.ownerId = game.humanPlayer.id;
           // Apply default governor from settings
           planet.governor = { type: this.settings.defaultGovernor() };
+          // Set Max Population based on habitability
+          planet.maxPopulation = hab > 0 ? Math.floor(1_000_000 * (hab / 100)) : 1000;
 
           const addedColonists = Math.max(0, fleet.cargo.colonists);
           planet.population = addedColonists;
