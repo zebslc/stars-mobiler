@@ -44,6 +44,7 @@ import { getDesign } from '../../data/ships.data';
                 fill="rgba(46,134,222,0.08)"
                 stroke="#2e86de"
                 stroke-dasharray="4,3"
+                style="pointer-events: none"
               />
             </ng-container>
             <ng-template #starsOnly></ng-template>
@@ -53,13 +54,13 @@ import { getDesign } from '../../data/ships.data';
                 <ng-container *ngSwitchCase="'orbit'">
                   <ng-container *ngIf="fleetOrbitPosition(fleet) as pos">
                     <rect
-                      [attr.x]="pos.x - 5"
-                      [attr.y]="pos.y - 5"
-                      width="10"
-                      height="10"
+                      [attr.x]="pos.x - 6"
+                      [attr.y]="pos.y - 6"
+                      width="12"
+                      height="12"
                       [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
                       [attr.stroke]="'#000'"
-                      [attr.stroke-width]="0.5"
+                      [attr.stroke-width]="0.8"
                       [attr.transform]="'rotate(45 ' + pos.x + ' ' + pos.y + ')'"
                       (click)="selectFleet(fleet.id)"
                     />
@@ -67,13 +68,13 @@ import { getDesign } from '../../data/ships.data';
                 </ng-container>
                 <ng-container *ngSwitchCase="'space'">
                   <rect
-                    [attr.x]="fleet.location.x - 5"
-                    [attr.y]="fleet.location.y - 5"
-                    width="10"
-                    height="10"
+                    [attr.x]="fleet.location.x - 6"
+                    [attr.y]="fleet.location.y - 6"
+                    width="12"
+                    height="12"
                     [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
                     [attr.stroke]="'#000'"
-                    [attr.stroke-width]="0.5"
+                    [attr.stroke-width]="0.8"
                     (click)="selectFleet(fleet.id)"
                   />
                 </ng-container>
@@ -88,6 +89,7 @@ import { getDesign } from '../../data/ships.data';
                   fill="rgba(46,204,113,0.08)"
                   stroke="#2ecc71"
                   stroke-dasharray="4,3"
+                  style="pointer-events: none"
                 />
                 <circle
                   [attr.cx]="fr.x"
@@ -96,6 +98,7 @@ import { getDesign } from '../../data/ships.data';
                   fill="rgba(241,196,15,0.06)"
                   stroke="#f1c40f"
                   stroke-dasharray="4,3"
+                  style="pointer-events: none"
                 />
               </ng-container>
             </ng-container>

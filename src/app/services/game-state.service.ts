@@ -307,6 +307,21 @@ export class GameStateService {
   private processFleets(game: GameState) {
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== game.humanPlayer.id) continue;
+      // Refuel when in orbit
+      if (fleet.location.type === 'orbit') {
+        const totalFuelCapacity = fleet.ships.reduce(
+          (sum, s) => sum + getDesign(s.designId).fuelCapacity * s.count,
+          0,
+        );
+        fleet.fuel = Math.min(totalFuelCapacity, totalFuelCapacity); // instant refuel to full when in orbit
+      } else {
+        // Light ramscoop-style refuel in space
+        const totalFuelCapacity = fleet.ships.reduce(
+          (sum, s) => sum + getDesign(s.designId).fuelCapacity * s.count,
+          0,
+        );
+        fleet.fuel = Math.min(totalFuelCapacity, fleet.fuel + totalFuelCapacity * 0.15);
+      }
       const order = fleet.orders[0];
       if (!order) continue;
       if (order.type === 'move') {
@@ -325,7 +340,16 @@ export class GameStateService {
         const maxLy = perLy > 0 ? fleet.fuel / perLy : 1000;
         if (dist <= maxLy) {
           fleet.fuel = Math.max(0, fleet.fuel - perLy * dist);
-          fleet.location = { type: 'space', x: dest.x, y: dest.y };
+          // Snap to orbit if destination is a star position
+          const targetStar = game.stars.find(
+            (s) => Math.hypot(s.position.x - dest.x, s.position.y - dest.y) < 2,
+          );
+          if (targetStar) {
+            const targetPlanet = targetStar.planets[0];
+            fleet.location = { type: 'orbit', planetId: targetPlanet.id };
+          } else {
+            fleet.location = { type: 'space', x: dest.x, y: dest.y };
+          }
           fleet.orders = [];
         } else {
           // Move as far as fuel allows
@@ -391,7 +415,7 @@ export class GameStateService {
 
   private fuelCostPerLightYear(mass: number, warp: number, efficiency: number): number {
     if (efficiency === 0) return 0;
-    return ((mass * efficiency) / 1000) * Math.pow(warp / 5, 2);
+    return ((mass * efficiency) / 20000) * Math.pow(warp / 5, 2);
   }
 
   private getShipCost(designId: string): {
