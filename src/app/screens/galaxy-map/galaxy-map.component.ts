@@ -1,9 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { SettingsService } from '../../services/settings.service';
-import { Star } from '../../models/game.model';
+import { Star, Planet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 
 @Component({
@@ -157,15 +157,63 @@ import { getDesign } from '../../data/ships.data';
                 >
                   <title>{{ star.name }}</title>
                 </circle>
-                <text
-                  [attr.x]="star.position.x + 9"
-                  [attr.y]="star.position.y - 9"
-                  [attr.font-size]="10"
-                  fill="#2c3e50"
-                  style="pointer-events: none"
-                >
-                  {{ star.name }}
-                </text>
+
+                <ng-container *ngIf="getPlanetDetails(star) as d">
+                  <g *ngIf="scale() > 1.5; else simpleLabel">
+                    <g
+                      [attr.transform]="
+                        'translate(' + star.position.x + ' ' + star.position.y + ')'
+                      "
+                    >
+                      <rect
+                        x="10"
+                        y="-10"
+                        width="150"
+                        height="75"
+                        fill="rgba(255, 255, 255, 0.9)"
+                        stroke="#ccc"
+                        stroke-width="0.5"
+                        rx="4"
+                        style="pointer-events: none"
+                      />
+                      <text
+                        x="15"
+                        y="5"
+                        fill="#2c3e50"
+                        style="pointer-events: none; font-family: sans-serif"
+                        font-size="10"
+                      >
+                        <tspan font-weight="bold" x="15" dy="0">{{ star.name }}</tspan>
+                        <tspan x="15" dy="12" font-size="9">
+                          Fe{{ d.fe }}% Bo{{ d.bo }}% Ge{{ d.ge }}%
+                        </tspan>
+                        <tspan x="15" dy="11" font-size="9">
+                          Pop: {{ d.pop | number }} / {{ d.maxPop }}M
+                        </tspan>
+                        <tspan x="15" dy="11" font-size="9">Owner: {{ d.owner }}</tspan>
+                        <tspan
+                          x="15"
+                          dy="11"
+                          font-size="9"
+                          [attr.fill]="d.hab > 0 ? '#27ae60' : '#c0392b'"
+                        >
+                          Hab: {{ d.hab }}%
+                        </tspan>
+                      </text>
+                    </g>
+                  </g>
+                  <ng-template #simpleLabel>
+                    <text
+                      [attr.x]="star.position.x + 9"
+                      [attr.y]="star.position.y - 9"
+                      [attr.font-size]="10"
+                      fill="#2c3e50"
+                      style="pointer-events: none; text-shadow: 0px 0px 2px white;"
+                    >
+                      {{ star.name }}
+                    </text>
+                  </ng-template>
+                </ng-container>
               </ng-container>
 
               <ng-container *ngIf="selectedStar && selectedFleetId as fid">
@@ -317,6 +365,42 @@ export class GalaxyMapComponent {
   startX = 0;
   startY = 0;
   lastTouchDistance = 0;
+
+  ngOnInit() {
+    const stars = this.stars();
+    const homeStar = stars.find((s) => s.planets.some((p) => p.ownerId === this.gs.player()?.id));
+    if (homeStar) {
+      this.scale.set(4);
+      // Center on home star. ViewBox is 1000x1000. Center is 500,500.
+      // ScreenX = TranslateX + WorldX * Scale
+      // 500 = TranslateX + homeStar.position.x * 4
+      // TranslateX = 500 - homeStar.position.x * 4
+      this.translateX.set(500 - homeStar.position.x * 4);
+      this.translateY.set(500 - homeStar.position.y * 4);
+    }
+  }
+
+  getPlanetDetails(star: Star): {
+    fe: number;
+    bo: number;
+    ge: number;
+    maxPop: string;
+    pop: number;
+    owner: string;
+    hab: number;
+  } | null {
+    const p = star.planets[0];
+    if (!p) return null;
+    return {
+      fe: p.mineralConcentrations.iron,
+      bo: p.mineralConcentrations.boranium,
+      ge: p.mineralConcentrations.germanium,
+      maxPop: (p.maxPopulation / 1_000_000).toFixed(1),
+      pop: p.population,
+      owner: p.ownerId === this.gs.player()?.id ? 'You' : p.ownerId ? 'Enemy' : 'Unowned',
+      hab: this.gs.habitabilityFor(p.id),
+    };
+  }
 
   transformString() {
     return `translate(${this.translateX()} ${this.translateY()}) scale(${this.scale()})`;

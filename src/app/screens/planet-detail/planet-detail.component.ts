@@ -24,65 +24,76 @@ import { Planet } from '../../models/game.model';
             </button>
             <h2 style="margin:0;font-size:1.4rem">{{ planet.name }}</h2>
           </div>
-          <div style="text-align:right">
-            <div style="font-size:0.8rem;opacity:0.8">Owner</div>
-            <div style="font-weight:bold">
-              {{
-                planet.ownerId === gs.player()?.id ? 'You' : planet.ownerId ? 'Enemy' : 'Unowned'
-              }}
+
+          <div style="display:flex;gap:1rem;align-items:center">
+            <div style="text-align:right">
+              <div style="font-size:0.8rem;opacity:0.8">Owner</div>
+              <div style="font-weight:bold">
+                {{
+                  planet.ownerId === gs.player()?.id ? 'You' : planet.ownerId ? 'Enemy' : 'Unowned'
+                }}
+              </div>
             </div>
+            <button
+              (click)="endTurn()"
+              style="background:#27ae60;color:#fff;border:none;padding:0.5rem 1rem;border-radius:4px;font-weight:bold;cursor:pointer"
+            >
+              End Turn ▶
+            </button>
           </div>
         </div>
 
-        <div
-          style="display:flex;gap:0.5rem;align-items:center;background:rgba(255,255,255,0.1);padding:0.5rem;border-radius:4px;margin-top:0.25rem"
-        >
-          <label style="font-weight:bold;font-size:0.9rem;white-space:nowrap">Governor:</label>
-          <select
-            [value]="planet.governor?.type ?? 'manual'"
-            (change)="onGovernorType($event)"
-            style="background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:0.25rem;border-radius:2px;flex-grow:1;font-size:0.9rem"
+        <ng-container *ngIf="planet.ownerId === gs.player()?.id">
+          <div
+            style="display:flex;gap:0.5rem;align-items:center;background:rgba(255,255,255,0.1);padding:0.5rem;border-radius:4px;margin-top:0.25rem"
           >
-            <option value="manual">Manual Control</option>
-            <option value="balanced">Balanced (Auto-build all)</option>
-            <option value="mining">Mining (Focus Mines)</option>
-            <option value="industrial">Industrial (Focus Factories)</option>
-            <option value="military">Military (Focus Defenses)</option>
-            <option value="shipyard">Shipyard (Auto-build Ships)</option>
-          </select>
-        </div>
-
-        <div
-          *ngIf="planet.governor?.type === 'shipyard'"
-          style="display:flex;gap:0.5rem;align-items:center;background:rgba(46, 134, 222, 0.2);padding:0.5rem;border-radius:4px;font-size:0.85rem"
-        >
-          <div style="flex-grow:1">
-            <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Auto-Design</label>
+            <label style="font-weight:bold;font-size:0.9rem;white-space:nowrap">Governor:</label>
             <select
-              [value]="shipyardDesign"
-              (change)="onShipyardDesignChange($event)"
-              style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
+              [value]="planet.governor?.type ?? 'manual'"
+              (change)="onGovernorType($event)"
+              style="background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:0.25rem;border-radius:2px;flex-grow:1;font-size:0.9rem"
             >
-              <option value="scout">Scout</option>
-              <option value="frigate">Frigate</option>
-              <option value="destroyer">Destroyer</option>
-              <option value="freighter">Freighter</option>
-              <option value="super_freighter">Super Freighter</option>
-              <option value="tanker">Fuel Tanker</option>
-              <option value="settler">Colony Ship</option>
+              <option value="manual">Manual Control</option>
+              <option value="balanced">Balanced (Auto-build all)</option>
+              <option value="mining">Mining (Focus Mines)</option>
+              <option value="industrial">Industrial (Focus Factories)</option>
+              <option value="military">Military (Focus Defenses)</option>
+              <option value="shipyard">Shipyard (Auto-build Ships)</option>
             </select>
           </div>
-          <div style="width:60px">
-            <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Limit</label>
-            <input
-              type="number"
-              [value]="shipyardLimit"
-              (input)="onShipyardLimit($event)"
-              style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
-              placeholder="∞"
-            />
+
+          <div
+            *ngIf="planet.governor?.type === 'shipyard'"
+            style="display:flex;gap:0.5rem;align-items:center;background:rgba(46, 134, 222, 0.2);padding:0.5rem;border-radius:4px;font-size:0.85rem"
+          >
+            <div style="flex-grow:1">
+              <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Auto-Design</label>
+              <select
+                [value]="shipyardDesign"
+                (change)="onShipyardDesignChange($event)"
+                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
+              >
+                <option value="scout">Scout</option>
+                <option value="frigate">Frigate</option>
+                <option value="destroyer">Destroyer</option>
+                <option value="freighter">Freighter</option>
+                <option value="super_freighter">Super Freighter</option>
+                <option value="tanker">Fuel Tanker</option>
+                <option value="settler">Colony Ship</option>
+              </select>
+            </div>
+            <div style="width:60px">
+              <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Limit</label>
+              <input
+                type="number"
+                [value]="shipyardLimit"
+                (input)="onShipyardLimit($event)"
+                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
+                placeholder="∞"
+              />
+            </div>
           </div>
-        </div>
+        </ng-container>
       </header>
       <section style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;font-size:0.9em">
         <div style="flex:1;min-width:280px;background:#f9f9f9;padding:0.75rem;border-radius:4px">
@@ -152,8 +163,8 @@ import { Planet } from '../../models/game.model';
         </div>
       </section>
       <hr />
-      <section style="display:grid;gap:0.5rem">
-        <h3>Build Queue</h3>
+      <section *ngIf="planet.ownerId === gs.player()?.id">
+        <h3 style="margin-bottom:0.5rem">Build Queue</h3>
         <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;width:100%">
             <button
@@ -257,8 +268,34 @@ import { Planet } from '../../models/game.model';
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Governor moved to header -->
+      <section *ngIf="planet.ownerId !== gs.player()?.id">
+        <h3 style="margin-bottom:0.5rem">Colonization</h3>
+        <div *ngIf="availableColonizers().length > 0; else noColonizers">
+          <div
+            *ngFor="let f of availableColonizers()"
+            style="display:flex;justify-content:space-between;align-items:center;background:#e8f5e9;padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;border:1px solid #c8e6c9"
+          >
+            <div>
+              <strong>Fleet {{ f.id }}</strong>
+              <div style="font-size:0.85em;color:#2e7d32">Has Colony Ship</div>
+            </div>
+            <button
+              (click)="sendColonizer(f.id)"
+              style="background:#2ecc71;color:#fff;border:none;padding:0.5rem 1rem;border-radius:4px;font-weight:bold;cursor:pointer"
+            >
+              Send to Colonize
+            </button>
+          </div>
+        </div>
+        <ng-template #noColonizers>
+          <div
+            style="padding:1rem;background:#f5f5f5;color:#666;border-radius:4px;text-align:center"
+          >
+            No available colony ships nearby.
+          </div>
+        </ng-template>
       </section>
       <hr />
       <section>
@@ -282,6 +319,58 @@ export class PlanetDetailComponent {
   selectedDesign = 'scout';
   shipyardDesign = 'scout';
   shipyardLimit = 0;
+
+  availableColonizers(): any[] {
+    const game = this.gs.game();
+    if (!game || !this.planet) return [];
+
+    // Find all fleets with colony ships
+    const colonizerFleets = game.fleets.filter(
+      (f) => f.ownerId === game.humanPlayer.id && f.ships.some((s) => s.designId === 'settler'),
+    );
+
+    // Filter out fleets that are already moving somewhere (unless moving to THIS planet)
+    return colonizerFleets.filter((f) => {
+      const moveOrder = f.orders.find((o) => o.type === 'move');
+      if (!moveOrder) return true; // Idle fleet
+
+      // If moving, check destination.
+      // Destination is {x, y}. Compare with planet pos.
+      const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === this.planet!.id));
+      if (!star) return false;
+
+      const dest = moveOrder.destination;
+      const isHeadingHere = dest.x === star.position.x && dest.y === star.position.y;
+
+      // We want fleets NOT already heading here (so we can re-task them) OR idle ones.
+      // Actually, user said "no already en-route to a planet".
+      // Let's assume idle fleets or fleets moving elsewhere can be redirected.
+      // But "en-route to a planet" usually implies busy.
+      // Let's show idle fleets primarily.
+      return !moveOrder;
+    });
+  }
+
+  sendColonizer(fleetId: string) {
+    if (!this.planet) return;
+    const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === this.planet!.id));
+    if (!star) return;
+
+    // Issue move order to this star
+    this.gs.issueFleetOrder(fleetId, { type: 'move', destination: star.position });
+    // And queue a colonize order? Or just move?
+    // User said "auto colonise it".
+    // The current game engine processes colonization if a fleet is in orbit and has orders, or manually.
+    // We can append a 'colonize' order after the move?
+    // The current issueFleetOrder replaces orders.
+    // Let's just move them there for now, as 'auto colonise' might imply arrival.
+    // Better: Add a colonize order to the queue if possible, but our service might not support multi-order queuing easily yet.
+    // We'll stick to 'Travel Here' equivalent.
+
+    // Update: If we can, let's set them to colonize upon arrival.
+    // But for now, moving them is the first step.
+    this.gs.issueFleetOrder(fleetId, { type: 'move', destination: star.position });
+  }
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
