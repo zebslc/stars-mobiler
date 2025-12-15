@@ -113,11 +113,17 @@ export class FleetDetailComponent {
 
   colonize() {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return;
-    this.gs.issueFleetOrder(this.fleet.id, {
-      type: 'colonize',
-      planetId: this.fleet.location.planetId,
-    });
-    this.router.navigateByUrl('/map');
+    const pid = this.gs.colonizeNow(this.fleet.id);
+    if (pid) {
+      this.router.navigateByUrl(`/planet/${pid}`);
+    } else {
+      // Fallback to scheduled colonize if immediate failed
+      this.gs.issueFleetOrder(this.fleet.id, {
+        type: 'colonize',
+        planetId: this.fleet.location.planetId,
+      });
+      this.router.navigateByUrl('/map');
+    }
   }
 
   back() {
@@ -127,20 +133,28 @@ export class FleetDetailComponent {
   computeRange() {
     if (!this.fleet) return;
     let maxWarp = Infinity;
+    let idealWarp = Infinity;
     let totalMass = 0;
-    let bestEfficiency = Infinity;
+    let worstEfficiency = -Infinity;
     for (const s of this.fleet.ships) {
       const d = getDesign(s.designId);
       maxWarp = Math.min(maxWarp, d.warpSpeed);
-      totalMass += (d.armor + d.shields + d.firepower) * s.count;
-      if (d.fuelEfficiency < bestEfficiency && d.fuelEfficiency >= 0)
-        bestEfficiency = d.fuelEfficiency;
+      idealWarp = Math.min(idealWarp, d.idealWarp);
+      totalMass += d.mass * s.count;
+      worstEfficiency = Math.max(worstEfficiency, d.fuelEfficiency);
     }
+    totalMass +=
+      this.fleet.cargo.minerals.iron +
+      this.fleet.cargo.minerals.boranium +
+      this.fleet.cargo.minerals.germanium +
+      this.fleet.cargo.colonists;
     totalMass = Math.max(1, totalMass);
+    const basePerLy = totalMass / 100;
+    const speedRatio = Math.max(1, maxWarp / Math.max(1, idealWarp));
+    const speedMultiplier = speedRatio <= 1 ? 1 : Math.pow(speedRatio, 2.5);
+    const efficiencyMultiplier = worstEfficiency / 100;
     const perLy =
-      bestEfficiency === 0
-        ? 0
-        : ((totalMass * bestEfficiency) / 1000) * Math.pow(Math.max(1, maxWarp) / 5, 2);
+      worstEfficiency === 0 ? 0 : Math.ceil(basePerLy * speedMultiplier * efficiencyMultiplier);
     this.rangeLy = perLy === 0 ? 1000 : this.fleet.fuel / perLy;
   }
 

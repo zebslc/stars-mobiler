@@ -22,7 +22,7 @@ export class GalaxyGeneratorService {
       id: `star-${i}`,
       name: this.starName(seed, i),
       position: pos,
-      planets: this.generatePlanets(randInt(rng, 1, 4), rng)
+      planets: this.generatePlanets(1, rng)
     }));
     return stars;
   }
@@ -110,4 +110,3 @@ export class GalaxyGeneratorService {
     return `${choice(rng, prefixes)}-${Math.floor(rng() * 900 + 100)}`;
   }
 }
-

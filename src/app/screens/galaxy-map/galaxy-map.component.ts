@@ -120,9 +120,32 @@ import { getDesign } from '../../data/ships.data';
                 [attr.y]="star.position.y - 9"
                 font-size="10"
                 fill="#2c3e50"
+                style="pointer-events: none"
               >
                 {{ star.name }}
               </text>
+            </ng-container>
+            <ng-container *ngIf="selectedStar && selectedFleetId as fid">
+              <ng-container *ngIf="pathMarkers(fid, selectedStar) as marks">
+                <line
+                  [attr.x1]="fleetPos(fid).x"
+                  [attr.y1]="fleetPos(fid).y"
+                  [attr.x2]="selectedStar.position.x"
+                  [attr.y2]="selectedStar.position.y"
+                  stroke="#34495e"
+                  stroke-dasharray="4,3"
+                  style="pointer-events:none"
+                />
+                <ng-container *ngFor="let m of marks">
+                  <circle
+                    [attr.cx]="m.x"
+                    [attr.cy]="m.y"
+                    r="3"
+                    fill="#34495e"
+                    style="pointer-events:none"
+                  />
+                </ng-container>
+              </ng-container>
             </ng-container>
           </svg>
         </section>
@@ -140,6 +163,12 @@ import { getDesign } from '../../data/ships.data';
                 {{ p.name }} — {{ planetOwner(p.ownerId) }} — Habitability
                 {{ gs.habitabilityFor(p.id) }}%
                 <button (click)="openPlanet(p.id)">View</button>
+                <button
+                  *ngIf="selectedFleetId && canTravelTo(selectedStar)"
+                  (click)="travelTo(selectedStar)"
+                >
+                  Travel here
+                </button>
               </li>
             </ul>
           </div>
@@ -267,7 +296,7 @@ export class GalaxyMapComponent {
     const idx = fleets.findIndex((f) => f.id === fleet.id);
     const total = fleets.length || 1;
     const angle = (Math.PI * 2 * idx) / total;
-    const radius = 14;
+    const radius = 18;
     return {
       x: star.position.x + Math.cos(angle) * radius,
       y: star.position.y + Math.sin(angle) * radius,
@@ -279,20 +308,29 @@ export class GalaxyMapComponent {
     const fleet = game.fleets.find((f) => f.id === id);
     if (!fleet) return null;
     let maxWarp = Infinity;
+    let idealWarp = Infinity;
     let totalMass = 0;
-    let bestEfficiency = Infinity;
+    let worstEfficiency = -Infinity;
     for (const s of fleet.ships) {
       const d = getDesign(s.designId);
       maxWarp = Math.min(maxWarp, d.warpSpeed);
-      totalMass += (d.armor + d.shields + d.firepower) * s.count;
-      if (d.fuelEfficiency < bestEfficiency && d.fuelEfficiency >= 0)
-        bestEfficiency = d.fuelEfficiency;
+      idealWarp = Math.min(idealWarp, d.idealWarp);
+      totalMass += d.mass * s.count;
+      worstEfficiency = Math.max(worstEfficiency, d.fuelEfficiency);
     }
     totalMass = Math.max(1, totalMass);
+    // Cargo mass: minerals + colonists (1 kT per 1000)
+    totalMass +=
+      fleet.cargo.minerals.iron +
+      fleet.cargo.minerals.boranium +
+      fleet.cargo.minerals.germanium +
+      fleet.cargo.colonists;
+    const basePerLy = totalMass / 100;
+    const speedRatio = Math.max(1, maxWarp / Math.max(1, idealWarp));
+    const speedMultiplier = speedRatio <= 1 ? 1 : Math.pow(speedRatio, 2.5);
+    const efficiencyMultiplier = worstEfficiency / 100;
     const perLy =
-      bestEfficiency === 0
-        ? 0
-        : ((totalMass * bestEfficiency) / 1000) * Math.pow(Math.max(1, maxWarp) / 5, 2);
+      worstEfficiency === 0 ? 0 : Math.ceil(basePerLy * speedMultiplier * efficiencyMultiplier);
     const oneWay = perLy === 0 ? 1000 : fleet.fuel / perLy;
     const roundTrip = perLy === 0 ? 500 : fleet.fuel / perLy / 2;
     if (fleet.location.type === 'orbit') {
@@ -301,5 +339,51 @@ export class GalaxyMapComponent {
     } else {
       return { x: fleet.location.x, y: fleet.location.y, oneWay, roundTrip };
     }
+  }
+  fleetPos(id: string): { x: number; y: number } {
+    const game = this.gs.game();
+    if (!game) return { x: 0, y: 0 };
+    const fleet = game.fleets.find((f) => f.id === id);
+    if (!fleet) return { x: 0, y: 0 };
+    if (fleet.location.type === 'orbit') return this.planetPos(fleet.location.planetId);
+    return { x: fleet.location.x, y: fleet.location.y };
+  }
+  canTravelTo(star: Star): boolean {
+    const fr = this.selectedFleetId ? this.fleetRange(this.selectedFleetId) : null;
+    if (!fr) return false;
+    const pos = this.fleetPos(this.selectedFleetId!);
+    const dist = Math.hypot(star.position.x - pos.x, star.position.y - pos.y);
+    return dist <= fr.oneWay;
+  }
+  travelTo(star: Star) {
+    const game = this.gs.game();
+    if (!game || !this.selectedFleetId) return;
+    this.gs.issueFleetOrder(this.selectedFleetId, { type: 'move', destination: star.position });
+  }
+  pathMarkers(fid: string, star: Star): Array<{ x: number; y: number }> {
+    const game = this.gs.game();
+    if (!game) return [];
+    const fleet = game.fleets.find((f) => f.id === fid);
+    if (!fleet) return [];
+    let maxWarp = Infinity;
+    for (const s of fleet.ships) {
+      const d = getDesign(s.designId);
+      maxWarp = Math.min(maxWarp, d.warpSpeed);
+    }
+    const perTurnDistance = maxWarp * 20;
+    const start = this.fleetPos(fid);
+    const end = star.position;
+    const dist = Math.hypot(end.x - start.x, end.y - start.y);
+    if (dist === 0) return [];
+    const steps = Math.floor(dist / perTurnDistance);
+    const marks: Array<{ x: number; y: number }> = [];
+    for (let i = 1; i <= steps; i++) {
+      const ratio = (perTurnDistance * i) / dist;
+      marks.push({
+        x: start.x + (end.x - start.x) * ratio,
+        y: start.y + (end.y - start.y) * ratio,
+      });
+    }
+    return marks;
   }
 }

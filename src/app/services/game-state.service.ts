@@ -71,6 +71,8 @@ export class GameStateService {
     const aiHome = stars.flatMap((s) => s.planets).find((p) => p.name === 'Enemy Home');
     if (humanHome) {
       humanHome.ownerId = human.id;
+      humanHome.buildQueue = [];
+      humanHome.governor = { type: 'balanced' };
       human.ownedPlanetIds.push(humanHome.id);
     }
     if (aiHome) {
@@ -109,7 +111,6 @@ export class GameStateService {
   endTurn() {
     const game = this._game();
     if (!game) return;
-    this.processGovernors(game);
     // Production completes
     let totalResources = 0;
     let iron = 0,
@@ -129,6 +130,8 @@ export class GameStateService {
     game.playerEconomy.minerals.iron += iron;
     game.playerEconomy.minerals.boranium += bo;
     game.playerEconomy.minerals.germanium += ge;
+    // Schedule builds after economy update
+    this.processGovernors(game);
     // Population grows
     for (const planet of allPlanets) {
       if (planet.ownerId !== game.humanPlayer.id) continue;
@@ -304,6 +307,33 @@ export class GameStateService {
     this._game.set({ ...game });
   }
 
+  colonizeNow(fleetId: string): string | null {
+    const game = this._game();
+    if (!game) return null;
+    const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    if (!fleet || fleet.location.type !== 'orbit') return null;
+    const planet = game.stars
+      .flatMap((s) => s.planets)
+      .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
+    if (!planet) return null;
+    const hasColony = fleet.ships.some((s) => getDesign(s.designId).colonyModule && s.count > 0);
+    const hab = this.habitabilityFor(planet.id);
+    if (!hasColony || hab <= 0) return null;
+    const stack = fleet.ships.find((s) => getDesign(s.designId).colonyModule);
+    if (stack) {
+      stack.count -= 1;
+      if (stack.count <= 0) {
+        fleet.ships = fleet.ships.filter((s) => s !== stack);
+      }
+    }
+    planet.ownerId = game.humanPlayer.id;
+    planet.population = Math.max(planet.population, 25_000);
+    planet.maxPopulation = Math.max(planet.maxPopulation, 250_000);
+    fleet.orders = [];
+    this._game.set({ ...game });
+    return planet.id;
+  }
+
   private processFleets(game: GameState) {
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== game.humanPlayer.id) continue;
@@ -332,15 +362,20 @@ export class GameStateService {
             ? this.planetPosition(game, fleet.location.planetId)
             : { x: fleet.location.x, y: fleet.location.y };
         const dist = Math.hypot(dest.x - curr.x, dest.y - curr.y);
-        const perLy = this.fuelCostPerLightYear(
+        const perLy = this.fuelCostPerLightYearSpec(
           stats.totalMass,
           stats.maxWarp,
-          stats.bestEfficiency,
+          stats.worstEfficiency,
+          stats.idealWarp,
         );
-        const maxLy = perLy > 0 ? fleet.fuel / perLy : 1000;
-        if (dist <= maxLy) {
-          fleet.fuel = Math.max(0, fleet.fuel - perLy * dist);
-          // Snap to orbit if destination is a star position
+        const maxLyFromFuel = perLy > 0 ? fleet.fuel / perLy : 1000;
+        const perTurnDistance = stats.maxWarp * 20;
+        const step = Math.min(dist, maxLyFromFuel, perTurnDistance);
+        const ratio = dist > 0 ? step / dist : 0;
+        const nx = curr.x + (dest.x - curr.x) * ratio;
+        const ny = curr.y + (dest.y - curr.y) * ratio;
+        fleet.fuel = Math.max(0, fleet.fuel - perLy * step);
+        if (step >= dist) {
           const targetStar = game.stars.find(
             (s) => Math.hypot(s.position.x - dest.x, s.position.y - dest.y) < 2,
           );
@@ -352,11 +387,6 @@ export class GameStateService {
           }
           fleet.orders = [];
         } else {
-          // Move as far as fuel allows
-          const ratio = maxLy / dist;
-          const nx = curr.x + (dest.x - curr.x) * ratio;
-          const ny = curr.y + (dest.y - curr.y) * ratio;
-          fleet.fuel = 0;
           fleet.location = { type: 'space', x: nx, y: ny };
         }
       } else if (order.type === 'colonize') {
@@ -391,31 +421,45 @@ export class GameStateService {
 
   private calculateMovementStats(fleet: import('../models/game.model').Fleet) {
     let maxWarp = Infinity;
+    let idealWarp = Infinity;
     let totalMass = 0;
     let totalFuel = 0;
-    let bestEfficiency = Infinity;
+    let worstEfficiency = -Infinity;
     for (const stack of fleet.ships) {
       const d = getDesign(stack.designId);
       maxWarp = Math.min(maxWarp, d.warpSpeed);
-      totalMass += (d.armor + d.shields + d.firepower) * stack.count;
+      idealWarp = Math.min(idealWarp, d.idealWarp);
+      totalMass += d.mass * stack.count;
       totalFuel += d.fuelCapacity * stack.count;
-      if (d.fuelEfficiency < bestEfficiency && d.fuelEfficiency >= 0)
-        bestEfficiency = d.fuelEfficiency;
+      worstEfficiency = Math.max(worstEfficiency, d.fuelEfficiency);
     }
-    totalMass += fleet.cargo.colonists / 100;
+    // Cargo mass: minerals (kT) + colonists (1 kT per 1000)
     totalMass +=
-      fleet.cargo.minerals.iron + fleet.cargo.minerals.boranium + fleet.cargo.minerals.germanium;
+      fleet.cargo.minerals.iron +
+      fleet.cargo.minerals.boranium +
+      fleet.cargo.minerals.germanium +
+      fleet.cargo.colonists;
     return {
       maxWarp: Math.max(1, maxWarp),
+      idealWarp: Math.max(1, idealWarp),
       totalMass: Math.max(1, totalMass),
       totalFuel,
-      bestEfficiency,
+      worstEfficiency: Math.max(0, worstEfficiency),
     };
   }
 
-  private fuelCostPerLightYear(mass: number, warp: number, efficiency: number): number {
+  private fuelCostPerLightYearSpec(
+    mass: number,
+    warp: number,
+    efficiency: number,
+    idealWarp: number,
+  ): number {
     if (efficiency === 0) return 0;
-    return ((mass * efficiency) / 20000) * Math.pow(warp / 5, 2);
+    const basePerLy = mass / 100;
+    const speedRatio = warp / idealWarp;
+    const speedMultiplier = speedRatio <= 1 ? 1 : Math.pow(speedRatio, 2.5);
+    const efficiencyMultiplier = efficiency / 100;
+    return Math.ceil(basePerLy * speedMultiplier * efficiencyMultiplier);
   }
 
   private getShipCost(designId: string): {
