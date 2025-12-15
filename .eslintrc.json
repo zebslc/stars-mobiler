@@ -1,0 +1,25 @@
+{
+  "root": true,
+  "ignorePatterns": ["dist/", "out-tsc/", "node_modules/"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["tsconfig.json"],
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/strict-type-checked"
+  ],
+  "rules": {
+    "max-classes-per-file": ["error", 1],
+    "complexity": ["error", 12],
+    "max-lines-per-function": ["error", { "max": 120 }],
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/array-type": ["error", { "default": "generic" }],
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/no-floating-promises": "error"
+  }
+}
+
