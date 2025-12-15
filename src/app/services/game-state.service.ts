@@ -329,11 +329,15 @@ export class GameStateService {
   }
 
   issueFleetOrder(fleetId: string, order: import('../models/game.model').FleetOrder) {
+    this.setFleetOrders(fleetId, [order]);
+  }
+
+  setFleetOrders(fleetId: string, orders: import('../models/game.model').FleetOrder[]) {
     const game = this._game();
     if (!game) return;
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     if (!fleet) return;
-    fleet.orders = [order];
+    fleet.orders = orders;
     this._game.set({ ...game });
   }
 
@@ -535,7 +539,8 @@ export class GameStateService {
           } else {
             fleet.location = { type: 'space', x: dest.x, y: dest.y };
           }
-          fleet.orders = [];
+          // Movement complete, remove this order
+          fleet.orders.shift();
         } else {
           fleet.location = { type: 'space', x: nx, y: ny };
         }

@@ -1,18 +1,24 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { HabitabilityService } from '../../services/habitability.service';
 import { Planet } from '../../models/game.model';
+import { getDesign } from '../../data/ships.data';
 
 @Component({
   standalone: true,
   selector: 'app-planet-detail',
   imports: [CommonModule],
   template: `
-    <main *ngIf="planet; else missing" style="padding:var(--space-lg)">
-      <header class="card-header" style="display:flex;flex-direction:column;gap:var(--space-md);margin-bottom:var(--space-lg)">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap">
+    <main *ngIf="planet(); else missing" style="padding:var(--space-lg)">
+      <header
+        class="card-header"
+        style="display:flex;flex-direction:column;gap:var(--space-md);margin-bottom:var(--space-lg)"
+      >
+        <div
+          style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap"
+        >
           <div style="display:flex;gap:var(--space-md);align-items:center">
             <button
               (click)="back()"
@@ -21,7 +27,7 @@ import { Planet } from '../../models/game.model';
             >
               ← Back
             </button>
-            <h2>{{ planet.name }}</h2>
+            <h2>{{ planet()!.name }}</h2>
           </div>
 
           <div style="display:flex;gap:var(--space-lg);align-items:center;flex-wrap:wrap">
@@ -29,26 +35,27 @@ import { Planet } from '../../models/game.model';
               <div class="text-xs" style="opacity:0.8">Owner</div>
               <div class="font-bold">
                 {{
-                  planet.ownerId === gs.player()?.id ? 'You' : planet.ownerId ? 'Enemy' : 'Unowned'
+                  planet()!.ownerId === gs.player()?.id
+                    ? 'You'
+                    : planet()!.ownerId
+                      ? 'Enemy'
+                      : 'Unowned'
                 }}
               </div>
             </div>
-            <button
-              (click)="endTurn()"
-              class="btn-success"
-            >
-              End Turn ▶
-            </button>
+            <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
           </div>
         </div>
 
-        <ng-container *ngIf="planet.ownerId === gs.player()?.id">
+        <ng-container *ngIf="planet()!.ownerId === gs.player()?.id">
           <div
             style="display:flex;gap:var(--space-md);align-items:stretch;background:rgba(255,255,255,0.1);padding:var(--space-md);border-radius:var(--radius-md);flex-wrap:wrap"
           >
-            <label style="font-weight:bold;white-space:nowrap;color:#fff;align-self:center;margin:0">Governor:</label>
+            <label style="font-weight:bold;white-space:nowrap;color:#fff;align-self:center;margin:0"
+              >Governor:</label
+            >
             <select
-              [value]="planet.governor?.type ?? 'manual'"
+              [value]="planet()!.governor?.type ?? 'manual'"
               (change)="onGovernorType($event)"
               style="background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3);flex-grow:1;min-width:200px"
             >
@@ -62,7 +69,7 @@ import { Planet } from '../../models/game.model';
           </div>
 
           <div
-            *ngIf="planet.governor?.type === 'shipyard'"
+            *ngIf="planet()!.governor?.type === 'shipyard'"
             style="display:flex;gap:var(--space-md);align-items:end;background:rgba(46, 134, 222, 0.2);padding:var(--space-md);border-radius:var(--radius-md);flex-wrap:wrap"
           >
             <div style="flex-grow:1;min-width:150px">
@@ -96,7 +103,9 @@ import { Planet } from '../../models/game.model';
       </header>
       <section style="display:flex;flex-wrap:wrap;gap:var(--space-lg)">
         <div class="card" style="flex:1;min-width:280px">
-          <h3 style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border)">
+          <h3
+            style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border)"
+          >
             Vital Statistics
           </h3>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
@@ -106,9 +115,11 @@ import { Planet } from '../../models/game.model';
             </div>
             <div>
               <div class="text-small text-muted">Population</div>
-              <div>{{ planet.population | number }}</div>
+              <div>{{ planet()!.population | number }}</div>
               <div
-                [style.color]="projectionDelta() >= 0 ? 'var(--color-success)' : 'var(--color-danger)'"
+                [style.color]="
+                  projectionDelta() >= 0 ? 'var(--color-success)' : 'var(--color-danger)'
+                "
                 class="text-small"
               >
                 {{ projectionDelta() >= 0 ? '+' : '' }}{{ projectionDelta() | number }}
@@ -116,52 +127,68 @@ import { Planet } from '../../models/game.model';
             </div>
             <div>
               <div class="text-small text-muted">Mines</div>
-              <div class="font-medium">{{ planet.mines }}</div>
+              <div class="font-medium">{{ planet()!.mines }}</div>
             </div>
             <div>
               <div class="text-small text-muted">Factories</div>
-              <div class="font-medium">{{ planet.factories }}</div>
+              <div class="font-medium">{{ planet()!.factories }}</div>
             </div>
           </div>
         </div>
 
         <div class="card" style="flex:1;min-width:280px">
-          <h3 style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border)">
+          <h3
+            style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border)"
+          >
             Resources
           </h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-md);text-align:center">
-            <div style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)">
+          <div
+            style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-md);text-align:center"
+          >
+            <div
+              style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)"
+            >
               <div class="font-bold" style="color:var(--color-iron)">Iron</div>
-              <div class="font-medium" style="font-size:var(--font-size-lg)">{{ planet.surfaceMinerals.iron }}</div>
-              <div class="text-xs text-muted">
-                {{ planet.mineralConcentrations.iron }}%
+              <div class="font-medium" style="font-size:var(--font-size-lg)">
+                {{ planet()!.surfaceMinerals.iron }}
               </div>
+              <div class="text-xs text-muted">{{ planet()!.mineralConcentrations.iron }}%</div>
             </div>
-            <div style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)">
+            <div
+              style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)"
+            >
               <div class="font-bold" style="color:var(--color-boranium)">Boranium</div>
-              <div class="font-medium" style="font-size:var(--font-size-lg)">{{ planet.surfaceMinerals.boranium }}</div>
-              <div class="text-xs text-muted">
-                {{ planet.mineralConcentrations.boranium }}%
+              <div class="font-medium" style="font-size:var(--font-size-lg)">
+                {{ planet()!.surfaceMinerals.boranium }}
               </div>
+              <div class="text-xs text-muted">{{ planet()!.mineralConcentrations.boranium }}%</div>
             </div>
-            <div style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)">
+            <div
+              style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)"
+            >
               <div class="font-bold" style="color:var(--color-germanium)">Germanium</div>
-              <div class="font-medium" style="font-size:var(--font-size-lg)">{{ planet.surfaceMinerals.germanium }}</div>
-              <div class="text-xs text-muted">
-                {{ planet.mineralConcentrations.germanium }}%
+              <div class="font-medium" style="font-size:var(--font-size-lg)">
+                {{ planet()!.surfaceMinerals.germanium }}
               </div>
+              <div class="text-xs text-muted">{{ planet()!.mineralConcentrations.germanium }}%</div>
             </div>
           </div>
           <div class="text-small text-muted" style="margin-top:var(--space-md);text-align:center">
-            Producing <span class="font-bold" style="color:var(--color-text-primary)">{{ resourcesPerTurn }}</span> resources / turn
+            Producing
+            <span class="font-bold" style="color:var(--color-text-primary)">{{
+              resourcesPerTurn()
+            }}</span>
+            resources / turn
           </div>
         </div>
       </section>
       <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
-      <section *ngIf="planet.ownerId === gs.player()?.id">
+      <section *ngIf="planet()!.ownerId === gs.player()?.id">
         <h3 style="margin-bottom:var(--space-lg)">Build Queue</h3>
         <div style="display:flex;flex-direction:column;gap:var(--space-lg)">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-md)">
+          <div
+            style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-md)"
+          >
             <button
               (click)="queue('mine')"
               [disabled]="!canAfford('mine')"
@@ -200,8 +227,15 @@ import { Planet } from '../../models/game.model';
             </button>
           </div>
 
-          <div style="background:var(--color-primary-light);padding:var(--space-lg);border-radius:var(--radius-md);border:1px solid var(--color-primary)">
-            <div class="font-bold" style="color:var(--color-primary-dark);margin-bottom:var(--space-md)">Ship Construction</div>
+          <div
+            style="background:var(--color-primary-light);padding:var(--space-lg);border-radius:var(--radius-md);border:1px solid var(--color-primary)"
+          >
+            <div
+              class="font-bold"
+              style="color:var(--color-primary-dark);margin-bottom:var(--space-md)"
+            >
+              Ship Construction
+            </div>
             <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
               <select
                 [value]="selectedDesign"
@@ -228,11 +262,11 @@ import { Planet } from '../../models/game.model';
           </div>
         </div>
         <div
-          *ngIf="(planet.buildQueue?.length ?? 0) > 0"
+          *ngIf="(planet()!.buildQueue?.length ?? 0) > 0"
           style="background:var(--color-bg-primary);border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;margin-top:var(--space-lg)"
         >
           <div
-            *ngFor="let it of planet.buildQueue ?? []; let i = index"
+            *ngFor="let it of planet()!.buildQueue ?? []; let i = index"
             style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-lg);border-bottom:1px solid var(--color-border-light)"
             [style.background]="i === 0 ? 'var(--color-success-light)' : 'var(--color-bg-primary)'"
           >
@@ -272,30 +306,79 @@ import { Planet } from '../../models/game.model';
         </div>
       </section>
 
-      <section *ngIf="planet.ownerId !== gs.player()?.id">
+      <section *ngIf="planet()!.ownerId !== gs.player()?.id">
         <h3 style="margin-bottom:var(--space-lg)">Colonization</h3>
-        <div *ngIf="availableColonizers().length > 0; else noColonizers">
+
+        <!-- In Orbit -->
+        <div *ngIf="colonizersInOrbit().length > 0">
           <div
-            *ngFor="let f of availableColonizers()"
-            style="display:flex;justify-content:space-between;align-items:center;background:var(--color-success-light);padding:var(--space-lg);border-radius:var(--radius-md);margin-bottom:var(--space-md);border:1px solid var(--color-success);gap:var(--space-md);flex-wrap:wrap"
+            class="text-small font-bold"
+            style="color:var(--color-text-primary);margin-bottom:var(--space-sm)"
+          >
+            In Orbit
+          </div>
+          <div
+            *ngFor="let f of colonizersInOrbit()"
+            style="display:flex;justify-content:space-between;align-items:center;background:var(--color-success-light);padding:var(--space-lg);border-radius:var(--radius-md);margin-bottom:var(--space-md);border:1px solid var(--color-success)"
           >
             <div>
               <div class="font-bold">Fleet {{ f.id }}</div>
-              <div class="text-small" style="color:var(--color-success)">Has Colony Ship</div>
+              <div class="text-small" style="color:var(--color-success)">Ready to Colonize</div>
             </div>
-            <button
-              (click)="sendColonizer(f.id)"
-              class="btn-success"
-            >
-              Send to Colonize
-            </button>
+            <button (click)="colonizeNow(f.id)" class="btn-success">Colonize Now</button>
           </div>
         </div>
-        <ng-template #noColonizers>
-          <div class="card text-muted" style="text-align:center">
-            No available colony ships nearby.
+
+        <!-- En Route -->
+        <div *ngIf="colonizersEnRoute().length > 0" style="margin-top:var(--space-md)">
+          <div
+            class="text-small font-bold"
+            style="color:var(--color-text-primary);margin-bottom:var(--space-sm)"
+          >
+            En Route
           </div>
-        </ng-template>
+          <div
+            *ngFor="let f of colonizersEnRoute()"
+            style="display:flex;justify-content:space-between;align-items:center;background:var(--color-bg-tertiary);padding:var(--space-lg);border-radius:var(--radius-md);margin-bottom:var(--space-md);border:1px solid var(--color-border)"
+          >
+            <div>
+              <div class="font-bold">Fleet {{ f.id }}</div>
+              <div class="text-small text-muted">{{ getFleetInfo(f) }}</div>
+            </div>
+            <div class="text-small font-bold" style="color:var(--color-primary)">
+              Arriving in {{ getEta(f) }} turns
+            </div>
+          </div>
+        </div>
+
+        <!-- Available Elsewhere -->
+        <div style="margin-top:var(--space-md)">
+          <div
+            class="text-small font-bold"
+            style="color:var(--color-text-primary);margin-bottom:var(--space-sm)"
+          >
+            Available Ships
+          </div>
+          <div *ngIf="colonizersIdle().length > 0; else noIdle">
+            <div
+              *ngFor="let f of colonizersIdle()"
+              style="display:flex;justify-content:space-between;align-items:center;background:var(--color-bg-primary);padding:var(--space-lg);border-radius:var(--radius-md);margin-bottom:var(--space-md);border:1px solid var(--color-border-light)"
+            >
+              <div>
+                <div class="font-bold">Fleet {{ f.id }}</div>
+                <div class="text-small text-muted">Idle at {{ getFleetLocationName(f) }}</div>
+              </div>
+              <button (click)="sendColonizer(f.id)" class="btn-primary-outline">
+                Auto Colonize
+              </button>
+            </div>
+          </div>
+          <ng-template #noIdle>
+            <div class="text-small text-muted" style="font-style:italic">
+              No idle colony ships available.
+            </div>
+          </ng-template>
+        </div>
       </section>
       <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
       <section>
@@ -314,80 +397,177 @@ export class PlanetDetailComponent {
   private route = inject(ActivatedRoute);
   readonly gs = inject(GameStateService);
   private hab = inject(HabitabilityService);
-  planet: Planet | null = null;
-  resourcesPerTurn = 0;
+
+  private planetId = this.route.snapshot.paramMap.get('id');
+
+  planet = computed(() => {
+    return (
+      this.gs
+        .stars()
+        .flatMap((s) => s.planets)
+        .find((p) => p.id === this.planetId) || null
+    );
+  });
+
+  resourcesPerTurn = computed(() => {
+    const p = this.planet();
+    if (!p) return 0;
+    return Math.min(p.factories, Math.floor(p.population / 10));
+  });
+
+  habitability = computed(() => {
+    const p = this.planet();
+    const species = this.gs.playerSpecies();
+    if (!p || !species) return 0;
+    return this.hab.calculate(p, species);
+  });
+
+  projectionDelta = computed(() => {
+    const p = this.planet();
+    if (!p) return 0;
+    const habPct = this.habitability();
+    if (habPct <= 0) {
+      const lossRate = Math.min(0.15, Math.abs(habPct / 100) * 0.15);
+      return -Math.ceil(p.population * lossRate);
+    } else {
+      const growthRate = (Math.max(0, habPct) / 100) * 0.1;
+      // Note: accessing private/internal method of gs.economy...
+      // Better to duplicate logic or expose it properly.
+      // But for now, we can't access gs['economy'] easily if it's private.
+      // Wait, in previous code it was `this.gs['economy']`.
+      // I should inject EconomyService or move logic.
+      // I'll stick to simple calculation here for UI.
+      const current = p.population;
+      const max = p.maxPopulation;
+      if (current >= max) return 0;
+      const growth = Math.floor(current * growthRate * (1 - current / max));
+      return growth;
+    }
+  });
+
+  colonizersInOrbit = computed(() => {
+    const game = this.gs.game();
+    const p = this.planet();
+    if (!game || !p) return [];
+    return game.fleets.filter(
+      (f) =>
+        f.ownerId === game.humanPlayer.id &&
+        f.ships.some((s) => s.designId === 'settler') &&
+        f.location.type === 'orbit' &&
+        f.location.planetId === p.id,
+    );
+  });
+
+  colonizersEnRoute = computed(() => {
+    const game = this.gs.game();
+    const p = this.planet();
+    if (!game || !p) return [];
+    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
+    if (!star) return [];
+
+    return game.fleets.filter((f) => {
+      if (f.ownerId !== game.humanPlayer.id) return false;
+      if (!f.ships.some((s) => s.designId === 'settler')) return false;
+      const move = f.orders.find((o) => o.type === 'move');
+      if (!move) return false;
+      return move.destination.x === star.position.x && move.destination.y === star.position.y;
+    });
+  });
+
+  colonizersIdle = computed(() => {
+    const game = this.gs.game();
+    const p = this.planet();
+    if (!game || !p) return [];
+    return game.fleets.filter((f) => {
+      if (f.ownerId !== game.humanPlayer.id) return false;
+      if (!f.ships.some((s) => s.designId === 'settler')) return false;
+
+      if (f.location.type === 'orbit' && f.location.planetId === p.id) return false;
+
+      const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
+      if (star) {
+        const move = f.orders.find((o) => o.type === 'move');
+        if (
+          move &&
+          move.destination.x === star.position.x &&
+          move.destination.y === star.position.y
+        )
+          return false;
+      }
+
+      const move = f.orders.find((o) => o.type === 'move');
+      return !move;
+    });
+  });
+
   selectedDesign = 'scout';
   shipyardDesign = 'scout';
   shipyardLimit = 0;
 
-  availableColonizers(): any[] {
-    const game = this.gs.game();
-    if (!game || !this.planet) return [];
+  getEta(fleet: any): number {
+    const p = this.planet();
+    if (!p) return 0;
+    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
+    if (!star) return 0;
 
-    // Find all fleets with colony ships
-    const colonizerFleets = game.fleets.filter(
-      (f) => f.ownerId === game.humanPlayer.id && f.ships.some((s) => s.designId === 'settler'),
-    );
+    let fx = 0,
+      fy = 0;
+    if (fleet.location.type === 'orbit') {
+      const fStar = this.gs
+        .stars()
+        .find((s) => s.planets.some((pl) => pl.id === fleet.location.planetId));
+      if (fStar) {
+        fx = fStar.position.x;
+        fy = fStar.position.y;
+      }
+    } else {
+      fx = fleet.location.x;
+      fy = fleet.location.y;
+    }
+    const dist = Math.hypot(star.position.x - fx, star.position.y - fy);
+    if (dist === 0) return 0;
 
-    // Filter out fleets that are already moving somewhere (unless moving to THIS planet)
-    return colonizerFleets.filter((f) => {
-      const moveOrder = f.orders.find((o) => o.type === 'move');
-      if (!moveOrder) return true; // Idle fleet
+    let maxWarp = Infinity;
+    for (const s of fleet.ships) {
+      const d = getDesign(s.designId);
+      maxWarp = Math.min(maxWarp, d.warpSpeed);
+    }
+    const speed = Math.max(1, maxWarp * 20);
+    return Math.ceil(dist / speed);
+  }
 
-      // If moving, check destination.
-      // Destination is {x, y}. Compare with planet pos.
-      const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === this.planet!.id));
-      if (!star) return false;
+  getFleetInfo(fleet: any): string {
+    const colonists = fleet.cargo.colonists;
+    const ships = fleet.ships.reduce((acc: number, s: any) => acc + s.count, 0);
+    return `${colonists} Colonists, ${ships} Ships`;
+  }
 
-      const dest = moveOrder.destination;
-      const isHeadingHere = dest.x === star.position.x && dest.y === star.position.y;
+  getFleetLocationName(fleet: any): string {
+    if (fleet.location.type === 'orbit') {
+      const p = this.gs
+        .stars()
+        .flatMap((s) => s.planets)
+        .find((p) => p.id === fleet.location.planetId);
+      return p ? p.name : 'Unknown Orbit';
+    }
+    return 'Deep Space';
+  }
 
-      // We want fleets NOT already heading here (so we can re-task them) OR idle ones.
-      // Actually, user said "no already en-route to a planet".
-      // Let's assume idle fleets or fleets moving elsewhere can be redirected.
-      // But "en-route to a planet" usually implies busy.
-      // Let's show idle fleets primarily.
-      return !moveOrder;
-    });
+  colonizeNow(fleetId: string) {
+    if (!this.planet()) return;
+    this.gs.colonizeNow(fleetId);
   }
 
   sendColonizer(fleetId: string) {
-    if (!this.planet) return;
-    const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === this.planet!.id));
+    const p = this.planet();
+    if (!p) return;
+    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
     if (!star) return;
 
-    // Issue move order to this star
-    this.gs.issueFleetOrder(fleetId, { type: 'move', destination: star.position });
-    // And queue a colonize order? Or just move?
-    // User said "auto colonise it".
-    // The current game engine processes colonization if a fleet is in orbit and has orders, or manually.
-    // We can append a 'colonize' order after the move?
-    // The current issueFleetOrder replaces orders.
-    // Let's just move them there for now, as 'auto colonise' might imply arrival.
-    // Better: Add a colonize order to the queue if possible, but our service might not support multi-order queuing easily yet.
-    // We'll stick to 'Travel Here' equivalent.
-
-    // Update: If we can, let's set them to colonize upon arrival.
-    // But for now, moving them is the first step.
-    this.gs.issueFleetOrder(fleetId, { type: 'move', destination: star.position });
-  }
-
-  constructor() {
-    const id = this.route.snapshot.paramMap.get('id');
-    const planet = this.gs
-      .stars()
-      .flatMap((s) => s.planets)
-      .find((p) => p.id === id);
-    this.planet = planet ?? null;
-    if (planet) {
-      const operableFactories = Math.min(planet.factories, Math.floor(planet.population / 10));
-      this.resourcesPerTurn = operableFactories;
-    }
-  }
-
-  habitability(): number {
-    if (!this.planet || !this.gs.playerSpecies()) return 0;
-    return this.hab.calculate(this.planet, this.gs.playerSpecies()!);
+    this.gs.setFleetOrders(fleetId, [
+      { type: 'move', destination: star.position },
+      { type: 'colonize', planetId: p.id },
+    ]);
   }
 
   canAfford(project: 'mine' | 'factory' | 'defense' | 'terraform' | 'ship'): boolean {
@@ -419,7 +599,8 @@ export class PlanetDetailComponent {
   }
 
   queue(project: 'mine' | 'factory' | 'defense' | 'terraform' | 'ship') {
-    if (!this.planet) return;
+    const p = this.planet();
+    if (!p) return;
     let item =
       project === 'mine'
         ? { project, cost: { resources: 5 } }
@@ -433,33 +614,15 @@ export class PlanetDetailComponent {
                   project: 'ship',
                   cost: this.getShipCost(this.selectedDesign),
                   shipDesignId: this.selectedDesign,
-                } as any);
-    const ok = this.gs.addToBuildQueue(this.planet.id, item);
+              } as any);
+    const ok = this.gs.addToBuildQueue(p.id, item);
     if (!ok) {
       alert('Insufficient stockpile for this project');
-    } else {
-      // Update derived display
-      const planet = this.gs
-        .stars()
-        .flatMap((s) => s.planets)
-        .find((p) => p.id === this.planet!.id)!;
-      this.planet = planet;
-      const operableFactories = Math.min(planet.factories, Math.floor(planet.population / 10));
-      this.resourcesPerTurn = operableFactories;
     }
   }
 
   endTurn() {
     this.gs.endTurn();
-    if (this.planet) {
-      const planet = this.gs
-        .stars()
-        .flatMap((s) => s.planets)
-        .find((p) => p.id === this.planet!.id)!;
-      this.planet = planet;
-      const operableFactories = Math.min(planet.factories, Math.floor(planet.population / 10));
-      this.resourcesPerTurn = operableFactories;
-    }
   }
 
   back() {
@@ -467,28 +630,20 @@ export class PlanetDetailComponent {
   }
 
   remove(index: number) {
-    if (!this.planet) return;
-    this.gs.removeFromQueue(this.planet.id, index);
-    const planet = this.gs
-      .stars()
-      .flatMap((s) => s.planets)
-      .find((p) => p.id === this.planet!.id)!;
-    this.planet = planet;
+    const p = this.planet();
+    if (!p) return;
+    this.gs.removeFromQueue(p.id, index);
   }
 
   onGovernorType(event: Event) {
-    if (!this.planet) return;
+    const p = this.planet();
+    if (!p) return;
     const val = (event.target as HTMLSelectElement).value as any;
     const governor =
       val === 'shipyard'
         ? { type: 'shipyard', shipDesignId: this.shipyardDesign, buildLimit: this.shipyardLimit }
         : { type: val };
-    this.gs.setGovernor(this.planet.id, governor as any);
-    const planet = this.gs
-      .stars()
-      .flatMap((s) => s.planets)
-      .find((p) => p.id === this.planet!.id)!;
-    this.planet = planet;
+    this.gs.setGovernor(p.id, governor as any);
   }
 
   onDesignChange(event: Event) {
@@ -505,9 +660,7 @@ export class PlanetDetailComponent {
   }
 
   queueColor(item: any, index: number): string {
-    // First item will be built next turn (handled by background color)
     if (index === 0) return 'inherit';
-    // Red: cannot be built with current stockpile across empire
     const game = this.gs.game();
     if (!game) return 'inherit';
     const neededR = item.cost?.resources ?? 0;
@@ -536,25 +689,6 @@ export class PlanetDetailComponent {
     const cannot =
       haveR < neededR || empireFe < neededFe || empireBo < neededBo || empireGe < neededGe;
     return cannot ? 'var(--color-danger)' : 'inherit';
-  }
-
-  projectionDelta(): number {
-    if (!this.planet) return 0;
-    const habPct = this.habitability();
-    if (habPct <= 0) {
-      // Must match game-state.service logic:
-      // Lose 10% per 10% negative habitability, min 5% loss per turn if occupied
-      const lossRate = Math.min(0.15, Math.abs(habPct / 100) * 0.15);
-      return -Math.ceil(this.planet.population * lossRate);
-    } else {
-      const growthRate = (Math.max(0, habPct) / 100) * 0.1;
-      const nextPop = this.gs['economy'].logisticGrowth(
-        this.planet.population,
-        this.planet.maxPopulation,
-        growthRate,
-      );
-      return Math.floor(nextPop);
-    }
   }
 
   private getShipCost(designId: string): {
