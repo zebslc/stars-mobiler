@@ -23,19 +23,36 @@ import { Planet } from '../../models/game.model';
           Habitability: {{ habitability() }}%
         </div>
         <div>
-          Population: {{ planet.population | number }} / {{ planet.maxPopulation | number }}
+          Population
+          <div style="background:#eee;height:12px;border-radius:6px;overflow:hidden">
+            <div [style.width.%]="(planet.population/planet.maxPopulation)*100" style="background:#2e86de;height:12px"></div>
+          </div>
+          <small>{{ planet.population | number }} / {{ planet.maxPopulation | number }}</small>
         </div>
         <div>
-          Factories: {{ planet.factories }} → Resources/turn: {{ resourcesPerTurn }}
+          Production
+          <div>Factories: {{ planet.factories }} → {{ resourcesPerTurn }} resources/turn</div>
         </div>
         <div>
           Mines: {{ planet.mines }}
         </div>
         <div>
-          Minerals (surface): Fe {{ planet.surfaceMinerals.iron }} • Bo {{ planet.surfaceMinerals.boranium }} • Ge {{ planet.surfaceMinerals.germanium }}
+          Minerals (surface)
+          <div>Fe {{ planet.surfaceMinerals.iron }} • Bo {{ planet.surfaceMinerals.boranium }} • Ge {{ planet.surfaceMinerals.germanium }}</div>
         </div>
         <div>
-          Concentrations: Fe {{ planet.mineralConcentrations.iron }}% • Bo {{ planet.mineralConcentrations.boranium }}% • Ge {{ planet.mineralConcentrations.germanium }}%
+          Concentrations
+          <div style="display:grid;gap:0.25rem">
+            <div>Fe {{ planet.mineralConcentrations.iron }}%
+              <div style="background:#eee;height:8px"><div [style.width.%]="planet.mineralConcentrations.iron" style="background:#636e72;height:8px"></div></div>
+            </div>
+            <div>Bo {{ planet.mineralConcentrations.boranium }}%
+              <div style="background:#eee;height:8px"><div [style.width.%]="planet.mineralConcentrations.boranium" style="background:#6ab04c;height:8px"></div></div>
+            </div>
+            <div>Ge {{ planet.mineralConcentrations.germanium }}%
+              <div style="background:#eee;height:8px"><div [style.width.%]="planet.mineralConcentrations.germanium" style="background:#f9ca24;height:8px"></div></div>
+            </div>
+          </div>
         </div>
       </section>
       <hr />
@@ -48,10 +65,21 @@ import { Planet } from '../../models/game.model';
           <button (click)="queue('terraform')" [disabled]="!canAfford('terraform')">+ Terraform (25 R, 5 Ge)</button>
         </div>
         <ul>
-          <li *ngFor="let it of (planet.buildQueue ?? [])">
+          <li *ngFor="let it of (planet.buildQueue ?? []); let i = index">
             {{ it.project }} — cost {{ it.cost.resources }} R
+            <button (click)="remove(i)">×</button>
           </li>
         </ul>
+        <div>
+          Governor:
+          <select [value]="planet.governor?.type ?? 'manual'" (change)="setGovernor($event)">
+            <option value="manual">Manual</option>
+            <option value="balanced">Balanced</option>
+            <option value="mining">Mining</option>
+            <option value="industrial">Industrial</option>
+            <option value="military">Military</option>
+          </select>
+        </div>
       </section>
       <hr />
       <section>
@@ -139,5 +167,20 @@ export class PlanetDetailComponent {
 
   back() {
     history.back();
+  }
+
+  remove(index: number) {
+    if (!this.planet) return;
+    this.gs.removeFromQueue(this.planet.id, index);
+    const planet = this.gs.stars().flatMap(s => s.planets).find(p => p.id === this.planet!.id)!;
+    this.planet = planet;
+  }
+
+  setGovernor(event: Event) {
+    if (!this.planet) return;
+    const val = (event.target as HTMLSelectElement).value as any;
+    this.gs.setGovernor(this.planet.id, val);
+    const planet = this.gs.stars().flatMap(s => s.planets).find(p => p.id === this.planet!.id)!;
+    this.planet = planet;
   }
 }

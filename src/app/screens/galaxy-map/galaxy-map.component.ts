@@ -13,9 +13,19 @@ import { Star } from '../../models/game.model';
         <header
           style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem"
         >
-          <div>Turn {{ turn() }}</div>
+          <div style="display:flex;gap:1rem;align-items:center">
+            <strong>Turn {{ turn() }}</strong>
+            <span *ngIf="gs.playerEconomy() as econ"
+              >Resources: {{ econ.resources }} • Fe {{ econ.minerals.iron }} • Bo
+              {{ econ.minerals.boranium }} • Ge {{ econ.minerals.germanium }}</span
+            >
+          </div>
           <div style="display:flex;gap:0.5rem">
-            <button disabled>End Turn ▶</button>
+            <label style="display:flex;gap:0.25rem;align-items:center">
+              <input type="checkbox" [checked]="showTransfer" (change)="toggleTransfer($event)" />
+              Show transfer range
+            </label>
+            <button (click)="endTurn()">End Turn ▶</button>
             <button (click)="newGame()">New Game</button>
           </div>
         </header>
@@ -25,14 +35,25 @@ import { Star } from '../../models/game.model';
             preserveAspectRatio="xMidYMid meet"
             style="width:100%;height:70vh"
           >
+            <ng-container *ngIf="showTransfer && centerOwnedStar() as center; else starsOnly">
+              <circle
+                [attr.cx]="center.position.x"
+                [attr.cy]="center.position.y"
+                [attr.r]="gs.playerEconomy()?.transferRange ?? 0"
+                fill="rgba(46,134,222,0.08)"
+                stroke="#2e86de"
+                stroke-dasharray="4,3"
+              />
+            </ng-container>
+            <ng-template #starsOnly></ng-template>
             <ng-container *ngFor="let star of stars()">
               <circle
                 [attr.cx]="star.position.x"
                 [attr.cy]="star.position.y"
                 r="6"
                 [attr.fill]="colorForStar(star)"
-                stroke="#000"
-                stroke-width="0.5"
+                [attr.stroke]="isIsolated(star) ? '#e67e22' : '#000'"
+                [attr.stroke-width]="isIsolated(star) ? 1.2 : 0.5"
                 (click)="openFirstPlanet(star)"
               />
             </ng-container>
@@ -58,6 +79,7 @@ export class GalaxyMapComponent {
   private router = inject(Router);
   readonly stars = this.gs.stars;
   readonly turn = this.gs.turn;
+  showTransfer = false;
 
   colorForStar(star: Star): string {
     const owned = star.planets.some((p) => p.ownerId === this.gs.player()?.id);
@@ -77,5 +99,36 @@ export class GalaxyMapComponent {
     if (p) {
       this.router.navigateByUrl(`/planet/${p.id}`);
     }
+  }
+
+  endTurn() {
+    this.gs.endTurn();
+  }
+
+  toggleTransfer(event: Event) {
+    this.showTransfer = (event.target as HTMLInputElement).checked;
+  }
+
+  centerOwnedStar(): Star | null {
+    const ownedStars = this.stars().filter((s) =>
+      s.planets.some((p) => p.ownerId === this.gs.player()?.id),
+    );
+    return ownedStars.length ? ownedStars[0] : null;
+  }
+
+  isIsolated(star: Star): boolean {
+    const econ = this.gs.playerEconomy();
+    if (!econ) return false;
+    const ownedStars = this.stars().filter((s) =>
+      s.planets.some((p) => p.ownerId === this.gs.player()?.id),
+    );
+    if (ownedStars.length === 0) return false;
+    const withinRange = ownedStars.some((os) => {
+      const dx = os.position.x - star.position.x;
+      const dy = os.position.y - star.position.y;
+      const dist = Math.hypot(dx, dy);
+      return dist <= econ.transferRange;
+    });
+    return !withinRange;
   }
 }

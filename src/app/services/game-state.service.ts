@@ -23,6 +23,7 @@ export class GameStateService {
   readonly stars = computed(() => this._game()?.stars ?? []);
   readonly player = computed(() => this._game()?.humanPlayer);
   readonly playerSpecies = computed(() => this.player()?.species);
+  readonly playerEconomy = computed(() => this._game()?.playerEconomy);
 
   constructor(
     private galaxy: GalaxyGeneratorService,
@@ -107,6 +108,7 @@ export class GameStateService {
   endTurn() {
     const game = this._game();
     if (!game) return;
+    this.processGovernors(game);
     // Production completes
     let totalResources = 0;
     let iron = 0,
@@ -129,7 +131,8 @@ export class GameStateService {
     // Population grows
     for (const planet of allPlanets) {
       if (planet.ownerId !== game.humanPlayer.id) continue;
-      const growthRate = 0.1; // 10% at ideal; can be adjusted by habitability
+      const habPct = this.habitabilityFor(planet.id);
+      const growthRate = (Math.max(0, habPct) / 100) * 0.1;
       const growth = this.economy.logisticGrowth(
         planet.population,
         planet.maxPopulation,
@@ -187,5 +190,70 @@ export class GameStateService {
       }
       planet.buildQueue = queue.slice(1);
     }
+  }
+
+  private processGovernors(game: GameState) {
+    const owned = game.stars
+      .flatMap((s) => s.planets)
+      .filter((p) => p.ownerId === game.humanPlayer.id);
+    for (const planet of owned) {
+      if (!planet.governor || planet.governor.type === 'manual') continue;
+      if ((planet.buildQueue ?? []).length > 0) continue;
+      switch (planet.governor.type) {
+        case 'balanced': {
+          const minesTarget = Math.floor(planet.population / 20);
+          if (planet.mines < minesTarget) {
+            this.addToBuildQueue(planet.id, { project: 'mine', cost: { resources: 5 } });
+          } else if (planet.factories < Math.floor(planet.population / 10)) {
+            this.addToBuildQueue(planet.id, {
+              project: 'factory',
+              cost: { resources: 10, germanium: 4 },
+            });
+          } else {
+            this.addToBuildQueue(planet.id, {
+              project: 'defense',
+              cost: { resources: 15, iron: 2, boranium: 2 },
+            });
+          }
+          break;
+        }
+        case 'mining':
+          this.addToBuildQueue(planet.id, { project: 'mine', cost: { resources: 5 } });
+          break;
+        case 'industrial':
+          this.addToBuildQueue(planet.id, {
+            project: 'factory',
+            cost: { resources: 10, germanium: 4 },
+          });
+          break;
+        case 'military':
+          this.addToBuildQueue(planet.id, {
+            project: 'defense',
+            cost: { resources: 15, iron: 2, boranium: 2 },
+          });
+          break;
+      }
+    }
+  }
+
+  setGovernor(
+    planetId: string,
+    type: Planet['governor'] extends infer T ? (T extends { type: infer K } ? K : never) : never,
+  ) {
+    const game = this._game();
+    if (!game) return;
+    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    if (!planet || planet.ownerId !== game.humanPlayer.id) return;
+    planet.governor = { type: type as any };
+    this._game.set({ ...game });
+  }
+
+  removeFromQueue(planetId: string, index: number) {
+    const game = this._game();
+    if (!game) return;
+    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    if (!planet || !planet.buildQueue) return;
+    planet.buildQueue = planet.buildQueue.filter((_, i) => i !== index);
+    this._game.set({ ...game });
   }
 }
