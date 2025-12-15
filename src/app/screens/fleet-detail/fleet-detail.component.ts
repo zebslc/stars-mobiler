@@ -10,80 +10,116 @@ import { getDesign } from '../../data/ships.data';
   selector: 'app-fleet-detail',
   imports: [CommonModule],
   template: `
-    <main style="padding:1rem" *ngIf="fleet; else missing">
-      <header style="display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;gap:0.5rem;align-items:center">
-          <button (click)="back()">← Back</button>
-          <h2 style="margin:0">Fleet</h2>
+    <main style="padding:var(--space-lg)" *ngIf="fleet; else missing">
+      <header class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap;margin-bottom:var(--space-lg)">
+        <div style="display:flex;gap:var(--space-md);align-items:center">
+          <button (click)="back()" class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;border:none">← Back</button>
+          <h2>Fleet</h2>
         </div>
-        <small>Owner: {{ fleet.ownerId === gs.player()?.id ? 'You' : 'Enemy' }}</small>
+        <div class="text-small" style="opacity:0.9">Owner: {{ fleet.ownerId === gs.player()?.id ? 'You' : 'Enemy' }}</div>
       </header>
-      <section style="display:grid;gap:0.75rem;margin-top:1rem">
+      <section class="card" style="display:grid;gap:var(--space-md)">
         <div>
-          Location:
-          <span *ngIf="fleet.location.type === 'orbit'"
-            >Orbiting planet {{ fleet.location.planetId }}</span
-          >
-          <span *ngIf="fleet.location.type === 'space'"
-            >In space ({{ fleet.location.x | number: '1.0-0' }},
-            {{ fleet.location.y | number: '1.0-0' }})</span
-          >
-        </div>
-        <div>
-          Fuel: {{ fleet.fuel | number: '1.0-0' }} • Range: {{ rangeLy | number: '1.0-0' }} ly
-        </div>
-        <div>
-          Ships:
-          <ul>
-            <li *ngFor="let s of fleet.ships">{{ getDesignName(s.designId) }} ×{{ s.count }}</li>
-          </ul>
-        </div>
-      </section>
-      <hr />
-      <section style="display:grid;gap:0.5rem">
-        <h3>Orders</h3>
-        <div>
-          <label>Move to star:</label>
-          <div style="display:flex;gap:0.5rem;align-items:center">
-            <select [value]="selectedStarId" (change)="onStarChange($event)">
-              <option *ngFor="let st of visibleStars()" [value]="st.id">{{ st.name }}</option>
-            </select>
-            <label style="display:flex;gap:0.25rem;align-items:center">
-              <input type="checkbox" [checked]="showAll" (change)="onShowAll($event)" />
-              Show all systems
-            </label>
-            <button (click)="move()">Set Move</button>
+          <div class="text-small text-muted">Location</div>
+          <div class="font-medium">
+            <span *ngIf="fleet.location.type === 'orbit'">Orbiting planet {{ fleet.location.planetId }}</span>
+            <span *ngIf="fleet.location.type === 'space'">In space ({{ fleet.location.x | number: '1.0-0' }}, {{ fleet.location.y | number: '1.0-0' }})</span>
           </div>
         </div>
         <div>
-          <button (click)="colonize()" [disabled]="!canColonize()">Colonize current planet</button>
+          <div class="text-small text-muted">Fuel & Range</div>
+          <div class="font-medium">{{ fleet.fuel | number: '1.0-0' }} fuel • {{ rangeLy | number: '1.0-0' }} ly range</div>
+        </div>
+        <div>
+          <div class="text-small text-muted">Ships</div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-xs);margin-top:var(--space-xs)">
+            <div *ngFor="let s of fleet.ships" style="display:flex;justify-content:space-between;background:var(--color-bg-tertiary);padding:var(--space-sm);border-radius:var(--radius-sm)">
+              <span class="font-medium">{{ getDesignName(s.designId) }}</span>
+              <span class="text-muted">×{{ s.count }}</span>
+            </div>
+          </div>
         </div>
       </section>
-      <hr />
-      <section style="display:grid;gap:0.5rem">
-        <h3>Cargo</h3>
-        <div>Cargo capacity: {{ cargoCapacity() }} kT • Used: {{ cargoUsed() }} kT</div>
-        <div>
-          Minerals: Fe {{ fleet.cargo.minerals.iron }} • Bo {{ fleet.cargo.minerals.boranium }} • Ge
-          {{ fleet.cargo.minerals.germanium }}
+      <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
+      <section class="card">
+        <h3 style="margin-bottom:var(--space-lg)">Orders</h3>
+        <div style="display:grid;gap:var(--space-lg)">
+          <div>
+            <label>Move to star</label>
+            <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
+              <select [value]="selectedStarId" (change)="onStarChange($event)" style="flex-grow:1;min-width:200px">
+                <option *ngFor="let st of visibleStars()" [value]="st.id">{{ st.name }}</option>
+              </select>
+              <button (click)="move()" class="btn-primary">Set Move Order</button>
+            </div>
+            <label style="display:flex;gap:var(--space-sm);align-items:center;margin-top:var(--space-md);cursor:pointer">
+              <input type="checkbox" [checked]="showAll" (change)="onShowAll($event)" />
+              <span class="text-small">Show all systems (including out of range)</span>
+            </label>
+          </div>
+          <div>
+            <button (click)="colonize()" [disabled]="!canColonize()" class="btn-success">Colonize Current Planet</button>
+          </div>
         </div>
-        <div>Colonists: {{ fleet.cargo.colonists | number }}</div>
-        <div *ngIf="fleet.location.type === 'orbit'">
-          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-            <input type="number" min="0" placeholder="Fe" #fe />
-            <input type="number" min="0" placeholder="Bo" #bo />
-            <input type="number" min="0" placeholder="Ge" #ge />
-            <input type="number" min="0" placeholder="Colonists" #col />
-            <button (click)="load(fe.value, bo.value, ge.value, col.value)">Load</button>
-            <button (click)="unload(fe.value, bo.value, ge.value, col.value)">Unload</button>
-            <button (click)="loadFill()">Load Fill</button>
-            <button (click)="unloadAll()">Unload All</button>
+      </section>
+      <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
+      <section class="card">
+        <h3 style="margin-bottom:var(--space-lg)">Cargo</h3>
+        <div style="display:grid;gap:var(--space-md)">
+          <div>
+            <div class="text-small text-muted">Capacity</div>
+            <div class="font-medium">{{ cargoUsed() }} / {{ cargoCapacity() }} kT</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--space-md)">
+            <div>
+              <div class="text-small text-muted">Iron</div>
+              <div class="font-medium">{{ fleet.cargo.minerals.iron }} kT</div>
+            </div>
+            <div>
+              <div class="text-small text-muted">Boranium</div>
+              <div class="font-medium">{{ fleet.cargo.minerals.boranium }} kT</div>
+            </div>
+            <div>
+              <div class="text-small text-muted">Germanium</div>
+              <div class="font-medium">{{ fleet.cargo.minerals.germanium }} kT</div>
+            </div>
+            <div>
+              <div class="text-small text-muted">Colonists</div>
+              <div class="font-medium">{{ fleet.cargo.colonists | number }}</div>
+            </div>
+          </div>
+          <div *ngIf="fleet.location.type === 'orbit'" style="background:var(--color-bg-secondary);padding:var(--space-lg);border-radius:var(--radius-md);margin-top:var(--space-md)">
+            <div class="font-bold" style="margin-bottom:var(--space-md)">Transfer Cargo</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--space-md);margin-bottom:var(--space-md)">
+              <div>
+                <label>Iron (kT)</label>
+                <input type="number" min="0" placeholder="0" #fe />
+              </div>
+              <div>
+                <label>Boranium (kT)</label>
+                <input type="number" min="0" placeholder="0" #bo />
+              </div>
+              <div>
+                <label>Germanium (kT)</label>
+                <input type="number" min="0" placeholder="0" #ge />
+              </div>
+              <div>
+                <label>Colonists</label>
+                <input type="number" min="0" placeholder="0" #col />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--space-md)">
+              <button (click)="load(fe.value, bo.value, ge.value, col.value)" class="btn-primary">Load</button>
+              <button (click)="unload(fe.value, bo.value, ge.value, col.value)" class="btn-primary">Unload</button>
+              <button (click)="loadFill()" class="btn-success">Load to Fill</button>
+              <button (click)="unloadAll()" class="btn-danger">Unload All</button>
+            </div>
           </div>
         </div>
       </section>
     </main>
     <ng-template #missing>
-      <main style="padding:1rem">
+      <main style="padding:var(--space-lg)">
         <h2>Fleet not found</h2>
       </main>
     </ng-template>

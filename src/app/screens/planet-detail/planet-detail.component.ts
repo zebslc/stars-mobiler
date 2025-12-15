@@ -10,25 +10,24 @@ import { Planet } from '../../models/game.model';
   selector: 'app-planet-detail',
   imports: [CommonModule],
   template: `
-    <main *ngIf="planet; else missing" style="padding:1rem">
-      <header
-        style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;background:#1a1a2e;padding:1rem;color:#fff;border-radius:4px"
-      >
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="display:flex;gap:0.5rem;align-items:center">
+    <main *ngIf="planet; else missing" style="padding:var(--space-lg)">
+      <header class="card-header" style="display:flex;flex-direction:column;gap:var(--space-md);margin-bottom:var(--space-lg)">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap">
+          <div style="display:flex;gap:var(--space-md);align-items:center">
             <button
               (click)="back()"
-              style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:0.25rem 0.5rem;border-radius:4px;cursor:pointer"
+              class="btn-small"
+              style="background:rgba(255,255,255,0.2);color:#fff;border:none"
             >
               ← Back
             </button>
-            <h2 style="margin:0;font-size:1.4rem">{{ planet.name }}</h2>
+            <h2>{{ planet.name }}</h2>
           </div>
 
-          <div style="display:flex;gap:1rem;align-items:center">
+          <div style="display:flex;gap:var(--space-lg);align-items:center;flex-wrap:wrap">
             <div style="text-align:right">
-              <div style="font-size:0.8rem;opacity:0.8">Owner</div>
-              <div style="font-weight:bold">
+              <div class="text-xs" style="opacity:0.8">Owner</div>
+              <div class="font-bold">
                 {{
                   planet.ownerId === gs.player()?.id ? 'You' : planet.ownerId ? 'Enemy' : 'Unowned'
                 }}
@@ -36,7 +35,7 @@ import { Planet } from '../../models/game.model';
             </div>
             <button
               (click)="endTurn()"
-              style="background:#27ae60;color:#fff;border:none;padding:0.5rem 1rem;border-radius:4px;font-weight:bold;cursor:pointer"
+              class="btn-success"
             >
               End Turn ▶
             </button>
@@ -45,13 +44,13 @@ import { Planet } from '../../models/game.model';
 
         <ng-container *ngIf="planet.ownerId === gs.player()?.id">
           <div
-            style="display:flex;gap:0.5rem;align-items:center;background:rgba(255,255,255,0.1);padding:0.5rem;border-radius:4px;margin-top:0.25rem"
+            style="display:flex;gap:var(--space-md);align-items:stretch;background:rgba(255,255,255,0.1);padding:var(--space-md);border-radius:var(--radius-md);flex-wrap:wrap"
           >
-            <label style="font-weight:bold;font-size:0.9rem;white-space:nowrap">Governor:</label>
+            <label style="font-weight:bold;white-space:nowrap;color:#fff;align-self:center;margin:0">Governor:</label>
             <select
               [value]="planet.governor?.type ?? 'manual'"
               (change)="onGovernorType($event)"
-              style="background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:0.25rem;border-radius:2px;flex-grow:1;font-size:0.9rem"
+              style="background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3);flex-grow:1;min-width:200px"
             >
               <option value="manual">Manual Control</option>
               <option value="balanced">Balanced (Auto-build all)</option>
@@ -64,14 +63,14 @@ import { Planet } from '../../models/game.model';
 
           <div
             *ngIf="planet.governor?.type === 'shipyard'"
-            style="display:flex;gap:0.5rem;align-items:center;background:rgba(46, 134, 222, 0.2);padding:0.5rem;border-radius:4px;font-size:0.85rem"
+            style="display:flex;gap:var(--space-md);align-items:end;background:rgba(46, 134, 222, 0.2);padding:var(--space-md);border-radius:var(--radius-md);flex-wrap:wrap"
           >
-            <div style="flex-grow:1">
-              <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Auto-Design</label>
+            <div style="flex-grow:1;min-width:150px">
+              <label style="color:#fff;opacity:0.9">Auto-Design</label>
               <select
                 [value]="shipyardDesign"
                 (change)="onShipyardDesignChange($event)"
-                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
+                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3)"
               >
                 <option value="scout">Scout</option>
                 <option value="frigate">Frigate</option>
@@ -82,138 +81,132 @@ import { Planet } from '../../models/game.model';
                 <option value="settler">Colony Ship</option>
               </select>
             </div>
-            <div style="width:60px">
-              <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Limit</label>
+            <div style="width:100px">
+              <label style="color:#fff;opacity:0.9">Build Limit</label>
               <input
                 type="number"
                 [value]="shipyardLimit"
                 (input)="onShipyardLimit($event)"
-                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
+                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3)"
                 placeholder="∞"
               />
             </div>
           </div>
         </ng-container>
       </header>
-      <section style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;font-size:0.9em">
-        <div style="flex:1;min-width:280px;background:#f9f9f9;padding:0.75rem;border-radius:4px">
-          <h3
-            style="margin:0 0 0.5rem 0;font-size:1em;border-bottom:1px solid #ddd;padding-bottom:0.25rem"
-          >
+      <section style="display:flex;flex-wrap:wrap;gap:var(--space-lg)">
+        <div class="card" style="flex:1;min-width:280px">
+          <h3 style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border)">
             Vital Statistics
           </h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
             <div>
-              <div style="color:#666">Habitability</div>
-              <div style="font-weight:bold">{{ habitability() }}%</div>
+              <div class="text-small text-muted">Habitability</div>
+              <div class="font-bold">{{ habitability() }}%</div>
             </div>
             <div>
-              <div style="color:#666">Population</div>
+              <div class="text-small text-muted">Population</div>
               <div>{{ planet.population | number }}</div>
               <div
-                [style.color]="projectionDelta() >= 0 ? '#2ecc71' : '#e74c3c'"
-                style="font-size:0.85em"
+                [style.color]="projectionDelta() >= 0 ? 'var(--color-success)' : 'var(--color-danger)'"
+                class="text-small"
               >
                 {{ projectionDelta() >= 0 ? '+' : '' }}{{ projectionDelta() | number }}
               </div>
             </div>
             <div>
-              <div style="color:#666">Mines</div>
-              <div>{{ planet.mines }}</div>
+              <div class="text-small text-muted">Mines</div>
+              <div class="font-medium">{{ planet.mines }}</div>
             </div>
             <div>
-              <div style="color:#666">Factories</div>
-              <div>{{ planet.factories }}</div>
+              <div class="text-small text-muted">Factories</div>
+              <div class="font-medium">{{ planet.factories }}</div>
             </div>
           </div>
         </div>
 
-        <div style="flex:1;min-width:280px;background:#f9f9f9;padding:0.75rem;border-radius:4px">
-          <h3
-            style="margin:0 0 0.5rem 0;font-size:1em;border-bottom:1px solid #ddd;padding-bottom:0.25rem"
-          >
+        <div class="card" style="flex:1;min-width:280px">
+          <h3 style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border)">
             Resources
           </h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;text-align:center">
-            <div style="background:#e0e0e0;padding:0.25rem;border-radius:2px">
-              <div style="font-weight:bold;color:#2c3e50">Iron</div>
-              <div style="font-size:1.1em">{{ planet.surfaceMinerals.iron }}</div>
-              <div style="font-size:0.75em;color:#666">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-md);text-align:center">
+            <div style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)">
+              <div class="font-bold" style="color:var(--color-iron)">Iron</div>
+              <div class="font-medium" style="font-size:var(--font-size-lg)">{{ planet.surfaceMinerals.iron }}</div>
+              <div class="text-xs text-muted">
                 {{ planet.mineralConcentrations.iron }}%
               </div>
             </div>
-            <div style="background:#e0e0e0;padding:0.25rem;border-radius:2px">
-              <div style="font-weight:bold;color:#27ae60">Boranium</div>
-              <div style="font-size:1.1em">{{ planet.surfaceMinerals.boranium }}</div>
-              <div style="font-size:0.75em;color:#666">
+            <div style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)">
+              <div class="font-bold" style="color:var(--color-boranium)">Boranium</div>
+              <div class="font-medium" style="font-size:var(--font-size-lg)">{{ planet.surfaceMinerals.boranium }}</div>
+              <div class="text-xs text-muted">
                 {{ planet.mineralConcentrations.boranium }}%
               </div>
             </div>
-            <div style="background:#e0e0e0;padding:0.25rem;border-radius:2px">
-              <div style="font-weight:bold;color:#f39c12">Germanium</div>
-              <div style="font-size:1.1em">{{ planet.surfaceMinerals.germanium }}</div>
-              <div style="font-size:0.75em;color:#666">
+            <div style="background:var(--color-bg-tertiary);padding:var(--space-md);border-radius:var(--radius-sm)">
+              <div class="font-bold" style="color:var(--color-germanium)">Germanium</div>
+              <div class="font-medium" style="font-size:var(--font-size-lg)">{{ planet.surfaceMinerals.germanium }}</div>
+              <div class="text-xs text-muted">
                 {{ planet.mineralConcentrations.germanium }}%
               </div>
             </div>
           </div>
-          <div style="margin-top:0.5rem;text-align:center;font-size:0.9em;color:#555">
-            Producing <span style="font-weight:bold">{{ resourcesPerTurn }}</span> resources / turn
+          <div class="text-small text-muted" style="margin-top:var(--space-md);text-align:center">
+            Producing <span class="font-bold" style="color:var(--color-text-primary)">{{ resourcesPerTurn }}</span> resources / turn
           </div>
         </div>
       </section>
-      <hr />
+      <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
       <section *ngIf="planet.ownerId === gs.player()?.id">
-        <h3 style="margin-bottom:0.5rem">Build Queue</h3>
-        <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
-          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;width:100%">
+        <h3 style="margin-bottom:var(--space-lg)">Build Queue</h3>
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg)">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-md)">
             <button
               (click)="queue('mine')"
               [disabled]="!canAfford('mine')"
-              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer;opacity:1"
-              [style.opacity]="canAfford('mine') ? 1 : 0.5"
+              class="btn-dark"
+              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
-              <div style="font-weight:bold;font-size:0.9rem">Mine</div>
-              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">5 R</div>
+              <div class="font-bold">Mine</div>
+              <div class="text-xs" style="opacity:0.8">5 R</div>
             </button>
             <button
               (click)="queue('factory')"
               [disabled]="!canAfford('factory')"
-              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
-              [style.opacity]="canAfford('factory') ? 1 : 0.5"
+              class="btn-dark"
+              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
-              <div style="font-weight:bold;font-size:0.9rem">Factory</div>
-              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">10 R, 4 Ge</div>
+              <div class="font-bold">Factory</div>
+              <div class="text-xs" style="opacity:0.8">10 R, 4 Ge</div>
             </button>
             <button
               (click)="queue('defense')"
               [disabled]="!canAfford('defense')"
-              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
-              [style.opacity]="canAfford('defense') ? 1 : 0.5"
+              class="btn-dark"
+              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
-              <div style="font-weight:bold;font-size:0.9rem">Defense</div>
-              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">15 R, 2 Fe, 2 Bo</div>
+              <div class="font-bold">Defense</div>
+              <div class="text-xs" style="opacity:0.8">15 R, 2 Fe, 2 Bo</div>
             </button>
             <button
               (click)="queue('terraform')"
               [disabled]="!canAfford('terraform')"
-              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
-              [style.opacity]="canAfford('terraform') ? 1 : 0.5"
+              class="btn-dark"
+              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
-              <div style="font-weight:bold;font-size:0.9rem">Terraform</div>
-              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">25 R, 5 Ge</div>
+              <div class="font-bold">Terraform</div>
+              <div class="text-xs" style="opacity:0.8">25 R, 5 Ge</div>
             </button>
           </div>
 
-          <div
-            style="display:flex;flex-direction:column;gap:0.5rem;width:100%;background:#e3f2fd;padding:0.75rem;border-radius:4px;border:1px solid #90caf9"
-          >
-            <span style="font-weight:bold;color:#1565c0;font-size:0.9rem">Ship Construction</span>
-            <div style="display:flex;gap:0.5rem">
+          <div style="background:var(--color-primary-light);padding:var(--space-lg);border-radius:var(--radius-md);border:1px solid var(--color-primary)">
+            <div class="font-bold" style="color:var(--color-primary-dark);margin-bottom:var(--space-md)">Ship Construction</div>
+            <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
               <select
                 [value]="selectedDesign"
                 (change)="onDesignChange($event)"
-                style="flex-grow:1;padding:0.5rem;min-height:44px;font-size:0.95rem;width:0;border:1px solid #90caf9;border-radius:4px;background:#fff"
+                style="flex-grow:1;min-width:200px"
               >
                 <option value="scout">Scout (20R 5Fe)</option>
                 <option value="frigate">Frigate (40R 10Fe 5Bo)</option>
@@ -226,42 +219,51 @@ import { Planet } from '../../models/game.model';
               <button
                 (click)="queue('ship')"
                 [disabled]="!canAfford('ship')"
-                style="padding:0.5rem 1rem;min-height:44px;font-weight:bold;white-space:nowrap;background:#1565c0;color:#fff;border:none;border-radius:4px;cursor:pointer"
-                [style.opacity]="canAfford('ship') ? 1 : 0.5"
+                class="btn-primary"
+                style="white-space:nowrap"
               >
-                Build
+                Build Ship
               </button>
             </div>
           </div>
         </div>
         <div
           *ngIf="(planet.buildQueue?.length ?? 0) > 0"
-          style="background:#fff;border:1px solid #ddd;border-radius:4px;overflow:hidden;margin-top:0.5rem"
+          style="background:var(--color-bg-primary);border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;margin-top:var(--space-lg)"
         >
           <div
             *ngFor="let it of planet.buildQueue ?? []; let i = index"
-            style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;border-bottom:1px solid #eee"
-            [style.background]="i === 0 ? '#f0fff4' : '#fff'"
+            style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-lg);border-bottom:1px solid var(--color-border-light)"
+            [style.background]="i === 0 ? 'var(--color-success-light)' : 'var(--color-bg-primary)'"
           >
-            <div [style.color]="queueColor(it, i)" style="font-weight:500;font-size:0.95rem">
-              <span style="display:inline-block;width:20px;color:#999;font-size:0.8em">{{
+            <div style="font-weight:500">
+              <span class="text-small text-muted" style="display:inline-block;width:24px">{{
                 i + 1
               }}</span>
-              {{ it.project | titlecase }}
+              <span style="color:var(--color-text-primary)">{{ it.project | titlecase }}</span>
               <span
                 *ngIf="it.project === 'ship' && it.shipDesignId"
-                style="color:#666;font-size:0.9em"
+                class="text-small text-muted"
+                style="margin-left:var(--space-xs)"
                 >({{ it.shipDesignId }})</span
               >
-            </div>
-            <div style="display:flex;align-items:center;gap:0.75rem">
               <span
-                style="font-size:0.85em;color:#666;font-family:monospace;background:#f5f5f5;padding:2px 6px;border-radius:3px"
+                *ngIf="queueColor(it, i) === 'var(--color-danger)'"
+                class="text-xs"
+                style="margin-left:var(--space-sm);color:var(--color-danger)"
+                >⚠ Cannot afford</span
+              >
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-md)">
+              <span
+                class="text-small font-medium"
+                style="font-family:monospace;background:var(--color-bg-tertiary);padding:var(--space-xs) var(--space-sm);border-radius:var(--radius-sm);color:var(--color-text-primary)"
                 >{{ it.cost.resources }}R</span
               >
               <button
                 (click)="remove(i)"
-                style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:#ffebee;color:#c0392b;border:none;border-radius:4px;font-size:1.2rem;cursor:pointer"
+                class="btn-icon btn-small"
+                style="background:var(--color-danger-light);color:var(--color-danger);font-size:var(--font-size-xl)"
               >
                 ×
               </button>
@@ -271,39 +273,37 @@ import { Planet } from '../../models/game.model';
       </section>
 
       <section *ngIf="planet.ownerId !== gs.player()?.id">
-        <h3 style="margin-bottom:0.5rem">Colonization</h3>
+        <h3 style="margin-bottom:var(--space-lg)">Colonization</h3>
         <div *ngIf="availableColonizers().length > 0; else noColonizers">
           <div
             *ngFor="let f of availableColonizers()"
-            style="display:flex;justify-content:space-between;align-items:center;background:#e8f5e9;padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;border:1px solid #c8e6c9"
+            style="display:flex;justify-content:space-between;align-items:center;background:var(--color-success-light);padding:var(--space-lg);border-radius:var(--radius-md);margin-bottom:var(--space-md);border:1px solid var(--color-success);gap:var(--space-md);flex-wrap:wrap"
           >
             <div>
-              <strong>Fleet {{ f.id }}</strong>
-              <div style="font-size:0.85em;color:#2e7d32">Has Colony Ship</div>
+              <div class="font-bold">Fleet {{ f.id }}</div>
+              <div class="text-small" style="color:var(--color-success)">Has Colony Ship</div>
             </div>
             <button
               (click)="sendColonizer(f.id)"
-              style="background:#2ecc71;color:#fff;border:none;padding:0.5rem 1rem;border-radius:4px;font-weight:bold;cursor:pointer"
+              class="btn-success"
             >
               Send to Colonize
             </button>
           </div>
         </div>
         <ng-template #noColonizers>
-          <div
-            style="padding:1rem;background:#f5f5f5;color:#666;border-radius:4px;text-align:center"
-          >
+          <div class="card text-muted" style="text-align:center">
             No available colony ships nearby.
           </div>
         </ng-template>
       </section>
-      <hr />
+      <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
       <section>
-        <button (click)="endTurn()">End Turn ▶</button>
+        <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
       </section>
     </main>
     <ng-template #missing>
-      <main style="padding:1rem">
+      <main style="padding:var(--space-lg)">
         <h2>Planet not found</h2>
       </main>
     </ng-template>
@@ -505,8 +505,8 @@ export class PlanetDetailComponent {
   }
 
   queueColor(item: any, index: number): string {
-    // Green: first item will be built next turn
-    if (index === 0) return '#2ecc71';
+    // First item will be built next turn (handled by background color)
+    if (index === 0) return 'inherit';
     // Red: cannot be built with current stockpile across empire
     const game = this.gs.game();
     if (!game) return 'inherit';
@@ -535,7 +535,7 @@ export class PlanetDetailComponent {
         .reduce((sum, p) => sum + p.surfaceMinerals.germanium, 0);
     const cannot =
       haveR < neededR || empireFe < neededFe || empireBo < neededBo || empireGe < neededGe;
-    return cannot ? '#e74c3c' : 'inherit';
+    return cannot ? 'var(--color-danger)' : 'inherit';
   }
 
   projectionDelta(): number {

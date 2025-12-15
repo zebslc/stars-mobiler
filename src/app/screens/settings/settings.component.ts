@@ -10,45 +10,48 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   selector: 'app-settings',
   template: `
-    <main style="padding:1rem">
-      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <main style="padding:var(--space-lg)">
+      <header class="card-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xl);gap:var(--space-lg);flex-wrap:wrap">
         <h2>Settings</h2>
-        <button (click)="back()">Back</button>
+        <button (click)="back()" class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;border:none">← Back</button>
       </header>
-      
-      <section style="display:flex;flex-direction:column;gap:1.5rem">
-        <div style="border:1px solid #ccc;padding:1rem;border-radius:4px">
-          <h3>Interface</h3>
-          <label style="display:flex;gap:0.5rem;align-items:center;margin-top:0.5rem">
-            <input 
-              type="checkbox" 
-              [ngModel]="settings.showMapControls()" 
+
+      <section style="display:flex;flex-direction:column;gap:var(--space-xl);max-width:600px">
+        <div class="card">
+          <h3 style="margin-bottom:var(--space-lg)">Interface</h3>
+          <label style="display:flex;gap:var(--space-md);align-items:center;cursor:pointer">
+            <input
+              type="checkbox"
+              [ngModel]="settings.showMapControls()"
               (ngModelChange)="settings.toggleMapControls($event)"
             />
-            Show Map Overlay Controls (Zoom/Pan)
+            <span class="font-medium">Show Map Overlay Controls (Zoom/Pan)</span>
           </label>
+          <p class="text-small text-muted" style="margin-top:var(--space-sm);margin-left:calc(var(--touch-target-min) + var(--space-md))">
+            Display zoom and pan controls on the galaxy map
+          </p>
         </div>
 
-        <div style="border:1px solid #ccc;padding:1rem;border-radius:4px">
-          <h3>Automation</h3>
-          <label style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.5rem">
-            <span>Default Governor for New Planets:</span>
-            <select 
-              [ngModel]="settings.defaultGovernor()" 
+        <div class="card">
+          <h3 style="margin-bottom:var(--space-lg)">Automation</h3>
+          <div>
+            <label>Default Governor for New Planets</label>
+            <select
+              [ngModel]="settings.defaultGovernor()"
               (ngModelChange)="settings.setDefaultGovernor($event)"
-              style="padding:0.5rem"
+              style="width:100%"
             >
-              <option value="manual">Manual</option>
-              <option value="balanced">Balanced</option>
-              <option value="mining">Mining</option>
-              <option value="industrial">Industrial</option>
-              <option value="military">Military</option>
-              <option value="shipyard">Shipyard</option>
+              <option value="manual">Manual Control</option>
+              <option value="balanced">Balanced (Auto-build all)</option>
+              <option value="mining">Mining (Focus Mines)</option>
+              <option value="industrial">Industrial (Focus Factories)</option>
+              <option value="military">Military (Focus Defenses)</option>
+              <option value="shipyard">Shipyard (Auto-build Ships)</option>
             </select>
-          </label>
-          <p style="font-size:0.9rem;color:#666;margin-top:0.5rem">
-            Newly colonized or conquered planets will automatically be assigned this governor.
-          </p>
+            <p class="text-small text-muted" style="margin-top:var(--space-sm)">
+              Newly colonized or conquered planets will automatically be assigned this governor.
+            </p>
+          </div>
         </div>
       </section>
     </main>

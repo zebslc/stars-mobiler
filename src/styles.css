@@ -1,13 +1,230 @@
 :root {
   color-scheme: light dark;
+
+  /* Color System */
+  --color-primary: #2e86de;
+  --color-primary-dark: #1565c0;
+  --color-primary-light: #e3f2fd;
+
+  --color-success: #27ae60;
+  --color-success-light: #e8f5e9;
+
+  --color-danger: #e74c3c;
+  --color-danger-light: #ffebee;
+
+  --color-warning: #f39c12;
+  --color-warning-light: #fff8e1;
+
+  --color-enemy: #d63031;
+  --color-neutral: #95a5a6;
+
+  --color-text-primary: #2c3e50;
+  --color-text-secondary: #555;
+  --color-text-muted: #7f8c8d;
+  --color-text-inverse: #fff;
+
+  --color-bg-primary: #fff;
+  --color-bg-secondary: #f9f9f9;
+  --color-bg-tertiary: #f5f5f5;
+  --color-bg-dark: #1a1a2e;
+
+  --color-border: #ddd;
+  --color-border-light: #eee;
+
+  /* Mineral Colors */
+  --color-iron: #2c3e50;
+  --color-boranium: #27ae60;
+  --color-germanium: #f39c12;
+
+  /* Typography Scale */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+  --line-height-loose: 1.75;
+
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+
+  /* Border Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+  /* Touch Targets */
+  --touch-target-min: 44px;
 }
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.4;
+  line-height: var(--line-height-base);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
 }
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-bold);
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+}
+
+/* Button System */
 button {
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-md) var(--space-lg);
   font: inherit;
+  font-size: var(--font-size-base);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  min-height: var(--touch-target-min);
+  font-weight: var(--font-weight-medium);
+  transition: opacity 0.2s, background-color 0.2s;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+button:active:not(:disabled) {
+  opacity: 0.8;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+button.btn-success {
+  background: var(--color-success);
+  color: var(--color-text-inverse);
+}
+
+button.btn-danger {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+
+button.btn-dark {
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
+}
+
+button.btn-small {
+  padding: var(--space-sm) var(--space-md);
+  min-height: 36px;
+  font-size: var(--font-size-sm);
+}
+
+button.btn-icon {
+  padding: var(--space-sm);
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Input System */
+input, select, textarea {
+  font: inherit;
+  font-size: var(--font-size-base);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  min-height: var(--touch-target-min);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+select {
+  cursor: pointer;
+}
+
+/* Form Labels */
+label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+/* Card System */
+.card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+.card-header {
+  background: var(--color-bg-dark);
+  color: var(--color-text-inverse);
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+}
+
+/* Utility Classes */
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-small {
+  font-size: var(--font-size-sm);
+}
+
+.text-xs {
+  font-size: var(--font-size-xs);
+}
+
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-medium);
 }
 

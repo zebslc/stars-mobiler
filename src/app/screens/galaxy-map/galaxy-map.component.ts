@@ -11,21 +11,21 @@ import { getDesign } from '../../data/ships.data';
   selector: 'app-galaxy-map',
   template: `
     <main
-      style="padding:0.5rem; height: 100vh; display: flex; flex-direction: column; overflow: hidden;"
+      style="padding:var(--space-md); height: 100vh; display: flex; flex-direction: column; overflow: hidden;"
     >
       <ng-container *ngIf="stars().length > 0; else empty">
         <header
-          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem; flex-shrink: 0;"
+          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md); flex-shrink: 0;gap:var(--space-md);flex-wrap:wrap;background:var(--color-bg-secondary);padding:var(--space-md);border-radius:var(--radius-md)"
         >
-          <div style="display:flex;gap:1rem;align-items:center">
-            <strong>Turn {{ turn() }}</strong>
-            <span *ngIf="gs.playerEconomy() as econ"
-              >Res: {{ econ.resources | number: '1.0-0' }}</span
-            >
+          <div style="display:flex;gap:var(--space-lg);align-items:center">
+            <div class="font-bold">Turn {{ turn() }}</div>
+            <div *ngIf="gs.playerEconomy() as econ" class="text-small text-muted">
+              Resources: <span class="font-medium" style="color:var(--color-text-primary)">{{ econ.resources | number: '1.0-0' }}</span>
+            </div>
           </div>
-          <div style="display:flex;gap:0.5rem">
+          <div style="display:flex;gap:var(--space-md)">
             <button (click)="openSettings()">Settings</button>
-            <button (click)="endTurn()">End Turn ▶</button>
+            <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
           </div>
         </header>
 
@@ -271,39 +271,40 @@ import { getDesign } from '../../data/ships.data';
 
         <section
           *ngIf="selectedStar"
-          style="margin-top:0.5rem;border-top:1px solid #ddd;padding-top:0.5rem; flex-shrink: 0;"
+          style="margin-top:var(--space-md);border-top:1px solid var(--color-border);padding-top:var(--space-md); flex-shrink: 0;background:var(--color-bg-secondary);padding:var(--space-lg);border-radius:var(--radius-md)"
         >
           <ng-container *ngIf="selectedStar.planets[0] as p">
             <div
-              style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem"
+              style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);gap:var(--space-md)"
             >
-              <strong style="font-size:1.1rem">{{ p.name }}</strong>
+              <h3>{{ p.name }}</h3>
               <span
+                class="font-medium"
                 [style.color]="
-                  p.ownerId === gs.player()?.id ? '#2e86de' : p.ownerId ? '#d63031' : '#7f8c8d'
+                  p.ownerId === gs.player()?.id ? 'var(--color-primary)' : p.ownerId ? 'var(--color-enemy)' : 'var(--color-neutral)'
                 "
               >
                 {{ planetOwner(p.ownerId) }}
               </span>
             </div>
 
-            <div style="display:flex;gap:1rem;font-size:0.9rem;color:#555;margin-bottom:0.5rem">
-              <span
-                >Habitability: <strong>{{ gs.habitabilityFor(p.id) }}%</strong></span
-              >
+            <div class="text-small text-muted" style="margin-bottom:var(--space-md)">
+              Habitability: <span class="font-bold" style="color:var(--color-text-primary)">{{ gs.habitabilityFor(p.id) }}%</span>
             </div>
 
-            <div style="display:flex;gap:0.5rem">
+            <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
               <button
                 (click)="openPlanet(p.id)"
-                style="flex:1;padding:0.5rem;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
+                class="btn-dark"
+                style="flex:1;min-width:120px"
               >
                 View Surface
               </button>
               <button
                 *ngIf="selectedFleetId && canTravelTo(selectedStar)"
                 (click)="travelTo(selectedStar)"
-                style="flex:1;padding:0.5rem;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer"
+                class="btn-success"
+                style="flex:1;min-width:120px"
               >
                 Travel Here
               </button>
@@ -312,20 +313,20 @@ import { getDesign } from '../../data/ships.data';
 
           <div
             *ngIf="fleetsAtStar(selectedStar).length > 0"
-            style="margin-top:0.75rem;border-top:1px solid #eee;padding-top:0.5rem"
+            style="margin-top:var(--space-lg);border-top:1px solid var(--color-border-light);padding-top:var(--space-md)"
           >
-            <div style="font-size:0.9rem;font-weight:bold;margin-bottom:0.25rem">
+            <div class="font-bold" style="margin-bottom:var(--space-md)">
               Fleets in Orbit
             </div>
-            <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <div style="display:flex;flex-direction:column;gap:var(--space-md)">
               <div
                 *ngFor="let f of fleetsAtStar(selectedStar)"
-                style="display:flex;justify-content:space-between;align-items:center;background:#f9f9f9;padding:0.5rem;border-radius:4px"
+                style="display:flex;justify-content:space-between;align-items:center;background:var(--color-bg-primary);padding:var(--space-md);border-radius:var(--radius-md);gap:var(--space-md);flex-wrap:wrap"
               >
-                <span style="font-size:0.9rem">Fleet {{ f.id }} ({{ totalShips(f) }} ships)</span>
-                <div style="display:flex;gap:0.5rem">
-                  <button (click)="openFleet(f.id)" style="padding:0.25rem 0.5rem">View</button>
-                  <button (click)="selectFleet(f.id)" style="padding:0.25rem 0.5rem">Select</button>
+                <span class="font-medium">Fleet {{ f.id }} <span class="text-small text-muted">({{ totalShips(f) }} ships)</span></span>
+                <div style="display:flex;gap:var(--space-sm)">
+                  <button (click)="openFleet(f.id)" class="btn-small">View</button>
+                  <button (click)="selectFleet(f.id)" class="btn-small btn-primary">Select</button>
                 </div>
               </div>
             </div>
@@ -333,11 +334,11 @@ import { getDesign } from '../../data/ships.data';
         </section>
       </ng-container>
       <ng-template #empty>
-        <section style="padding:1rem;display:grid;place-items:center;height:70vh">
-          <div style="display:grid;gap:0.75rem;justify-items:center">
+        <section style="padding:var(--space-lg);display:grid;place-items:center;height:70vh">
+          <div class="card" style="display:grid;gap:var(--space-lg);justify-items:center;text-align:center;max-width:400px">
             <h2>No game loaded</h2>
-            <p>Start a new game to generate a galaxy.</p>
-            <button (click)="newGame()">Start New Game</button>
+            <p class="text-muted">Start a new game to generate a galaxy and begin your conquest.</p>
+            <button (click)="newGame()" class="btn-primary">Start New Game</button>
           </div>
         </section>
       </ng-template>
