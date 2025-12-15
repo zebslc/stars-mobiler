@@ -8,5 +8,9 @@ export const appRoutes: Routes = [
   {
     path: 'map',
     loadComponent: () => import('./screens/galaxy-map/galaxy-map.component').then(m => m.GalaxyMapComponent)
+  },
+  {
+    path: 'planet/:id',
+    loadComponent: () => import('./screens/planet-detail/planet-detail.component').then(m => m.PlanetDetailComponent)
   }
 ];

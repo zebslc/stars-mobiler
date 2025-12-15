@@ -10,7 +10,9 @@ import { Star } from '../../models/game.model';
   template: `
     <main style="padding:0.5rem">
       <ng-container *ngIf="stars().length > 0; else empty">
-        <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+        <header
+          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem"
+        >
           <div>Turn {{ turn() }}</div>
           <div style="display:flex;gap:0.5rem">
             <button disabled>End Turn ▶</button>
@@ -18,15 +20,20 @@ import { Star } from '../../models/game.model';
           </div>
         </header>
         <section style="border:1px solid #ccc">
-          <svg [attr.viewBox]="'0 0 1000 1000'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:70vh">
+          <svg
+            [attr.viewBox]="'0 0 1000 1000'"
+            preserveAspectRatio="xMidYMid meet"
+            style="width:100%;height:70vh"
+          >
             <ng-container *ngFor="let star of stars()">
-              <circle 
-                [attr.cx]="star.position.x" 
-                [attr.cy]="star.position.y" 
-                r="6" 
-                [attr.fill]="colorForStar(star)" 
-                stroke="#000" 
+              <circle
+                [attr.cx]="star.position.x"
+                [attr.cy]="star.position.y"
+                r="6"
+                [attr.fill]="colorForStar(star)"
+                stroke="#000"
                 stroke-width="0.5"
+                (click)="openFirstPlanet(star)"
               />
             </ng-container>
           </svg>
@@ -44,7 +51,7 @@ import { Star } from '../../models/game.model';
     </main>
   `,
   imports: [CommonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GalaxyMapComponent {
   private gs = inject(GameStateService);
@@ -63,5 +70,12 @@ export class GalaxyMapComponent {
 
   newGame() {
     this.router.navigateByUrl('/');
+  }
+
+  openFirstPlanet(star: Star) {
+    const p = star.planets.find((pl) => pl.ownerId === this.gs.player()?.id) ?? star.planets[0];
+    if (p) {
+      this.router.navigateByUrl(`/planet/${p.id}`);
+    }
   }
 }

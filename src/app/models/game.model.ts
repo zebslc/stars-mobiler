@@ -15,6 +15,7 @@ export interface GameState {
   humanPlayer: Player;
   aiPlayers: AIPlayer[];
   fleets: Fleet[];
+  playerEconomy: PlayerEconomy;
 }
 
 export interface Player {
@@ -53,6 +54,8 @@ export interface Planet {
   factories: number;
   defenses: number;
   terraformOffset: { temperature: number; atmosphere: number };
+  buildQueue?: BuildItem[];
+  governor?: PlanetGovernor;
 }
 
 export interface Species {
@@ -77,3 +80,28 @@ export type Fleet = {
   location: { type: 'orbit'; planetId: string } | { type: 'space'; x: number; y: number };
 };
 
+export interface PlayerEconomy {
+  resources: number;
+  minerals: { iron: number; boranium: number; germanium: number };
+  transferRange: number;
+  freighterCapacity: number;
+}
+
+export type BuildProject = 'mine' | 'factory' | 'defense' | 'terraform' | 'ship';
+export interface BuildItem {
+  project: BuildProject;
+  cost: { resources: number; iron?: number; boranium?: number; germanium?: number };
+}
+
+export type GovernorType =
+  | 'balanced'
+  | 'mining'
+  | 'industrial'
+  | 'military'
+  | 'shipyard'
+  | 'manual';
+export interface PlanetGovernor {
+  type: GovernorType;
+  shipDesignId?: string;
+  buildLimit?: number;
+}
