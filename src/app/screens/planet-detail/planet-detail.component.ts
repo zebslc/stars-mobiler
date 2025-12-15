@@ -100,6 +100,7 @@ import { Planet } from '../../models/game.model';
               <option value="scout">Scout</option>
               <option value="frigate">Frigate</option>
               <option value="destroyer">Destroyer</option>
+              <option value="settler">Colony Ship</option>
             </select>
             <button (click)="queue('ship')" [disabled]="!canAfford('ship')">+ Build Ship</button>
           </span>
@@ -129,6 +130,7 @@ import { Planet } from '../../models/game.model';
               <option value="scout">Scout</option>
               <option value="frigate">Frigate</option>
               <option value="destroyer">Destroyer</option>
+              <option value="settler">Colony Ship</option>
             </select>
             Limit:
             <input
@@ -220,7 +222,11 @@ export class PlanetDetailComponent {
             ? { project, cost: { resources: 15, iron: 2, boranium: 2 } }
             : project === 'terraform'
               ? { project, cost: { resources: 25, germanium: 5 } }
-              : ({ project: 'ship', cost: this.getShipCost(this.selectedDesign) } as any);
+              : ({
+                  project: 'ship',
+                  cost: this.getShipCost(this.selectedDesign),
+                  shipDesignId: this.selectedDesign,
+                } as any);
     const ok = this.gs.addToBuildQueue(this.planet.id, item);
     if (!ok) {
       alert('Insufficient stockpile for this project');

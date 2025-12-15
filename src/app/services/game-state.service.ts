@@ -269,7 +269,7 @@ export class GameStateService {
           const queuedShips = (planet.buildQueue ?? []).filter((i) => i.project === 'ship').length;
           if (limit === 0 || queuedShips < limit) {
             const cost = this.getShipCost(designId);
-            this.addToBuildQueue(planet.id, { project: 'ship', cost });
+            this.addToBuildQueue(planet.id, { project: 'ship', cost, shipDesignId: designId });
           }
           break;
         }
@@ -407,6 +407,8 @@ export class GameStateService {
         return { resources: 40, iron: 10, boranium: 5 };
       case 'destroyer':
         return { resources: 60, iron: 15, boranium: 10, germanium: 5 };
+      case 'settler':
+        return { resources: 80, iron: 10, boranium: 10, germanium: 8 };
       default:
         return { resources: 25, iron: 5 };
     }

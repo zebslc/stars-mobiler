@@ -46,36 +46,88 @@ import { Star } from '../../models/game.model';
               />
             </ng-container>
             <ng-template #starsOnly></ng-template>
+            <!-- Draw fleets first so stars remain clickable on top -->
+            <ng-container *ngFor="let fleet of gs.game()?.fleets ?? []">
+              <ng-container [ngSwitch]="fleet.location.type">
+                <ng-container *ngSwitchCase="'orbit'">
+                  <ng-container *ngIf="fleetOrbitPosition(fleet) as pos">
+                    <rect
+                      [attr.x]="pos.x - 5"
+                      [attr.y]="pos.y - 5"
+                      width="10"
+                      height="10"
+                      [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
+                      [attr.stroke]="'#000'"
+                      [attr.stroke-width]="0.5"
+                      [attr.transform]="'rotate(45 ' + pos.x + ' ' + pos.y + ')'"
+                      (click)="openFleet(fleet.id)"
+                    />
+                  </ng-container>
+                </ng-container>
+                <ng-container *ngSwitchCase="'space'">
+                  <rect
+                    [attr.x]="fleet.location.x - 5"
+                    [attr.y]="fleet.location.y - 5"
+                    width="10"
+                    height="10"
+                    [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
+                    [attr.stroke]="'#000'"
+                    [attr.stroke-width]="0.5"
+                    (click)="openFleet(fleet.id)"
+                  />
+                </ng-container>
+              </ng-container>
+            </ng-container>
+            <!-- Draw stars on top for clear selection -->
             <ng-container *ngFor="let star of stars()">
               <circle
                 [attr.cx]="star.position.x"
                 [attr.cy]="star.position.y"
-                r="6"
+                r="7"
                 [attr.fill]="colorForStar(star)"
                 [attr.stroke]="isIsolated(star) ? '#e67e22' : '#000'"
-                [attr.stroke-width]="isIsolated(star) ? 1.2 : 0.5"
-                (click)="openFirstPlanet(star)"
-              />
-            </ng-container>
-            <ng-container *ngFor="let fleet of gs.game()?.fleets ?? []">
-              <rect
-                [attr.x]="
-                  fleet.location.type === 'space'
-                    ? fleet.location.x - 4
-                    : planetPos(fleet.location.planetId).x - 4
-                "
-                [attr.y]="
-                  fleet.location.type === 'space'
-                    ? fleet.location.y - 4
-                    : planetPos(fleet.location.planetId).y - 4
-                "
-                width="8"
-                height="8"
-                [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
-                (click)="openFleet(fleet.id)"
-              />
+                [attr.stroke-width]="isIsolated(star) ? 1.2 : 0.7"
+                (click)="selectStar(star)"
+              >
+                <title>{{ star.name }}</title>
+              </circle>
+              <text
+                [attr.x]="star.position.x + 9"
+                [attr.y]="star.position.y - 9"
+                font-size="10"
+                fill="#2c3e50"
+              >
+                {{ star.name }}
+              </text>
             </ng-container>
           </svg>
+        </section>
+        <section
+          *ngIf="selectedStar"
+          style="margin-top:0.5rem;border-top:1px solid #ddd;padding-top:0.5rem"
+        >
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>{{ selectedStar.name }}</strong>
+            <button (click)="openFirstPlanet(selectedStar!)">Open Planet</button>
+          </div>
+          <div>
+            <ul>
+              <li *ngFor="let p of selectedStar.planets">
+                {{ p.name }} — {{ planetOwner(p.ownerId) }} — Habitability
+                {{ gs.habitabilityFor(p.id) }}%
+                <button (click)="openPlanet(p.id)">View</button>
+              </li>
+            </ul>
+          </div>
+          <div>
+            Fleets:
+            <ul>
+              <li *ngFor="let f of fleetsAtStar(selectedStar)">
+                Fleet {{ f.id }} — Ships {{ totalShips(f) }} — Fuel {{ f.fuel | number: '1.0-0' }}
+                <button (click)="openFleet(f.id)">View</button>
+              </li>
+            </ul>
+          </div>
         </section>
       </ng-container>
       <ng-template #empty>
@@ -98,6 +150,7 @@ export class GalaxyMapComponent {
   readonly stars = this.gs.stars;
   readonly turn = this.gs.turn;
   showTransfer = true;
+  selectedStar: Star | null = null;
 
   colorForStar(star: Star): string {
     const owned = star.planets.some((p) => p.ownerId === this.gs.player()?.id);
@@ -117,6 +170,9 @@ export class GalaxyMapComponent {
     if (p) {
       this.router.navigateByUrl(`/planet/${p.id}`);
     }
+  }
+  openPlanet(id: string) {
+    this.router.navigateByUrl(`/planet/${id}`);
   }
 
   endTurn() {
@@ -157,5 +213,35 @@ export class GalaxyMapComponent {
   planetPos(planetId: string): { x: number; y: number } {
     const star = this.stars().find((s) => s.planets.some((p) => p.id === planetId));
     return star ? star.position : { x: 0, y: 0 };
+  }
+
+  selectStar(star: Star) {
+    this.selectedStar = star;
+  }
+  planetOwner(ownerId: string | null): string {
+    if (!ownerId) return 'Unowned';
+    return ownerId === this.gs.player()?.id ? 'You' : 'Enemy';
+  }
+  fleetsAtStar(star: Star) {
+    const ids = star.planets.map((p) => p.id);
+    const fleets = this.gs.game()?.fleets ?? [];
+    return fleets.filter((f) => f.location.type === 'orbit' && ids.includes(f.location.planetId));
+  }
+  totalShips(fleet: any): number {
+    return fleet.ships.reduce((sum: number, s: any) => sum + s.count, 0);
+  }
+  fleetOrbitPosition(fleet: any): { x: number; y: number } | null {
+    if (fleet.location.type !== 'orbit') return null;
+    const star = this.stars().find((s) => s.planets.some((p) => p.id === fleet.location.planetId));
+    if (!star) return null;
+    const fleets = this.fleetsAtStar(star);
+    const idx = fleets.findIndex((f) => f.id === fleet.id);
+    const total = fleets.length || 1;
+    const angle = (Math.PI * 2 * idx) / total;
+    const radius = 14;
+    return {
+      x: star.position.x + Math.cos(angle) * radius,
+      y: star.position.y + Math.sin(angle) * radius,
+    };
   }
 }
