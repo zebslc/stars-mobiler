@@ -10,152 +10,255 @@ import { Planet } from '../../models/game.model';
   selector: 'app-planet-detail',
   imports: [CommonModule],
   template: `
-    <main style="padding:1rem" *ngIf="planet; else missing">
-      <header style="display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;gap:0.5rem;align-items:center">
-          <button (click)="back()">← Back</button>
-          <h2 style="margin:0">{{ planet.name }}</h2>
+    <main *ngIf="planet; else missing" style="padding:1rem">
+      <header
+        style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;background:#1a1a2e;padding:1rem;color:#fff;border-radius:4px"
+      >
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <button
+              (click)="back()"
+              style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:0.25rem 0.5rem;border-radius:4px;cursor:pointer"
+            >
+              ← Back
+            </button>
+            <h2 style="margin:0;font-size:1.4rem">{{ planet.name }}</h2>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:0.8rem;opacity:0.8">Owner</div>
+            <div style="font-weight:bold">
+              {{
+                planet.ownerId === gs.player()?.id ? 'You' : planet.ownerId ? 'Enemy' : 'Unowned'
+              }}
+            </div>
+          </div>
         </div>
-        <small
-          >Owner:
-          {{
-            planet.ownerId === gs.player()?.id ? 'You' : planet.ownerId ? 'Enemy' : 'Unowned'
-          }}</small
+
+        <div
+          style="display:flex;gap:0.5rem;align-items:center;background:rgba(255,255,255,0.1);padding:0.5rem;border-radius:4px;margin-top:0.25rem"
         >
+          <label style="font-weight:bold;font-size:0.9rem;white-space:nowrap">Governor:</label>
+          <select
+            [value]="planet.governor?.type ?? 'manual'"
+            (change)="onGovernorType($event)"
+            style="background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:0.25rem;border-radius:2px;flex-grow:1;font-size:0.9rem"
+          >
+            <option value="manual">Manual Control</option>
+            <option value="balanced">Balanced (Auto-build all)</option>
+            <option value="mining">Mining (Focus Mines)</option>
+            <option value="industrial">Industrial (Focus Factories)</option>
+            <option value="military">Military (Focus Defenses)</option>
+            <option value="shipyard">Shipyard (Auto-build Ships)</option>
+          </select>
+        </div>
+
+        <div
+          *ngIf="planet.governor?.type === 'shipyard'"
+          style="display:flex;gap:0.5rem;align-items:center;background:rgba(46, 134, 222, 0.2);padding:0.5rem;border-radius:4px;font-size:0.85rem"
+        >
+          <div style="flex-grow:1">
+            <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Auto-Design</label>
+            <select
+              [value]="shipyardDesign"
+              (change)="onShipyardDesignChange($event)"
+              style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
+            >
+              <option value="scout">Scout</option>
+              <option value="frigate">Frigate</option>
+              <option value="destroyer">Destroyer</option>
+              <option value="freighter">Freighter</option>
+              <option value="super_freighter">Super Freighter</option>
+              <option value="tanker">Fuel Tanker</option>
+              <option value="settler">Colony Ship</option>
+            </select>
+          </div>
+          <div style="width:60px">
+            <label style="display:block;opacity:0.8;margin-bottom:0.1rem">Limit</label>
+            <input
+              type="number"
+              [value]="shipyardLimit"
+              (input)="onShipyardLimit($event)"
+              style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:none;padding:0.1rem"
+              placeholder="∞"
+            />
+          </div>
+        </div>
       </header>
-      <section style="display:grid;gap:1rem;margin-top:1rem">
-        <div>Habitability: {{ habitability() }}%</div>
-        <div>
-          Population
-          <div style="background:#eee;height:12px;border-radius:6px;overflow:hidden">
-            <div
-              [style.width.%]="(planet.population / planet.maxPopulation) * 100"
-              style="background:#2e86de;height:12px"
-            ></div>
-          </div>
-          <small>{{ planet.population | number }} / {{ planet.maxPopulation | number }}</small>
-          <div>
-            Next turn:
-            <span [style.color]="projectionDelta() >= 0 ? '#2ecc71' : '#e74c3c'">
-              {{ projectionDelta() >= 0 ? '+' : '' }}{{ projectionDelta() | number }}
-            </span>
-          </div>
-        </div>
-        <div>
-          Production
-          <div>Factories: {{ planet.factories }} → {{ resourcesPerTurn }} resources/turn</div>
-        </div>
-        <div>Mines: {{ planet.mines }}</div>
-        <div>
-          Minerals (surface)
-          <div>
-            Fe {{ planet.surfaceMinerals.iron }} • Bo {{ planet.surfaceMinerals.boranium }} • Ge
-            {{ planet.surfaceMinerals.germanium }}
-          </div>
-        </div>
-        <div>
-          Concentrations
-          <div style="display:grid;gap:0.25rem">
+      <section style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;font-size:0.9em">
+        <div style="flex:1;min-width:280px;background:#f9f9f9;padding:0.75rem;border-radius:4px">
+          <h3
+            style="margin:0 0 0.5rem 0;font-size:1em;border-bottom:1px solid #ddd;padding-bottom:0.25rem"
+          >
+            Vital Statistics
+          </h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
             <div>
-              Fe {{ planet.mineralConcentrations.iron }}%
-              <div style="background:#eee;height:8px">
-                <div
-                  [style.width.%]="planet.mineralConcentrations.iron"
-                  style="background:#636e72;height:8px"
-                ></div>
+              <div style="color:#666">Habitability</div>
+              <div style="font-weight:bold">{{ habitability() }}%</div>
+            </div>
+            <div>
+              <div style="color:#666">Population</div>
+              <div>{{ planet.population | number }}</div>
+              <div
+                [style.color]="projectionDelta() >= 0 ? '#2ecc71' : '#e74c3c'"
+                style="font-size:0.85em"
+              >
+                {{ projectionDelta() >= 0 ? '+' : '' }}{{ projectionDelta() | number }}
               </div>
             </div>
             <div>
-              Bo {{ planet.mineralConcentrations.boranium }}%
-              <div style="background:#eee;height:8px">
-                <div
-                  [style.width.%]="planet.mineralConcentrations.boranium"
-                  style="background:#6ab04c;height:8px"
-                ></div>
-              </div>
+              <div style="color:#666">Mines</div>
+              <div>{{ planet.mines }}</div>
             </div>
             <div>
-              Ge {{ planet.mineralConcentrations.germanium }}%
-              <div style="background:#eee;height:8px">
-                <div
-                  [style.width.%]="planet.mineralConcentrations.germanium"
-                  style="background:#f9ca24;height:8px"
-                ></div>
+              <div style="color:#666">Factories</div>
+              <div>{{ planet.factories }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:280px;background:#f9f9f9;padding:0.75rem;border-radius:4px">
+          <h3
+            style="margin:0 0 0.5rem 0;font-size:1em;border-bottom:1px solid #ddd;padding-bottom:0.25rem"
+          >
+            Resources
+          </h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;text-align:center">
+            <div style="background:#e0e0e0;padding:0.25rem;border-radius:2px">
+              <div style="font-weight:bold;color:#2c3e50">Iron</div>
+              <div style="font-size:1.1em">{{ planet.surfaceMinerals.iron }}</div>
+              <div style="font-size:0.75em;color:#666">
+                {{ planet.mineralConcentrations.iron }}%
               </div>
             </div>
+            <div style="background:#e0e0e0;padding:0.25rem;border-radius:2px">
+              <div style="font-weight:bold;color:#27ae60">Boranium</div>
+              <div style="font-size:1.1em">{{ planet.surfaceMinerals.boranium }}</div>
+              <div style="font-size:0.75em;color:#666">
+                {{ planet.mineralConcentrations.boranium }}%
+              </div>
+            </div>
+            <div style="background:#e0e0e0;padding:0.25rem;border-radius:2px">
+              <div style="font-weight:bold;color:#f39c12">Germanium</div>
+              <div style="font-size:1.1em">{{ planet.surfaceMinerals.germanium }}</div>
+              <div style="font-size:0.75em;color:#666">
+                {{ planet.mineralConcentrations.germanium }}%
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:0.5rem;text-align:center;font-size:0.9em;color:#555">
+            Producing <span style="font-weight:bold">{{ resourcesPerTurn }}</span> resources / turn
           </div>
         </div>
       </section>
       <hr />
       <section style="display:grid;gap:0.5rem">
         <h3>Build Queue</h3>
-        <div>
-          <button (click)="queue('mine')" [disabled]="!canAfford('mine')">+ Mine (5 R)</button>
-          <button (click)="queue('factory')" [disabled]="!canAfford('factory')">
-            + Factory (10 R, 4 Ge)
-          </button>
-          <button (click)="queue('defense')" [disabled]="!canAfford('defense')">
-            + Defense (15 R, 2 Fe, 2 Bo)
-          </button>
-          <button (click)="queue('terraform')" [disabled]="!canAfford('terraform')">
-            + Terraform (25 R, 5 Ge)
-          </button>
-          <span style="display:inline-flex;gap:0.25rem;align-items:center;margin-left:0.5rem">
-            Ship:
-            <select [value]="selectedDesign" (change)="onDesignChange($event)">
-              <option value="scout">Scout</option>
-              <option value="frigate">Frigate</option>
-              <option value="destroyer">Destroyer</option>
-              <option value="freighter">Freighter</option>
-              <option value="super_freighter">Super Freighter</option>
-              <option value="tanker">Fuel Tanker</option>
-              <option value="settler">Colony Ship</option>
-            </select>
-            <button (click)="queue('ship')" [disabled]="!canAfford('ship')">+ Build Ship</button>
-          </span>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;width:100%">
+            <button
+              (click)="queue('mine')"
+              [disabled]="!canAfford('mine')"
+              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer;opacity:1"
+              [style.opacity]="canAfford('mine') ? 1 : 0.5"
+            >
+              <div style="font-weight:bold;font-size:0.9rem">Mine</div>
+              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">5 R</div>
+            </button>
+            <button
+              (click)="queue('factory')"
+              [disabled]="!canAfford('factory')"
+              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
+              [style.opacity]="canAfford('factory') ? 1 : 0.5"
+            >
+              <div style="font-weight:bold;font-size:0.9rem">Factory</div>
+              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">10 R, 4 Ge</div>
+            </button>
+            <button
+              (click)="queue('defense')"
+              [disabled]="!canAfford('defense')"
+              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
+              [style.opacity]="canAfford('defense') ? 1 : 0.5"
+            >
+              <div style="font-weight:bold;font-size:0.9rem">Defense</div>
+              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">15 R, 2 Fe, 2 Bo</div>
+            </button>
+            <button
+              (click)="queue('terraform')"
+              [disabled]="!canAfford('terraform')"
+              style="padding:0.75rem;min-width:60px;flex:1;background:#2c3e50;color:#fff;border:none;border-radius:4px;cursor:pointer"
+              [style.opacity]="canAfford('terraform') ? 1 : 0.5"
+            >
+              <div style="font-weight:bold;font-size:0.9rem">Terraform</div>
+              <div style="font-size:0.75em;opacity:0.8;margin-top:0.1rem">25 R, 5 Ge</div>
+            </button>
+          </div>
+
+          <div
+            style="display:flex;flex-direction:column;gap:0.5rem;width:100%;background:#e3f2fd;padding:0.75rem;border-radius:4px;border:1px solid #90caf9"
+          >
+            <span style="font-weight:bold;color:#1565c0;font-size:0.9rem">Ship Construction</span>
+            <div style="display:flex;gap:0.5rem">
+              <select
+                [value]="selectedDesign"
+                (change)="onDesignChange($event)"
+                style="flex-grow:1;padding:0.5rem;min-height:44px;font-size:0.95rem;width:0;border:1px solid #90caf9;border-radius:4px;background:#fff"
+              >
+                <option value="scout">Scout (20R 5Fe)</option>
+                <option value="frigate">Frigate (40R 10Fe 5Bo)</option>
+                <option value="destroyer">Destroyer (60R 15Fe 10Bo 5Ge)</option>
+                <option value="freighter">Freighter (35R 8Fe 5Bo 3Ge)</option>
+                <option value="super_freighter">Super Freighter (60R 15Fe 8Bo 6Ge)</option>
+                <option value="tanker">Fuel Tanker (30R 6Fe 6Bo 2Ge)</option>
+                <option value="settler">Colony Ship (80R 10Fe 10Bo 8Ge)</option>
+              </select>
+              <button
+                (click)="queue('ship')"
+                [disabled]="!canAfford('ship')"
+                style="padding:0.5rem 1rem;min-height:44px;font-weight:bold;white-space:nowrap;background:#1565c0;color:#fff;border:none;border-radius:4px;cursor:pointer"
+                [style.opacity]="canAfford('ship') ? 1 : 0.5"
+              >
+                Build
+              </button>
+            </div>
+          </div>
         </div>
-        <ul>
-          <li
+        <div
+          *ngIf="(planet.buildQueue?.length ?? 0) > 0"
+          style="background:#fff;border:1px solid #ddd;border-radius:4px;overflow:hidden;margin-top:0.5rem"
+        >
+          <div
             *ngFor="let it of planet.buildQueue ?? []; let i = index"
-            [style.color]="queueColor(it, i)"
+            style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;border-bottom:1px solid #eee"
+            [style.background]="i === 0 ? '#f0fff4' : '#fff'"
           >
-            {{ it.project }} — cost {{ it.cost.resources }} R
-            <button (click)="remove(i)">×</button>
-          </li>
-        </ul>
-        <div>
-          Governor:
-          <select [value]="planet.governor?.type ?? 'manual'" (change)="onGovernorType($event)">
-            <option value="manual">Manual</option>
-            <option value="balanced">Balanced</option>
-            <option value="mining">Mining</option>
-            <option value="industrial">Industrial</option>
-            <option value="military">Military</option>
-            <option value="shipyard">Shipyard</option>
-          </select>
-          <span
-            *ngIf="planet.governor?.type === 'shipyard'"
-            style="display:inline-flex;gap:0.25rem;align-items:center;margin-left:0.5rem"
-          >
-            Design:
-            <select [value]="shipyardDesign" (change)="onShipyardDesignChange($event)">
-              <option value="scout">Scout</option>
-              <option value="frigate">Frigate</option>
-              <option value="destroyer">Destroyer</option>
-              <option value="freighter">Freighter</option>
-              <option value="super_freighter">Super Freighter</option>
-              <option value="tanker">Fuel Tanker</option>
-              <option value="settler">Colony Ship</option>
-            </select>
-            Limit:
-            <input
-              type="number"
-              [value]="shipyardLimit"
-              (input)="onShipyardLimit($event)"
-              style="width:4rem"
-            />
-          </span>
+            <div [style.color]="queueColor(it, i)" style="font-weight:500;font-size:0.95rem">
+              <span style="display:inline-block;width:20px;color:#999;font-size:0.8em">{{
+                i + 1
+              }}</span>
+              {{ it.project | titlecase }}
+              <span
+                *ngIf="it.project === 'ship' && it.shipDesignId"
+                style="color:#666;font-size:0.9em"
+                >({{ it.shipDesignId }})</span
+              >
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem">
+              <span
+                style="font-size:0.85em;color:#666;font-family:monospace;background:#f5f5f5;padding:2px 6px;border-radius:3px"
+                >{{ it.cost.resources }}R</span
+              >
+              <button
+                (click)="remove(i)"
+                style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:#ffebee;color:#c0392b;border:none;border-radius:4px;font-size:1.2rem;cursor:pointer"
+              >
+                ×
+              </button>
+            </div>
+          </div>
         </div>
+
+        <!-- Governor moved to header -->
       </section>
       <hr />
       <section>
