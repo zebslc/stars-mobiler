@@ -49,7 +49,7 @@ import { getDesign } from '../../data/ships.data';
             </ng-container>
             <ng-template #starsOnly></ng-template>
             <!-- Draw fleets first so stars remain clickable on top -->
-            <ng-container *ngFor="let fleet of gs.game()?.fleets ?? []">
+            <ng-container *ngFor="let fleet of filteredFleets()">
               <ng-container [ngSwitch]="fleet.location.type">
                 <ng-container *ngSwitchCase="'orbit'">
                   <ng-container *ngIf="fleetOrbitPosition(fleet) as pos">
@@ -267,6 +267,10 @@ export class GalaxyMapComponent {
   selectFleet(id: string) {
     this.selectedFleetId = id;
   }
+  filteredFleets() {
+    const fleets = this.gs.game()?.fleets ?? [];
+    return fleets.filter((f) => f.ships.reduce((sum: number, s: any) => sum + s.count, 0) > 0);
+  }
 
   planetPos(planetId: string): { x: number; y: number } {
     const star = this.stars().find((s) => s.planets.some((p) => p.id === planetId));
@@ -359,6 +363,8 @@ export class GalaxyMapComponent {
     const game = this.gs.game();
     if (!game || !this.selectedFleetId) return;
     this.gs.issueFleetOrder(this.selectedFleetId, { type: 'move', destination: star.position });
+    this.selectedFleetId = null;
+    this.selectedStar = null;
   }
   pathMarkers(fid: string, star: Star): Array<{ x: number; y: number }> {
     const game = this.gs.game();

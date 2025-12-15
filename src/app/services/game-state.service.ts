@@ -606,6 +606,12 @@ export class GameStateService {
         return { resources: 40, iron: 10, boranium: 5 };
       case 'destroyer':
         return { resources: 60, iron: 15, boranium: 10, germanium: 5 };
+      case 'freighter':
+        return { resources: 35, iron: 8, boranium: 5, germanium: 3 };
+      case 'super_freighter':
+        return { resources: 60, iron: 15, boranium: 8, germanium: 6 };
+      case 'tanker':
+        return { resources: 30, iron: 6, boranium: 6, germanium: 2 };
       case 'settler':
         return { resources: 80, iron: 10, boranium: 10, germanium: 8 };
       default:

@@ -34,6 +34,12 @@ import { Planet } from '../../models/game.model';
             ></div>
           </div>
           <small>{{ planet.population | number }} / {{ planet.maxPopulation | number }}</small>
+          <div>
+            Next turn:
+            <span [style.color]="projectionDelta() >= 0 ? '#2ecc71' : '#e74c3c'">
+              {{ projectionDelta() >= 0 ? '+' : '' }}{{ projectionDelta() | number }}
+            </span>
+          </div>
         </div>
         <div>
           Production
@@ -100,6 +106,9 @@ import { Planet } from '../../models/game.model';
               <option value="scout">Scout</option>
               <option value="frigate">Frigate</option>
               <option value="destroyer">Destroyer</option>
+              <option value="freighter">Freighter</option>
+              <option value="super_freighter">Super Freighter</option>
+              <option value="tanker">Fuel Tanker</option>
               <option value="settler">Colony Ship</option>
             </select>
             <button (click)="queue('ship')" [disabled]="!canAfford('ship')">+ Build Ship</button>
@@ -130,6 +139,9 @@ import { Planet } from '../../models/game.model';
               <option value="scout">Scout</option>
               <option value="frigate">Frigate</option>
               <option value="destroyer">Destroyer</option>
+              <option value="freighter">Freighter</option>
+              <option value="super_freighter">Super Freighter</option>
+              <option value="tanker">Fuel Tanker</option>
               <option value="settler">Colony Ship</option>
             </select>
             Limit:
@@ -297,6 +309,23 @@ export class PlanetDetailComponent {
     this.onGovernorType(new Event('change'));
   }
 
+  projectionDelta(): number {
+    if (!this.planet) return 0;
+    const habPct = this.habitability();
+    if (habPct <= 0) {
+      const killRate = Math.min(0.1, (Math.abs(habPct) / 100) * 0.1);
+      return -Math.ceil(this.planet.population * killRate);
+    } else {
+      const growthRate = (Math.max(0, habPct) / 100) * 0.1;
+      const nextPop = this.gs['economy'].logisticGrowth(
+        this.planet.population,
+        this.planet.maxPopulation,
+        growthRate,
+      );
+      return Math.floor(nextPop);
+    }
+  }
+
   private getShipCost(designId: string): {
     resources: number;
     iron?: number;
@@ -310,6 +339,12 @@ export class PlanetDetailComponent {
         return { resources: 40, iron: 10, boranium: 5 };
       case 'destroyer':
         return { resources: 60, iron: 15, boranium: 10, germanium: 5 };
+      case 'freighter':
+        return { resources: 35, iron: 8, boranium: 5, germanium: 3 };
+      case 'super_freighter':
+        return { resources: 60, iron: 15, boranium: 8, germanium: 6 };
+      case 'tanker':
+        return { resources: 30, iron: 6, boranium: 6, germanium: 2 };
       default:
         return { resources: 25, iron: 5 };
     }
