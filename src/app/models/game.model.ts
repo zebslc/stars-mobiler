@@ -54,6 +54,7 @@ export interface Planet {
   factories: number;
   defenses: number;
   terraformOffset: { temperature: number; atmosphere: number };
+  resources: number;
   buildQueue?: BuildItem[];
   governor?: PlanetGovernor;
 }
@@ -92,6 +93,7 @@ export type Fleet = {
   ships: ShipStack[];
   fuel: number;
   cargo: {
+    resources: number;
     minerals: { iron: number; boranium: number; germanium: number };
     colonists: number;
   };
@@ -99,8 +101,6 @@ export type Fleet = {
 };
 
 export interface PlayerEconomy {
-  resources: number;
-  minerals: { iron: number; boranium: number; germanium: number };
   transferRange: number;
   freighterCapacity: number;
 }

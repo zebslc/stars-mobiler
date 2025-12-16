@@ -68,7 +68,8 @@ export class GalaxyGeneratorService {
         mines: 0,
         factories: 0,
         defenses: 0,
-        terraformOffset: { temperature: 0, atmosphere: 0 }
+        terraformOffset: { temperature: 0, atmosphere: 0 },
+        resources: 0
       });
     }
     return planets;
@@ -94,7 +95,8 @@ export class GalaxyGeneratorService {
       mines: 10,
       factories: 15,
       defenses: 0,
-      terraformOffset: { temperature: 0, atmosphere: 0 }
+      terraformOffset: { temperature: 0, atmosphere: 0 },
+      resources: 0
     };
   }
 

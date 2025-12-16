@@ -19,9 +19,6 @@ import { getDesign } from '../../data/ships.data';
         >
           <div style="display:flex;gap:var(--space-lg);align-items:center">
             <div class="font-bold">Turn {{ turn() }}</div>
-            <div *ngIf="gs.playerEconomy() as econ" class="text-small text-muted">
-              Resources: <span class="font-medium" style="color:var(--color-text-primary)">{{ econ.resources | number: '1.0-0' }}</span>
-            </div>
           </div>
           <div style="display:flex;gap:var(--space-md)">
             <button (click)="openSettings()">Settings</button>
@@ -169,7 +166,7 @@ import { getDesign } from '../../data/ships.data';
                         x="10"
                         y="-10"
                         width="150"
-                        height="75"
+                        height="105"
                         fill="rgba(255, 255, 255, 0.9)"
                         stroke="#ccc"
                         stroke-width="0.5"
@@ -184,8 +181,14 @@ import { getDesign } from '../../data/ships.data';
                         font-size="10"
                       >
                         <tspan font-weight="bold" x="15" dy="0">{{ star.name }}</tspan>
-                        <tspan x="15" dy="12" font-size="9">
-                          Fe{{ d.fe }}% Bo{{ d.bo }}% Ge{{ d.ge }}%
+                        <tspan x="15" dy="12" font-size="9" fill="#2e86de">
+                          Resources: {{ d.resources }}R
+                        </tspan>
+                        <tspan x="15" dy="11" font-size="9">
+                          Conc: Fe{{ d.fe }}% Bo{{ d.bo }}% Ge{{ d.ge }}%
+                        </tspan>
+                        <tspan x="15" dy="11" font-size="9">
+                          Surface: {{ d.surfaceFe }}Fe {{ d.surfaceBo }}Bo {{ d.surfaceGe }}Ge
                         </tspan>
                         <tspan x="15" dy="11" font-size="9">
                           Pop: {{ d.pop | number }} / {{ d.maxPop }}M
@@ -382,9 +385,13 @@ export class GalaxyMapComponent {
   }
 
   getPlanetDetails(star: Star): {
+    resources: number;
     fe: number;
     bo: number;
     ge: number;
+    surfaceFe: number;
+    surfaceBo: number;
+    surfaceGe: number;
     maxPop: string;
     pop: number;
     owner: string;
@@ -393,9 +400,13 @@ export class GalaxyMapComponent {
     const p = star.planets[0];
     if (!p) return null;
     return {
+      resources: p.resources,
       fe: p.mineralConcentrations.iron,
       bo: p.mineralConcentrations.boranium,
       ge: p.mineralConcentrations.germanium,
+      surfaceFe: p.surfaceMinerals.iron,
+      surfaceBo: p.surfaceMinerals.boranium,
+      surfaceGe: p.surfaceMinerals.germanium,
       maxPop: (p.maxPopulation / 1_000_000).toFixed(1),
       pop: p.population,
       owner: p.ownerId === this.gs.player()?.id ? 'You' : p.ownerId ? 'Enemy' : 'Unowned',

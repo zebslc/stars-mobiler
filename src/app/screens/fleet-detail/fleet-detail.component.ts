@@ -76,6 +76,10 @@ import { StarSelectorComponent, StarOption } from '../../components/star-selecto
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--space-md)">
             <div>
+              <div class="text-small text-muted">Resources</div>
+              <div class="font-medium">{{ fleet.cargo.resources }} R</div>
+            </div>
+            <div>
               <div class="text-small text-muted">Iron</div>
               <div class="font-medium">{{ fleet.cargo.minerals.iron }} kT</div>
             </div>
@@ -96,6 +100,10 @@ import { StarSelectorComponent, StarOption } from '../../components/star-selecto
             <div class="font-bold" style="margin-bottom:var(--space-md)">Transfer Cargo</div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--space-md);margin-bottom:var(--space-md)">
               <div>
+                <label>Resources (R)</label>
+                <input type="number" min="0" placeholder="0" #res />
+              </div>
+              <div>
                 <label>Iron (kT)</label>
                 <input type="number" min="0" placeholder="0" #fe />
               </div>
@@ -113,8 +121,8 @@ import { StarSelectorComponent, StarOption } from '../../components/star-selecto
               </div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--space-md)">
-              <button (click)="load(fe.value, bo.value, ge.value, col.value)" class="btn-primary">Load</button>
-              <button (click)="unload(fe.value, bo.value, ge.value, col.value)" class="btn-primary">Unload</button>
+              <button (click)="load(res.value, fe.value, bo.value, ge.value, col.value)" class="btn-primary">Load</button>
+              <button (click)="unload(res.value, fe.value, bo.value, ge.value, col.value)" class="btn-primary">Unload</button>
               <button (click)="loadFill()" class="btn-success">Load to Fill</button>
               <button (click)="unloadAll()" class="btn-danger">Unload All</button>
             </div>
@@ -311,25 +319,28 @@ export class FleetDetailComponent {
   }
   cargoUsed(): number {
     if (!this.fleet) return 0;
+    const resourcesUsed = this.fleet.cargo.resources;
     const m = this.fleet.cargo.minerals;
     const mineralsUsed = m.iron + m.boranium + m.germanium;
     const colonistUsed = Math.floor(this.fleet.cargo.colonists / 1000);
-    return mineralsUsed + colonistUsed;
+    return resourcesUsed + mineralsUsed + colonistUsed;
   }
-  load(fe: string, bo: string, ge: string, col: string) {
+  load(res: string, fe: string, bo: string, ge: string, col: string) {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return;
     const pid = this.fleet.location.planetId;
     this.gs.loadCargo(this.fleet.id, pid, {
+      resources: res ? Number(res) : undefined,
       iron: fe ? Number(fe) : undefined,
       boranium: bo ? Number(bo) : undefined,
       germanium: ge ? Number(ge) : undefined,
       colonists: col ? Number(col) : undefined,
     });
   }
-  unload(fe: string, bo: string, ge: string, col: string) {
+  unload(res: string, fe: string, bo: string, ge: string, col: string) {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return;
     const pid = this.fleet.location.planetId;
     this.gs.unloadCargo(this.fleet.id, pid, {
+      resources: res ? Number(res) : undefined,
       iron: fe ? Number(fe) : undefined,
       boranium: bo ? Number(bo) : undefined,
       germanium: ge ? Number(ge) : undefined,
@@ -340,6 +351,7 @@ export class FleetDetailComponent {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return;
     const pid = this.fleet.location.planetId;
     this.gs.loadCargo(this.fleet.id, pid, {
+      resources: 'fill',
       iron: 'fill',
       boranium: 'fill',
       germanium: 'fill',
@@ -350,6 +362,7 @@ export class FleetDetailComponent {
     if (!this.fleet || this.fleet.location.type !== 'orbit') return;
     const pid = this.fleet.location.planetId;
     this.gs.unloadCargo(this.fleet.id, pid, {
+      resources: 'all',
       iron: 'all',
       boranium: 'all',
       germanium: 'all',

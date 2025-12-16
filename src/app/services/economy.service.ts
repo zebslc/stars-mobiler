@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Planet, PlayerEconomy } from '../models/game.model';
+import { Planet } from '../models/game.model';
 
 export interface ProductionResult {
   resources: number;
@@ -45,22 +45,22 @@ export class EconomyService {
     return Math.max(0, Math.floor(growth));
   }
 
-  spend(econ: PlayerEconomy, cost: { resources: number; iron?: number; boranium?: number; germanium?: number }): boolean {
+  spend(planet: Planet, cost: { resources: number; iron?: number; boranium?: number; germanium?: number }): boolean {
     const iron = cost.iron ?? 0;
     const bo = cost.boranium ?? 0;
     const ge = cost.germanium ?? 0;
     if (
-      econ.resources < cost.resources ||
-      econ.minerals.iron < iron ||
-      econ.minerals.boranium < bo ||
-      econ.minerals.germanium < ge
+      planet.resources < cost.resources ||
+      planet.surfaceMinerals.iron < iron ||
+      planet.surfaceMinerals.boranium < bo ||
+      planet.surfaceMinerals.germanium < ge
     ) {
       return false;
     }
-    econ.resources -= cost.resources;
-    econ.minerals.iron -= iron;
-    econ.minerals.boranium -= bo;
-    econ.minerals.germanium -= ge;
+    planet.resources -= cost.resources;
+    planet.surfaceMinerals.iron -= iron;
+    planet.surfaceMinerals.boranium -= bo;
+    planet.surfaceMinerals.germanium -= ge;
     return true;
   }
 }

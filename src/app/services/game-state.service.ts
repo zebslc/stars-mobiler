@@ -74,6 +74,10 @@ export class GameStateService {
     const aiHome = stars.flatMap((s) => s.planets).find((p) => p.name === 'Enemy Home');
     if (humanHome) {
       humanHome.ownerId = human.id;
+      humanHome.resources = 100;
+      humanHome.surfaceMinerals.iron += 200;
+      humanHome.surfaceMinerals.boranium += 150;
+      humanHome.surfaceMinerals.germanium += 100;
       humanHome.buildQueue = [];
       humanHome.governor = { type: 'balanced' };
       human.ownedPlanetIds.push(humanHome.id);
@@ -93,8 +97,6 @@ export class GameStateService {
       aiPlayers: [ai],
       fleets: [],
       playerEconomy: {
-        resources: 100,
-        minerals: { iron: 200, boranium: 150, germanium: 100 },
         transferRange: 300,
         freighterCapacity: 100,
       },
@@ -114,25 +116,18 @@ export class GameStateService {
   endTurn() {
     const game = this._game();
     if (!game) return;
-    // Production completes
-    let totalResources = 0;
-    let iron = 0,
-      bo = 0,
-      ge = 0;
+    // Production completes - distribute to each planet
     const allPlanets = game.stars.flatMap((s) => s.planets);
     for (const planet of allPlanets) {
       if (planet.ownerId !== game.humanPlayer.id) continue;
       const prod = this.economy.calculateProduction(planet);
-      totalResources += prod.resources;
-      iron += Math.floor(prod.extraction.iron);
-      bo += Math.floor(prod.extraction.boranium);
-      ge += Math.floor(prod.extraction.germanium);
+      // Add production directly to this planet
+      planet.resources += prod.resources;
+      planet.surfaceMinerals.iron += Math.floor(prod.extraction.iron);
+      planet.surfaceMinerals.boranium += Math.floor(prod.extraction.boranium);
+      planet.surfaceMinerals.germanium += Math.floor(prod.extraction.germanium);
       this.economy.applyMiningDepletion(planet, prod.extraction);
     }
-    game.playerEconomy.resources += totalResources;
-    game.playerEconomy.minerals.iron += iron;
-    game.playerEconomy.minerals.boranium += bo;
-    game.playerEconomy.minerals.germanium += ge;
     // Schedule builds after economy update
     this.processGovernors(game);
     // Population grows or dies
@@ -183,9 +178,9 @@ export class GameStateService {
     if (!game) return false;
     const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
     if (!planet || planet.ownerId !== game.humanPlayer.id) return false;
-    const ok = this.economy.spend(game.playerEconomy, item.cost);
+    const ok = this.economy.spend(planet, item.cost);
     if (!ok) {
-      console.warn('Insufficient stockpile for project', item);
+      console.warn('Insufficient local resources for project', item);
       return false;
     }
     planet.buildQueue = [...(planet.buildQueue ?? []), item];
@@ -232,7 +227,7 @@ export class GameStateService {
               location: { type: 'orbit', planetId: planet.id },
               ships: [],
               fuel: 0,
-              cargo: { minerals: { iron: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+              cargo: { resources: 0, minerals: { iron: 0, boranium: 0, germanium: 0 }, colonists: 0 },
               orders: [],
             };
             game.fleets.push(fleet);
@@ -396,15 +391,17 @@ export class GameStateService {
     }, 0);
   }
   private fleetCargoUsed(fleet: import('../models/game.model').Fleet): number {
+    const resourcesUsed = fleet.cargo.resources;
     const mineralsUsed =
       fleet.cargo.minerals.iron + fleet.cargo.minerals.boranium + fleet.cargo.minerals.germanium;
     const colonistUsed = Math.floor(fleet.cargo.colonists / 1000); // 1 kT per 1000 colonists
-    return mineralsUsed + colonistUsed;
+    return resourcesUsed + mineralsUsed + colonistUsed;
   }
   loadCargo(
     fleetId: string,
     planetId: string,
     manifest: {
+      resources?: number | 'all' | 'fill';
       iron?: number | 'all' | 'fill';
       boranium?: number | 'all' | 'fill';
       germanium?: number | 'all' | 'fill';
@@ -433,6 +430,16 @@ export class GameStateService {
     takeMineral('iron', manifest.iron);
     takeMineral('boranium', manifest.boranium);
     takeMineral('germanium', manifest.germanium);
+    if (manifest.resources) {
+      const available = planet.resources;
+      const room = Math.max(0, free - (this.fleetCargoUsed(fleet) - used));
+      const wanted =
+        manifest.resources === 'all' ? available : manifest.resources === 'fill' ? room : Math.max(0, Math.floor(manifest.resources));
+      const take = Math.min(wanted, available, room);
+      planet.resources -= take;
+      fleet.cargo.resources += take;
+      used += take;
+    }
     if (manifest.colonists) {
       const availablePeople = planet.population;
       const roomKT = Math.max(0, capacity - this.fleetCargoUsed(fleet));
@@ -453,6 +460,7 @@ export class GameStateService {
     fleetId: string,
     planetId: string,
     manifest: {
+      resources?: number | 'all';
       iron?: number | 'all';
       boranium?: number | 'all';
       germanium?: number | 'all';
@@ -475,6 +483,13 @@ export class GameStateService {
     giveMineral('iron', manifest.iron);
     giveMineral('boranium', manifest.boranium);
     giveMineral('germanium', manifest.germanium);
+    if (manifest.resources) {
+      const available = fleet.cargo.resources;
+      const wanted = manifest.resources === 'all' ? available : Math.max(0, Math.floor(manifest.resources));
+      const give = Math.min(wanted, available);
+      fleet.cargo.resources -= give;
+      planet.resources += give;
+    }
     if (manifest.colonists) {
       const availablePeople = fleet.cargo.colonists;
       const wantedPeople =

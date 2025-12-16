@@ -144,6 +144,17 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             Resources
           </h3>
           <div
+            style="background:var(--color-bg-tertiary);padding:var(--space-lg);border-radius:var(--radius-sm);margin-bottom:var(--space-md);text-align:center"
+          >
+            <div class="text-small text-muted">Available Resources</div>
+            <div class="font-bold" style="font-size:var(--font-size-xl);color:var(--color-primary)">
+              {{ planet()!.resources }}
+            </div>
+            <div class="text-xs text-muted">
+              +{{ resourcesPerTurn() }}/turn
+            </div>
+          </div>
+          <div
             style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-md);text-align:center"
           >
             <div
@@ -173,13 +184,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
               </div>
               <div class="text-xs text-muted">{{ planet()!.mineralConcentrations.germanium }}%</div>
             </div>
-          </div>
-          <div class="text-small text-muted" style="margin-top:var(--space-md);text-align:center">
-            Producing
-            <span class="font-bold" style="color:var(--color-text-primary)">{{
-              resourcesPerTurn()
-            }}</span>
-            resources / turn
           </div>
         </div>
       </section>
@@ -516,13 +520,14 @@ export class PlanetDetailComponent {
         shipType = 'support';
       }
 
-      // Check if affordable
-      const econ = game.playerEconomy;
-      const canAfford =
-        econ.resources >= cost.resources &&
-        econ.minerals.iron >= (cost.iron ?? 0) &&
-        econ.minerals.boranium >= (cost.boranium ?? 0) &&
-        econ.minerals.germanium >= (cost.germanium ?? 0);
+      // Check if affordable from this planet's resources
+      const planet = this.planet();
+      const canAfford = planet ? (
+        planet.resources >= cost.resources &&
+        planet.surfaceMinerals.iron >= (cost.iron ?? 0) &&
+        planet.surfaceMinerals.boranium >= (cost.boranium ?? 0) &&
+        planet.surfaceMinerals.germanium >= (cost.germanium ?? 0)
+      ) : false;
 
       return {
         design,
@@ -608,28 +613,26 @@ export class PlanetDetailComponent {
   }
 
   canAfford(project: 'mine' | 'factory' | 'defense' | 'terraform' | 'ship'): boolean {
+    const planet = this.planet();
+    if (!planet) return false;
     if (project === 'ship') {
-      const econ = this.gs.game()?.playerEconomy;
-      if (!econ) return false;
       const cost = this.getShipCost(this.selectedDesign);
       return (
-        econ.resources >= cost.resources &&
-        econ.minerals.iron >= (cost.iron ?? 0) &&
-        econ.minerals.boranium >= (cost.boranium ?? 0) &&
-        econ.minerals.germanium >= (cost.germanium ?? 0)
+        planet.resources >= cost.resources &&
+        planet.surfaceMinerals.iron >= (cost.iron ?? 0) &&
+        planet.surfaceMinerals.boranium >= (cost.boranium ?? 0) &&
+        planet.surfaceMinerals.germanium >= (cost.germanium ?? 0)
       );
     }
-    const econ = this.gs.game()?.playerEconomy;
-    if (!econ) return false;
     switch (project) {
       case 'mine':
-        return econ.resources >= 5;
+        return planet.resources >= 5;
       case 'factory':
-        return econ.resources >= 10 && econ.minerals.germanium >= 4;
+        return planet.resources >= 10 && planet.surfaceMinerals.germanium >= 4;
       case 'defense':
-        return econ.resources >= 15 && econ.minerals.iron >= 2 && econ.minerals.boranium >= 2;
+        return planet.resources >= 15 && planet.surfaceMinerals.iron >= 2 && planet.surfaceMinerals.boranium >= 2;
       case 'terraform':
-        return econ.resources >= 25 && econ.minerals.germanium >= 5;
+        return planet.resources >= 25 && planet.surfaceMinerals.germanium >= 5;
       default:
         return false;
     }
@@ -703,33 +706,18 @@ export class PlanetDetailComponent {
 
   queueColor(item: any, index: number): string {
     if (index === 0) return 'inherit';
-    const game = this.gs.game();
-    if (!game) return 'inherit';
+    const planet = this.planet();
+    if (!planet) return 'inherit';
     const neededR = item.cost?.resources ?? 0;
     const neededFe = item.cost?.iron ?? 0;
     const neededBo = item.cost?.boranium ?? 0;
     const neededGe = item.cost?.germanium ?? 0;
-    const haveR = game.playerEconomy.resources;
-    const empireFe =
-      game.playerEconomy.minerals.iron +
-      this.gs
-        .stars()
-        .flatMap((s) => s.planets)
-        .reduce((sum, p) => sum + p.surfaceMinerals.iron, 0);
-    const empireBo =
-      game.playerEconomy.minerals.boranium +
-      this.gs
-        .stars()
-        .flatMap((s) => s.planets)
-        .reduce((sum, p) => sum + p.surfaceMinerals.boranium, 0);
-    const empireGe =
-      game.playerEconomy.minerals.germanium +
-      this.gs
-        .stars()
-        .flatMap((s) => s.planets)
-        .reduce((sum, p) => sum + p.surfaceMinerals.germanium, 0);
+    const haveR = planet.resources;
+    const haveFe = planet.surfaceMinerals.iron;
+    const haveBo = planet.surfaceMinerals.boranium;
+    const haveGe = planet.surfaceMinerals.germanium;
     const cannot =
-      haveR < neededR || empireFe < neededFe || empireBo < neededBo || empireGe < neededGe;
+      haveR < neededR || haveFe < neededFe || haveBo < neededBo || haveGe < neededGe;
     return cannot ? 'var(--color-danger)' : 'inherit';
   }
 
