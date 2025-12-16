@@ -11,7 +11,7 @@ import { getDesign } from '../../data/ships.data';
   selector: 'app-galaxy-map',
   template: `
     <main
-      style="padding:var(--space-md); height: 100vh; display: flex; flex-direction: column; overflow: hidden;"
+      style="padding:var(--space-md); height: calc(100vh - 70px); display: flex; flex-direction: column; overflow: hidden;"
     >
       <ng-container *ngIf="stars().length > 0; else empty">
         <header
@@ -20,10 +20,7 @@ import { getDesign } from '../../data/ships.data';
           <div style="display:flex;gap:var(--space-lg);align-items:center">
             <div class="font-bold">Turn {{ turn() }}</div>
           </div>
-          <div style="display:flex;gap:var(--space-md)">
-            <button (click)="openSettings()">Settings</button>
-            <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
-          </div>
+          <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
         </header>
 
         <section
@@ -416,10 +413,6 @@ export class GalaxyMapComponent {
 
   transformString() {
     return `translate(${this.translateX()} ${this.translateY()}) scale(${this.scale()})`;
-  }
-
-  openSettings() {
-    this.router.navigateByUrl('/settings');
   }
 
   // Zoom Logic

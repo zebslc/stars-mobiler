@@ -12,6 +12,26 @@ export const appRoutes: Routes = [
       import('./screens/galaxy-map/galaxy-map.component').then((m) => m.GalaxyMapComponent),
   },
   {
+    path: 'planets',
+    loadComponent: () =>
+      import('./screens/planets-overview/planets-overview.component').then((m) => m.PlanetsOverviewComponent),
+  },
+  {
+    path: 'fleets',
+    loadComponent: () =>
+      import('./screens/fleets-overview/fleets-overview.component').then((m) => m.FleetsOverviewComponent),
+  },
+  {
+    path: 'research',
+    loadComponent: () =>
+      import('./screens/research-overview/research-overview.component').then((m) => m.ResearchOverviewComponent),
+  },
+  {
+    path: 'ship-design',
+    loadComponent: () =>
+      import('./screens/ship-design-overview/ship-design-overview.component').then((m) => m.ShipDesignOverviewComponent),
+  },
+  {
     path: 'planet/:id',
     loadComponent: () =>
       import('./screens/planet-detail/planet-detail.component').then(
