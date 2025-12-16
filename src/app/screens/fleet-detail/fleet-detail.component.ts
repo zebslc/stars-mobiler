@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
@@ -144,7 +144,7 @@ export class FleetDetailComponent {
   readonly gs = inject(GameStateService);
   fleet: Fleet | null = null;
   stars: Star[] = [];
-  selectedStarId = '';
+  selectedStarId = signal('');
   showAll = false;
   rangeLy = 0;
 
@@ -153,7 +153,7 @@ export class FleetDetailComponent {
     const f = this.gs.game()?.fleets.find((fl) => fl.id === id) ?? null;
     this.fleet = f;
     this.stars = this.gs.stars();
-    if (this.stars.length) this.selectedStarId = this.stars[0].id;
+    if (this.stars.length) this.selectedStarId.set(this.stars[0].id);
     this.computeRange();
   }
 
@@ -189,7 +189,7 @@ export class FleetDetailComponent {
   });
 
   selectedStarOption = computed(() => {
-    return this.starOptions().find(opt => opt.star.id === this.selectedStarId) || null;
+    return this.starOptions().find(opt => opt.star.id === this.selectedStarId()) || null;
   });
 
   private getFleetPosition(): { x: number; y: number } {
@@ -215,7 +215,7 @@ export class FleetDetailComponent {
   }
 
   onStarSelected(option: StarOption) {
-    this.selectedStarId = option.star.id;
+    this.selectedStarId.set(option.star.id);
   }
 
   getDesignName(id: string) {

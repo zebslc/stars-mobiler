@@ -1,0 +1,106 @@
+import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Star, Fleet } from '../models/game.model';
+
+export interface PlanetContextMenuOption {
+  label: string;
+  action: () => void;
+  disabled?: boolean;
+}
+
+@Component({
+  standalone: true,
+  selector: 'app-planet-context-menu',
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div
+      *ngIf="visible()"
+      class="context-menu"
+      [style.left.px]="x()"
+      [style.top.px]="y()"
+      (click)="$event.stopPropagation()"
+    >
+      <div
+        *ngFor="let option of options()"
+        class="context-menu-item"
+        [class.disabled]="option.disabled"
+        (click)="selectOption(option)"
+      >
+        {{ option.label }}
+      </div>
+    </div>
+  `,
+  styles: [`
+    .context-menu {
+      position: fixed;
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      min-width: 180px;
+      padding: var(--space-xs) 0;
+    }
+
+    .context-menu-item {
+      padding: var(--space-sm) var(--space-md);
+      cursor: pointer;
+      transition: background 0.15s ease;
+      font-size: 14px;
+      color: var(--color-text-primary);
+    }
+
+    .context-menu-item:hover:not(.disabled) {
+      background: var(--color-bg-tertiary);
+    }
+
+    .context-menu-item.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      color: var(--color-text-muted);
+    }
+  `]
+})
+export class PlanetContextMenuComponent {
+  visible = input.required<boolean>();
+  x = input.required<number>();
+  y = input.required<number>();
+  star = input.required<Star | null>();
+  selectedFleet = input<Fleet | null>(null);
+  canSendFleet = input<boolean>(false);
+
+  close = output<void>();
+  viewPlanet = output<string>();
+  sendFleetToStar = output<Star>();
+
+  options = computed(() => {
+    const star = this.star();
+    if (!star) return [];
+
+    const planet = star.planets[0];
+    if (!planet) return [];
+
+    const opts: PlanetContextMenuOption[] = [];
+
+    opts.push({
+      label: `View ${planet.name}`,
+      action: () => this.viewPlanet.emit(planet.id),
+    });
+
+    if (this.selectedFleet() && this.canSendFleet()) {
+      opts.push({
+        label: 'Send Fleet Here',
+        action: () => this.sendFleetToStar.emit(star),
+      });
+    }
+
+    return opts;
+  });
+
+  selectOption(option: PlanetContextMenuOption) {
+    if (option.disabled) return;
+    option.action();
+    this.close.emit();
+  }
+}

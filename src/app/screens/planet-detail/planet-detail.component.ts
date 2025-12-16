@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
@@ -539,10 +539,10 @@ export class PlanetDetailComponent {
   });
 
   selectedShipOption = computed(() => {
-    return this.shipOptions().find(opt => opt.design.id === this.selectedDesign) || null;
+    return this.shipOptions().find(opt => opt.design.id === this.selectedDesign()) || null;
   });
 
-  selectedDesign = 'scout';
+  selectedDesign = signal('scout');
   shipyardDesign = 'scout';
   shipyardLimit = 0;
 
@@ -616,7 +616,7 @@ export class PlanetDetailComponent {
     const planet = this.planet();
     if (!planet) return false;
     if (project === 'ship') {
-      const cost = this.getShipCost(this.selectedDesign);
+      const cost = this.getShipCost(this.selectedDesign());
       return (
         planet.resources >= cost.resources &&
         planet.surfaceMinerals.iron >= (cost.iron ?? 0) &&
@@ -652,8 +652,8 @@ export class PlanetDetailComponent {
               ? { project, cost: { resources: 25, germanium: 5 } }
               : ({
                   project: 'ship',
-                  cost: this.getShipCost(this.selectedDesign),
-                  shipDesignId: this.selectedDesign,
+                  cost: this.getShipCost(this.selectedDesign()),
+                  shipDesignId: this.selectedDesign(),
               } as any);
     const ok = this.gs.addToBuildQueue(p.id, item);
     if (!ok) {
@@ -687,11 +687,11 @@ export class PlanetDetailComponent {
   }
 
   onDesignChange(event: Event) {
-    this.selectedDesign = (event.target as HTMLSelectElement).value;
+    this.selectedDesign.set((event.target as HTMLSelectElement).value);
   }
 
   onShipSelected(option: ShipOption) {
-    this.selectedDesign = option.design.id;
+    this.selectedDesign.set(option.design.id);
   }
 
   onShipyardDesignChange(event: Event) {

@@ -358,6 +358,8 @@ export class GameStateService {
     planet.ownerId = game.humanPlayer.id;
     // Apply default governor from settings
     planet.governor = { type: this.settings.defaultGovernor() };
+    // Initialize build queue
+    planet.buildQueue = [];
 
     // Set Max Population based on habitability
     planet.maxPopulation = hab > 0 ? Math.floor(1_000_000 * (hab / 100)) : 1000; // Allow small pop on hostile worlds

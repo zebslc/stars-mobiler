@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { SettingsService } from '../../services/settings.service';
-import { Star, Planet } from '../../models/game.model';
+import { Star, Planet, Fleet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
+import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
+import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
 
 @Component({
   standalone: true,
@@ -33,11 +35,14 @@ import { getDesign } from '../../data/ships.data';
           (touchmove)="moveTouch($event)"
           (touchend)="endTouch()"
           (wheel)="onWheel($event)"
+          (click)="closeContextMenus()"
         >
           <svg
+            #galaxySvg
             [attr.viewBox]="'0 0 1000 1000'"
             preserveAspectRatio="xMidYMid meet"
             style="width:100%;height:100%;touch-action:none"
+            (contextmenu)="onMapRightClick($event, galaxySvg)"
           >
             <g [attr.transform]="transformString()">
               <ng-container *ngIf="showTransfer && centerOwnedStar() as center; else starsOnly">
@@ -68,6 +73,7 @@ import { getDesign } from '../../data/ships.data';
                         [attr.stroke-width]="0.8"
                         [attr.transform]="'rotate(45 ' + pos.x + ' ' + pos.y + ')'"
                         (click)="selectFleet(fleet.id); $event.stopPropagation()"
+                        (contextmenu)="onFleetRightClick($event, fleet.id)"
                         style="cursor: pointer"
                       />
                     </ng-container>
@@ -82,6 +88,7 @@ import { getDesign } from '../../data/ships.data';
                       [attr.stroke]="'#000'"
                       [attr.stroke-width]="0.8"
                       (click)="selectFleet(fleet.id); $event.stopPropagation()"
+                      (contextmenu)="onFleetRightClick($event, fleet.id)"
                       style="cursor: pointer"
                     />
                   </ng-container>
@@ -147,6 +154,7 @@ import { getDesign } from '../../data/ships.data';
                   [attr.stroke]="isIsolated(star) ? '#e67e22' : '#000'"
                   [attr.stroke-width]="isIsolated(star) ? 1.2 : 0.7"
                   (click)="selectStar(star); $event.stopPropagation()"
+                  (contextmenu)="onStarRightClick($event, star)"
                   style="cursor: pointer"
                 >
                   <title>{{ star.name }}</title>
@@ -332,6 +340,32 @@ import { getDesign } from '../../data/ships.data';
             </div>
           </div>
         </section>
+
+        <!-- Context Menus -->
+        <app-planet-context-menu
+          [visible]="planetContextMenu().visible"
+          [x]="planetContextMenu().x"
+          [y]="planetContextMenu().y"
+          [star]="planetContextMenu().star"
+          [selectedFleet]="getSelectedFleet()"
+          [canSendFleet]="planetContextMenu().star ? canTravelTo(planetContextMenu().star!) : false"
+          (close)="closeContextMenus()"
+          (viewPlanet)="onContextMenuViewPlanet($event)"
+          (sendFleetToStar)="onContextMenuSendFleet($event)"
+        />
+
+        <app-fleet-context-menu
+          [visible]="fleetContextMenu().visible"
+          [x]="fleetContextMenu().x"
+          [y]="fleetContextMenu().y"
+          [fleet]="fleetContextMenu().fleet"
+          [clickedPosition]="fleetContextMenu().position"
+          [isFleetSelected]="selectedFleetId !== null"
+          (close)="closeContextMenus()"
+          (viewFleet)="onContextMenuViewFleet($event)"
+          (addWaypoint)="onContextMenuAddWaypoint($event)"
+          (moveToPosition)="onContextMenuMoveToPosition($event)"
+        />
       </ng-container>
       <ng-template #empty>
         <section style="padding:var(--space-lg);display:grid;place-items:center;height:70vh">
@@ -344,7 +378,7 @@ import { getDesign } from '../../data/ships.data';
       </ng-template>
     </main>
   `,
-  imports: [CommonModule],
+  imports: [CommonModule, PlanetContextMenuComponent, FleetContextMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GalaxyMapComponent {
@@ -366,6 +400,25 @@ export class GalaxyMapComponent {
   startX = 0;
   startY = 0;
   lastTouchDistance = 0;
+
+  // Context menu state
+  planetContextMenu = signal<{ visible: boolean; x: number; y: number; star: Star | null }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    star: null,
+  });
+  fleetContextMenu = signal<{ visible: boolean; x: number; y: number; fleet: Fleet | null; position: { x: number; y: number } | null }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    fleet: null,
+    position: null,
+  });
+
+  // Touch & hold support
+  touchHoldTimer: any = null;
+  touchHoldStartPos: { x: number; y: number } | null = null;
 
   ngOnInit() {
     const stars = this.stars();
@@ -501,18 +554,28 @@ export class GalaxyMapComponent {
 
   // Touch Logic
   startTouch(event: TouchEvent) {
+    const svgElement = event.currentTarget as unknown as SVGSVGElement;
+
     if (event.touches.length === 1) {
       this.isPanning = true;
       this.startX = event.touches[0].clientX - this.translateX();
       this.startY = event.touches[0].clientY - this.translateY();
+
+      // Start touch-and-hold timer for context menu
+      this.onTouchHoldStart(event, svgElement);
     } else if (event.touches.length === 2) {
       this.isPanning = false;
       this.lastTouchDistance = this.getTouchDistance(event.touches);
+      this.cancelTouchHold();
     }
   }
 
   moveTouch(event: TouchEvent) {
     event.preventDefault();
+
+    // Check touch-and-hold movement
+    this.onTouchHoldMove(event);
+
     if (event.touches.length === 1 && this.isPanning) {
       this.translateX.set(event.touches[0].clientX - this.startX);
       this.translateY.set(event.touches[0].clientY - this.startY);
@@ -526,6 +589,7 @@ export class GalaxyMapComponent {
 
   endTouch() {
     this.isPanning = false;
+    this.onTouchHoldEnd();
   }
 
   private getTouchDistance(touches: TouchList): number {
@@ -753,5 +817,163 @@ export class GalaxyMapComponent {
       });
     }
     return marks;
+  }
+
+  // Context menu handlers
+  onStarRightClick(event: MouseEvent, star: Star) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.closeContextMenus();
+    this.planetContextMenu.set({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      star,
+    });
+  }
+
+  onFleetRightClick(event: MouseEvent, fleetId: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    const game = this.gs.game();
+    if (!game) return;
+    const fleet = game.fleets.find((f) => f.id === fleetId);
+    if (!fleet) return;
+
+    this.closeContextMenus();
+    this.fleetContextMenu.set({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      fleet,
+      position: null,
+    });
+  }
+
+  onMapRightClick(event: MouseEvent, svgElement: SVGSVGElement) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Only show fleet context menu if a fleet is selected
+    if (!this.selectedFleetId) return;
+
+    const worldPos = this.screenToWorld(event.clientX, event.clientY, svgElement);
+    this.closeContextMenus();
+    this.fleetContextMenu.set({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      fleet: null,
+      position: worldPos,
+    });
+  }
+
+  screenToWorld(screenX: number, screenY: number, svgElement: SVGSVGElement): { x: number; y: number } {
+    const rect = svgElement.getBoundingClientRect();
+    const viewBoxX = screenX - rect.left;
+    const viewBoxY = screenY - rect.top;
+
+    // Apply inverse transform
+    const worldX = (viewBoxX - this.translateX()) / this.scale();
+    const worldY = (viewBoxY - this.translateY()) / this.scale();
+
+    return { x: worldX, y: worldY };
+  }
+
+  closeContextMenus() {
+    this.planetContextMenu.update((m) => ({ ...m, visible: false }));
+    this.fleetContextMenu.update((m) => ({ ...m, visible: false }));
+  }
+
+  onContextMenuViewPlanet(planetId: string) {
+    this.openPlanet(planetId);
+  }
+
+  onContextMenuSendFleet(star: Star) {
+    if (!this.selectedFleetId) return;
+    this.travelTo(star);
+  }
+
+  onContextMenuViewFleet(fleetId: string) {
+    this.openFleet(fleetId);
+  }
+
+  onContextMenuAddWaypoint(position: { x: number; y: number }) {
+    if (!this.selectedFleetId) return;
+    // Add waypoint by appending a move order to the fleet's order list
+    const game = this.gs.game();
+    if (!game) return;
+    const fleet = game.fleets.find((f) => f.id === this.selectedFleetId);
+    if (!fleet) return;
+
+    fleet.orders.push({ type: 'move', destination: position });
+  }
+
+  onContextMenuMoveToPosition(position: { x: number; y: number }) {
+    if (!this.selectedFleetId) return;
+    this.gs.issueFleetOrder(this.selectedFleetId, { type: 'move', destination: position });
+  }
+
+  getSelectedFleet(): Fleet | null {
+    if (!this.selectedFleetId) return null;
+    const game = this.gs.game();
+    if (!game) return null;
+    return game.fleets.find((f) => f.id === this.selectedFleetId) || null;
+  }
+
+  // Touch and hold support
+  onTouchHoldStart(event: TouchEvent, svgElement: SVGSVGElement) {
+    if (event.touches.length !== 1) return;
+
+    const touch = event.touches[0];
+    this.touchHoldStartPos = { x: touch.clientX, y: touch.clientY };
+
+    this.touchHoldTimer = setTimeout(() => {
+      if (!this.touchHoldStartPos) return;
+
+      // Simulate right-click at touch position
+      if (this.selectedFleetId) {
+        const worldPos = this.screenToWorld(this.touchHoldStartPos.x, this.touchHoldStartPos.y, svgElement);
+        this.closeContextMenus();
+        this.fleetContextMenu.set({
+          visible: true,
+          x: this.touchHoldStartPos.x,
+          y: this.touchHoldStartPos.y,
+          fleet: null,
+          position: worldPos,
+        });
+      }
+
+      this.touchHoldStartPos = null;
+    }, 500); // 500ms hold to trigger context menu
+  }
+
+  onTouchHoldMove(event: TouchEvent) {
+    // If touch moves too much, cancel the hold
+    if (!this.touchHoldStartPos || event.touches.length !== 1) {
+      this.cancelTouchHold();
+      return;
+    }
+
+    const touch = event.touches[0];
+    const dx = touch.clientX - this.touchHoldStartPos.x;
+    const dy = touch.clientY - this.touchHoldStartPos.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance > 10) {
+      this.cancelTouchHold();
+    }
+  }
+
+  onTouchHoldEnd() {
+    this.cancelTouchHold();
+  }
+
+  cancelTouchHold() {
+    if (this.touchHoldTimer) {
+      clearTimeout(this.touchHoldTimer);
+      this.touchHoldTimer = null;
+    }
+    this.touchHoldStartPos = null;
   }
 }
