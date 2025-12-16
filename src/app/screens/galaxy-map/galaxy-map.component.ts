@@ -456,8 +456,9 @@ export class GalaxyMapComponent {
 
   // Pan Logic
   startPan(event: MouseEvent) {
-    if (event.button === 0) {
-      // Left click
+    if (event.button === 1) {
+      // Middle click
+      event.preventDefault();
       this.isPanning = true;
       this.startX = event.clientX - this.translateX();
       this.startY = event.clientY - this.translateY();
