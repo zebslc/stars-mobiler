@@ -7,7 +7,7 @@ export class GalaxyGeneratorService {
   generateGalaxy(starCount: number, seed: number): Star[] {
     const rng = mulberry32(seed);
     const positions: Array<{ x: number; y: number }> = [];
-    const minDistance = (1000 / Math.sqrt(starCount)) * 0.8;
+    const minDistance = (1000 / Math.sqrt(starCount)) * 0.6;
     let attempts = 0;
     while (positions.length < starCount && attempts < starCount * 2000) {
       attempts++;
@@ -68,6 +68,7 @@ export class GalaxyGeneratorService {
         mines: 0,
         factories: 0,
         defenses: 0,
+        stardock: false,
         terraformOffset: { temperature: 0, atmosphere: 0 },
         resources: 0
       });
@@ -95,6 +96,7 @@ export class GalaxyGeneratorService {
       mines: 10,
       factories: 15,
       defenses: 0,
+      stardock: false,
       terraformOffset: { temperature: 0, atmosphere: 0 },
       resources: 0
     };

@@ -203,6 +203,9 @@ export class GameStateService {
         case 'defense':
           planet.defenses += 1;
           break;
+        case 'stardock':
+          planet.stardock = true;
+          break;
         case 'terraform':
           planet.temperature +=
             planet.temperature < game.humanPlayer.species.habitat.idealTemperature ? 1 : -1;
@@ -506,20 +509,30 @@ export class GameStateService {
   private processFleets(game: GameState) {
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== game.humanPlayer.id) continue;
-      // Refuel when in orbit
+      // Calculate total fuel capacity
+      const totalFuelCapacity = fleet.ships.reduce(
+        (sum, s) => sum + getDesign(s.designId).fuelCapacity * s.count,
+        0,
+      );
+
+      // Refuel logic
       if (fleet.location.type === 'orbit') {
-        const totalFuelCapacity = fleet.ships.reduce(
-          (sum, s) => sum + getDesign(s.designId).fuelCapacity * s.count,
-          0,
-        );
-        fleet.fuel = Math.min(totalFuelCapacity, totalFuelCapacity); // instant refuel to full when in orbit
+        const planet = game.stars
+          .flatMap((s) => s.planets)
+          .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
+
+        if (planet && planet.ownerId === fleet.ownerId) {
+          // Owned planet: 25% refuel, or 100% if stardock
+          const refuelRate = planet.stardock ? 1.0 : 0.25;
+          fleet.fuel = Math.min(totalFuelCapacity, fleet.fuel + totalFuelCapacity * refuelRate);
+        }
+        // Unowned or enemy planet: no refueling
       } else {
-        // Light ramscoop-style refuel in space
-        const totalFuelCapacity = fleet.ships.reduce(
-          (sum, s) => sum + getDesign(s.designId).fuelCapacity * s.count,
-          0,
-        );
-        fleet.fuel = Math.min(totalFuelCapacity, fleet.fuel + totalFuelCapacity * 0.15);
+        // In space: only ramscoop ships refuel
+        const hasRamscoop = fleet.ships.some((s) => getDesign(s.designId).fuelEfficiency === 0);
+        if (hasRamscoop) {
+          fleet.fuel = Math.min(totalFuelCapacity, fleet.fuel + totalFuelCapacity * 0.15);
+        }
       }
       const order = fleet.orders[0];
       if (!order) continue;

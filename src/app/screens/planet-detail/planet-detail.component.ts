@@ -14,7 +14,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
   template: `
     <main *ngIf="planet(); else missing" style="padding:var(--space-lg)">
       <header
-        class="card-header"
         style="display:flex;flex-direction:column;gap:var(--space-md);margin-bottom:var(--space-lg)"
       >
         <div
@@ -28,6 +27,10 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             >
               ← Back
             </button>
+            <div
+              [style.background]="planetTexture()"
+              style="width:64px;height:64px;border-radius:50%;box-shadow:inset -10px -10px 20px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1)"
+            ></div>
             <h2>{{ planet()!.name }}</h2>
           </div>
 
@@ -150,9 +153,7 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             <div class="font-bold" style="font-size:var(--font-size-xl);color:var(--color-primary)">
               {{ planet()!.resources }}
             </div>
-            <div class="text-xs text-muted">
-              +{{ resourcesPerTurn() }}/turn
-            </div>
+            <div class="text-xs text-muted">+{{ resourcesPerTurn() }}/turn</div>
           </div>
           <div
             style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-md);text-align:center"
@@ -379,9 +380,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
         </div>
       </section>
       <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
-      <section>
-        <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
-      </section>
     </main>
     <ng-template #missing>
       <main style="padding:var(--space-lg)">
@@ -429,6 +427,28 @@ export class PlanetDetailComponent implements OnInit {
     const species = this.gs.playerSpecies();
     if (!p || !species) return 0;
     return this.hab.calculate(p, species);
+  });
+
+  planetTexture = computed(() => {
+    const hab = this.habitability();
+    let color1 = '#555'; // Base
+    if (hab >= 80)
+      color1 = '#2ecc71'; // Lush Green
+    else if (hab >= 50)
+      color1 = '#27ae60'; // Green
+    else if (hab >= 20)
+      color1 = '#f1c40f'; // Yellow
+    else if (hab > 0)
+      color1 = '#e67e22'; // Orange
+    else color1 = '#c0392b'; // Red
+
+    // Create a "rough" texture using multiple gradients
+    return `
+      radial-gradient(circle at 30% 30%, ${color1}, transparent 80%),
+      radial-gradient(circle at 70% 70%, rgba(0,0,0,0.4), transparent 50%),
+      conic-gradient(from 0deg, rgba(255,255,255,0.1), transparent 30%, rgba(0,0,0,0.1) 60%, transparent),
+      linear-gradient(135deg, ${color1} 0%, #2c3e50 100%)
+    `;
   });
 
   projectionDelta = computed(() => {
@@ -513,9 +533,17 @@ export class PlanetDetailComponent implements OnInit {
     const game = this.gs.game();
     if (!game) return [];
 
-    const shipDesigns = ['scout', 'frigate', 'destroyer', 'freighter', 'super_freighter', 'tanker', 'settler'];
+    const shipDesigns = [
+      'scout',
+      'frigate',
+      'destroyer',
+      'freighter',
+      'super_freighter',
+      'tanker',
+      'settler',
+    ];
 
-    return shipDesigns.map(designId => {
+    return shipDesigns.map((designId) => {
       const design = COMPILED_DESIGNS[designId];
       const cost = this.getShipCost(designId);
 
@@ -533,12 +561,12 @@ export class PlanetDetailComponent implements OnInit {
 
       // Check if affordable from this planet's resources
       const planet = this.planet();
-      const canAfford = planet ? (
-        planet.resources >= cost.resources &&
-        planet.surfaceMinerals.iron >= (cost.iron ?? 0) &&
-        planet.surfaceMinerals.boranium >= (cost.boranium ?? 0) &&
-        planet.surfaceMinerals.germanium >= (cost.germanium ?? 0)
-      ) : false;
+      const canAfford = planet
+        ? planet.resources >= cost.resources &&
+          planet.surfaceMinerals.iron >= (cost.iron ?? 0) &&
+          planet.surfaceMinerals.boranium >= (cost.boranium ?? 0) &&
+          planet.surfaceMinerals.germanium >= (cost.germanium ?? 0)
+        : false;
 
       return {
         design,
@@ -550,7 +578,7 @@ export class PlanetDetailComponent implements OnInit {
   });
 
   selectedShipOption = computed(() => {
-    return this.shipOptions().find(opt => opt.design.id === this.selectedDesign()) || null;
+    return this.shipOptions().find((opt) => opt.design.id === this.selectedDesign()) || null;
   });
 
   selectedDesign = signal('scout');
@@ -641,7 +669,11 @@ export class PlanetDetailComponent implements OnInit {
       case 'factory':
         return planet.resources >= 10 && planet.surfaceMinerals.germanium >= 4;
       case 'defense':
-        return planet.resources >= 15 && planet.surfaceMinerals.iron >= 2 && planet.surfaceMinerals.boranium >= 2;
+        return (
+          planet.resources >= 15 &&
+          planet.surfaceMinerals.iron >= 2 &&
+          planet.surfaceMinerals.boranium >= 2
+        );
       case 'terraform':
         return planet.resources >= 25 && planet.surfaceMinerals.germanium >= 5;
       default:
@@ -665,7 +697,7 @@ export class PlanetDetailComponent implements OnInit {
                   project: 'ship',
                   cost: this.getShipCost(this.selectedDesign()),
                   shipDesignId: this.selectedDesign(),
-              } as any);
+                } as any);
     const ok = this.gs.addToBuildQueue(p.id, item);
     if (!ok) {
       alert('Insufficient stockpile for this project');
@@ -727,8 +759,7 @@ export class PlanetDetailComponent implements OnInit {
     const haveFe = planet.surfaceMinerals.iron;
     const haveBo = planet.surfaceMinerals.boranium;
     const haveGe = planet.surfaceMinerals.germanium;
-    const cannot =
-      haveR < neededR || haveFe < neededFe || haveBo < neededBo || haveGe < neededGe;
+    const cannot = haveR < neededR || haveFe < neededFe || haveBo < neededBo || haveGe < neededGe;
     return cannot ? 'var(--color-danger)' : 'inherit';
   }
 
