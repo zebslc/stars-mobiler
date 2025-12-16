@@ -53,6 +53,7 @@ export interface Planet {
   mines: number;
   factories: number;
   defenses: number;
+  research: number;
   stardock: boolean;
   terraformOffset: { temperature: number; atmosphere: number };
   resources: number;
@@ -104,9 +105,17 @@ export type Fleet = {
 export interface PlayerEconomy {
   transferRange: number;
   freighterCapacity: number;
+  research: number;
 }
 
-export type BuildProject = 'mine' | 'factory' | 'defense' | 'terraform' | 'ship' | 'stardock';
+export type BuildProject =
+  | 'mine'
+  | 'factory'
+  | 'defense'
+  | 'research'
+  | 'terraform'
+  | 'ship'
+  | 'stardock';
 export interface BuildItem {
   project: BuildProject;
   cost: { resources: number; iron?: number; boranium?: number; germanium?: number };

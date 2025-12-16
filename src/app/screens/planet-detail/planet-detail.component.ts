@@ -27,89 +27,23 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             >
               ← Back
             </button>
-            <div
-              [style.background]="planetTexture()"
-              style="width:64px;height:64px;border-radius:50%;box-shadow:inset -10px -10px 20px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1)"
-            ></div>
             <h2>{{ planet()!.name }}</h2>
           </div>
 
           <div style="display:flex;gap:var(--space-lg);align-items:center;flex-wrap:wrap">
-            <div style="text-align:right">
-              <div class="text-xs" style="opacity:0.8">Owner</div>
-              <div class="font-bold">
-                {{
-                  planet()!.ownerId === gs.player()?.id
-                    ? 'You'
-                    : planet()!.ownerId
-                      ? 'Enemy'
-                      : 'Unowned'
-                }}
-              </div>
-            </div>
             <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
           </div>
         </div>
-
-        <ng-container *ngIf="planet()!.ownerId === gs.player()?.id">
-          <div
-            style="display:flex;gap:var(--space-md);align-items:stretch;background:rgba(255,255,255,0.1);padding:var(--space-md);border-radius:var(--radius-md);flex-wrap:wrap"
-          >
-            <label style="font-weight:bold;white-space:nowrap;color:#fff;align-self:center;margin:0"
-              >Governor:</label
-            >
-            <select
-              [value]="planet()!.governor?.type ?? 'manual'"
-              (change)="onGovernorType($event)"
-              style="background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3);flex-grow:1;min-width:200px"
-            >
-              <option value="manual">Manual Control</option>
-              <option value="balanced">Balanced (Auto-build all)</option>
-              <option value="mining">Mining (Focus Mines)</option>
-              <option value="industrial">Industrial (Focus Factories)</option>
-              <option value="military">Military (Focus Defenses)</option>
-              <option value="shipyard">Shipyard (Auto-build Ships)</option>
-            </select>
-          </div>
-
-          <div
-            *ngIf="planet()!.governor?.type === 'shipyard'"
-            style="display:flex;gap:var(--space-md);align-items:end;background:rgba(46, 134, 222, 0.2);padding:var(--space-md);border-radius:var(--radius-md);flex-wrap:wrap"
-          >
-            <div style="flex-grow:1;min-width:150px">
-              <label style="color:#fff;opacity:0.9">Auto-Design</label>
-              <select
-                [value]="shipyardDesign"
-                (change)="onShipyardDesignChange($event)"
-                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3)"
-              >
-                <option value="scout">Scout</option>
-                <option value="frigate">Frigate</option>
-                <option value="destroyer">Destroyer</option>
-                <option value="freighter">Freighter</option>
-                <option value="super_freighter">Super Freighter</option>
-                <option value="tanker">Fuel Tanker</option>
-                <option value="settler">Colony Ship</option>
-              </select>
-            </div>
-            <div style="width:100px">
-              <label style="color:#fff;opacity:0.9">Build Limit</label>
-              <input
-                type="number"
-                [value]="shipyardLimit"
-                (input)="onShipyardLimit($event)"
-                style="width:100%;background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.3)"
-                placeholder="∞"
-              />
-            </div>
-          </div>
-        </ng-container>
       </header>
       <section style="display:flex;flex-wrap:wrap;gap:var(--space-lg)">
         <div class="card" style="flex:1;min-width:280px">
           <h3
-            style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border)"
+            style="margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-border);display:flex;align-items:center;gap:var(--space-md)"
           >
+            <div
+              [style.background]="planetTexture()"
+              style="width:48px;height:48px;border-radius:50%;box-shadow:inset -10px -10px 20px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1)"
+            ></div>
             Vital Statistics
           </h3>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
@@ -128,6 +62,22 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
               >
                 {{ projectionDelta() >= 0 ? '+' : '' }}{{ projectionDelta() | number }}
               </div>
+            </div>
+            <div>
+              <div class="text-small text-muted">Owner</div>
+              <div class="font-medium">
+                {{
+                  planet()!.ownerId === gs.player()?.id
+                    ? 'You'
+                    : planet()!.ownerId
+                      ? 'Enemy'
+                      : 'Unowned'
+                }}
+              </div>
+            </div>
+            <div>
+              <div class="text-small text-muted">Research Labs</div>
+              <div class="font-medium">{{ planet()!.research || 0 }}</div>
             </div>
             <div>
               <div class="text-small text-muted">Mines</div>
@@ -192,6 +142,66 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
       <section *ngIf="planet()!.ownerId === gs.player()?.id">
         <h3 style="margin-bottom:var(--space-lg)">Build Queue</h3>
         <div style="display:flex;flex-direction:column;gap:var(--space-lg)">
+          <!-- Governor -->
+          <div
+            style="background:rgba(255,255,255,0.05);padding:var(--space-md);border-radius:var(--radius-md);margin-bottom:var(--space-md)"
+          >
+            <div style="display:flex;gap:var(--space-md);align-items:center;flex-wrap:wrap">
+              <label
+                style="font-weight:bold;white-space:nowrap;color:var(--color-text-primary);margin:0"
+                >Governor:</label
+              >
+              <select
+                [value]="planet()!.governor?.type ?? 'manual'"
+                (change)="onGovernorType($event)"
+                style="background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-sm);border-radius:var(--radius-sm);flex-grow:1;min-width:200px"
+              >
+                <option value="manual">Manual Control</option>
+                <option value="balanced">Balanced (Auto-build all)</option>
+                <option value="mining">Mining (Focus Mines)</option>
+                <option value="industrial">Industrial (Focus Factories)</option>
+                <option value="military">Military (Focus Defenses)</option>
+                <option value="shipyard">Shipyard (Auto-build Ships)</option>
+              </select>
+            </div>
+
+            <div
+              *ngIf="planet()!.governor?.type === 'shipyard'"
+              style="display:flex;gap:var(--space-md);align-items:end;margin-top:var(--space-md);flex-wrap:wrap"
+            >
+              <div style="flex-grow:1;min-width:150px">
+                <label style="display:block;margin-bottom:var(--space-xs);font-size:0.9em"
+                  >Auto-Design</label
+                >
+                <select
+                  [value]="shipyardDesign"
+                  (change)="onShipyardDesignChange($event)"
+                  style="width:100%;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-sm);border-radius:var(--radius-sm)"
+                >
+                  <option value="scout">Scout</option>
+                  <option value="frigate">Frigate</option>
+                  <option value="destroyer">Destroyer</option>
+                  <option value="freighter">Freighter</option>
+                  <option value="super_freighter">Super Freighter</option>
+                  <option value="tanker">Fuel Tanker</option>
+                  <option value="settler">Colony Ship</option>
+                </select>
+              </div>
+              <div style="width:100px">
+                <label style="display:block;margin-bottom:var(--space-xs);font-size:0.9em"
+                  >Build Limit</label
+                >
+                <input
+                  type="number"
+                  [value]="shipyardLimit"
+                  (input)="onShipyardLimit($event)"
+                  style="width:100%;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-sm);border-radius:var(--radius-sm)"
+                  placeholder="∞"
+                />
+              </div>
+            </div>
+          </div>
+
           <div
             style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-md)"
           >
@@ -221,6 +231,15 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             >
               <div class="font-bold">Defense</div>
               <div class="text-xs" style="opacity:0.8">15 R, 2 Fe, 2 Bo</div>
+            </button>
+            <button
+              (click)="queue('research')"
+              [disabled]="!canAfford('research')"
+              class="btn-dark"
+              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
+            >
+              <div class="font-bold">Research</div>
+              <div class="text-xs" style="opacity:0.8">10 R</div>
             </button>
             <button
               (click)="queue('terraform')"
@@ -651,7 +670,7 @@ export class PlanetDetailComponent implements OnInit {
     ]);
   }
 
-  canAfford(project: 'mine' | 'factory' | 'defense' | 'terraform' | 'ship'): boolean {
+  canAfford(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'ship'): boolean {
     const planet = this.planet();
     if (!planet) return false;
     if (project === 'ship') {
@@ -674,6 +693,8 @@ export class PlanetDetailComponent implements OnInit {
           planet.surfaceMinerals.iron >= 2 &&
           planet.surfaceMinerals.boranium >= 2
         );
+      case 'research':
+        return planet.resources >= 10;
       case 'terraform':
         return planet.resources >= 25 && planet.surfaceMinerals.germanium >= 5;
       default:
@@ -681,7 +702,7 @@ export class PlanetDetailComponent implements OnInit {
     }
   }
 
-  queue(project: 'mine' | 'factory' | 'defense' | 'terraform' | 'ship') {
+  queue(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'ship') {
     const p = this.planet();
     if (!p) return;
     let item =
@@ -691,13 +712,15 @@ export class PlanetDetailComponent implements OnInit {
           ? { project, cost: { resources: 10, germanium: 4 } }
           : project === 'defense'
             ? { project, cost: { resources: 15, iron: 2, boranium: 2 } }
-            : project === 'terraform'
-              ? { project, cost: { resources: 25, germanium: 5 } }
-              : ({
-                  project: 'ship',
-                  cost: this.getShipCost(this.selectedDesign()),
-                  shipDesignId: this.selectedDesign(),
-                } as any);
+            : project === 'research'
+              ? { project, cost: { resources: 10 } }
+              : project === 'terraform'
+                ? { project, cost: { resources: 25, germanium: 5 } }
+                : ({
+                    project: 'ship',
+                    cost: this.getShipCost(this.selectedDesign()),
+                    shipDesignId: this.selectedDesign(),
+                  } as any);
     const ok = this.gs.addToBuildQueue(p.id, item);
     if (!ok) {
       alert('Insufficient stockpile for this project');

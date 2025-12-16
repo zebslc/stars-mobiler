@@ -59,7 +59,7 @@ export class GalaxyGeneratorService {
         mineralConcentrations: {
           iron: randInt(rng, 10, 90),
           boranium: randInt(rng, 10, 90),
-          germanium: randInt(rng, 5, 50)
+          germanium: randInt(rng, 5, 50),
         },
         surfaceMinerals: { iron: 0, boranium: 0, germanium: 0 },
         ownerId: null,
@@ -70,7 +70,8 @@ export class GalaxyGeneratorService {
         defenses: 0,
         stardock: false,
         terraformOffset: { temperature: 0, atmosphere: 0 },
-        resources: 0
+        resources: 0,
+        research: 0,
       });
     }
     return planets;
@@ -98,7 +99,8 @@ export class GalaxyGeneratorService {
       defenses: 0,
       stardock: false,
       terraformOffset: { temperature: 0, atmosphere: 0 },
-      resources: 0
+      resources: 0,
+      research: 0,
     };
   }
 

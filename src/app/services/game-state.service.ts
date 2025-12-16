@@ -97,6 +97,7 @@ export class GameStateService {
       playerEconomy: {
         transferRange: 300,
         freighterCapacity: 100,
+        research: 0,
       },
     };
     this._game.set(state);
@@ -115,6 +116,7 @@ export class GameStateService {
     const game = this._game();
     if (!game) return;
     // Production completes - distribute to each planet
+    let totalResearch = 0;
     const allPlanets = game.stars.flatMap((s) => s.planets);
     for (const planet of allPlanets) {
       if (planet.ownerId !== game.humanPlayer.id) continue;
@@ -125,7 +127,18 @@ export class GameStateService {
       planet.surfaceMinerals.boranium += Math.floor(prod.extraction.boranium);
       planet.surfaceMinerals.germanium += Math.floor(prod.extraction.germanium);
       this.economy.applyMiningDepletion(planet, prod.extraction);
+
+      // Calculate Research
+      // 1 Lab = 1 RP ? Or depends on resources?
+      // Let's say 1 Lab = 1 RP for now.
+      // Modifiers from species traits could apply here.
+      const researchTrait =
+        game.humanPlayer.species.traits.find((t) => t.type === 'research')?.modifier ?? 0;
+      const baseResearch = planet.research || 0;
+      totalResearch += baseResearch * (1 + researchTrait);
     }
+    game.playerEconomy.research += totalResearch;
+
     // Schedule builds after economy update
     this.processGovernors(game);
     // Population grows or dies
@@ -203,6 +216,9 @@ export class GameStateService {
         case 'defense':
           planet.defenses += 1;
           break;
+        case 'research':
+          planet.research = (planet.research || 0) + 1;
+          break;
         case 'stardock':
           planet.stardock = true;
           break;
@@ -228,7 +244,11 @@ export class GameStateService {
               location: { type: 'orbit', planetId: planet.id },
               ships: [],
               fuel: 0,
-              cargo: { resources: 0, minerals: { iron: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+              cargo: {
+                resources: 0,
+                minerals: { iron: 0, boranium: 0, germanium: 0 },
+                colonists: 0,
+              },
               orders: [],
             };
             game.fleets.push(fleet);
