@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { GameStateService } from '../services/game-state.service';
 
 @Component({
   standalone: true,
@@ -9,6 +10,7 @@ import { RouterModule } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="nav-bar">
+      <div class="nav-buttons">
       <button
         class="nav-button"
         routerLink="/map"
@@ -100,12 +102,18 @@ import { RouterModule } from '@angular/router';
         </svg>
         <span class="nav-label">Settings</span>
       </button>
+      </div>
+
+      <div class="turn-info">
+        <div class="turn-number">Turn {{ gs.turn() }}</div>
+        <button (click)="gs.endTurn()" class="btn-end-turn">End Turn ▶</button>
+      </div>
     </nav>
   `,
   styles: [`
     .nav-bar {
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       align-items: center;
       background: var(--color-bg-secondary);
       border-bottom: 1px solid var(--color-border);
@@ -113,7 +121,43 @@ import { RouterModule } from '@angular/router';
       position: sticky;
       top: 0;
       z-index: 1000;
+      gap: var(--space-md);
+    }
+
+    .nav-buttons {
+      display: flex;
       gap: var(--space-xs);
+      align-items: center;
+    }
+
+    .turn-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .turn-number {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+    }
+
+    .btn-end-turn {
+      background: var(--color-success);
+      color: white;
+      border: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .btn-end-turn:hover {
+      background: #27ae60;
     }
 
     .nav-button {
@@ -152,6 +196,26 @@ import { RouterModule } from '@angular/router';
       white-space: nowrap;
     }
 
+    @media (max-width: 768px) {
+      .nav-buttons {
+        flex-wrap: wrap;
+        gap: 2px;
+      }
+
+      .turn-info {
+        gap: var(--space-sm);
+      }
+
+      .turn-number {
+        font-size: 12px;
+      }
+
+      .btn-end-turn {
+        padding: var(--space-xs) var(--space-sm);
+        font-size: 12px;
+      }
+    }
+
     @media (max-width: 640px) {
       .nav-label {
         font-size: 10px;
@@ -169,4 +233,6 @@ import { RouterModule } from '@angular/router';
     }
   `]
 })
-export class NavBarComponent {}
+export class NavBarComponent {
+  gs = inject(GameStateService);
+}

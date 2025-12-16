@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
+import { ToastService } from '../../services/toast.service';
 import { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { StarSelectorComponent, StarOption } from '../../components/star-selector.component';
@@ -138,10 +139,11 @@ import { StarSelectorComponent, StarOption } from '../../components/star-selecto
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FleetDetailComponent {
+export class FleetDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   readonly gs = inject(GameStateService);
+  private toast = inject(ToastService);
   fleet: Fleet | null = null;
   stars: Star[] = [];
   selectedStarId = signal('');
@@ -155,6 +157,14 @@ export class FleetDetailComponent {
     this.stars = this.gs.stars();
     if (this.stars.length) this.selectedStarId.set(this.stars[0].id);
     this.computeRange();
+  }
+
+  ngOnInit() {
+    // Check if fleet exists on init
+    if (!this.fleet) {
+      this.toast.error(`Fleet does not exist`);
+      this.router.navigateByUrl('/map');
+    }
   }
 
   starOptions = computed(() => {

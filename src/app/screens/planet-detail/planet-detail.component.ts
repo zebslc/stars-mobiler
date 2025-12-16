@@ -1,9 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { HabitabilityService } from '../../services/habitability.service';
-import { Planet } from '../../models/game.model';
+import { ToastService } from '../../services/toast.service';
 import { getDesign, COMPILED_DESIGNS } from '../../data/ships.data';
 import { ShipSelectorComponent, ShipOption } from '../../components/ship-selector.component';
 
@@ -391,10 +391,12 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlanetDetailComponent {
+export class PlanetDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   readonly gs = inject(GameStateService);
   private hab = inject(HabitabilityService);
+  private toast = inject(ToastService);
 
   private planetId = this.route.snapshot.paramMap.get('id');
 
@@ -406,6 +408,15 @@ export class PlanetDetailComponent {
         .find((p) => p.id === this.planetId) || null
     );
   });
+
+  ngOnInit() {
+    // Check if planet exists on init
+    const planet = this.planet();
+    if (!planet) {
+      this.toast.error(`Planet does not exist`);
+      this.router.navigateByUrl('/map');
+    }
+  }
 
   resourcesPerTurn = computed(() => {
     const p = this.planet();

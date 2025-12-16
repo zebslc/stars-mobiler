@@ -14,22 +14,23 @@ export interface PlanetContextMenuOption {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div
-      *ngIf="visible()"
-      class="context-menu"
-      [style.left.px]="x()"
-      [style.top.px]="y()"
-      (click)="$event.stopPropagation()"
-    >
+    <ng-container *ngIf="visible()">
       <div
-        *ngFor="let option of options()"
-        class="context-menu-item"
-        [class.disabled]="option.disabled"
-        (click)="selectOption(option)"
+        class="context-menu"
+        [style.left.px]="x()"
+        [style.top.px]="y()"
+        (click)="$event.stopPropagation()"
       >
-        {{ option.label }}
+        <div
+          *ngFor="let option of options()"
+          class="context-menu-item"
+          [class.disabled]="option.disabled"
+          (click)="selectOption(option)"
+        >
+          {{ option.label }}
+        </div>
       </div>
-    </div>
+    </ng-container>
   `,
   styles: [`
     .context-menu {

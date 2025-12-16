@@ -2,15 +2,17 @@ import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/c
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavBarComponent } from './components/nav-bar.component';
+import { ToastContainerComponent } from './components/toast-container.component';
 import { GameStateService } from './services/game-state.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, NavBarComponent],
+  imports: [RouterOutlet, CommonModule, NavBarComponent, ToastContainerComponent],
   template: `
     <app-nav-bar *ngIf="showNav()"></app-nav-bar>
     <router-outlet></router-outlet>
+    <app-toast-container></app-toast-container>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })

@@ -16,15 +16,6 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
       style="padding:var(--space-md); height: calc(100vh - 70px); display: flex; flex-direction: column; overflow: hidden;"
     >
       <ng-container *ngIf="stars().length > 0; else empty">
-        <header
-          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md); flex-shrink: 0;gap:var(--space-md);flex-wrap:wrap;background:var(--color-bg-secondary);padding:var(--space-md);border-radius:var(--radius-md)"
-        >
-          <div style="display:flex;gap:var(--space-lg);align-items:center">
-            <div class="font-bold">Turn {{ turn() }}</div>
-          </div>
-          <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
-        </header>
-
         <section
           style="border:1px solid #ccc; position: relative; flex-grow: 1; overflow: hidden;"
           (mousedown)="startPan($event)"
@@ -273,70 +264,6 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
               <div></div>
               <button (click)="panArrow(0, 50)" style="width:30px;height:30px">↓</button>
               <div></div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          *ngIf="selectedStar"
-          style="margin-top:var(--space-md);border-top:1px solid var(--color-border);padding-top:var(--space-md); flex-shrink: 0;background:var(--color-bg-secondary);padding:var(--space-lg);border-radius:var(--radius-md)"
-        >
-          <ng-container *ngIf="selectedStar.planets[0] as p">
-            <div
-              style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);gap:var(--space-md)"
-            >
-              <h3>{{ p.name }}</h3>
-              <span
-                class="font-medium"
-                [style.color]="
-                  p.ownerId === gs.player()?.id ? 'var(--color-primary)' : p.ownerId ? 'var(--color-enemy)' : 'var(--color-neutral)'
-                "
-              >
-                {{ planetOwner(p.ownerId) }}
-              </span>
-            </div>
-
-            <div class="text-small text-muted" style="margin-bottom:var(--space-md)">
-              Habitability: <span class="font-bold" style="color:var(--color-text-primary)">{{ gs.habitabilityFor(p.id) }}%</span>
-            </div>
-
-            <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
-              <button
-                (click)="openPlanet(p.id)"
-                class="btn-dark"
-                style="flex:1;min-width:120px"
-              >
-                View Surface
-              </button>
-              <button
-                *ngIf="selectedFleetId && canTravelTo(selectedStar)"
-                (click)="travelTo(selectedStar)"
-                class="btn-success"
-                style="flex:1;min-width:120px"
-              >
-                Travel Here
-              </button>
-            </div>
-          </ng-container>
-
-          <div
-            *ngIf="fleetsAtStar(selectedStar).length > 0"
-            style="margin-top:var(--space-lg);border-top:1px solid var(--color-border-light);padding-top:var(--space-md)"
-          >
-            <div class="font-bold" style="margin-bottom:var(--space-md)">
-              Fleets in Orbit
-            </div>
-            <div style="display:flex;flex-direction:column;gap:var(--space-md)">
-              <div
-                *ngFor="let f of fleetsAtStar(selectedStar)"
-                style="display:flex;justify-content:space-between;align-items:center;background:var(--color-bg-primary);padding:var(--space-md);border-radius:var(--radius-md);gap:var(--space-md);flex-wrap:wrap"
-              >
-                <span class="font-medium">Fleet {{ f.id }} <span class="text-small text-muted">({{ totalShips(f) }} ships)</span></span>
-                <div style="display:flex;gap:var(--space-sm)">
-                  <button (click)="openFleet(f.id)" class="btn-small">View</button>
-                  <button (click)="selectFleet(f.id)" class="btn-small btn-primary">Select</button>
-                </div>
-              </div>
             </div>
           </div>
         </section>

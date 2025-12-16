@@ -4,8 +4,6 @@ import {
   GameState,
   Player,
   AIPlayer,
-  Star,
-  PlayerEconomy,
   Planet,
   BuildItem,
 } from '../models/game.model';
