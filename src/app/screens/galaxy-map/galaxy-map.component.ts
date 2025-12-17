@@ -63,7 +63,8 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                         [attr.stroke]="'#000'"
                         [attr.stroke-width]="0.8"
                         [attr.transform]="'rotate(45 ' + pos.x + ' ' + pos.y + ')'"
-                        (click)="selectFleet(fleet.id); $event.stopPropagation()"
+                        (click)="onFleetClick(fleet, $event)"
+                        (dblclick)="onFleetDoubleClick(fleet, $event)"
                         (contextmenu)="onFleetRightClick($event, fleet.id)"
                         style="cursor: pointer"
                       />
@@ -78,7 +79,8 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                       [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
                       [attr.stroke]="'#000'"
                       [attr.stroke-width]="0.8"
-                      (click)="selectFleet(fleet.id); $event.stopPropagation()"
+                      (click)="onFleetClick(fleet, $event)"
+                      (dblclick)="onFleetDoubleClick(fleet, $event)"
                       (contextmenu)="onFleetRightClick($event, fleet.id)"
                       style="cursor: pointer"
                     />
@@ -144,7 +146,8 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                   [attr.fill]="colorForStar(star)"
                   [attr.stroke]="isIsolated(star) ? '#e67e22' : '#000'"
                   [attr.stroke-width]="isIsolated(star) ? 1.2 : 0.7"
-                  (click)="selectStar(star); $event.stopPropagation()"
+                  (click)="onStarClick(star, $event)"
+                  (dblclick)="onStarDoubleClick(star, $event)"
                   (contextmenu)="onStarRightClick($event, star)"
                   style="cursor: pointer"
                 >
@@ -296,7 +299,10 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
       </ng-container>
       <ng-template #empty>
         <section style="padding:var(--space-lg);display:grid;place-items:center;height:70vh">
-          <div class="card" style="display:grid;gap:var(--space-lg);justify-items:center;text-align:center;max-width:400px">
+          <div
+            class="card"
+            style="display:grid;gap:var(--space-lg);justify-items:center;text-align:center;max-width:400px"
+          >
             <h2>No game loaded</h2>
             <p class="text-muted">Start a new game to generate a galaxy and begin your conquest.</p>
             <button (click)="newGame()" class="btn-primary">Start New Game</button>
@@ -335,7 +341,13 @@ export class GalaxyMapComponent {
     y: 0,
     star: null,
   });
-  fleetContextMenu = signal<{ visible: boolean; x: number; y: number; fleet: Fleet | null; position: { x: number; y: number } | null }>({
+  fleetContextMenu = signal<{
+    visible: boolean;
+    x: number;
+    y: number;
+    fleet: Fleet | null;
+    position: { x: number; y: number } | null;
+  }>({
     visible: false,
     x: 0,
     y: 0,
@@ -583,6 +595,7 @@ export class GalaxyMapComponent {
   openFleet(id: string) {
     this.router.navigateByUrl(`/fleet/${id}`);
   }
+  // Removed selectFleet as it is replaced by onFleetClick
   selectFleet(id: string) {
     this.selectedFleetId = id;
   }
@@ -596,9 +609,45 @@ export class GalaxyMapComponent {
     return star ? star.position : { x: 0, y: 0 };
   }
 
-  selectStar(star: Star) {
+  lastClickTime = 0;
+  lastClickedId = '';
+
+  onStarClick(star: Star, event: MouseEvent) {
+    event.stopPropagation();
+    const now = Date.now();
+    const isDoubleTap = this.selectedStar === star && now - this.lastClickTime < 300;
+
     this.selectedStar = star;
+    this.lastClickTime = now;
+
+    if (isDoubleTap) {
+      this.openFirstPlanet(star);
+    }
   }
+
+  onStarDoubleClick(star: Star, event: MouseEvent) {
+    event.stopPropagation();
+    this.openFirstPlanet(star);
+  }
+
+  onFleetClick(fleet: Fleet, event: MouseEvent) {
+    event.stopPropagation();
+    const now = Date.now();
+    const isDoubleTap = this.selectedFleetId === fleet.id && now - this.lastClickTime < 300;
+
+    this.selectedFleetId = fleet.id;
+    this.lastClickTime = now;
+
+    if (isDoubleTap) {
+      this.openFleet(fleet.id);
+    }
+  }
+
+  onFleetDoubleClick(fleet: Fleet, event: MouseEvent) {
+    event.stopPropagation();
+    this.openFleet(fleet.id);
+  }
+
   planetOwner(ownerId: string | null): string {
     if (!ownerId) return 'Unowned';
     return ownerId === this.gs.player()?.id ? 'You' : 'Enemy';
@@ -795,7 +844,11 @@ export class GalaxyMapComponent {
     });
   }
 
-  screenToWorld(screenX: number, screenY: number, svgElement: SVGSVGElement): { x: number; y: number } {
+  screenToWorld(
+    screenX: number,
+    screenY: number,
+    svgElement: SVGSVGElement,
+  ): { x: number; y: number } {
     const rect = svgElement.getBoundingClientRect();
     const viewBoxX = screenX - rect.left;
     const viewBoxY = screenY - rect.top;
@@ -860,7 +913,11 @@ export class GalaxyMapComponent {
 
       // Simulate right-click at touch position
       if (this.selectedFleetId) {
-        const worldPos = this.screenToWorld(this.touchHoldStartPos.x, this.touchHoldStartPos.y, svgElement);
+        const worldPos = this.screenToWorld(
+          this.touchHoldStartPos.x,
+          this.touchHoldStartPos.y,
+          svgElement,
+        );
         this.closeContextMenus();
         this.fleetContextMenu.set({
           visible: true,
