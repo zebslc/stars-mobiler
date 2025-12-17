@@ -1,0 +1,324 @@
+<main class="ship-design-screen">
+  <!-- Design List Mode -->
+  @if (!isDesignerMode()) {
+    <div class="design-list-header">
+      <h1>Ship Designs</h1>
+      <button class="btn-primary" (click)="startNewDesign()">+ New Design</button>
+    </div>
+
+    <div class="designs-grid">
+      <!-- Standard Designs -->
+      <div class="design-card" *ngFor="let design of shipDesigns">
+        <div class="design-header">
+          <h3>{{ design.name }}</h3>
+          <span class="design-type">{{ formatType(design) }}</span>
+        </div>
+        <div class="design-stats">
+          <div class="stat-row">
+            <span>Mass:</span>
+            <span>{{ design.mass }}kt</span>
+          </div>
+          <div class="stat-row">
+            <span>Armor:</span>
+            <span>{{ design.armor }}dp</span>
+          </div>
+          @if (design.firepower > 0) {
+            <div class="stat-row">
+              <span>Firepower:</span>
+              <span>{{ design.firepower }}</span>
+            </div>
+          }
+          <div class="stat-row">
+            <span>Speed:</span>
+            <span>Warp {{ design.warpSpeed }}</span>
+          </div>
+          <div class="stat-row">
+            <span>Fuel:</span>
+            <span>{{ design.fuelCapacity }}mg</span>
+          </div>
+          @if (design.cargoCapacity > 0) {
+            <div class="stat-row">
+              <span>Cargo:</span>
+              <span>{{ design.cargoCapacity }}kt</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Custom Designs -->
+      @for (design of customDesigns(); track design.id) {
+        <div class="design-card custom">
+          <div class="design-header">
+            <h3>{{ design.name }}</h3>
+            <span class="design-type custom">Custom</span>
+          </div>
+          <div class="design-actions">
+            <button class="btn-small">Edit</button>
+            <button class="btn-small btn-danger">Delete</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Designer Mode -->
+  @if (isDesignerMode() && hull(); as currentHull) {
+    <div class="designer-container">
+      <!-- Header -->
+      <div class="designer-header">
+        <div class="design-name">
+          <input
+            type="text"
+            [value]="design()?.name || 'New Design'"
+            (change)="updateDesignName($any($event.target).value)"
+            placeholder="Design Name"
+          />
+        </div>
+        <div class="header-actions">
+          <button class="btn-primary" (click)="saveDesign()" [disabled]="!stats()?.isValid">
+            Save Design
+          </button>
+          <button (click)="cancelDesign()">Cancel</button>
+        </div>
+      </div>
+
+      <div class="designer-content">
+        <!-- Left: Hull Selection & Visual -->
+        <div class="hull-panel">
+          <!-- Hull Selector -->
+          <div class="hull-selector">
+            <label>Hull Type:</label>
+            <select [value]="currentHull.id" (change)="selectHull($any($event.target).value)">
+              @for (h of availableHulls(); track h.id) {
+                <option [value]="h.id">{{ h.name }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Hull Info Box (like original game) -->
+          <div class="hull-info-box">
+            <div class="hull-title">{{ currentHull.name }}</div>
+            <div class="hull-stats-grid">
+              <div class="hull-stat">
+                <span class="label">Ironium</span>
+                <span class="value">{{ currentHull.baseCost.ironium }}kt</span>
+              </div>
+              <div class="hull-stat">
+                <span class="label">Max Fuel:</span>
+                <span class="value">{{ currentHull.fuelCapacity }}mg</span>
+              </div>
+              <div class="hull-stat">
+                <span class="label">Boranium</span>
+                <span class="value">{{ currentHull.baseCost.boranium }}kt</span>
+              </div>
+              <div class="hull-stat">
+                <span class="label">Armor:</span>
+                <span class="value">{{ currentHull.armor }}dp</span>
+              </div>
+              <div class="hull-stat">
+                <span class="label">Germanium</span>
+                <span class="value">{{ currentHull.baseCost.germanium }}kt</span>
+              </div>
+              <div class="hull-stat">
+                <span class="label">Mass:</span>
+                <span class="value">{{ currentHull.mass }}kt</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hull Visual Slots (like original game) -->
+          <div class="hull-visual">
+            <div class="slots-grid">
+              @for (slot of currentHull.slots; track slot.id) {
+                <div
+                  class="hull-slot"
+                  [class.filled]="getComponentInSlot(slot.id)"
+                  [class.selected]="selectedSlotId() === slot.id"
+                  (click)="selectSlot(slot.id)"
+                >
+                  <div class="slot-icon">{{ getSlotTypeIcon(slot.allowedTypes) }}</div>
+                  <div class="slot-label">{{ getSlotTypeLabel(slot.allowedTypes) }}</div>
+                  @if (getComponentInSlot(slot.id); as compId) {
+                    <div class="slot-component">{{ getComponentName(compId) }}</div>
+                  } @else {
+                    <div class="slot-empty">Empty</div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Stats -->
+        @if (stats(); as compiledStats) {
+          <div class="stats-panel">
+            <div class="stats-box">
+              <div class="stats-title">Ship Statistics</div>
+
+              <!-- Cost -->
+              <div class="stat-section">
+                <div class="section-header">Cost of one {{ design()?.name }}</div>
+                <div class="cost-grid">
+                  <div class="cost-row">
+                    <span class="cost-label ironium">Ironium</span>
+                    <span class="cost-value">{{ compiledStats.cost.ironium }}kt</span>
+                  </div>
+                  <div class="cost-row">
+                    <span class="cost-label boranium">Boranium</span>
+                    <span class="cost-value">{{ compiledStats.cost.boranium }}kt</span>
+                  </div>
+                  <div class="cost-row">
+                    <span class="cost-label germanium">Germanium</span>
+                    <span class="cost-value">{{ compiledStats.cost.germanium }}kt</span>
+                  </div>
+                  <div class="cost-row">
+                    <span class="cost-label">Mass:</span>
+                    <span class="cost-value">{{ compiledStats.mass }}kt</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Combat Stats -->
+              @if (compiledStats.firepower > 0 || compiledStats.shields > 0) {
+                <div class="stat-section">
+                  <div class="section-header">Combat</div>
+                  <div class="stat-list">
+                    @if (compiledStats.firepower > 0) {
+                      <div class="stat-item">
+                        <span>Firepower:</span>
+                        <span>{{ compiledStats.firepower }}</span>
+                      </div>
+                    }
+                    <div class="stat-item">
+                      <span>Armor:</span>
+                      <span>{{ compiledStats.armor }}dp</span>
+                    </div>
+                    @if (compiledStats.shields > 0) {
+                      <div class="stat-item">
+                        <span>Shields:</span>
+                        <span>{{ compiledStats.shields }}dp</span>
+                      </div>
+                    }
+                    @if (compiledStats.accuracy > 0) {
+                      <div class="stat-item">
+                        <span>Accuracy:</span>
+                        <span>{{ compiledStats.accuracy }}%</span>
+                      </div>
+                    }
+                    @if (compiledStats.initiative > 0) {
+                      <div class="stat-item">
+                        <span>Initiative:</span>
+                        <span>{{ compiledStats.initiative }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Movement -->
+              <div class="stat-section">
+                <div class="section-header">Movement</div>
+                <div class="stat-list">
+                  <div class="stat-item">
+                    <span>Warp Speed:</span>
+                    <span>{{ compiledStats.warpSpeed }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span>Fuel Capacity:</span>
+                    <span>{{ compiledStats.fuelCapacity }}mg</span>
+                  </div>
+                  <div class="stat-item">
+                    <span>Fuel Efficiency:</span>
+                    <span>{{ compiledStats.fuelEfficiency === 0 ? 'Ramscoop' : compiledStats.fuelEfficiency }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Utility -->
+              @if (compiledStats.cargoCapacity > 0 || compiledStats.scanRange > 0) {
+                <div class="stat-section">
+                  <div class="section-header">Utility</div>
+                  <div class="stat-list">
+                    @if (compiledStats.cargoCapacity > 0) {
+                      <div class="stat-item">
+                        <span>Cargo:</span>
+                        <span>{{ compiledStats.cargoCapacity }}kt</span>
+                      </div>
+                    }
+                    @if (compiledStats.scanRange > 0) {
+                      <div class="stat-item">
+                        <span>Scan Range:</span>
+                        <span>{{ compiledStats.scanRange }}ly</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Validation -->
+              @if (!compiledStats.isValid) {
+                <div class="validation-error">
+                  <div class="error-header">⚠ Design Invalid</div>
+                  @for (error of compiledStats.validationErrors; track error) {
+                    <div class="error-message">{{ error }}</div>
+                  }
+                </div>
+              } @else {
+                <div class="validation-success">
+                  ✓ Design Valid
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Component Selection Modal -->
+  @if (componentSelectOpen() && selectedSlot()) {
+    <div class="modal-overlay" (click)="componentSelectOpen.set(false)">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Select Component</h3>
+          <div class="slot-info">
+            {{ getSlotTypeIcon(selectedSlot()!.allowedTypes) }}
+            {{ getSlotTypeLabel(selectedSlot()!.allowedTypes) }}
+          </div>
+        </div>
+
+        @if (currentComponentInSlot()) {
+          <div class="current-component">
+            <strong>Current: {{ getComponentName(currentComponentInSlot()!) }}</strong>
+            <button (click)="removeComponent()" class="btn-small btn-danger">Remove</button>
+          </div>
+        }
+
+        <div class="component-list">
+          @for (component of availableComponentsForSlot(); track component.id) {
+            <div
+              class="component-item"
+              [class.selected]="currentComponentInSlot() === component.id"
+              (click)="installComponent(component.id)"
+            >
+              <div class="component-name">{{ component.name }}</div>
+              <div class="component-details">
+                <span>Mass: {{ component.mass }}kt</span>
+                @if (component.miniaturizationLevel > 0) {
+                  <span class="mini-badge">
+                    -{{ ((component.baseMass - component.mass) / component.baseMass * 100).toFixed(0) }}%
+                  </span>
+                }
+              </div>
+              <div class="component-cost">
+                {{ formatCost(component.cost) }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <button (click)="componentSelectOpen.set(false)" class="btn-text">Close</button>
+      </div>
+    </div>
+  }
+</main>

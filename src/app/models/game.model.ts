@@ -16,6 +16,21 @@ export interface GameState {
   aiPlayers: AIPlayer[];
   fleets: Fleet[];
   playerEconomy: PlayerEconomy;
+  shipDesigns: ShipDesign[];
+}
+
+export interface ShipDesign {
+  id: string;
+  name: string;
+  hullId: string;
+  slots: SlotAssignment[];
+  createdTurn: number;
+  playerId: string;
+}
+
+export interface SlotAssignment {
+  slotId: string;
+  componentId: string | null;
 }
 
 export interface PlayerTech {

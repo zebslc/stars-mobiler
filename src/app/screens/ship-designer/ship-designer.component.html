@@ -1,0 +1,245 @@
+<div class="ship-designer">
+  <!-- Header -->
+  <div class="designer-header">
+    <div class="design-title">
+      @if (designNameEditing()) {
+        <input
+          type="text"
+          [value]="design()?.name || ''"
+          (blur)="updateDesignName($any($event.target).value)"
+          (keyup.enter)="updateDesignName($any($event.target).value)"
+          autofocus
+        />
+      } @else {
+        <h2 (click)="designNameEditing.set(true)">{{ design()?.name || 'New Design' }}</h2>
+      }
+    </div>
+    <div class="header-actions">
+      <button (click)="hullSelectOpen.set(true)" class="btn-secondary">Change Hull</button>
+      <button (click)="saveDesign()" class="btn-primary" [disabled]="!stats()?.isValid">
+        Save Design
+      </button>
+      <button (click)="cancelDesign()" class="btn-text">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="designer-content">
+    <!-- Left: Hull and Slots -->
+    <div class="design-panel">
+      @if (hull(); as currentHull) {
+        <div class="hull-info">
+          <h3>{{ currentHull.name }}</h3>
+          <div class="hull-stats">
+            <div class="stat">
+              <span class="label">Mass:</span>
+              <span class="value">{{ currentHull.mass }}kt</span>
+            </div>
+            <div class="stat">
+              <span class="label">Fuel:</span>
+              <span class="value">{{ currentHull.fuelCapacity }}mg</span>
+            </div>
+            <div class="stat">
+              <span class="label">Armor:</span>
+              <span class="value">{{ currentHull.armor }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Tech:</span>
+              <span class="value">Con {{ currentHull.techRequired.construction }}</span>
+            </div>
+          </div>
+          <div class="hull-cost">
+            Cost: {{ formatCost(currentHull.baseCost) }}
+          </div>
+        </div>
+
+        <!-- Slot Grid -->
+        <div class="slots-container">
+          <h4>Component Slots</h4>
+          <div class="slots-grid">
+            @for (slot of currentHull.slots; track slot.id) {
+              <div
+                class="slot"
+                [class.empty]="!getComponentInSlot(slot.id)"
+                [class.selected]="selectedSlotId() === slot.id"
+                (click)="selectSlot(slot.id)"
+              >
+                <div class="slot-type">
+                  {{ getSlotTypeDisplay(slot.allowedTypes) }}
+                </div>
+                <div class="slot-id">{{ getSlotDisplayName(slot.id) }}</div>
+                @if (getComponentInSlot(slot.id); as compId) {
+                  <div class="slot-component">Installed</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Right: Stats -->
+    <div class="stats-panel">
+      @if (stats(); as compiledStats) {
+        <h3>Ship Statistics</h3>
+
+        <!-- Movement Stats -->
+        <div class="stat-group">
+          <h4>⚡ Movement</h4>
+          <div class="stat">
+            <span class="label">Warp Speed:</span>
+            <span class="value">{{ compiledStats.warpSpeed }}</span>
+          </div>
+          <div class="stat">
+            <span class="label">Fuel Capacity:</span>
+            <span class="value">{{ compiledStats.fuelCapacity }}mg</span>
+          </div>
+          <div class="stat">
+            <span class="label">Fuel Efficiency:</span>
+            <span class="value">
+              {{ compiledStats.fuelEfficiency === 0 ? 'Ramscoop' : compiledStats.fuelEfficiency }}
+            </span>
+          </div>
+          <div class="stat">
+            <span class="label">Ideal Warp:</span>
+            <span class="value">{{ compiledStats.idealWarp }}</span>
+          </div>
+        </div>
+
+        <!-- Combat Stats -->
+        <div class="stat-group">
+          <h4>🔫 Combat</h4>
+          <div class="stat">
+            <span class="label">Firepower:</span>
+            <span class="value">{{ compiledStats.firepower }}</span>
+          </div>
+          <div class="stat">
+            <span class="label">Armor:</span>
+            <span class="value">{{ compiledStats.armor }}</span>
+          </div>
+          <div class="stat">
+            <span class="label">Shields:</span>
+            <span class="value">{{ compiledStats.shields }}</span>
+          </div>
+          <div class="stat">
+            <span class="label">Accuracy:</span>
+            <span class="value">{{ compiledStats.accuracy }}%</span>
+          </div>
+          <div class="stat">
+            <span class="label">Initiative:</span>
+            <span class="value">{{ compiledStats.initiative }}</span>
+          </div>
+        </div>
+
+        <!-- Utility Stats -->
+        <div class="stat-group">
+          <h4>🔧 Utility</h4>
+          <div class="stat">
+            <span class="label">Cargo:</span>
+            <span class="value">{{ compiledStats.cargoCapacity }}kt</span>
+          </div>
+          <div class="stat">
+            <span class="label">Scan Range:</span>
+            <span class="value">{{ compiledStats.scanRange }}ly</span>
+          </div>
+          @if (compiledStats.canDetectCloaked) {
+            <div class="stat">
+              <span class="label">Cloak Detection:</span>
+              <span class="value">Yes</span>
+            </div>
+          }
+        </div>
+
+        <!-- Mass and Cost -->
+        <div class="stat-group">
+          <h4>💰 Cost</h4>
+          <div class="stat">
+            <span class="label">Total Mass:</span>
+            <span class="value">{{ compiledStats.mass }}kt</span>
+          </div>
+          <div class="stat-full">
+            <span class="label">Build Cost:</span>
+            <span class="value">{{ formatCost(compiledStats.cost) }}</span>
+          </div>
+        </div>
+
+        <!-- Validation -->
+        @if (!compiledStats.isValid) {
+          <div class="validation-errors">
+            <h4>❌ Errors</h4>
+            @for (error of compiledStats.validationErrors; track error) {
+              <div class="error">{{ error }}</div>
+            }
+          </div>
+        } @else {
+          <div class="validation-success">
+            <h4>✅ Design Valid</h4>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Hull Selection Modal -->
+  @if (hullSelectOpen()) {
+    <div class="modal-overlay" (click)="hullSelectOpen.set(false)">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>Select Hull</h3>
+        <div class="hull-list">
+          @for (hull of availableHulls(); track hull.id) {
+            <div class="hull-option" (click)="selectHull(hull.id)">
+              <div class="hull-name">{{ hull.name }}</div>
+              <div class="hull-role">{{ hull.role }}</div>
+              <div class="hull-specs">
+                {{ hull.mass }}kt | {{ hull.fuelCapacity }}mg | Armor {{ hull.armor }}
+              </div>
+              <div class="hull-tech">Tech: Con {{ hull.techRequired.construction }}</div>
+            </div>
+          }
+        </div>
+        <button (click)="hullSelectOpen.set(false)" class="btn-text">Close</button>
+      </div>
+    </div>
+  }
+
+  <!-- Component Selection Modal -->
+  @if (componentSelectOpen() && selectedSlot()) {
+    <div class="modal-overlay" (click)="componentSelectOpen.set(false)">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>
+          Select Component for {{ getSlotDisplayName(selectedSlotId()!) }}
+          {{ getSlotTypeDisplay(selectedSlot()!.allowedTypes) }}
+        </h3>
+
+        @if (currentComponent()) {
+          <div class="current-component">
+            <strong>Currently installed</strong>
+            <button (click)="removeComponent()" class="btn-danger">Remove Component</button>
+          </div>
+        }
+
+        <div class="component-list">
+          @for (component of availableComponentsForSlot(); track component.id) {
+            <div
+              class="component-option"
+              [class.selected]="currentComponent() === component.id"
+              (click)="installComponent(component.id)"
+            >
+              <div class="component-name">{{ component.name }}</div>
+              <div class="component-mass">
+                Mass: {{ component.mass }}kt
+                @if (component.miniaturizationLevel > 0) {
+                  <span class="miniaturized">
+                    ({{ ((component.baseMass - component.mass) / component.baseMass * 100).toFixed(0) }}% smaller)
+                  </span>
+                }
+              </div>
+              <div class="component-cost">Cost: {{ formatCost(component.cost) }}</div>
+            </div>
+          }
+        </div>
+        <button (click)="componentSelectOpen.set(false)" class="btn-text">Close</button>
+      </div>
+    </div>
+  }
+</div>

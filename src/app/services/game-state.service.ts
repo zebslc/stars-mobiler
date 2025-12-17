@@ -134,6 +134,7 @@ export class GameStateService {
         freighterCapacity: 100,
         research: 0,
       },
+      shipDesigns: [],
     };
     this._game.set(state);
   }
@@ -828,6 +829,59 @@ export class GameStateService {
       fleets: [...game.fleets],
     };
     this._game.set(nextGame);
+  }
+
+  /**
+   * Save a new ship design or update an existing one
+   */
+  saveShipDesign(design: import('../models/game.model').ShipDesign) {
+    const game = this._game();
+    if (!game) return;
+
+    const existingIndex = game.shipDesigns.findIndex((d) => d.id === design.id);
+    let nextDesigns: import('../models/game.model').ShipDesign[];
+
+    if (existingIndex >= 0) {
+      // Update existing design
+      nextDesigns = [...game.shipDesigns];
+      nextDesigns[existingIndex] = { ...design };
+    } else {
+      // Add new design
+      nextDesigns = [...game.shipDesigns, { ...design }];
+    }
+
+    this._game.set({
+      ...game,
+      shipDesigns: nextDesigns,
+      stars: [...game.stars],
+      fleets: [...game.fleets],
+    });
+  }
+
+  /**
+   * Delete a ship design
+   */
+  deleteShipDesign(designId: string) {
+    const game = this._game();
+    if (!game) return;
+
+    const nextDesigns = game.shipDesigns.filter((d) => d.id !== designId);
+
+    this._game.set({
+      ...game,
+      shipDesigns: nextDesigns,
+      stars: [...game.stars],
+      fleets: [...game.fleets],
+    });
+  }
+
+  /**
+   * Get all ship designs for the current player
+   */
+  getPlayerShipDesigns(): import('../models/game.model').ShipDesign[] {
+    const game = this._game();
+    if (!game) return [];
+    return game.shipDesigns.filter((d) => d.playerId === game.humanPlayer.id);
   }
 
   private getShipCost(designId: string): {

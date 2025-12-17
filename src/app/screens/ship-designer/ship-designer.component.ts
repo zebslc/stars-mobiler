@@ -1,40 +1,32 @@
-import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { COMPILED_DESIGNS } from '../../data/ships.data';
-import { GameStateService } from '../../services/game-state.service';
+import { Router } from '@angular/router';
 import { ShipDesignerService } from '../../services/ship-designer.service';
+import { GameStateService } from '../../services/game-state.service';
 import { HULLS, Hull } from '../../data/hulls.data';
-import { COMPONENTS } from '../../data/components.data';
-
-type DesignerMode = 'list' | 'designer';
+import { Component as ShipComponent } from '../../data/components.data';
+import { MiniaturizedComponent } from '../../utils/miniaturization.util';
 
 @Component({
+  selector: 'app-ship-designer',
   standalone: true,
-  selector: 'app-ship-design-overview',
   imports: [CommonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './ship-design-overview.component.html',
-  styleUrls: ['./ship-design-overview.component.css'],
+  templateUrl: './ship-designer.component.html',
+  styleUrl: './ship-designer.component.css',
 })
-export class ShipDesignOverviewComponent {
+export class ShipDesignerComponent implements OnInit {
   constructor(
+    private designer: ShipDesignerService,
     private gameState: GameStateService,
-    private designer: ShipDesignerService
+    private router: Router
   ) {}
 
-  private mode = signal<DesignerMode>('list');
   private selectedSlotId = signal<string | null>(null);
-
-  readonly shipDesigns = Object.values(COMPILED_DESIGNS);
-  readonly customDesigns = computed(() => this.gameState.game()?.shipDesigns || []);
 
   get design() { return this.designer.currentDesign; }
   get hull() { return this.designer.currentHull; }
   get stats() { return this.designer.compiledStats; }
   readonly availableHulls = computed(() => this.designer.getAvailableHulls());
-
-  readonly isDesignerMode = computed(() => this.mode() === 'designer');
-  readonly componentSelectOpen = signal(false);
 
   readonly selectedSlot = computed(() => {
     const slotId = this.selectedSlotId();
@@ -49,22 +41,30 @@ export class ShipDesignOverviewComponent {
     return this.designer.getAvailableComponentsForSlot(slotId);
   });
 
-  readonly currentComponentInSlot = computed(() => {
+  readonly currentComponent = computed(() => {
     const design = this.design();
     const slotId = this.selectedSlotId();
     if (!design || !slotId) return null;
+
     const assignment = design.slots.find((s) => s.slotId === slotId);
     return assignment?.componentId || null;
   });
 
-  startNewDesign(hullId: string = 'scout') {
-    const player = this.gameState.player();
-    const turn = this.gameState.turn();
-    if (!player) return;
+  readonly hullSelectOpen = signal(false);
+  readonly componentSelectOpen = signal(false);
+  readonly designNameEditing = signal(false);
 
-    this.designer.setTechLevels(player.techLevels);
-    this.designer.startNewDesign(hullId, player.id, turn);
-    this.mode.set('designer');
+  ngOnInit() {
+    // Set player tech levels for miniaturization
+    const player = this.gameState.player();
+    if (player) {
+      this.designer.setTechLevels(player.techLevels);
+    }
+
+    // If no design is loaded, start with a Scout hull
+    if (!this.design()) {
+      this.selectHull('scout');
+    }
   }
 
   selectHull(hullId: string) {
@@ -73,6 +73,7 @@ export class ShipDesignOverviewComponent {
     if (!player) return;
 
     this.designer.startNewDesign(hullId, player.id, turn);
+    this.hullSelectOpen.set(false);
   }
 
   selectSlot(slotId: string) {
@@ -112,80 +113,50 @@ export class ShipDesignOverviewComponent {
     }
 
     this.gameState.saveShipDesign(design);
-    this.mode.set('list');
-    this.designer.clearDesign();
+    alert(`Design "${design.name}" saved!`);
   }
 
   cancelDesign() {
     this.designer.clearDesign();
-    this.mode.set('list');
+    this.router.navigate(['/game']);
   }
 
   updateDesignName(name: string) {
     if (name.trim()) {
       this.designer.setDesignName(name.trim());
     }
+    this.designNameEditing.set(false);
+  }
+
+  getSlotDisplayName(slotId: string): string {
+    return `Slot ${slotId.toUpperCase()}`;
   }
 
   getComponentInSlot(slotId: string): string | null {
     const design = this.design();
     if (!design) return null;
+
     const assignment = design.slots.find((s) => s.slotId === slotId);
     return assignment?.componentId || null;
   }
 
-  getComponentName(componentId: string): string {
-    const component = COMPONENTS[componentId];
-    return component ? component.name : 'Empty';
-  }
-
-  formatType(design: any): string {
-    if (design.colonyModule) return 'Colony Ship';
-    if (design.cargoCapacity > 0) return 'Freighter';
-    if (design.firepower > 0) return 'Warship';
-    if (design.warpSpeed === 0) return 'Starbase';
-    return 'Scout';
-  }
-
   formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {
     const parts: string[] = [];
-    if (cost.ironium) parts.push(`${cost.ironium}kt Iron`);
-    if (cost.boranium) parts.push(`${cost.boranium}kt Bor`);
-    if (cost.germanium) parts.push(`${cost.germanium}kt Germ`);
+    if (cost.ironium) parts.push(`${cost.ironium} Fe`);
+    if (cost.boranium) parts.push(`${cost.boranium} B`);
+    if (cost.germanium) parts.push(`${cost.germanium} Ge`);
     return parts.join(', ');
   }
 
-  getSlotTypeIcon(allowedTypes: string[]): string {
-    const primary = allowedTypes[0];
-    switch (primary) {
-      case 'engine': return '⚙️';
-      case 'weapon': return '🔫';
-      case 'shield': return '🛡️';
-      case 'electronics': return '📡';
-      case 'cargo': return '📦';
-      default: return '⚪';
-    }
-  }
-
-  getSlotTypeLabel(allowedTypes: string[]): string {
-    if (allowedTypes.length === 1) {
-      const type = allowedTypes[0];
-      switch (type) {
-        case 'engine': return 'Engine';
-        case 'weapon': return 'Weapon';
-        case 'shield': return 'Shield';
-        case 'electronics': return 'Scanner/Elec';
-        case 'cargo': return 'Cargo';
-        case 'general': return 'General';
-        default: return type;
-      }
-    }
-    return 'Multi-purpose';
-  }
-
-  // Parse hull visual grid for display
-  getHullLayout(hull: Hull): string[][] {
-    const lines = hull.visualGrid.split('\n');
-    return lines.map(line => line.split(''));
+  getSlotTypeDisplay(allowedTypes: string[]): string {
+    const typeMap: Record<string, string> = {
+      engine: '⚙️',
+      weapon: '🔫',
+      shield: '🛡️',
+      electronics: '📡',
+      general: '⚪',
+      cargo: '📦',
+    };
+    return allowedTypes.map((t) => typeMap[t] || '?').join('');
   }
 }
