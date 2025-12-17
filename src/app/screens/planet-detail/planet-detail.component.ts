@@ -27,11 +27,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             >
               ← Back
             </button>
-            <h2>{{ planet()!.name }}</h2>
-          </div>
-
-          <div style="display:flex;gap:var(--space-lg);align-items:center;flex-wrap:wrap">
-            <button (click)="endTurn()" class="btn-success">End Turn ▶</button>
           </div>
         </div>
       </header>
@@ -44,7 +39,7 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
               [style.background]="planetTexture()"
               style="width:48px;height:48px;border-radius:50%;box-shadow:inset -10px -10px 20px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1)"
             ></div>
-            Vital Statistics
+            {{ planet()!.name }}
           </h3>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
             <div>

@@ -68,6 +68,10 @@ import { Planet } from '../../models/game.model';
               <span class="text-small text-muted">Defenses:</span>
               <span class="text-small">{{ planet.defenses }}</span>
             </div>
+            <div class="production-row">
+              <span class="text-small text-muted">Labs:</span>
+              <span class="text-small">{{ planet.research || 0 }}</span>
+            </div>
           </div>
 
           <div *ngIf="buildQueue(planet).length > 0" class="build-queue">
@@ -84,10 +88,6 @@ import { Planet } from '../../models/game.model';
 
           <div *ngIf="buildQueue(planet).length === 0" class="text-small text-muted" style="padding:var(--space-md)">
             No items in build queue
-          </div>
-
-          <div class="research-section">
-            <div class="text-small text-muted">Research Allocation: <span class="coming-soon">Coming Soon</span></div>
           </div>
         </div>
       </div>
@@ -161,7 +161,7 @@ import { Planet } from '../../models/game.model';
 
     .planet-production {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: var(--space-sm);
       padding: var(--space-sm);
       background: var(--color-bg-tertiary);
