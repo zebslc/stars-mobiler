@@ -62,6 +62,7 @@ export class GameStateService {
         electronics: 0,
         biotechnology: 0,
       },
+      selectedResearchField: 'propulsion',
     };
     const ai: AIPlayer = {
       id: 'ai-1',
@@ -84,6 +85,7 @@ export class GameStateService {
         electronics: 0,
         biotechnology: 0,
       },
+      selectedResearchField: 'propulsion',
       brain: { personality: 'expansionist', difficulty: settings.aiDifficulty },
     };
 
@@ -493,7 +495,11 @@ export class GameStateService {
       const available = planet.resources;
       const room = Math.max(0, free - (this.fleetCargoUsed(fleet) - used));
       const wanted =
-        manifest.resources === 'all' ? available : manifest.resources === 'fill' ? room : Math.max(0, Math.floor(manifest.resources));
+        manifest.resources === 'all'
+          ? available
+          : manifest.resources === 'fill'
+            ? room
+            : Math.max(0, Math.floor(manifest.resources));
       const take = Math.min(wanted, available, room);
       planet.resources -= take;
       fleet.cargo.resources += take;
@@ -544,7 +550,8 @@ export class GameStateService {
     giveMineral('germanium', manifest.germanium);
     if (manifest.resources) {
       const available = fleet.cargo.resources;
-      const wanted = manifest.resources === 'all' ? available : Math.max(0, Math.floor(manifest.resources));
+      const wanted =
+        manifest.resources === 'all' ? available : Math.max(0, Math.floor(manifest.resources));
       const give = Math.min(wanted, available);
       fleet.cargo.resources -= give;
       planet.resources += give;
@@ -729,29 +736,42 @@ export class GameStateService {
   }
 
   private advanceResearch(game: GameState, totalRP: number) {
-    // Distribute research evenly across all 6 tech fields
-    const rpPerField = totalRP / 6;
+    // All research goes into the selected field
+    const field = game.humanPlayer.selectedResearchField;
+    game.humanPlayer.researchProgress[field] += totalRP;
 
-    for (const fieldId of TECH_FIELD_LIST) {
-      const field = fieldId as TechField;
-      game.humanPlayer.researchProgress[field] += rpPerField;
+    // Check if we've reached the next level
+    const currentLevel = game.humanPlayer.techLevels[field];
+    if (currentLevel >= 26) return; // Max level
 
-      // Check if we've reached the next level
-      const currentLevel = game.humanPlayer.techLevels[field];
-      if (currentLevel >= 26) continue; // Max level
+    const techInfo = TECH_FIELDS[field];
+    const nextLevel = techInfo.levels[currentLevel + 1];
 
-      const techInfo = TECH_FIELDS[field];
-      const nextLevel = techInfo.levels[currentLevel + 1];
+    if (nextLevel && game.humanPlayer.researchProgress[field] >= nextLevel.cost) {
+      // Level up!
+      game.humanPlayer.techLevels[field]++;
+      game.humanPlayer.researchProgress[field] -= nextLevel.cost;
 
-      if (nextLevel && game.humanPlayer.researchProgress[field] >= nextLevel.cost) {
-        // Level up!
-        game.humanPlayer.techLevels[field]++;
-        game.humanPlayer.researchProgress[field] -= nextLevel.cost;
-
-        // TODO: Show notification to player about tech advancement
-        console.log(`Advanced ${techInfo.name} to level ${game.humanPlayer.techLevels[field]}`);
-      }
+      // TODO: Show notification to player about tech advancement
+      console.log(`Advanced ${techInfo.name} to level ${game.humanPlayer.techLevels[field]}`);
     }
+  }
+
+  setResearchField(fieldId: TechField) {
+    const game = this._game();
+    if (!game) return;
+
+    // Update the player's selected research field immutably
+    const nextPlayer = { ...game.humanPlayer, selectedResearchField: fieldId };
+
+    // Create new references to trigger signal updates with OnPush
+    const nextGame = {
+      ...game,
+      humanPlayer: nextPlayer,
+      stars: [...game.stars],
+      fleets: [...game.fleets],
+    };
+    this._game.set(nextGame);
   }
 
   private getShipCost(designId: string): {

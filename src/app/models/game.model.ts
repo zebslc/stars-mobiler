@@ -34,6 +34,7 @@ export interface Player {
   ownedPlanetIds: string[];
   techLevels: PlayerTech;
   researchProgress: PlayerTech; // Accumulated RP toward next level
+  selectedResearchField: 'energy' | 'weapons' | 'propulsion' | 'construction' | 'electronics' | 'biotechnology';
 }
 
 export interface AIPlayer extends Player {
