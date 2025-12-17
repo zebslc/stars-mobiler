@@ -200,9 +200,27 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
           <div
             style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-md)"
           >
+            <!-- Build Amount Selector -->
+            <div
+              style="grid-column: 1 / -1; display:flex; gap:var(--space-sm); align-items:center; margin-bottom:var(--space-sm)"
+            >
+              <span class="text-small text-muted">Quantity:</span>
+              <button
+                *ngFor="let n of [1, 5, 10, 50, 100]"
+                (click)="setBuildAmount(n)"
+                [class]="buildAmount() === n ? 'btn-primary btn-small' : 'btn-small'"
+                [style.background]="
+                  buildAmount() === n ? 'var(--color-primary)' : 'var(--color-bg-tertiary)'
+                "
+                [style.color]="buildAmount() === n ? '#fff' : 'var(--color-text-primary)'"
+                style="border:1px solid var(--color-border)"
+              >
+                {{ n }}
+              </button>
+            </div>
+
             <button
               (click)="queue('mine')"
-              [disabled]="!canAfford('mine')"
               class="btn-dark"
               style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
@@ -211,7 +229,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             </button>
             <button
               (click)="queue('factory')"
-              [disabled]="!canAfford('factory')"
               class="btn-dark"
               style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
@@ -220,7 +237,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             </button>
             <button
               (click)="queue('defense')"
-              [disabled]="!canAfford('defense')"
               class="btn-dark"
               style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
@@ -229,7 +245,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             </button>
             <button
               (click)="queue('research')"
-              [disabled]="!canAfford('research')"
               class="btn-dark"
               style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
@@ -238,7 +253,6 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             </button>
             <button
               (click)="queue('terraform')"
-              [disabled]="!canAfford('terraform')"
               class="btn-dark"
               style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
             >
@@ -263,12 +277,7 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
                 (shipSelected)="onShipSelected($event)"
                 style="flex-grow:1;min-width:200px"
               ></app-ship-selector>
-              <button
-                (click)="queue('ship')"
-                [disabled]="!canAfford('ship')"
-                class="btn-primary"
-                style="white-space:nowrap"
-              >
+              <button (click)="queue('ship')" class="btn-primary" style="white-space:nowrap">
                 Build Ship
               </button>
             </div>
@@ -287,7 +296,16 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
               <span class="text-small text-muted" style="display:inline-block;width:24px">{{
                 i + 1
               }}</span>
-              <span style="color:var(--color-text-primary)">{{ it.project | titlecase }}</span>
+              <span style="color:var(--color-text-primary)">
+                {{ it.project | titlecase }}
+                <span
+                  *ngIf="(it.count ?? 1) > 1"
+                  class="text-medium font-bold"
+                  style="color:var(--color-primary)"
+                >
+                  x {{ it.count }}
+                </span>
+              </span>
               <span
                 *ngIf="it.project === 'ship' && it.shipDesignId"
                 class="text-small text-muted"
@@ -607,6 +625,11 @@ export class PlanetDetailComponent implements OnInit {
   selectedDesign = signal('scout');
   shipyardDesign = 'scout';
   shipyardLimit = 0;
+  buildAmount = signal(1);
+
+  setBuildAmount(amount: number) {
+    this.buildAmount.set(amount);
+  }
 
   getEta(fleet: any): number {
     const p = this.planet();
@@ -725,10 +748,12 @@ export class PlanetDetailComponent implements OnInit {
                     cost: this.getShipCost(this.selectedDesign()),
                     shipDesignId: this.selectedDesign(),
                   } as any);
+
+    // Add count
+    item.count = this.buildAmount();
+
     const ok = this.gs.addToBuildQueue(p.id, item);
-    if (!ok) {
-      alert('Insufficient stockpile for this project');
-    }
+    // Removed insufficient alert since we allow queuing
   }
 
   endTurn() {

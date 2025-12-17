@@ -96,6 +96,13 @@ import { Planet } from '../../models/game.model';
               <span class="queue-index">{{ i + 1 }}.</span>
               <span class="queue-project">
                 {{ item.project | titlecase }}
+                <span
+                  *ngIf="(item.count ?? 1) > 1"
+                  class="text-xs font-bold"
+                  style="color:var(--color-primary)"
+                >
+                  x {{ item.count }}
+                </span>
                 <span *ngIf="item.isAuto" class="text-xs text-muted" style="font-style:italic"
                   >(Auto)</span
                 >

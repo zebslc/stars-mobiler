@@ -131,6 +131,7 @@ export interface BuildItem {
   cost: { resources: number; iron?: number; boranium?: number; germanium?: number };
   shipDesignId?: string;
   isAuto?: boolean;
+  count?: number;
 }
 
 export type GovernorType =

@@ -234,12 +234,11 @@ export class GameStateService {
     if (!game) return false;
     const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
     if (!planet || planet.ownerId !== game.humanPlayer.id) return false;
-    const ok = this.economy.spend(planet, item.cost);
-    if (!ok) {
-      console.warn('Insufficient local resources for project', item);
-      return false;
-    }
+    
+    // We don't spend resources here anymore. They are spent during turn processing.
+    // Just add to queue.
     planet.buildQueue = [...(planet.buildQueue ?? []), item];
+    
     // Update stars array reference to trigger signals
     this._game.set({ ...game, stars: [...game.stars] });
     return true;
@@ -249,69 +248,103 @@ export class GameStateService {
     const allPlanets = game.stars.flatMap((s) => s.planets);
     for (const planet of allPlanets) {
       if (planet.ownerId !== game.humanPlayer.id) continue;
-      const queue = planet.buildQueue ?? [];
-      if (queue.length === 0) continue;
-      const item = queue[0];
-      switch (item.project) {
-        case 'mine':
-          planet.mines += 1;
-          break;
-        case 'factory':
-          planet.factories += 1;
-          break;
-        case 'defense':
-          planet.defenses += 1;
-          break;
-        case 'research':
-          planet.research = (planet.research || 0) + 1;
-          break;
-        case 'terraform':
-          planet.temperature +=
-            planet.temperature < game.humanPlayer.species.habitat.idealTemperature ? 1 : -1;
-          planet.atmosphere +=
-            planet.atmosphere < game.humanPlayer.species.habitat.idealAtmosphere ? 1 : -1;
-          break;
-        case 'ship': {
-          const designId = item.shipDesignId ?? 'scout';
-          const orbitFleets = game.fleets.filter(
-            (f) =>
-              f.ownerId === game.humanPlayer.id &&
-              f.location.type === 'orbit' &&
-              f.location.planetId === planet.id,
-          );
-          let fleet = orbitFleets[0];
-          if (!fleet) {
-            fleet = {
-              id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-              ownerId: game.humanPlayer.id,
-              location: { type: 'orbit', planetId: planet.id },
-              ships: [],
-              fuel: 0,
-              cargo: {
-                resources: 0,
-                minerals: { iron: 0, boranium: 0, germanium: 0 },
-                colonists: 0,
-              },
-              orders: [],
-            };
-            game.fleets.push(fleet);
+      
+      let queue = planet.buildQueue ?? [];
+
+      // Process items in queue until resources run out or queue is empty
+      while (queue.length > 0) {
+        const item = queue[0];
+        const count = item.count ?? 1;
+        let constructed = 0;
+
+        // Try to build as many as possible
+        for (let i = 0; i < count; i++) {
+          if (this.economy.spend(planet, item.cost)) {
+            // Build successful
+            constructed++;
+            switch (item.project) {
+              case 'mine':
+                planet.mines += 1;
+                break;
+              case 'factory':
+                planet.factories += 1;
+                break;
+              case 'defense':
+                planet.defenses += 1;
+                break;
+              case 'research':
+                planet.research = (planet.research || 0) + 1;
+                break;
+              case 'terraform':
+                planet.temperature +=
+                  planet.temperature < game.humanPlayer.species.habitat.idealTemperature ? 1 : -1;
+                planet.atmosphere +=
+                  planet.atmosphere < game.humanPlayer.species.habitat.idealAtmosphere ? 1 : -1;
+                break;
+              case 'ship': {
+                const designId = item.shipDesignId ?? 'scout';
+                const orbitFleets = game.fleets.filter(
+                  (f) =>
+                    f.ownerId === game.humanPlayer.id &&
+                    f.location.type === 'orbit' &&
+                    f.location.planetId === planet.id,
+                );
+                let fleet = orbitFleets[0];
+                if (!fleet) {
+                  fleet = {
+                    id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                    ownerId: game.humanPlayer.id,
+                    location: { type: 'orbit', planetId: planet.id },
+                    ships: [],
+                    fuel: 0,
+                    cargo: {
+                      resources: 0,
+                      minerals: { iron: 0, boranium: 0, germanium: 0 },
+                      colonists: 0,
+                    },
+                    orders: [],
+                  };
+                  game.fleets.push(fleet);
+                }
+                const stack = fleet.ships.find((s) => s.designId === designId);
+                if (stack) stack.count += 1;
+                else fleet.ships.push({ designId, count: 1, damage: 0 });
+                // Add starting fuel based on design
+                fleet.fuel += getDesign(designId).fuelCapacity;
+                // If colony ship, preload colonists based on design capacity
+                const design = getDesign(designId);
+                if (design.colonyModule && design.colonistCapacity) {
+                  fleet.cargo.colonists += design.colonistCapacity;
+                }
+                break;
+              }
+              default:
+                break;
+            }
+          } else {
+            // Cannot afford anymore
+            break;
           }
-          const stack = fleet.ships.find((s) => s.designId === designId);
-          if (stack) stack.count += 1;
-          else fleet.ships.push({ designId, count: 1, damage: 0 });
-          // Add starting fuel based on design
-          fleet.fuel += getDesign(designId).fuelCapacity;
-          // If colony ship, preload colonists based on design capacity
-          const design = getDesign(designId);
-          if (design.colonyModule && design.colonistCapacity) {
-            fleet.cargo.colonists += design.colonistCapacity;
+        }
+
+        if (constructed > 0) {
+          // If we built some, update the item count
+          if (constructed >= count) {
+            // Finished this item
+            queue = queue.slice(1);
+          } else {
+            // Partially finished
+            item.count = count - constructed;
+            // Stop processing this planet for this turn as we ran out of resources
+            break;
           }
+        } else {
+          // Couldn't build even one. Stop processing this planet.
           break;
         }
-        default:
-          break;
       }
-      planet.buildQueue = queue.slice(1);
+
+      planet.buildQueue = queue;
     }
   }
 
