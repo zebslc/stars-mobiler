@@ -1,97 +1,94 @@
 import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { GameStateService } from '../../services/game-state.service';
 import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../data/tech-tree.data';
 
 @Component({
   standalone: true,
   selector: 'app-research-overview',
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Research & Technology</ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <main class="research-container">
+      <h1>Research & Technology</h1>
 
-    <ion-content>
-      <div class="research-container">
-        <!-- Research Summary -->
-        <div class="research-summary">
-          <div class="summary-card">
-            <ion-icon name="flask"></ion-icon>
-            <div class="summary-content">
-              <div class="summary-label">Total Research</div>
-              <div class="summary-value">{{ playerEconomy()?.research ?? 0 }} RP</div>
-            </div>
-          </div>
-          <div class="summary-card">
-            <ion-icon name="planet"></ion-icon>
-            <div class="summary-content">
-              <div class="summary-label">Research Labs</div>
-              <div class="summary-value">{{ totalLabs() }}</div>
-            </div>
+      <!-- Research Summary -->
+      <div class="research-summary">
+        <div class="summary-card">
+          <div class="summary-icon">🔬</div>
+          <div class="summary-content">
+            <div class="summary-label">Total Research</div>
+            <div class="summary-value">{{ playerEconomy()?.research ?? 0 }} RP</div>
           </div>
         </div>
-
-        <!-- Tech Fields -->
-        <div class="tech-fields">
-          @for (fieldId of techFieldList; track fieldId) {
-            <div class="tech-field-card">
-              <div class="field-header">
-                <ion-icon [name]="getFieldInfo(fieldId).icon"></ion-icon>
-                <div class="field-info">
-                  <h3>{{ getFieldInfo(fieldId).name }}</h3>
-                  <p class="field-description">{{ getFieldInfo(fieldId).description }}</p>
-                </div>
-                <div class="field-level">
-                  <div class="level-badge">{{ getCurrentLevel(fieldId) }}</div>
-                  <div class="level-label">Level</div>
-                </div>
-              </div>
-
-              <div class="field-progress">
-                <div class="progress-bar">
-                  <div
-                    class="progress-fill"
-                    [style.width.%]="getProgressPercent(fieldId)"
-                  ></div>
-                </div>
-                <div class="progress-text">
-                  {{ getResearchProgress(fieldId) }} / {{ getNextLevelCost(fieldId) }} RP
-                </div>
-              </div>
-
-              <div class="field-unlocks">
-                <div class="unlocks-label">Next unlock at Level {{ getCurrentLevel(fieldId) + 1 }}:</div>
-                <div class="unlock-list">
-                  @for (unlock of getNextUnlocks(fieldId); track unlock) {
-                    <div class="unlock-item">
-                      <ion-icon name="checkmark-circle-outline"></ion-icon>
-                      {{ unlock }}
-                    </div>
-                  }
-                  @if (getNextUnlocks(fieldId).length === 0) {
-                    <div class="unlock-item text-muted">
-                      <ion-icon name="trophy"></ion-icon>
-                      Maximum level reached
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
+        <div class="summary-card">
+          <div class="summary-icon">🏭</div>
+          <div class="summary-content">
+            <div class="summary-label">Research Labs</div>
+            <div class="summary-value">{{ totalLabs() }}</div>
+          </div>
         </div>
       </div>
-    </ion-content>
+
+      <!-- Tech Fields -->
+      <div class="tech-fields">
+        @for (fieldId of techFieldList; track fieldId) {
+          <div class="tech-field-card">
+            <div class="field-header">
+              <div class="field-icon">{{ getFieldIcon(fieldId) }}</div>
+              <div class="field-info">
+                <h3>{{ getFieldInfo(fieldId).name }}</h3>
+                <p class="field-description">{{ getFieldInfo(fieldId).description }}</p>
+              </div>
+              <div class="field-level">
+                <div class="level-badge">{{ getCurrentLevel(fieldId) }}</div>
+                <div class="level-label">Level</div>
+              </div>
+            </div>
+
+            <div class="field-progress">
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="getProgressPercent(fieldId)"
+                ></div>
+              </div>
+              <div class="progress-text">
+                {{ getResearchProgress(fieldId) }} / {{ getNextLevelCost(fieldId) }} RP
+              </div>
+            </div>
+
+            <div class="field-unlocks">
+              <div class="unlocks-label">Next unlock at Level {{ getCurrentLevel(fieldId) + 1 }}:</div>
+              <div class="unlock-list">
+                @for (unlock of getNextUnlocks(fieldId); track unlock) {
+                  <div class="unlock-item">
+                    <span class="unlock-checkmark">✓</span>
+                    {{ unlock }}
+                  </div>
+                }
+                @if (getNextUnlocks(fieldId).length === 0) {
+                  <div class="unlock-item text-muted">
+                    <span class="unlock-checkmark">🏆</span>
+                    Maximum level reached
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </main>
   `,
   styles: [`
     .research-container {
-      padding: var(--space-md);
+      padding: var(--space-lg);
       max-width: 1200px;
       margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: var(--space-xl);
     }
 
     .research-summary {
@@ -111,9 +108,9 @@ import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../data/tech-tree.da
       gap: var(--space-md);
     }
 
-    .summary-card ion-icon {
+    .summary-icon {
       font-size: 32px;
-      color: var(--color-primary);
+      flex-shrink: 0;
     }
 
     .summary-content {
@@ -158,9 +155,8 @@ import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../data/tech-tree.da
       margin-bottom: var(--space-lg);
     }
 
-    .field-header > ion-icon {
+    .field-icon {
       font-size: 40px;
-      color: var(--color-primary);
       flex-shrink: 0;
     }
 
@@ -257,9 +253,9 @@ import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../data/tech-tree.da
       color: var(--color-text-primary);
     }
 
-    .unlock-item ion-icon {
-      font-size: 16px;
+    .unlock-checkmark {
       color: var(--color-success);
+      font-weight: bold;
       flex-shrink: 0;
     }
 
@@ -267,7 +263,7 @@ import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../data/tech-tree.da
       color: var(--color-text-muted);
     }
 
-    .unlock-item.text-muted ion-icon {
+    .unlock-item.text-muted .unlock-checkmark {
       color: var(--color-warning);
     }
   `]
@@ -290,6 +286,18 @@ export class ResearchOverviewComponent {
 
   getFieldInfo(field: TechField) {
     return TECH_FIELDS[field];
+  }
+
+  getFieldIcon(field: TechField): string {
+    const icons: Record<TechField, string> = {
+      energy: '⚡',
+      weapons: '🚀',
+      propulsion: '✈️',
+      construction: '🏗️',
+      electronics: '📡',
+      biotechnology: '🧬',
+    };
+    return icons[field];
   }
 
   getCurrentLevel(field: TechField): number {
