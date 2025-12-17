@@ -5,6 +5,7 @@ import { GameStateService } from '../../services/game-state.service';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { HULLS, Hull } from '../../data/hulls.data';
 import { COMPONENTS } from '../../data/components.data';
+import { ComponentAssignment } from '../../models/game.model';
 
 type DesignerMode = 'list' | 'designer';
 
@@ -49,12 +50,12 @@ export class ShipDesignOverviewComponent {
     return this.designer.getAvailableComponentsForSlot(slotId);
   });
 
-  readonly currentComponentInSlot = computed(() => {
+  readonly currentComponentsInSlot = computed(() => {
     const design = this.design();
     const slotId = this.selectedSlotId();
-    if (!design || !slotId) return null;
+    if (!design || !slotId) return [];
     const assignment = design.slots.find((s) => s.slotId === slotId);
-    return assignment?.componentId || null;
+    return assignment?.components || [];
   });
 
   startNewDesign(hullId: string = 'scout') {
@@ -80,22 +81,26 @@ export class ShipDesignOverviewComponent {
     this.componentSelectOpen.set(true);
   }
 
-  installComponent(componentId: string) {
+  addComponent(componentId: string) {
     const slotId = this.selectedSlotId();
     if (!slotId) return;
 
-    const success = this.designer.installComponent(slotId, componentId);
-    if (success) {
-      this.componentSelectOpen.set(false);
-      this.selectedSlotId.set(null);
-    }
+    this.designer.addComponent(slotId, componentId, 1);
+    // Don't close modal - allow adding more
   }
 
-  removeComponent() {
+  removeComponentFromSlot(componentId: string) {
     const slotId = this.selectedSlotId();
     if (!slotId) return;
 
-    this.designer.removeComponent(slotId);
+    this.designer.removeComponent(slotId, componentId);
+  }
+
+  clearSlot() {
+    const slotId = this.selectedSlotId();
+    if (!slotId) return;
+
+    this.designer.clearSlot(slotId);
     this.componentSelectOpen.set(false);
     this.selectedSlotId.set(null);
   }
@@ -127,16 +132,31 @@ export class ShipDesignOverviewComponent {
     }
   }
 
-  getComponentInSlot(slotId: string): string | null {
+  getComponentsInSlot(slotId: string): ComponentAssignment[] {
     const design = this.design();
-    if (!design) return null;
+    if (!design) return [];
     const assignment = design.slots.find((s) => s.slotId === slotId);
-    return assignment?.componentId || null;
+    return assignment?.components || [];
   }
 
   getComponentName(componentId: string): string {
     const component = COMPONENTS[componentId];
     return component ? component.name : 'Empty';
+  }
+
+  getSlotSummary(slotId: string): string {
+    const components = this.getComponentsInSlot(slotId);
+    if (components.length === 0) return 'Empty';
+    if (components.length === 1 && components[0].count === 1) {
+      return this.getComponentName(components[0].componentId);
+    }
+    return `${components.length} types`;
+  }
+
+  getComponentCount(slotId: string, componentId: string): number {
+    const components = this.getComponentsInSlot(slotId);
+    const comp = components.find((c) => c.componentId === componentId);
+    return comp?.count || 0;
   }
 
   formatType(design: any): string {

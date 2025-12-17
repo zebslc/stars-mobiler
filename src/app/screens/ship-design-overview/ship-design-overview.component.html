@@ -3,7 +3,7 @@
   @if (!isDesignerMode()) {
     <div class="design-list-header">
       <h1>Ship Designs</h1>
-      <button class="btn-primary" (click)="startNewDesign()">+ New Design</button>
+      <button type="button" class="btn-primary" (click)="startNewDesign()">+ New Design</button>
     </div>
 
     <div class="designs-grid">
@@ -53,8 +53,8 @@
             <span class="design-type custom">Custom</span>
           </div>
           <div class="design-actions">
-            <button class="btn-small">Edit</button>
-            <button class="btn-small btn-danger">Delete</button>
+            <button type="button" class="btn-small">Edit</button>
+            <button type="button" class="btn-small btn-danger">Delete</button>
           </div>
         </div>
       }
@@ -75,10 +75,10 @@
           />
         </div>
         <div class="header-actions">
-          <button class="btn-primary" (click)="saveDesign()" [disabled]="!stats()?.isValid">
+          <button type="button" class="btn-primary" (click)="saveDesign()" [disabled]="!stats()?.isValid">
             Save Design
           </button>
-          <button (click)="cancelDesign()">Cancel</button>
+          <button type="button" (click)="cancelDesign()">Cancel</button>
         </div>
       </div>
 
@@ -123,6 +123,12 @@
                 <span class="label">Mass:</span>
                 <span class="value">{{ currentHull.mass }}kt</span>
               </div>
+              @if (currentHull.cargoCapacity) {
+                <div class="hull-stat">
+                  <span class="label">Cargo:</span>
+                  <span class="value">{{ currentHull.cargoCapacity }}kt</span>
+                </div>
+              }
             </div>
           </div>
 
@@ -132,17 +138,15 @@
               @for (slot of currentHull.slots; track slot.id) {
                 <div
                   class="hull-slot"
-                  [class.filled]="getComponentInSlot(slot.id)"
+                  [class.filled]="getComponentsInSlot(slot.id).length > 0"
                   [class.selected]="selectedSlotId() === slot.id"
                   (click)="selectSlot(slot.id)"
                 >
                   <div class="slot-icon">{{ getSlotTypeIcon(slot.allowedTypes) }}</div>
                   <div class="slot-label">{{ getSlotTypeLabel(slot.allowedTypes) }}</div>
-                  @if (getComponentInSlot(slot.id); as compId) {
-                    <div class="slot-component">{{ getComponentName(compId) }}</div>
-                  } @else {
-                    <div class="slot-empty">Empty</div>
-                  }
+                  <div class="slot-content">
+                    {{ getSlotSummary(slot.id) }}
+                  </div>
                 </div>
               }
             </div>
@@ -221,16 +225,18 @@
                 <div class="stat-list">
                   <div class="stat-item">
                     <span>Warp Speed:</span>
-                    <span>{{ compiledStats.warpSpeed }}</span>
+                    <span>{{ compiledStats.warpSpeed > 0 ? compiledStats.warpSpeed : 'None' }}</span>
                   </div>
                   <div class="stat-item">
                     <span>Fuel Capacity:</span>
                     <span>{{ compiledStats.fuelCapacity }}mg</span>
                   </div>
-                  <div class="stat-item">
-                    <span>Fuel Efficiency:</span>
-                    <span>{{ compiledStats.fuelEfficiency === 0 ? 'Ramscoop' : compiledStats.fuelEfficiency }}</span>
-                  </div>
+                  @if (compiledStats.warpSpeed > 0) {
+                    <div class="stat-item">
+                      <span>Fuel Efficiency:</span>
+                      <span>{{ compiledStats.fuelEfficiency === 0 ? 'Ramscoop' : compiledStats.fuelEfficiency }}</span>
+                    </div>
+                  }
                 </div>
               </div>
 
@@ -287,19 +293,30 @@
           </div>
         </div>
 
-        @if (currentComponentInSlot()) {
-          <div class="current-component">
-            <strong>Current: {{ getComponentName(currentComponentInSlot()!) }}</strong>
-            <button (click)="removeComponent()" class="btn-small btn-danger">Remove</button>
+        <!-- Current Components in Slot -->
+        @if (currentComponentsInSlot().length > 0) {
+          <div class="current-components">
+            <strong>Installed:</strong>
+            @for (comp of currentComponentsInSlot(); track comp.componentId) {
+              <div class="installed-component">
+                <span>{{ getComponentName(comp.componentId) }} ({{ comp.count }})</span>
+                <div class="component-controls">
+                  <button type="button" class="btn-tiny" (click)="removeComponentFromSlot(comp.componentId)">-</button>
+                  <button type="button" class="btn-tiny" (click)="addComponent(comp.componentId)">+</button>
+                </div>
+              </div>
+            }
+            <button type="button" (click)="clearSlot()" class="btn-small btn-danger">Clear All</button>
           </div>
         }
 
+        <!-- Available Components -->
         <div class="component-list">
+          <div class="component-list-header">Available Components:</div>
           @for (component of availableComponentsForSlot(); track component.id) {
             <div
               class="component-item"
-              [class.selected]="currentComponentInSlot() === component.id"
-              (click)="installComponent(component.id)"
+              (click)="addComponent(component.id)"
             >
               <div class="component-name">{{ component.name }}</div>
               <div class="component-details">
@@ -313,11 +330,14 @@
               <div class="component-cost">
                 {{ formatCost(component.cost) }}
               </div>
+              <div class="component-count">
+                Installed: {{ getComponentCount(selectedSlotId()!, component.id) }}
+              </div>
             </div>
           }
         </div>
 
-        <button (click)="componentSelectOpen.set(false)" class="btn-text">Close</button>
+        <button type="button" (click)="componentSelectOpen.set(false)" class="btn-text">Close</button>
       </div>
     </div>
   }

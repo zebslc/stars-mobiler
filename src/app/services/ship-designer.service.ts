@@ -103,9 +103,9 @@ export class ShipDesignerService {
   }
 
   /**
-   * Install a component in a slot
+   * Add a component to a slot (or increment if already present)
    */
-  installComponent(slotId: string, componentId: string): boolean {
+  addComponent(slotId: string, componentId: string, count: number = 1): boolean {
     const design = this._currentDesign();
     const hull = this.currentHull();
     if (!design || !hull) return false;
@@ -133,9 +133,26 @@ export class ShipDesignerService {
     }
 
     // Update slot assignment
-    const newSlots = design.slots.map((slot) =>
-      slot.slotId === slotId ? { ...slot, componentId } : slot
-    );
+    const newSlots = design.slots.map((slot) => {
+      if (slot.slotId !== slotId) return slot;
+
+      const existingComp = slot.components.find((c) => c.componentId === componentId);
+      if (existingComp) {
+        // Increment count
+        return {
+          ...slot,
+          components: slot.components.map((c) =>
+            c.componentId === componentId ? { ...c, count: c.count + count } : c
+          ),
+        };
+      } else {
+        // Add new component
+        return {
+          ...slot,
+          components: [...slot.components, { componentId, count }],
+        };
+      }
+    });
 
     this._currentDesign.set({
       ...design,
@@ -146,14 +163,40 @@ export class ShipDesignerService {
   }
 
   /**
-   * Remove component from a slot
+   * Remove one instance of a component from a slot
    */
-  removeComponent(slotId: string): void {
+  removeComponent(slotId: string, componentId: string): void {
+    const design = this._currentDesign();
+    if (!design) return;
+
+    const newSlots = design.slots.map((slot) => {
+      if (slot.slotId !== slotId) return slot;
+
+      return {
+        ...slot,
+        components: slot.components
+          .map((c) =>
+            c.componentId === componentId ? { ...c, count: c.count - 1 } : c
+          )
+          .filter((c) => c.count > 0),
+      };
+    });
+
+    this._currentDesign.set({
+      ...design,
+      slots: newSlots,
+    });
+  }
+
+  /**
+   * Clear all components from a slot
+   */
+  clearSlot(slotId: string): void {
     const design = this._currentDesign();
     if (!design) return;
 
     const newSlots = design.slots.map((slot) =>
-      slot.slotId === slotId ? { ...slot, componentId: null } : slot
+      slot.slotId === slotId ? { ...slot, components: [] } : slot
     );
 
     this._currentDesign.set({

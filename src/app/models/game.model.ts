@@ -30,7 +30,12 @@ export interface ShipDesign {
 
 export interface SlotAssignment {
   slotId: string;
-  componentId: string | null;
+  components: ComponentAssignment[];
+}
+
+export interface ComponentAssignment {
+  componentId: string;
+  count: number;
 }
 
 export interface PlayerTech {

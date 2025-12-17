@@ -256,7 +256,7 @@
   text-transform: uppercase;
 }
 
-.slot-component {
+.slot-content {
   font-size: 0.8rem;
   color: #000;
   font-weight: 600;
@@ -264,12 +264,6 @@
   background: #fff;
   padding: 0.25rem;
   border-radius: 2px;
-}
-
-.slot-empty {
-  font-size: 0.75rem;
-  color: #333;
-  font-style: italic;
 }
 
 /* Stats Panel (Right) - mimics original game */
@@ -495,15 +489,49 @@
   color: #000;
 }
 
-.current-component {
+.current-components {
   background: #ccffcc;
   border: 2px solid #5a8;
   border-radius: 4px;
   padding: 0.75rem;
   margin-bottom: 1rem;
+}
+
+.current-components strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #000;
+}
+
+.installed-component {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.5rem;
+  background: #fff;
+  border: 1px solid #999;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.component-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn-tiny {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #666;
+  border-radius: 3px;
+  background: #e0e0e0;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  min-width: 28px;
+}
+
+.btn-tiny:hover {
+  background: #f0f0f0;
 }
 
 .component-list {
@@ -513,6 +541,15 @@
   margin-bottom: 1rem;
   max-height: 400px;
   overflow-y: auto;
+}
+
+.component-list-header {
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #d0d0d0;
+  border-radius: 4px;
 }
 
 .component-item {
@@ -561,6 +598,12 @@
 .component-cost {
   font-size: 0.8rem;
   color: #555;
+}
+
+.component-count {
+  font-size: 0.75rem;
+  color: #5a8;
+  font-weight: 600;
 }
 
 /* Responsive */

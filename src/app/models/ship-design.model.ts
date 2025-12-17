@@ -1,6 +1,7 @@
 import { Hull, HullSlot, SlotType } from '../data/hulls.data';
 import { Component, COMPONENTS } from '../data/components.data';
 import { MiniaturizedComponent } from '../utils/miniaturization.util';
+import { SlotAssignment, ComponentAssignment } from '../models/game.model';
 
 /**
  * Ship Design Models
@@ -8,20 +9,6 @@ import { MiniaturizedComponent } from '../utils/miniaturization.util';
  * Represents a custom ship design with a hull and installed components
  * Based on Stars! modular ship design system
  */
-
-export interface SlotAssignment {
-  slotId: string; // References HullSlot.id
-  componentId: string | null; // null if empty slot
-}
-
-export interface ShipDesign {
-  id: string;
-  name: string;
-  hullId: string;
-  slots: SlotAssignment[];
-  createdTurn: number;
-  playerId: string;
-}
 
 export interface CompiledShipStats {
   // Movement
@@ -100,57 +87,63 @@ export function compileShipStats(
 
   // Process each slot assignment
   for (const assignment of assignments) {
-    if (!assignment.componentId) continue;
+    if (!assignment.components || assignment.components.length === 0) continue;
 
-    const miniComponent = miniComponentMap.get(assignment.componentId);
-    const baseComponent: Component = COMPONENTS[assignment.componentId];
+    for (const compAssignment of assignment.components) {
+      const miniComponent = miniComponentMap.get(compAssignment.componentId);
+      const baseComponent: Component = COMPONENTS[compAssignment.componentId];
 
-    if (!miniComponent || !baseComponent) {
-      errors.push(`Component ${assignment.componentId} not found`);
-      continue;
-    }
+      if (!miniComponent || !baseComponent) {
+        errors.push(`Component ${compAssignment.componentId} not found`);
+        continue;
+      }
 
-    // Add miniaturized mass and cost
-    totalMass += miniComponent.mass;
-    if (miniComponent.cost.ironium) cost.ironium += miniComponent.cost.ironium;
-    if (miniComponent.cost.boranium) cost.boranium += miniComponent.cost.boranium;
-    if (miniComponent.cost.germanium) cost.germanium += miniComponent.cost.germanium;
+      const count = compAssignment.count;
 
-    // Apply component effects based on type (using base stats)
-    switch (baseComponent.type) {
-      case 'engine':
-        hasEngine = true;
-        if (baseComponent.warpSpeed && baseComponent.warpSpeed > warpSpeed) {
-          warpSpeed = baseComponent.warpSpeed;
-          fuelEfficiency = baseComponent.fuelEfficiency || 0;
-          idealWarp = baseComponent.idealWarp || baseComponent.warpSpeed;
-        }
-        break;
+      // Add miniaturized mass and cost (multiplied by count)
+      totalMass += miniComponent.mass * count;
+      if (miniComponent.cost.ironium) cost.ironium += miniComponent.cost.ironium * count;
+      if (miniComponent.cost.boranium) cost.boranium += miniComponent.cost.boranium * count;
+      if (miniComponent.cost.germanium) cost.germanium += miniComponent.cost.germanium * count;
 
-      case 'weapon':
-        firepower += baseComponent.damage || 0;
-        if (baseComponent.accuracy) {
-          accuracy = Math.max(accuracy, baseComponent.accuracy);
-        }
-        if (baseComponent.initiative) {
-          initiative = Math.max(initiative, baseComponent.initiative);
-        }
-        break;
+      // Apply component effects based on type (using base stats, multiplied by count)
+      switch (baseComponent.type) {
+        case 'engine':
+          hasEngine = true;
+          // For engines, only the best one matters (not cumulative)
+          if (baseComponent.warpSpeed && baseComponent.warpSpeed > warpSpeed) {
+            warpSpeed = baseComponent.warpSpeed;
+            fuelEfficiency = baseComponent.fuelEfficiency || 0;
+            idealWarp = baseComponent.idealWarp || baseComponent.warpSpeed;
+          }
+          break;
 
-      case 'shield':
-        shields += baseComponent.shieldStrength || 0;
-        break;
+        case 'weapon':
+          firepower += (baseComponent.damage || 0) * count;
+          if (baseComponent.accuracy) {
+            accuracy = Math.max(accuracy, baseComponent.accuracy);
+          }
+          if (baseComponent.initiative) {
+            initiative = Math.max(initiative, baseComponent.initiative);
+          }
+          break;
 
-      case 'scanner':
-        scanRange = Math.max(scanRange, baseComponent.scanRange || 0);
-        if (baseComponent.canDetectCloaked) {
-          canDetectCloaked = true;
-        }
-        break;
+        case 'shield':
+          shields += (baseComponent.shieldStrength || 0) * count;
+          break;
 
-      case 'cargo':
-        cargoCapacity += baseComponent.cargoCapacity || 0;
-        break;
+        case 'scanner':
+          // For scanners, only the best one matters
+          scanRange = Math.max(scanRange, baseComponent.scanRange || 0);
+          if (baseComponent.canDetectCloaked) {
+            canDetectCloaked = true;
+          }
+          break;
+
+        case 'cargo':
+          cargoCapacity += (baseComponent.cargoCapacity || 0) * count;
+          break;
+      }
     }
   }
 
@@ -231,10 +224,10 @@ export function createEmptyDesign(
   hull: Hull,
   playerId: string,
   turn: number
-): ShipDesign {
+): import('../models/game.model').ShipDesign {
   const slots: SlotAssignment[] = hull.slots.map((slot) => ({
     slotId: slot.id,
-    componentId: null,
+    components: [],
   }));
 
   return {
