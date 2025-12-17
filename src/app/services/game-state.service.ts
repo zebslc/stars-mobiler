@@ -220,7 +220,12 @@ export class GameStateService {
     this.processFleets(game);
     game.turn++;
     // Create new array references to ensure signal change detection triggers
-    const nextGame = { ...game, stars: [...game.stars], fleets: [...game.fleets] };
+    const nextGame = {
+      ...game,
+      humanPlayer: { ...game.humanPlayer },
+      stars: [...game.stars],
+      fleets: [...game.fleets],
+    };
     this._game.set(nextGame);
   }
 
@@ -235,7 +240,8 @@ export class GameStateService {
       return false;
     }
     planet.buildQueue = [...(planet.buildQueue ?? []), item];
-    this._game.set({ ...game });
+    // Update stars array reference to trigger signals
+    this._game.set({ ...game, stars: [...game.stars] });
     return true;
   }
 
@@ -369,7 +375,7 @@ export class GameStateService {
     const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
     if (!planet || planet.ownerId !== game.humanPlayer.id) return;
     planet.governor = governor ?? { type: 'manual' };
-    this._game.set({ ...game });
+    this._game.set({ ...game, stars: [...game.stars] });
   }
 
   removeFromQueue(planetId: string, index: number) {
@@ -378,7 +384,7 @@ export class GameStateService {
     const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
     if (!planet || !planet.buildQueue) return;
     planet.buildQueue = planet.buildQueue.filter((_, i) => i !== index);
-    this._game.set({ ...game });
+    this._game.set({ ...game, stars: [...game.stars] });
   }
 
   issueFleetOrder(fleetId: string, order: import('../models/game.model').FleetOrder) {
@@ -441,7 +447,7 @@ export class GameStateService {
     if (fleet.ships.length === 0) {
       game.fleets = game.fleets.filter((f) => f.id !== fleet.id);
     }
-    this._game.set({ ...game });
+    this._game.set({ ...game, stars: [...game.stars], fleets: [...game.fleets] });
     return planet.id;
   }
 
@@ -519,7 +525,7 @@ export class GameStateService {
       planet.population = Math.max(0, planet.population - takePeople);
       fleet.cargo.colonists += takePeople;
     }
-    this._game.set({ ...game });
+    this._game.set({ ...game, stars: [...game.stars], fleets: [...game.fleets] });
   }
   unloadCargo(
     fleetId: string,
@@ -566,7 +572,7 @@ export class GameStateService {
       fleet.cargo.colonists -= givePeople;
       planet.population += givePeople;
     }
-    this._game.set({ ...game });
+    this._game.set({ ...game, stars: [...game.stars], fleets: [...game.fleets] });
   }
 
   private processFleets(game: GameState) {
