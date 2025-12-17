@@ -76,6 +76,7 @@ export class GalaxyGeneratorService {
         terraformOffset: { temperature: 0, atmosphere: 0 },
         resources: 0,
         research: 0,
+        scanner: 0,
       });
     }
     return planets;
@@ -104,6 +105,7 @@ export class GalaxyGeneratorService {
       terraformOffset: { temperature: 0, atmosphere: 0 },
       resources: 0,
       research: 0,
+      scanner: 0,
     };
   }
 

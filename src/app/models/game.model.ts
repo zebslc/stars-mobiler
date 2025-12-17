@@ -86,6 +86,7 @@ export interface Planet {
   factories: number;
   defenses: number;
   research: number;
+  scanner: number;
   terraformOffset: { temperature: number; atmosphere: number };
   resources: number;
   buildQueue?: BuildItem[];
@@ -139,13 +140,7 @@ export interface PlayerEconomy {
   research: number;
 }
 
-export type BuildProject =
-  | 'mine'
-  | 'factory'
-  | 'defense'
-  | 'research'
-  | 'terraform'
-  | 'ship';
+export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship';
 export interface BuildItem {
   project: BuildProject;
   cost: { resources: number; iron?: number; boranium?: number; germanium?: number };

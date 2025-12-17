@@ -276,6 +276,9 @@ export class GameStateService {
               case 'research':
                 planet.research = (planet.research || 0) + 1;
                 break;
+              case 'scanner':
+                planet.scanner = 1;
+                break;
               case 'terraform':
                 planet.temperature +=
                   planet.temperature < game.humanPlayer.species.habitat.idealTemperature ? 1 : -1;
