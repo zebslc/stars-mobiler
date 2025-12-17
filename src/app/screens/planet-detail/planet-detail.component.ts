@@ -418,12 +418,15 @@ export class PlanetDetailComponent implements OnInit {
   private planetId = this.route.snapshot.paramMap.get('id');
 
   planet = computed(() => {
-    return (
+    // Dependency on turn ensures re-evaluation when turn changes
+    this.gs.turn();
+    const p =
       this.gs
         .stars()
         .flatMap((s) => s.planets)
-        .find((p) => p.id === this.planetId) || null
-    );
+        .find((p) => p.id === this.planetId) || null;
+    // Return a shallow copy to trigger change detection since the object might have been mutated in place
+    return p ? { ...p } : null;
   });
 
   ngOnInit() {

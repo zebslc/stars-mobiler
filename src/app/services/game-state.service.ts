@@ -181,7 +181,9 @@ export class GameStateService {
     // Movement and colonization
     this.processFleets(game);
     game.turn++;
-    this._game.set({ ...game });
+    // Create new array references to ensure signal change detection triggers
+    const nextGame = { ...game, stars: [...game.stars], fleets: [...game.fleets] };
+    this._game.set(nextGame);
   }
 
   addToBuildQueue(planetId: string, item: BuildItem): boolean {
@@ -392,6 +394,7 @@ export class GameStateService {
     planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
     // Broken-down ship parts contribute minerals based on its build cost
     const cost = this.getShipCost(colonyStack!.designId);
+    planet.resources += cost.resources;
     planet.surfaceMinerals.iron += cost.iron ?? 0;
     planet.surfaceMinerals.boranium += cost.boranium ?? 0;
     planet.surfaceMinerals.germanium += cost.germanium ?? 0;
@@ -620,6 +623,7 @@ export class GameStateService {
           planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
           // Ship breakdown minerals
           const cost = this.getShipCost(colonyStack!.designId);
+          planet.resources += cost.resources;
           planet.surfaceMinerals.iron += cost.iron ?? 0;
           planet.surfaceMinerals.boranium += cost.boranium ?? 0;
           planet.surfaceMinerals.germanium += cost.germanium ?? 0;

@@ -48,4 +48,8 @@ export const appRoutes: Routes = [
     loadComponent: () =>
       import('./screens/settings/settings.component').then((m) => m.SettingsComponent),
   },
+  {
+    path: '**',
+    redirectTo: '',
+  },
 ];

@@ -18,12 +18,17 @@ export class GalaxyGeneratorService {
         positions.push(candidate);
       }
     }
-    const stars: Star[] = positions.map((pos, i) => ({
-      id: `star-${i}`,
-      name: this.starName(seed, i),
-      position: pos,
-      planets: this.generatePlanets(1, rng)
-    }));
+    const stars: Star[] = positions.map((pos, i) => {
+      const name = this.starName(seed, i);
+      const planets = this.generatePlanets(1, rng);
+      planets.forEach((p) => (p.name = name));
+      return {
+        id: `star-${i}`,
+        name,
+        position: pos,
+        planets,
+      };
+    });
     return stars;
   }
 
