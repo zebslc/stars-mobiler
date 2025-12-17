@@ -158,9 +158,7 @@ export class GameStateService {
       const prod = this.economy.calculateProduction(planet);
       // Add production directly to this planet
       planet.resources += prod.resources;
-      planet.surfaceMinerals.iron += Math.floor(prod.extraction.iron);
-      planet.surfaceMinerals.boranium += Math.floor(prod.extraction.boranium);
-      planet.surfaceMinerals.germanium += Math.floor(prod.extraction.germanium);
+      // Mining extraction is applied to surface minerals in applyMiningDepletion
       this.economy.applyMiningDepletion(planet, prod.extraction);
 
       // Calculate Research
@@ -177,8 +175,6 @@ export class GameStateService {
     // Distribute research across all tech fields
     this.advanceResearch(game, totalResearch);
 
-    // Schedule builds after economy update
-    this.processGovernors(game);
     // Population grows or dies
     for (const planet of allPlanets) {
       if (planet.ownerId !== game.humanPlayer.id) continue;
@@ -214,8 +210,12 @@ export class GameStateService {
       }
     }
     // Mining already applied above; increment turn
-    // Process one build item per owned planet
+    // Process one build item per owned planet (Finish previous work)
     this.processBuildQueues(game);
+
+    // Schedule builds if queue is empty (Prepare for next work)
+    this.processGovernors(game);
+
     // Movement and colonization
     this.processFleets(game);
     game.turn++;
@@ -326,33 +326,45 @@ export class GameStateService {
         case 'balanced': {
           const minesTarget = Math.floor(planet.population / 20);
           if (planet.mines < minesTarget) {
-            this.addToBuildQueue(planet.id, { project: 'mine', cost: { resources: 5 } });
+            this.addToBuildQueue(planet.id, {
+              project: 'mine',
+              cost: { resources: 5 },
+              isAuto: true,
+            });
           } else if (planet.factories < Math.floor(planet.population / 10)) {
             this.addToBuildQueue(planet.id, {
               project: 'factory',
               cost: { resources: 10, germanium: 4 },
+              isAuto: true,
             });
           } else {
             this.addToBuildQueue(planet.id, {
               project: 'defense',
               cost: { resources: 15, iron: 2, boranium: 2 },
+              isAuto: true,
             });
           }
           break;
         }
         case 'mining':
-          this.addToBuildQueue(planet.id, { project: 'mine', cost: { resources: 5 } });
+          this.addToBuildQueue(planet.id, {
+            project: 'mine',
+            cost: { resources: 5 },
+            isAuto: true,
+          });
           break;
         case 'industrial':
           this.addToBuildQueue(planet.id, {
             project: 'factory',
             cost: { resources: 10, germanium: 4 },
+            isAuto: true,
           });
           break;
         case 'military':
           this.addToBuildQueue(planet.id, {
             project: 'defense',
             cost: { resources: 15, iron: 2, boranium: 2 },
+            isAuto: true,
           });
           break;
         case 'shipyard': {
@@ -361,7 +373,12 @@ export class GameStateService {
           const queuedShips = (planet.buildQueue ?? []).filter((i) => i.project === 'ship').length;
           if (limit === 0 || queuedShips < limit) {
             const cost = this.getShipCost(designId);
-            this.addToBuildQueue(planet.id, { project: 'ship', cost, shipDesignId: designId });
+            this.addToBuildQueue(planet.id, {
+              project: 'ship',
+              cost,
+              shipDesignId: designId,
+              isAuto: true,
+            });
           }
           break;
         }

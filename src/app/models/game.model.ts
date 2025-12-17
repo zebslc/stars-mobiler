@@ -130,6 +130,7 @@ export interface BuildItem {
   project: BuildProject;
   cost: { resources: number; iron?: number; boranium?: number; germanium?: number };
   shipDesignId?: string;
+  isAuto?: boolean;
 }
 
 export type GovernorType =

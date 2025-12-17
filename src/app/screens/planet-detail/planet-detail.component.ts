@@ -295,6 +295,12 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
                 >({{ it.shipDesignId }})</span
               >
               <span
+                *ngIf="it.isAuto"
+                class="text-small text-muted"
+                style="margin-left:var(--space-xs); font-style: italic;"
+                >(Auto)</span
+              >
+              <span
                 *ngIf="queueColor(it, i) === 'var(--color-danger)'"
                 class="text-xs"
                 style="margin-left:var(--space-sm);color:var(--color-danger)"
