@@ -1,258 +1,325 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { GameStateService } from '../../services/game-state.service';
+import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../data/tech-tree.data';
 
 @Component({
   standalone: true,
   selector: 'app-research-overview',
-  imports: [CommonModule],
+  imports: [CommonModule, IonicModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main style="padding:var(--space-lg);max-width:1400px;margin:0 auto">
-      <h1 style="margin-bottom:var(--space-lg)">Research</h1>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Research & Technology</ion-title>
+      </ion-toolbar>
+    </ion-header>
 
-      <div class="coming-soon-banner">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 11a3 3 0 100-6 3 3 0 000 6z"/>
-          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M22 21v-2a4 4 0 00-3-3.87"/>
-          <path d="M16 3.13a4 4 0 010 7.75"/>
-        </svg>
-        <h2>Research System</h2>
-        <p class="text-muted">The research system is currently under development.</p>
-      </div>
-
-      <div class="placeholder-sections">
-        <div class="placeholder-card">
-          <h3>Research Queue</h3>
-          <p class="text-muted">View and manage your current research projects</p>
-          <div class="placeholder-content">
-            <div class="placeholder-item">
-              <div class="placeholder-bar" style="width: 80%"></div>
-              <span class="text-xs text-muted">Example Research 1 - 5 turns remaining</span>
+    <ion-content>
+      <div class="research-container">
+        <!-- Research Summary -->
+        <div class="research-summary">
+          <div class="summary-card">
+            <ion-icon name="flask"></ion-icon>
+            <div class="summary-content">
+              <div class="summary-label">Total Research</div>
+              <div class="summary-value">{{ playerEconomy()?.research ?? 0 }} RP</div>
             </div>
-            <div class="placeholder-item">
-              <div class="placeholder-bar" style="width: 30%"></div>
-              <span class="text-xs text-muted">Example Research 2 - 12 turns remaining</span>
+          </div>
+          <div class="summary-card">
+            <ion-icon name="planet"></ion-icon>
+            <div class="summary-content">
+              <div class="summary-label">Research Labs</div>
+              <div class="summary-value">{{ totalLabs() }}</div>
             </div>
           </div>
         </div>
 
-        <div class="placeholder-card">
-          <h3>Technology Tree</h3>
-          <p class="text-muted">Explore available technologies and unlock new capabilities</p>
-          <div class="tech-tree-placeholder">
-            <div class="tech-node unlocked">
-              <span>Basic Tech</span>
-            </div>
-            <div class="tech-connector"></div>
-            <div class="tech-node available">
-              <span>Advanced Tech</span>
-            </div>
-            <div class="tech-connector locked"></div>
-            <div class="tech-node locked">
-              <span>Future Tech</span>
-            </div>
-          </div>
-        </div>
+        <!-- Tech Fields -->
+        <div class="tech-fields">
+          @for (fieldId of techFieldList; track fieldId) {
+            <div class="tech-field-card">
+              <div class="field-header">
+                <ion-icon [name]="getFieldInfo(fieldId).icon"></ion-icon>
+                <div class="field-info">
+                  <h3>{{ getFieldInfo(fieldId).name }}</h3>
+                  <p class="field-description">{{ getFieldInfo(fieldId).description }}</p>
+                </div>
+                <div class="field-level">
+                  <div class="level-badge">{{ getCurrentLevel(fieldId) }}</div>
+                  <div class="level-label">Level</div>
+                </div>
+              </div>
 
-        <div class="placeholder-card">
-          <h3>Resource Allocation</h3>
-          <p class="text-muted">Allocate production from planets to research</p>
-          <div class="allocation-placeholder">
-            <div class="allocation-row">
-              <span class="text-small">Total Resources Allocated:</span>
-              <span class="font-medium" style="color:var(--color-primary)">0 R/turn</span>
-            </div>
-            <div class="allocation-row">
-              <span class="text-small">Contributing Planets:</span>
-              <span class="font-medium">0</span>
-            </div>
-            <div class="allocation-row">
-              <span class="text-small">Research Progress:</span>
-              <span class="font-medium">0%</span>
-            </div>
-          </div>
-        </div>
+              <div class="field-progress">
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    [style.width.%]="getProgressPercent(fieldId)"
+                  ></div>
+                </div>
+                <div class="progress-text">
+                  {{ getResearchProgress(fieldId) }} / {{ getNextLevelCost(fieldId) }} RP
+                </div>
+              </div>
 
-        <div class="placeholder-card">
-          <h3>Available Research</h3>
-          <p class="text-muted">Technologies available to research next</p>
-          <div class="available-tech-placeholder">
-            <div class="tech-item">
-              <span class="tech-name">Improved Mining</span>
-              <span class="tech-cost">Cost: 500 R</span>
+              <div class="field-unlocks">
+                <div class="unlocks-label">Next unlock at Level {{ getCurrentLevel(fieldId) + 1 }}:</div>
+                <div class="unlock-list">
+                  @for (unlock of getNextUnlocks(fieldId); track unlock) {
+                    <div class="unlock-item">
+                      <ion-icon name="checkmark-circle-outline"></ion-icon>
+                      {{ unlock }}
+                    </div>
+                  }
+                  @if (getNextUnlocks(fieldId).length === 0) {
+                    <div class="unlock-item text-muted">
+                      <ion-icon name="trophy"></ion-icon>
+                      Maximum level reached
+                    </div>
+                  }
+                </div>
+              </div>
             </div>
-            <div class="tech-item">
-              <span class="tech-name">Advanced Propulsion</span>
-              <span class="tech-cost">Cost: 800 R</span>
-            </div>
-            <div class="tech-item">
-              <span class="tech-name">Weapon Systems</span>
-              <span class="tech-cost">Cost: 1000 R</span>
-            </div>
-          </div>
+          }
         </div>
       </div>
-    </main>
+    </ion-content>
   `,
   styles: [`
-    .coming-soon-banner {
-      background: var(--color-bg-secondary);
-      border: 2px dashed var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-xl);
-      text-align: center;
-      margin-bottom: var(--space-xl);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-md);
+    .research-container {
+      padding: var(--space-md);
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
-    .coming-soon-banner svg {
-      color: var(--color-warning);
-    }
-
-    .coming-soon-banner h2 {
-      margin: 0;
-      color: var(--color-warning);
-    }
-
-    .placeholder-sections {
+    .research-summary {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: var(--space-lg);
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
     }
 
-    .placeholder-card {
+    .summary-card {
       background: var(--color-bg-secondary);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       padding: var(--space-lg);
-      opacity: 0.6;
-    }
-
-    .placeholder-card h3 {
-      margin: 0 0 var(--space-sm) 0;
-      font-size: var(--font-size-lg);
-    }
-
-    .placeholder-content {
-      margin-top: var(--space-md);
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: var(--space-md);
     }
 
-    .placeholder-item {
+    .summary-card ion-icon {
+      font-size: 32px;
+      color: var(--color-primary);
+    }
+
+    .summary-content {
+      flex: 1;
+    }
+
+    .summary-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .tech-fields {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+
+    .tech-field-card {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .tech-field-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .field-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .field-header > ion-icon {
+      font-size: 40px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    .field-info {
+      flex: 1;
+    }
+
+    .field-info h3 {
+      margin: 0 0 var(--space-xs) 0;
+      font-size: var(--font-size-xl);
+      color: var(--color-text-primary);
+    }
+
+    .field-description {
+      margin: 0;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+
+    .field-level {
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .level-badge {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: white;
+      margin-bottom: var(--space-xs);
+    }
+
+    .level-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field-progress {
+      margin-bottom: var(--space-lg);
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: var(--color-bg-tertiary);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: var(--space-xs);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      text-align: right;
+    }
+
+    .field-unlocks {
+      background: var(--color-bg-tertiary);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+    }
+
+    .unlocks-label {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .unlock-list {
       display: flex;
       flex-direction: column;
       gap: var(--space-xs);
     }
 
-    .placeholder-bar {
-      height: 24px;
-      background: var(--color-bg-tertiary);
-      border-radius: var(--radius-sm);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .placeholder-bar::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 60%;
-      background: var(--color-primary);
-      opacity: 0.3;
-    }
-
-    .tech-tree-placeholder {
-      margin-top: var(--space-md);
+    .unlock-item {
       display: flex;
       align-items: center;
-      gap: var(--space-sm);
-      overflow-x: auto;
-      padding: var(--space-md);
-    }
-
-    .tech-node {
-      padding: var(--space-md);
-      border-radius: var(--radius-sm);
-      min-width: 100px;
-      text-align: center;
+      gap: var(--space-xs);
       font-size: var(--font-size-sm);
-      white-space: nowrap;
+      color: var(--color-text-primary);
     }
 
-    .tech-node.unlocked {
-      background: var(--color-success);
-      color: white;
+    .unlock-item ion-icon {
+      font-size: 16px;
+      color: var(--color-success);
+      flex-shrink: 0;
     }
 
-    .tech-node.available {
-      background: var(--color-primary);
-      color: white;
-    }
-
-    .tech-node.locked {
-      background: var(--color-bg-tertiary);
+    .unlock-item.text-muted {
       color: var(--color-text-muted);
     }
 
-    .tech-connector {
-      width: 30px;
-      height: 2px;
-      background: var(--color-primary);
-    }
-
-    .tech-connector.locked {
-      background: var(--color-border);
-    }
-
-    .allocation-placeholder {
-      margin-top: var(--space-md);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-    }
-
-    .allocation-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--space-sm);
-      background: var(--color-bg-tertiary);
-      border-radius: var(--radius-sm);
-    }
-
-    .available-tech-placeholder {
-      margin-top: var(--space-md);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-    }
-
-    .tech-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--space-md);
-      background: var(--color-bg-tertiary);
-      border-radius: var(--radius-sm);
-    }
-
-    .tech-name {
-      font-weight: 600;
-    }
-
-    .tech-cost {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
+    .unlock-item.text-muted ion-icon {
+      color: var(--color-warning);
     }
   `]
 })
-export class ResearchOverviewComponent {}
+export class ResearchOverviewComponent {
+  private gameState = inject(GameStateService);
+
+  readonly player = this.gameState.player;
+  readonly playerEconomy = this.gameState.playerEconomy;
+  readonly techFieldList = TECH_FIELD_LIST;
+
+  readonly totalLabs = computed(() => {
+    const game = this.gameState.game();
+    if (!game) return 0;
+    return game.stars
+      .flatMap(s => s.planets)
+      .filter(p => p.ownerId === game.humanPlayer.id)
+      .reduce((sum, p) => sum + (p.research || 0), 0);
+  });
+
+  getFieldInfo(field: TechField) {
+    return TECH_FIELDS[field];
+  }
+
+  getCurrentLevel(field: TechField): number {
+    const player = this.player();
+    return player?.techLevels[field] ?? 0;
+  }
+
+  getResearchProgress(field: TechField): number {
+    const player = this.player();
+    return Math.floor(player?.researchProgress[field] ?? 0);
+  }
+
+  getNextLevelCost(field: TechField): number {
+    const currentLevel = this.getCurrentLevel(field);
+    if (currentLevel >= 26) return 0;
+    const fieldInfo = TECH_FIELDS[field];
+    return fieldInfo.levels[currentLevel + 1]?.cost ?? 0;
+  }
+
+  getProgressPercent(field: TechField): number {
+    const progress = this.getResearchProgress(field);
+    const cost = this.getNextLevelCost(field);
+    if (cost === 0) return 100;
+    return Math.min(100, (progress / cost) * 100);
+  }
+
+  getNextUnlocks(field: TechField): string[] {
+    const currentLevel = this.getCurrentLevel(field);
+    if (currentLevel >= 26) return [];
+    const fieldInfo = TECH_FIELDS[field];
+    return fieldInfo.levels[currentLevel + 1]?.unlocks ?? [];
+  }
+}

@@ -18,11 +18,22 @@ export interface GameState {
   playerEconomy: PlayerEconomy;
 }
 
+export interface PlayerTech {
+  energy: number;
+  weapons: number;
+  propulsion: number;
+  construction: number;
+  electronics: number;
+  biotechnology: number;
+}
+
 export interface Player {
   id: string;
   name: string;
   species: Species;
   ownedPlanetIds: string[];
+  techLevels: PlayerTech;
+  researchProgress: PlayerTech; // Accumulated RP toward next level
 }
 
 export interface AIPlayer extends Player {
@@ -54,7 +65,6 @@ export interface Planet {
   factories: number;
   defenses: number;
   research: number;
-  stardock: boolean;
   terraformOffset: { temperature: number; atmosphere: number };
   resources: number;
   buildQueue?: BuildItem[];
@@ -114,8 +124,7 @@ export type BuildProject =
   | 'defense'
   | 'research'
   | 'terraform'
-  | 'ship'
-  | 'stardock';
+  | 'ship';
 export interface BuildItem {
   project: BuildProject;
   cost: { resources: number; iron?: number; boranium?: number; germanium?: number };

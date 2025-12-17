@@ -129,6 +129,22 @@ export const COMPILED_DESIGNS: Record<string, CompiledDesign> = {
     colonistCapacity: 25000,
     mass: 100,
     colonyModule: true
+  },
+  stardock: {
+    id: 'stardock',
+    name: 'Starbase',
+    warpSpeed: 0,
+    fuelCapacity: 0,
+    fuelEfficiency: 100,
+    idealWarp: 0,
+    firepower: 50,
+    armor: 200,
+    shields: 100,
+    accuracy: 80,
+    initiative: 1,
+    cargoCapacity: 1000,
+    colonistCapacity: 0,
+    mass: 500
   }
 };
 

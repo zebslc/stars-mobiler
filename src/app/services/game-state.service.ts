@@ -12,6 +12,7 @@ import { SPECIES } from '../data/species.data';
 import { HabitabilityService } from './habitability.service';
 import { EconomyService } from './economy.service';
 import { getDesign } from '../data/ships.data';
+import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../data/tech-tree.data';
 
 import { SettingsService } from './settings.service';
 
@@ -45,12 +46,44 @@ export class GameStateService {
       name: 'You',
       species: playerSpecies,
       ownedPlanetIds: [],
+      techLevels: {
+        energy: 0,
+        weapons: 0,
+        propulsion: 0,
+        construction: 0,
+        electronics: 0,
+        biotechnology: 0,
+      },
+      researchProgress: {
+        energy: 0,
+        weapons: 0,
+        propulsion: 0,
+        construction: 0,
+        electronics: 0,
+        biotechnology: 0,
+      },
     };
     const ai: AIPlayer = {
       id: 'ai-1',
       name: 'AI',
       species: aiSpecies,
       ownedPlanetIds: [],
+      techLevels: {
+        energy: 0,
+        weapons: 0,
+        propulsion: 0,
+        construction: 0,
+        electronics: 0,
+        biotechnology: 0,
+      },
+      researchProgress: {
+        energy: 0,
+        weapons: 0,
+        propulsion: 0,
+        construction: 0,
+        electronics: 0,
+        biotechnology: 0,
+      },
       brain: { personality: 'expansionist', difficulty: settings.aiDifficulty },
     };
 
@@ -139,6 +172,9 @@ export class GameStateService {
     }
     game.playerEconomy.research += totalResearch;
 
+    // Distribute research across all tech fields
+    this.advanceResearch(game, totalResearch);
+
     // Schedule builds after economy update
     this.processGovernors(game);
     // Population grows or dies
@@ -220,9 +256,6 @@ export class GameStateService {
           break;
         case 'research':
           planet.research = (planet.research || 0) + 1;
-          break;
-        case 'stardock':
-          planet.stardock = true;
           break;
         case 'terraform':
           planet.temperature +=
@@ -545,8 +578,16 @@ export class GameStateService {
           .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
 
         if (planet && planet.ownerId === fleet.ownerId) {
-          // Owned planet: 25% refuel, or 100% if stardock
-          const refuelRate = planet.stardock ? 1.0 : 0.25;
+          // Check for stardock in orbit
+          const hasStardock = game.fleets.some(
+            (f) =>
+              f.ownerId === fleet.ownerId &&
+              f.location.type === 'orbit' &&
+              (f.location as { type: 'orbit'; planetId: string }).planetId === planet.id &&
+              f.ships.some((s) => s.designId === 'stardock'),
+          );
+          // Owned planet: 25% refuel, or 100% if stardock present
+          const refuelRate = hasStardock ? 1.0 : 0.25;
           fleet.fuel = Math.min(totalFuelCapacity, fleet.fuel + totalFuelCapacity * refuelRate);
         }
         // Unowned or enemy planet: no refueling
@@ -687,6 +728,32 @@ export class GameStateService {
     return Math.ceil(basePerLy * speedMultiplier * efficiencyMultiplier);
   }
 
+  private advanceResearch(game: GameState, totalRP: number) {
+    // Distribute research evenly across all 6 tech fields
+    const rpPerField = totalRP / 6;
+
+    for (const fieldId of TECH_FIELD_LIST) {
+      const field = fieldId as TechField;
+      game.humanPlayer.researchProgress[field] += rpPerField;
+
+      // Check if we've reached the next level
+      const currentLevel = game.humanPlayer.techLevels[field];
+      if (currentLevel >= 26) continue; // Max level
+
+      const techInfo = TECH_FIELDS[field];
+      const nextLevel = techInfo.levels[currentLevel + 1];
+
+      if (nextLevel && game.humanPlayer.researchProgress[field] >= nextLevel.cost) {
+        // Level up!
+        game.humanPlayer.techLevels[field]++;
+        game.humanPlayer.researchProgress[field] -= nextLevel.cost;
+
+        // TODO: Show notification to player about tech advancement
+        console.log(`Advanced ${techInfo.name} to level ${game.humanPlayer.techLevels[field]}`);
+      }
+    }
+  }
+
   private getShipCost(designId: string): {
     resources: number;
     iron?: number;
@@ -708,6 +775,8 @@ export class GameStateService {
         return { resources: 30, iron: 6, boranium: 6, germanium: 2 };
       case 'settler':
         return { resources: 80, iron: 10, boranium: 10, germanium: 8 };
+      case 'stardock':
+        return { resources: 200, iron: 50, boranium: 30, germanium: 40 };
       default:
         return { resources: 25, iron: 5 };
     }
