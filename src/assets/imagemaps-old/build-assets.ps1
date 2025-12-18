@@ -1,6 +1,6 @@
 # =============================================================================
-# Stars! Mobile Asset Builder v4 (Expanded Roster)
-# Usage: pwsh build-assets-v4.ps1
+# Stars! Mobile Asset Builder v5 (Complete Arsenal)
+# Usage: pwsh build-assets-v5.ps1
 # =============================================================================
 
 # 1. RESET
@@ -9,8 +9,8 @@ $spriteList = $null
 $assets = @()
 $spriteList = @()
 
-# 2. DEFINE EXPANDED ASSET LIST
-# Coordinates derived from original CSS files
+# 2. DEFINE MASTER ASSET LIST
+# We define them in the exact order we want them in the strip.
 
 # --- ENGINES ---
 $assets += @{ Name="eng-settler"; Source="techs02.png"; X=0;   Y=64 }  # Settler's Delight
@@ -37,18 +37,30 @@ $assets += @{ Name="def-armor-crob"; Source="techs01.png"; X=64;  Y=0 } # Crobmn
 $assets += @{ Name="def-armor-neu";  Source="techs01.png"; X=320; Y=0 } # Neutronium
 $assets += @{ Name="def-armor-val";  Source="techs01.png"; X=128; Y=0 } # Valanium
 
-# --- WEAPONS (Beams, Torps, Bombs) ---
+# --- BEAM WEAPONS (Standard, Gatling, Ramming) ---
 $assets += @{ Name="weap-laser";       Source="techs02.png"; X=256; Y=192 } # Laser
 $assets += @{ Name="weap-xray";        Source="techs02.png"; X=320; Y=192 } # X-Ray
+$assets += @{ Name="weap-minigun";     Source="techs02.png"; X=256; Y=128 } # Mini Gun
+$assets += @{ Name="weap-yakimora";    Source="techs02.png"; X=192; Y=128 } # Yakimora
 $assets += @{ Name="weap-disrupt";     Source="techs02.png"; X=192; Y=192 } # Disruptor
-$assets += @{ Name="weap-phasor";      Source="techs02.png"; X=192; Y=128 } # Phasor (Yakimora)
-$assets += @{ Name="weap-torp-alpha";  Source="techs01.png"; X=64;  Y=192 } # Alpha Torp
-$assets += @{ Name="weap-torp-rho";    Source="techs01.png"; X=320; Y=192 } # Rho Torp
-$assets += @{ Name="weap-torp-anti";   Source="techs04.png"; X=256; Y=64 }  # Anti-Matter
-$assets += @{ Name="weap-bomb-smart";  Source="techs04.png"; X=0;   Y=128 } # Smart Bomb
-$assets += @{ Name="weap-bomb-cherry"; Source="techs03.png"; X=448; Y=0 }   # Cherry Bomb
+$assets += @{ Name="weap-blackjack";   Source="techs02.png"; X=384; Y=64 }  # Blackjack
+$assets += @{ Name="weap-phasor";      Source="techs02.png"; X=320; Y=128 } # Phasor (Note: Techs02 has one at 320,128)
+$assets += @{ Name="weap-ph-bazooka";  Source="techs02.png"; X=320; Y=128 } # Phasor Bazooka (Proxy if needed)
+$assets += @{ Name="weap-gatling";     Source="techs02.png"; X=128; Y=192 } # Gatling Gun
+$assets += @{ Name="weap-bludgeon";    Source="techs02.png"; X=448; Y=64 }  # Bludgeon
+$assets += @{ Name="weap-h-blaster";   Source="techs07.png"; X=64;  Y=0 }   # Heavy Blaster (Techs07)
+$assets += @{ Name="weap-big-mutha";   Source="techs02.png"; X=448; Y=192 } # Big Mutha Cannon
 
-# --- HULLS (Expanded List) ---
+# --- TORPEDOES ---
+$assets += @{ Name="weap-torp-alpha";  Source="techs01.png"; X=64;  Y=192 } # Alpha
+$assets += @{ Name="weap-torp-rho";    Source="techs01.png"; X=320; Y=192 } # Rho
+$assets += @{ Name="weap-torp-anti";   Source="techs04.png"; X=256; Y=64 }  # Anti-Matter
+
+# --- BOMBS ---
+$assets += @{ Name="weap-bomb-smart";  Source="techs04.png"; X=0;   Y=128 } # Smart
+$assets += @{ Name="weap-bomb-cherry"; Source="techs03.png"; X=448; Y=0 }   # Cherry
+
+# --- HULLS ---
 # Freighters
 $assets += @{ Name="hull-freight-s"; Source="techhulls01.png"; X=0;   Y=0 }
 $assets += @{ Name="hull-freight-m"; Source="techhulls01.png"; X=64;  Y=0 }
@@ -73,58 +85,43 @@ $assets += @{ Name="hull-colony";    Source="techhulls02.png"; X=448; Y=0 }
 $assets += @{ Name="hull-sb-fort";    Source="starbases.png"; X=0;   Y=0 }
 $assets += @{ Name="hull-sb-station"; Source="starbases.png"; X=128; Y=0 }
 
-# --- CONFIG ---
+# --- EXECUTION ---
 $outputImage = "mobile-tech-atlas.png"
 $outputCSS = "tech-atlas.css"
-$tempDir = "temp_sprites_v4"
+$tempDir = "temp_sprites_v5"
 
-# 3. EXECUTION
-Write-Host "--- Stars! Asset Builder v4 ---" -ForegroundColor Cyan
-Write-Host "Target Assets: $($assets.Count)" -ForegroundColor Yellow
-
+Write-Host "--- Stars! Asset Builder v5 ---" -ForegroundColor Cyan
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 New-Item -ItemType Directory -Path $tempDir | Out-Null
 
 $i = 0
 foreach ($item in $assets) {
     $src = $item.Source
-    $x = $item.X
-    $y = $item.Y
     $name = $item.Name
-    
     $idx = "{0:d2}" -f $i
     $outFile = "$tempDir/${idx}_${name}.png"
     
-    if (-not (Test-Path $src)) {
-        Write-Warning "[$idx] MISSING FILE: $src (Skipping)"
-    } else {
-        # Using -crop with +repage for safety
-        magick $src -crop 64x64+$x+$y +repage $outFile
+    if (Test-Path $src) {
+        magick $src -crop 64x64+$($item.X)+$($item.Y) +repage $outFile
         if (Test-Path $outFile) { $spriteList += $outFile }
+    } else {
+        Write-Warning "Missing: $src"
     }
     $i++
 }
 
-# 4. STITCH & CSS
-Write-Host "Stitching $($spriteList.Count) sprites..." -ForegroundColor Cyan
-
 if ($spriteList.Count -gt 0) {
+    Write-Host "Stitching $($spriteList.Count) sprites..."
     magick montage $spriteList -tile 1x -geometry +0+0 -background none $outputImage
     
-    $cssContent = "/* Stars! Tech Atlas v4 (Expanded) */`n"
-    $cssContent += ".tech-icon {`n  width: 64px;`n  height: 64px;`n  background-image: url('$outputImage');`n  background-repeat: no-repeat;`n  display: inline-block;`n}`n"
-
-    $yOffset = 0
+    $css = "/* Stars! Tech Atlas v5 */`n.tech-icon { width: 64px; height: 64px; background-image: url('mobile-tech-atlas.png'); display: inline-block; }`n"
+    $y = 0
     foreach ($file in $spriteList) {
-        $fileNameObj = Get-Item $file
-        $cleanName = $fileNameObj.BaseName -replace '^\d{2}_',''
-        $cssContent += ".$cleanName { background-position: 0px -${yOffset}px; }`n"
-        $yOffset += 64
+        $n = (Get-Item $file).BaseName -replace '^\d{2}_',''
+        $css += ".$n { background-position: 0px -${y}px; }`n"
+        $y += 64
     }
-    Set-Content -Path $outputCSS -Value $cssContent
-    
-    Write-Host "SUCCESS! Created $outputImage and $outputCSS" -ForegroundColor Green
-} else {
-    Write-Error "No sprites found."
+    Set-Content $outputCSS $css
+    Write-Host "Done! Created $outputImage and $outputCSS" -ForegroundColor Green
 }
 Remove-Item $tempDir -Recurse -Force
