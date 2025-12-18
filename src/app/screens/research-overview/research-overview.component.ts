@@ -53,8 +53,8 @@ import { TECH_ATLAS, HullStats, ComponentStats, TechRequirement } from '../../da
                 <button class="unlock-chip" (click)="showUnlockDetails(unlock)">
                   <span class="tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
                   {{ unlock }}
-                  @for (dep of getExternalDependencies(unlock, selectedField()); track dep) {
-                    <span class="dep-badge">{{ dep }}</span>
+                  @for (dep of getExternalDependenciesWithStatus(unlock, selectedField()); track dep.label) {
+                    <span class="dep-badge" [class]="'dep-badge-' + dep.status">{{ dep.label }}</span>
                   }
                 </button>
               }
@@ -137,10 +137,10 @@ import { TECH_ATLAS, HullStats, ComponentStats, TechRequirement } from '../../da
                             <span class="tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
                             {{ unlock }}
                             @for (
-                              dep of getExternalDependencies(unlock, selectedField());
-                              track dep
+                              dep of getExternalDependenciesWithStatus(unlock, selectedField());
+                              track dep.label
                             ) {
-                              <span class="dep-badge">{{ dep }}</span>
+                              <span class="dep-badge" [class]="'dep-badge-' + dep.status">{{ dep.label }}</span>
                             }
                           </button>
                         }
@@ -220,75 +220,98 @@ import { TECH_ATLAS, HullStats, ComponentStats, TechRequirement } from '../../da
   `,
   styles: [
     `
-      .tech-icon-small {
-        display: inline-block;
-        width: 24px;
-        height: 24px;
-        background-size: 24px 24px; /* Scale down the 64px icon */
-        background-repeat: no-repeat;
-        vertical-align: middle;
-        margin-right: 6px;
-        background-image: url('/assets/imagemaps/tech-atlas.png');
-        /* We need to adjust background position for scaling if we use the same sprite. 
-         However, simple scaling of background-position is tricky with sprites.
-         Better to use transform: scale or zoom.
-      */
-        transform: scale(0.5);
-        transform-origin: left center;
-        width: 32px; /* Compensate for scale */
-        margin-right: -10px; /* Compensate for empty space */
-      }
-
-      /* Better approach for small icons from sprite: Use a container with overflow hidden and scale the inner element */
+      /* Small tech icons wrapper - contains scaled 64px sprite */
       .tech-icon-small {
         width: 32px;
         height: 32px;
         display: inline-block;
         overflow: hidden;
-        position: relative;
         vertical-align: middle;
         margin-right: 4px;
+        position: relative;
       }
 
-      .tech-icon-small::after {
+      /* The actual icon, scaled down from 64px to 32px */
+      .tech-icon-small::before {
         content: '';
         display: block;
         width: 64px;
         height: 64px;
         background-image: url('/assets/imagemaps/tech-atlas.png');
         background-repeat: no-repeat;
+        image-rendering: pixelated;
         transform: scale(0.5);
         transform-origin: 0 0;
-      }
-
-      /* We need to map the classes to the pseudo-element if we do it this way, 
-       OR just use the class on the element and scale it.
-       Let's stick to the original class usage but scale the element itself.
-    */
-      .tech-icon-small {
-        width: 32px;
-        height: 32px;
-        display: inline-block;
-        background-image: url('/assets/imagemaps/tech-atlas.png');
-        background-repeat: no-repeat;
-        transform: scale(0.5);
-        transform-origin: 0 0;
-        margin-right: -32px; /* Overlap the space taken by original size */
-        vertical-align: middle;
-        position: relative;
-        left: 0;
+        position: absolute;
         top: 0;
+        left: 0;
       }
 
-      /* Wrapper to hold the scaled icon correctly */
-      .unlock-chip .tech-icon-small-wrapper {
-        width: 32px;
-        height: 32px;
-        display: inline-block;
-        overflow: hidden;
-        vertical-align: middle;
-        margin-right: 4px;
-      }
+      /* Apply background positions to the pseudo-element */
+      .tech-icon-small.eng-settler::before { background-position: 0px 0px; }
+      .tech-icon-small.eng-mizer::before { background-position: 0px -64px; }
+      .tech-icon-small.eng-trans::before { background-position: 0px -128px; }
+      .tech-icon-small.eng-ram::before { background-position: 0px -192px; }
+      .tech-icon-small.mech-fuel-tank::before { background-position: 0px -256px; }
+      .tech-icon-small.mech-super-tank::before { background-position: 0px -320px; }
+      .tech-icon-small.mech-maneuver-jet::before { background-position: 0px -384px; }
+      .tech-icon-small.mech-overthruster::before { background-position: 0px -448px; }
+      .tech-icon-small.mech-colony-mod::before { background-position: 0px -512px; }
+      .tech-icon-small.mech-robo-miner::before { background-position: 0px -576px; }
+      .tech-icon-small.elec-comp-bat::before { background-position: 0px -640px; }
+      .tech-icon-small.elec-comp-nexus::before { background-position: 0px -704px; }
+      .tech-icon-small.elec-jammer-10::before { background-position: 0px -768px; }
+      .tech-icon-small.elec-jammer-20::before { background-position: 0px -832px; }
+      .tech-icon-small.elec-cloak-stealth::before { background-position: 0px -896px; }
+      .tech-icon-small.elec-capacitor::before { background-position: 0px -960px; }
+      .tech-icon-small.scan-viewer::before { background-position: 0px -1024px; }
+      .tech-icon-small.scan-rhino::before { background-position: 0px -1088px; }
+      .tech-icon-small.scan-mole::before { background-position: 0px -1152px; }
+      .tech-icon-small.scan-snooper::before { background-position: 0px -1216px; }
+      .tech-icon-small.scan-eagle::before { background-position: 0px -1280px; }
+      .tech-icon-small.def-shield-mole::before { background-position: 0px -1344px; }
+      .tech-icon-small.def-shield-cow::before { background-position: 0px -1408px; }
+      .tech-icon-small.def-shield-wolf::before { background-position: 0px -1472px; }
+      .tech-icon-small.def-shield-phase::before { background-position: 0px -1536px; }
+      .tech-icon-small.def-armor-tri::before { background-position: 0px -1600px; }
+      .tech-icon-small.def-armor-crob::before { background-position: 0px -1664px; }
+      .tech-icon-small.def-armor-neu::before { background-position: 0px -1728px; }
+      .tech-icon-small.def-armor-val::before { background-position: 0px -1792px; }
+      .tech-icon-small.weap-laser::before { background-position: 0px -1856px; }
+      .tech-icon-small.weap-xray::before { background-position: 0px -1920px; }
+      .tech-icon-small.weap-gatling::before { background-position: 0px -1984px; }
+      .tech-icon-small.weap-phasor::before { background-position: 0px -2048px; }
+      .tech-icon-small.weap-disrupt::before { background-position: 0px -2112px; }
+      .tech-icon-small.weap-torp-alpha::before { background-position: 0px -2176px; }
+      .tech-icon-small.weap-torp-rho::before { background-position: 0px -2240px; }
+      .tech-icon-small.weap-torp-anti::before { background-position: 0px -2304px; }
+      .tech-icon-small.weap-bomb-lady::before { background-position: 0px -2368px; }
+      .tech-icon-small.weap-bomb-lbu::before { background-position: 0px -2432px; }
+      .tech-icon-small.weap-bomb-smart::before { background-position: 0px -2496px; }
+      .tech-icon-small.weap-bomb-cherry::before { background-position: 0px -2560px; }
+      .tech-icon-small.hull-freight-s::before { background-position: 0px -2624px; }
+      .tech-icon-small.hull-freight-m::before { background-position: 0px -2688px; }
+      .tech-icon-small.hull-freight-l::before { background-position: 0px -2752px; }
+      .tech-icon-small.hull-freight-super::before { background-position: 0px -2816px; }
+      .tech-icon-small.hull-scout::before { background-position: 0px -2880px; }
+      .tech-icon-small.hull-frigate::before { background-position: 0px -2944px; }
+      .tech-icon-small.hull-destroyer::before { background-position: 0px -3008px; }
+      .tech-icon-small.hull-cruiser::before { background-position: 0px -3072px; }
+      .tech-icon-small.hull-battle-cruiser::before { background-position: 0px -3136px; }
+      .tech-icon-small.hull-battleship::before { background-position: 0px -3200px; }
+      .tech-icon-small.hull-dreadnought::before { background-position: 0px -3264px; }
+      .tech-icon-small.hull-privateer::before { background-position: 0px -3328px; }
+      .tech-icon-small.hull-rogue::before { background-position: 0px -3392px; }
+      .tech-icon-small.hull-galleon::before { background-position: 0px -3456px; }
+      .tech-icon-small.hull-colony::before { background-position: 0px -3520px; }
+      .tech-icon-small.hull-mini-bomber::before { background-position: 0px -3584px; }
+      .tech-icon-small.hull-b17::before { background-position: 0px -3648px; }
+      .tech-icon-small.hull-stealth-bomber::before { background-position: 0px -3712px; }
+      .tech-icon-small.hull-b52::before { background-position: 0px -3776px; }
+      .tech-icon-small.hull-midget-miner::before { background-position: 0px -3840px; }
+      .tech-icon-small.hull-mini-miner::before { background-position: 0px -3904px; }
+      .tech-icon-small.hull-ultra-miner::before { background-position: 0px -3968px; }
+      .tech-icon-small.hull-fuel-transport::before { background-position: 0px -4032px; }
 
       .dep-badge {
         display: inline-block;
@@ -300,6 +323,25 @@ import { TECH_ATLAS, HullStats, ComponentStats, TechRequirement } from '../../da
         color: var(--color-text-muted);
         margin-left: 6px;
         vertical-align: middle;
+      }
+
+      /* Color coding for tech dependencies */
+      .dep-badge-met {
+        background: #2d5016;
+        border-color: #4a7c2c;
+        color: #a8e063;
+      }
+
+      .dep-badge-close {
+        background: #5a4a1a;
+        border-color: #8a7a2a;
+        color: #ffeb3b;
+      }
+
+      .dep-badge-far {
+        background: #5a1a1a;
+        border-color: #8a2a2a;
+        color: #ff6b6b;
       }
 
       .modal-title-group {
@@ -983,5 +1025,39 @@ export class ResearchOverviewComponent {
     return reqs
       .filter((r) => r.field !== currentField)
       .map((r) => `${r.field.substring(0, 4)} ${r.level}`);
+  }
+
+  getExternalDependenciesWithStatus(
+    name: string,
+    currentField: TechField
+  ): { label: string; status: 'met' | 'close' | 'far' }[] {
+    const details = this.getTechDetails(name);
+    if (!details) return [];
+    const reqs = this.getTechRequirements(details);
+    const player = this.player();
+    if (!player) return [];
+
+    // Filter out requirements that match the current field
+    return reqs
+      .filter((r) => r.field !== currentField)
+      .map((r) => {
+        const currentLevel = player.techLevels[r.field as TechField] ?? 0;
+        const requiredLevel = r.level;
+        const diff = requiredLevel - currentLevel;
+
+        let status: 'met' | 'close' | 'far';
+        if (diff <= 0) {
+          status = 'met'; // Green: already met or exceeded
+        } else if (diff <= 2) {
+          status = 'close'; // Yellow: 1-2 levels away
+        } else {
+          status = 'far'; // Red: more than 2 levels away
+        }
+
+        return {
+          label: `${r.field.substring(0, 4)} ${r.level}`,
+          status,
+        };
+      });
   }
 }
