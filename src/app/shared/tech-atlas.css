@@ -2,9 +2,10 @@
 .tech-icon {
   width: 64px;
   height: 64px;
-  background-image: url('/imagemaps/tech-atlas.png');
+  background-image: url('/assets/imagemaps/tech-atlas.png');
   background-repeat: no-repeat;
   display: inline-block;
+  image-rendering: pixelated; /* Keeps the retro pixel art sharp */
 }
 .eng-settler { background-position: 0px -0px; }
 .eng-mizer { background-position: 0px -64px; }

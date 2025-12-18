@@ -555,7 +555,7 @@ export class ResearchOverviewComponent {
   showTechTree = false;
   selectedUnlock = signal<string | null>(null);
 
-  readonly selectedField = computed(() => this.player()?.selectedResearchField ?? 'propulsion');
+  readonly selectedField = computed(() => this.player()?.selectedResearchField ?? 'Propulsion');
 
   readonly totalLabs = computed(() => {
     const game = this.gameState.game();
@@ -579,12 +579,10 @@ export class ResearchOverviewComponent {
 
   getFieldIcon(field: TechField): string {
     const icons: Record<TechField, string> = {
-      energy: '⚡',
-      weapons: '🚀',
-      propulsion: '✈️',
-      construction: '🏗️',
-      electronics: '📡',
-      biotechnology: '🧬',
+      Energy: '⚡',
+      Kinetics: '🚀',
+      Propulsion: '✈️',
+      Construction: '🏗️',
     };
     return icons[field];
   }

@@ -38,13 +38,12 @@ export interface ComponentAssignment {
   count: number;
 }
 
+// Updated to match new tech-atlas.json 4-stream system
 export interface PlayerTech {
-  energy: number;
-  weapons: number;
-  propulsion: number;
-  construction: number;
-  electronics: number;
-  biotechnology: number;
+  Energy: number;
+  Kinetics: number;
+  Propulsion: number;
+  Construction: number;
 }
 
 export interface Player {
@@ -54,7 +53,7 @@ export interface Player {
   ownedPlanetIds: string[];
   techLevels: PlayerTech;
   researchProgress: PlayerTech; // Accumulated RP toward next level
-  selectedResearchField: 'energy' | 'weapons' | 'propulsion' | 'construction' | 'electronics' | 'biotechnology';
+  selectedResearchField: 'Energy' | 'Kinetics' | 'Propulsion' | 'Construction';
 }
 
 export interface AIPlayer extends Player {

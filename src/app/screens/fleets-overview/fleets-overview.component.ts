@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { Fleet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
+import { TechService } from '../../services/tech.service';
 
 @Component({
   standalone: true,
@@ -42,6 +43,7 @@ import { getDesign } from '../../data/ships.data';
             <div class="composition-header">Ships:</div>
             <div class="ships-list">
               <div *ngFor="let ship of fleet.ships" class="ship-row">
+                <span class="ship-icon tech-icon" [ngClass]="getHullImageClass(ship.designId)"></span>
                 <span class="ship-count">{{ ship.count }}x</span>
                 <span class="ship-name">{{ getDesignName(ship.designId) }}</span>
                 <span *ngIf="ship.damage > 0" class="ship-damage">{{ ship.damage }}% dmg</span>
@@ -189,6 +191,10 @@ import { getDesign } from '../../data/ships.data';
       font-size: var(--font-size-sm);
     }
 
+    .ship-icon {
+      flex-shrink: 0;
+    }
+
     .ship-count {
       color: var(--color-text-muted);
       min-width: 30px;
@@ -268,6 +274,7 @@ import { getDesign } from '../../data/ships.data';
 export class FleetsOverviewComponent {
   private gs = inject(GameStateService);
   private router = inject(Router);
+  private techService = inject(TechService);
 
   fleets = computed(() => {
     const allFleets = this.gs.game()?.fleets || [];
@@ -278,6 +285,36 @@ export class FleetsOverviewComponent {
   getDesignName(designId: string): string {
     const design = getDesign(designId);
     return design.name || designId;
+  }
+
+  /**
+   * Map design name to hull name from tech-atlas.json
+   */
+  getHullNameFromDesign(designId: string): string {
+    const design = getDesign(designId);
+    const name = design.name;
+
+    // Map compiled design names to hull names
+    const nameMap: Record<string, string> = {
+      'Scout': 'Scout',
+      'Frigate': 'Frigate',
+      'Destroyer': 'Destroyer',
+      'Small Freighter': 'Small Freighter',
+      'Super Freighter': 'Large Freighter',
+      'Fuel Transport': 'Small Freighter', // Using small freighter as fallback
+      'Colony Ship': 'Colony Ship',
+      'Starbase': 'Orbital Fort'
+    };
+
+    return nameMap[name] || 'Scout'; // Default to Scout if not found
+  }
+
+  /**
+   * Get CSS class for hull image
+   */
+  getHullImageClass(designId: string): string {
+    const hullName = this.getHullNameFromDesign(designId);
+    return this.techService.getHullImageClass(hullName);
   }
 
   fleetStatus(fleet: Fleet): { type: string; label: string } {

@@ -24,12 +24,10 @@ import {
 export class ShipDesignerService {
   private _currentDesign = signal<ShipDesign | null>(null);
   private _techLevels = signal<PlayerTech>({
-    energy: 0,
-    weapons: 0,
-    propulsion: 0,
-    construction: 0,
-    electronics: 0,
-    biotechnology: 0,
+    Energy: 0,
+    Kinetics: 0,
+    Propulsion: 0,
+    Construction: 0,
   });
 
   // Computed signals
@@ -225,8 +223,19 @@ export class ShipDesignerService {
       const baseComponent = getComponent(miniComp.id);
       if (!baseComponent) return false;
 
+      // Map old tech field names to new ones
+      const fieldMap: Record<string, keyof PlayerTech> = {
+        'energy': 'Energy',
+        'weapons': 'Kinetics',
+        'propulsion': 'Propulsion',
+        'construction': 'Construction',
+        'electronics': 'Energy',
+        'biotechnology': 'Construction'
+      };
+
       // Check tech level requirement
-      const playerLevel = techLevels[baseComponent.techRequired.field];
+      const mappedField = fieldMap[baseComponent.techRequired.field] || 'Construction';
+      const playerLevel = techLevels[mappedField];
       if (playerLevel < baseComponent.techRequired.level) {
         return false;
       }
@@ -241,7 +250,7 @@ export class ShipDesignerService {
    */
   getAvailableHulls(): Hull[] {
     const techLevels = this._techLevels();
-    const constructionLevel = techLevels.construction;
+    const constructionLevel = techLevels.Construction;
 
     return Object.values(HULLS).filter(
       (hull) => hull.techRequired.construction <= constructionLevel

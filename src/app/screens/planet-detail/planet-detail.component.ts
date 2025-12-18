@@ -776,7 +776,8 @@ export class PlanetDetailComponent implements OnInit {
     if (planet.scanner > 0) return false;
     const player = this.gs.player();
     if (!player) return false;
-    return player.techLevels.electronics >= 1;
+    // Scanners are now part of Energy tech tree
+    return player.techLevels.Energy >= 1;
   }
 
   canAfford(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship'): boolean {

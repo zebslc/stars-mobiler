@@ -64,8 +64,19 @@ export function miniaturizeComponent(
   component: Component,
   techLevels: PlayerTech
 ): MiniaturizedComponent {
+  // Map old tech field names to new ones
+  const fieldMap: Record<string, keyof PlayerTech> = {
+    'energy': 'Energy',
+    'weapons': 'Kinetics',
+    'propulsion': 'Propulsion',
+    'construction': 'Construction',
+    'electronics': 'Energy', // Electronics tech is now part of Energy
+    'biotechnology': 'Construction' // Biotechnology removed, map to Construction as fallback
+  };
+
   // Get player's tech level in the component's required field
-  const playerLevel = techLevels[component.techRequired.field];
+  const mappedField = fieldMap[component.techRequired.field] || 'Construction';
+  const playerLevel = techLevels[mappedField];
   const requiredLevel = component.techRequired.level;
 
   // Calculate miniaturization factor

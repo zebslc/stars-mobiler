@@ -23,7 +23,8 @@ export enum TechCategory {
     GENERAL = 'TECH_CATEGORY_GENERAL',
 }
 
-export type TechArea = 'energy' | 'weapons' | 'propulsion' | 'construction' | 'electronics' | 'biotechnology';
+// Updated to match new tech-atlas.json 4-stream system
+export type TechArea = 'Energy' | 'Kinetics' | 'Propulsion' | 'Construction';
 
 export interface Cost {
     ironium?: number;
