@@ -168,17 +168,19 @@ import { TECH_ATLAS, HullStats, ComponentStats, TechRequirement } from '../../da
             <div class="modal-body">
               @if (getTechDetails(selectedUnlock()!); as details) {
                 <div class="tech-details-grid">
+                  <div class="description-row">
+                    <p>{{ details.description }}</p>
+                  </div>
+
                   <div class="detail-row">
                     <span class="label">Role/Type:</span>
                     <span class="value">{{ getTechType(details) }}</span>
                   </div>
 
-                  @if (getTechCost(details); as cost) {
-                    <div class="detail-row">
-                      <span class="label">Cost:</span>
-                      <span class="value">{{ cost }} Resources</span>
-                    </div>
-                  }
+                  <div class="detail-row">
+                    <span class="label">Cost:</span>
+                    <span class="value">{{ getTechCost(details) }}</span>
+                  </div>
 
                   @if (getTechMass(details); as mass) {
                     <div class="detail-row">
@@ -317,6 +319,22 @@ import { TECH_ATLAS, HullStats, ComponentStats, TechRequirement } from '../../da
       .tech-details-grid {
         display: grid;
         gap: var(--space-sm);
+      }
+
+      .description-row {
+        padding: 4px 0;
+        margin-bottom: var(--space-sm);
+        font-style: italic;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .description-row {
+        padding: 4px 0;
+        margin-bottom: var(--space-sm);
+        font-style: italic;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
       }
 
       .detail-row {
@@ -848,12 +866,12 @@ export class ResearchOverviewComponent {
   getTechDetails(name: string): HullStats | ComponentStats | null {
     // Search in hulls
     const hull = TECH_ATLAS.hulls.find((h) => h.name === name);
-    if (hull) return hull;
+    if (hull) return hull as unknown as HullStats;
 
     // Search in components
     for (const category of TECH_ATLAS.components) {
       const component = category.items.find((c) => c.name === name);
-      if (component) return component;
+      if (component) return component as unknown as ComponentStats;
     }
 
     return null;
@@ -870,25 +888,21 @@ export class ResearchOverviewComponent {
     }
     const comp = details as ComponentStats;
     // Find category
-    const category = TECH_ATLAS.components.find((cat) => cat.items.includes(comp));
+    const category = TECH_ATLAS.components.find((cat) => (cat.items as any[]).includes(comp));
     return category ? `${category.category} Component` : 'Component';
   }
 
   getTechCost(details: HullStats | ComponentStats): string {
-    if ('cost' in details) {
-      // Hull has a simple cost number (assuming it's sum of minerals or just generic cost)
-      // In the JSON, hull has "cost": 30.
-      return details.cost.toString();
-    }
-    // Component doesn't have explicit cost in the JSON I pasted?
-    // Let's check tech-atlas.json again.
-    // Wait, the JSON I read has: { "name": "Settler's Drive", "tech": {...}, "stats": {...}, "img": "..." }
-    // It does NOT have "cost" for components!
-    // However, components.data.ts DOES have cost.
-    // For now, return "N/A" or try to find it in components.data.ts if I imported it.
-    // But I didn't import components.data.ts.
-    // I'll return "N/A" for components for now, or maybe I can infer it.
-    return 'N/A';
+    const c = details.cost;
+    if (!c) return 'N/A';
+
+    const parts: string[] = [];
+    if (c.res) parts.push(`${c.res} Res`);
+    if (c.iron) parts.push(`${c.iron} Fe`);
+    if (c.bor) parts.push(`${c.bor} Bo`);
+    if (c.germ) parts.push(`${c.germ} Ge`);
+
+    return parts.length > 0 ? parts.join(', ') : 'Free';
   }
 
   getTechMass(details: HullStats | ComponentStats): number | null {
@@ -927,6 +941,7 @@ export class ResearchOverviewComponent {
       // Component
       const comp = details as ComponentStats;
       Object.entries(comp.stats).forEach(([key, value]) => {
+        if (value === undefined) return;
         // Format key
         const formattedKey = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
         stats.push({ key: formattedKey, value: value.toString() });

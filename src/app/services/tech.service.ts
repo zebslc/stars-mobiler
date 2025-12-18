@@ -1,66 +1,33 @@
 import { Injectable } from '@angular/core';
-import * as techAtlas from '../shared/tech-atlas.json';
-
-// Interfaces for tech-atlas.json structure
-export interface TechAtlasHull {
-    name: string;
-    role: string;
-    techReq: Partial<Record<string, number>>;
-    mass: number;
-    cost: number;
-    slots: string[];
-    img: string;
-    special?: string;
-}
-
-export interface TechAtlasComponent {
-    name: string;
-    tech: Partial<Record<string, number>>;
-    stats: Record<string, any>;
-    img: string;
-    type?: string;
-}
-
-export interface TechAtlasComponentCategory {
-    category: string;
-    items: TechAtlasComponent[];
-}
-
-export interface TechAtlasData {
-    techStreams: string[];
-    hulls: TechAtlasHull[];
-    components: TechAtlasComponentCategory[];
-}
+import { TECH_ATLAS, HullStats, ComponentStats, ComponentCategory } from '../data/tech-atlas.data';
 
 @Injectable({
     providedIn: 'root'
 })
 export class TechService {
-    private techAtlasData: TechAtlasData;
-
+    
     constructor() {
-        this.techAtlasData = techAtlas as any as TechAtlasData;
     }
 
     /**
      * Get all tech streams (Energy, Kinetics, Propulsion, Construction)
      */
     getTechStreams(): string[] {
-        return this.techAtlasData.techStreams;
+        return TECH_ATLAS.techStreams;
     }
 
     /**
      * Get all hulls from tech atlas
      */
-    getHulls(): TechAtlasHull[] {
-        return this.techAtlasData.hulls;
+    getHulls(): HullStats[] {
+        return TECH_ATLAS.hulls;
     }
 
     /**
      * Get hull by name
      */
-    getHullByName(name: string): TechAtlasHull | undefined {
-        return this.techAtlasData.hulls.find(h => h.name === name);
+    getHullByName(name: string): HullStats | undefined {
+        return TECH_ATLAS.hulls.find(h => h.name === name);
     }
 
     /**
@@ -74,23 +41,23 @@ export class TechService {
     /**
      * Get all component categories
      */
-    getComponentCategories(): TechAtlasComponentCategory[] {
-        return this.techAtlasData.components;
+    getComponentCategories(): ComponentCategory[] {
+        return TECH_ATLAS.components;
     }
 
     /**
      * Get components by category (Engine, Scanner, Shield, Armor, Weapon)
      */
-    getComponentsByCategory(category: string): TechAtlasComponent[] {
-        const cat = this.techAtlasData.components.find(c => c.category === category);
+    getComponentsByCategory(category: string): ComponentStats[] {
+        const cat = TECH_ATLAS.components.find(c => c.category === category);
         return cat ? cat.items : [];
     }
 
     /**
      * Get component by name
      */
-    getComponentByName(name: string): TechAtlasComponent | undefined {
-        for (const category of this.techAtlasData.components) {
+    getComponentByName(name: string): ComponentStats | undefined {
+        for (const category of TECH_ATLAS.components) {
             const component = category.items.find(item => item.name === name);
             if (component) {
                 return component;
@@ -110,9 +77,9 @@ export class TechService {
     /**
      * Check if player meets tech requirements for a hull
      */
-    meetsHullRequirements(hull: TechAtlasHull, playerTechLevels: Record<string, number>): boolean {
+    meetsHullRequirements(hull: HullStats, playerTechLevels: Record<string, number>): boolean {
         for (const [techStream, requiredLevel] of Object.entries(hull.techReq)) {
-            if (requiredLevel !== undefined && (playerTechLevels[techStream] || 0) < requiredLevel) {
+            if (requiredLevel !== undefined && (playerTechLevels[techStream] || 0) < Number(requiredLevel)) {
                 return false;
             }
         }
@@ -122,9 +89,9 @@ export class TechService {
     /**
      * Check if player meets tech requirements for a component
      */
-    meetsComponentRequirements(component: TechAtlasComponent, playerTechLevels: Record<string, number>): boolean {
+    meetsComponentRequirements(component: ComponentStats, playerTechLevels: Record<string, number>): boolean {
         for (const [techStream, requiredLevel] of Object.entries(component.tech)) {
-            if (requiredLevel !== undefined && (playerTechLevels[techStream] || 0) < requiredLevel) {
+            if (requiredLevel !== undefined && (playerTechLevels[techStream] || 0) < Number(requiredLevel)) {
                 return false;
             }
         }

@@ -1,73 +1,67 @@
-/* Stars! Tech Atlas v5 */
-.tech-icon {
-    width: 64px;
-    height: 64px;
-    background-image: url('assets/imagemaps/tech-atlas.png');
-    background-repeat: no-repeat;
-    display: inline-block;
-    image-rendering: pixelated;
-}
-
-/* Engines */
-.eng-settler { background-position: 0px 0px; }
+/* Stars! Tech Atlas v7 */
+.tech-icon { width: 64px; height: 64px; background-image: url('assets/imagemaps/tech-atlas.png'); background-repeat: no-repeat; display: inline-block; image-rendering: pixelated; }
+.eng-settler { background-position: 0px -0px; }
 .eng-mizer { background-position: 0px -64px; }
 .eng-trans { background-position: 0px -128px; }
 .eng-ram { background-position: 0px -192px; }
+.mech-fuel-tank { background-position: 0px -256px; }
+.mech-super-tank { background-position: 0px -320px; }
+.mech-maneuver-jet { background-position: 0px -384px; }
+.mech-overthruster { background-position: 0px -448px; }
+.mech-colony-mod { background-position: 0px -512px; }
+.mech-robo-miner { background-position: 0px -576px; }
+.elec-comp-bat { background-position: 0px -640px; }
+.elec-comp-nexus { background-position: 0px -704px; }
+.elec-jammer-10 { background-position: 0px -768px; }
+.elec-jammer-20 { background-position: 0px -832px; }
+.elec-cloak-stealth { background-position: 0px -896px; }
+.elec-capacitor { background-position: 0px -960px; }
+.scan-viewer { background-position: 0px -1024px; }
+.scan-rhino { background-position: 0px -1088px; }
+.scan-mole { background-position: 0px -1152px; }
+.scan-snooper { background-position: 0px -1216px; }
+.scan-eagle { background-position: 0px -1280px; }
+.def-shield-mole { background-position: 0px -1344px; }
+.def-shield-cow { background-position: 0px -1408px; }
+.def-shield-wolf { background-position: 0px -1472px; }
+.def-shield-phase { background-position: 0px -1536px; }
+.def-armor-tri { background-position: 0px -1600px; }
+.def-armor-crob { background-position: 0px -1664px; }
+.def-armor-neu { background-position: 0px -1728px; }
+.def-armor-val { background-position: 0px -1792px; }
+.weap-laser { background-position: 0px -1856px; }
+.weap-xray { background-position: 0px -1920px; }
+.weap-gatling { background-position: 0px -1984px; }
+.weap-phasor { background-position: 0px -2048px; }
+.weap-disrupt { background-position: 0px -2112px; }
+.weap-torp-alpha { background-position: 0px -2176px; }
+.weap-torp-rho { background-position: 0px -2240px; }
+.weap-torp-anti { background-position: 0px -2304px; }
+.weap-bomb-lady { background-position: 0px -2368px; }
+.weap-bomb-lbu { background-position: 0px -2432px; }
+.weap-bomb-smart { background-position: 0px -2496px; }
+.weap-bomb-cherry { background-position: 0px -2560px; }
+.hull-freight-s { background-position: 0px -2624px; }
+.hull-freight-m { background-position: 0px -2688px; }
+.hull-freight-l { background-position: 0px -2752px; }
+.hull-freight-super { background-position: 0px -2816px; }
+.hull-scout { background-position: 0px -2880px; }
+.hull-frigate { background-position: 0px -2944px; }
+.hull-destroyer { background-position: 0px -3008px; }
+.hull-cruiser { background-position: 0px -3072px; }
+.hull-battle-cruiser { background-position: 0px -3136px; }
+.hull-battleship { background-position: 0px -3200px; }
+.hull-dreadnought { background-position: 0px -3264px; }
+.hull-privateer { background-position: 0px -3328px; }
+.hull-rogue { background-position: 0px -3392px; }
+.hull-galleon { background-position: 0px -3456px; }
+.hull-colony { background-position: 0px -3520px; }
+.hull-mini-bomber { background-position: 0px -3584px; }
+.hull-b17 { background-position: 0px -3648px; }
+.hull-stealth-bomber { background-position: 0px -3712px; }
+.hull-b52 { background-position: 0px -3776px; }
+.hull-midget-miner { background-position: 0px -3840px; }
+.hull-mini-miner { background-position: 0px -3904px; }
+.hull-ultra-miner { background-position: 0px -3968px; }
+.hull-fuel-transport { background-position: 0px -4032px; }
 
-/* Scanners */
-.scan-viewer { background-position: 0px -256px; }
-.scan-rhino { background-position: 0px -320px; }
-.scan-mole { background-position: 0px -384px; }
-.scan-snooper { background-position: 0px -448px; }
-.scan-eagle { background-position: 0px -512px; }
-
-/* Shields */
-.def-shield-mole { background-position: 0px -576px; }
-.def-shield-cow { background-position: 0px -640px; }
-.def-shield-wolf { background-position: 0px -704px; }
-.def-shield-phase { background-position: 0px -768px; }
-
-/* Armor */
-.def-armor-tri { background-position: 0px -832px; }
-.def-armor-crob { background-position: 0px -896px; }
-.def-armor-neu { background-position: 0px -960px; }
-.def-armor-val { background-position: 0px -1024px; }
-
-/* Weapons */
-.weap-laser { background-position: 0px -1088px; }
-.weap-xray { background-position: 0px -1152px; }
-.weap-minigun { background-position: 0px -1216px; }
-.weap-yakimora { background-position: 0px -1280px; }
-.weap-disrupt { background-position: 0px -1344px; }
-.weap-blackjack { background-position: 0px -1408px; }
-.weap-phasor { background-position: 0px -1472px; }
-.weap-ph-bazooka { background-position: 0px -1536px; }
-.weap-gatling { background-position: 0px -1600px; }
-.weap-bludgeon { background-position: 0px -1664px; }
-.weap-h-blaster { background-position: 0px -1728px; }
-.weap-big-mutha { background-position: 0px -1792px; }
-
-/* Torpedoes & Bombs */
-.weap-torp-alpha { background-position: 0px -1856px; }
-.weap-torp-rho { background-position: 0px -1920px; }
-.weap-torp-anti { background-position: 0px -1984px; }
-.weap-bomb-smart { background-position: 0px -2048px; }
-.weap-bomb-cherry { background-position: 0px -2112px; }
-
-/* Hulls */
-.hull-freight-s { background-position: 0px -2176px; }
-.hull-freight-m { background-position: 0px -2240px; }
-.hull-freight-l { background-position: 0px -2304px; }
-.hull-scout { background-position: 0px -2368px; }
-.hull-frigate { background-position: 0px -2432px; }
-.hull-destroyer { background-position: 0px -2496px; }
-.hull-cruiser { background-position: 0px -2560px; }
-.hull-battle-cruiser { background-position: 0px -2624px; }
-.hull-battleship { background-position: 0px -2688px; }
-.hull-dreadnought { background-position: 0px -2752px; }
-.hull-privateer { background-position: 0px -2816px; }
-.hull-rogue { background-position: 0px -2880px; }
-.hull-galleon { background-position: 0px -2944px; }
-.hull-colony { background-position: 0px -3008px; }
-.hull-sb-fort { background-position: 0px -3072px; }
-.hull-sb-station { background-position: 0px -3136px; }

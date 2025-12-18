@@ -288,7 +288,7 @@ export class FleetsOverviewComponent {
   }
 
   /**
-   * Map design name to hull name from tech-atlas.json
+   * Map design name to hull name from tech-atlas.data
    */
   getHullNameFromDesign(designId: string): string {
     const design = getDesign(designId);
@@ -300,8 +300,8 @@ export class FleetsOverviewComponent {
       'Frigate': 'Frigate',
       'Destroyer': 'Destroyer',
       'Small Freighter': 'Small Freighter',
-      'Super Freighter': 'Large Freighter',
-      'Fuel Transport': 'Small Freighter', // Using small freighter as fallback
+      'Super Freighter': 'Super Freighter',
+      'Fuel Transport': 'Fuel Transport',
       'Colony Ship': 'Colony Ship',
       'Starbase': 'Orbital Fort'
     };

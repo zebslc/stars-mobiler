@@ -1,4 +1,4 @@
-import { HullStats, ComponentStats, TECH_ATLAS } from './tech-atlas.data';
+import { TECH_ATLAS, TechRequirement } from './tech-atlas.data';
 
 export type TechField = 'Energy' | 'Kinetics' | 'Propulsion' | 'Construction';
 
@@ -24,10 +24,45 @@ function calculateLevelCost(level: number): number {
   return Math.floor(50 * Math.pow(1.6, level - 1));
 }
 
-function generateLevels(unlocksByLevel: Record<number, string[]>): TechLevel[] {
+function getUnlocksForField(field: TechField): Record<number, string[]> {
+  const unlocks: Record<number, string[]> = {};
+
+  // Process Hulls
+  TECH_ATLAS.hulls.forEach((hull) => {
+    // hull.techReq uses keys like "Construction", "Energy" etc. matching TechField
+    const level = (hull.techReq as TechRequirement)[field];
+    if (level !== undefined) {
+      if (!unlocks[level]) unlocks[level] = [];
+      unlocks[level].push(hull.name);
+    }
+  });
+
+  // Process Components
+  TECH_ATLAS.components.forEach((category) => {
+    category.items.forEach((comp) => {
+      const level = (comp.tech as TechRequirement)[field];
+      if (level !== undefined) {
+        if (!unlocks[level]) unlocks[level] = [];
+        unlocks[level].push(comp.name);
+      }
+    });
+  });
+
+  return unlocks;
+}
+
+function generateLevels(field: TechField): TechLevel[] {
+  const unlocksByLevel = getUnlocksForField(field);
   const levels: TechLevel[] = [];
-  // Extended to Level 24 to match the new distribution
-  for (let i = 0; i <= 24; i++) {
+
+  // Find max level defined in unlocks or default to 26
+  let maxLevel = 26;
+  Object.keys(unlocksByLevel).forEach((l) => {
+    const level = Number(l);
+    if (level > maxLevel) maxLevel = level;
+  });
+
+  for (let i = 0; i <= maxLevel; i++) {
     levels.push({
       level: i,
       name: `Level ${i}`,
@@ -44,88 +79,29 @@ export const TECH_FIELDS: Record<TechField, TechFieldInfo> = {
     name: 'Energy Physics',
     description: 'Shields, scanners, cloaking, and beam weapons.',
     icon: '⚡',
-    levels: generateLevels({
-      0: ['Viewer 50', 'Mole-Skin', 'Laser'],
-      1: ['Rhino Scanner'],
-      2: ['X-Ray Laser'],
-      3: ['Cow-Hide'],
-      4: ['Mole Scanner'],
-      5: ['Disruptor', 'Wolverine'],
-      6: ['Snooper 320'],
-      7: ['Phasor'],
-      8: ['Eagle Eye'],
-      10: ['Phase Shield'],
-      12: ['Heavy Blaster'],
-      14: ['Phasor Bazooka'], // Re-mapped
-      16: ['Possum Scanner'],
-      20: ['Big Mutha Cannon'],
-      24: ['Langston Shell'] // High level shield
-    }),
+    levels: generateLevels('Energy'),
   },
   Kinetics: {
     id: 'Kinetics',
     name: 'Kinetics & Ballistics',
     description: 'Torpedoes, missiles, and planetary bombardment.',
     icon: '🚀',
-    levels: generateLevels({
-      1: ['Alpha Torp'],
-      2: ['Smart Bomb'],
-      4: ['Beta Torp'], // Filler torp
-      5: ['Rho Torp'],
-      7: ['Cherry Bomb'],
-      8: ['Anti-Matter Torp'],
-      10: ['Neutron Bomb'],
-      12: ['Epsilon Torp'],
-      15: ['Enriched Neutron Bomb'],
-      18: ['Omega Torp'],
-      22: ['Armageddon Missile']
-    }),
+    levels: generateLevels('Kinetics'),
   },
   Propulsion: {
     id: 'Propulsion',
     name: 'Propulsion',
     description: 'Engines, maneuvering jets, and fuel efficiency.',
     icon: '✈️',
-    levels: generateLevels({
-      0: ["Settler's Drive"],
-      2: ['Fuel Mizer'],
-      4: ['Maneuvering Jet'],
-      6: ['Trans-Galactic'],
-      9: ['Fuel Tank'],
-      12: ['Ramscoop'],
-      14: ['Super Fuel Tank'],
-      16: ['Overthruster'],
-      20: ['Radiating Hydro-Ram'] // Advanced engine
-    }),
+    levels: generateLevels('Propulsion'),
   },
   Construction: {
     id: 'Construction',
     name: 'Construction',
     description: 'Ship hulls, armor, and mechanical structures.',
     icon: '🏗️',
-    levels: generateLevels({
-      0: ['Small Freighter', 'Scout', 'Tritanium'],
-      1: ['Frigate'],
-      2: ['Colony Ship', 'Orbital Fort'],
-      3: ['Medium Freighter'],
-      4: ['Destroyer', 'Privateer'],
-      5: ['Crobmnium'],
-      6: ['Large Freighter'],
-      7: ['Cruiser', 'Rogue'],
-      8: ['Galleon'],
-      9: ['Battle Cruiser'],
-      10: ['Neutronium', 'Space Station'],
-      12: ['Battleship'],
-      14: ['Valanium'],
-      16: ['Dreadnought'],
-      20: ['Super Freighter'] // Late game logistics
-    }),
+    levels: generateLevels('Construction'),
   },
 };
 
-export const TECH_FIELD_LIST: TechField[] = [
-  'Energy',
-  'Kinetics',
-  'Propulsion',
-  'Construction',
-];
+export const TECH_FIELD_LIST: TechField[] = ['Energy', 'Kinetics', 'Propulsion', 'Construction'];

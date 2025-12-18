@@ -60,7 +60,11 @@ import { TechService } from '../../services/tech.service';
               *ngFor="let s of fleet()!.ships"
               style="display:flex;align-items:center;gap:var(--space-sm);background:var(--color-bg-tertiary);padding:var(--space-sm);border-radius:var(--radius-sm)"
             >
-              <span class="tech-icon" [ngClass]="getHullImageClass(s.designId)" style="flex-shrink:0"></span>
+              <span
+                class="tech-icon"
+                [ngClass]="getHullImageClass(s.designId)"
+                style="flex-shrink:0"
+              ></span>
               <span class="font-medium" style="flex:1">{{ getDesignName(s.designId) }}</span>
               <span class="text-muted">×{{ s.count }}</span>
             </div>
@@ -318,7 +322,7 @@ export class FleetDetailComponent implements OnInit {
   }
 
   /**
-   * Map design name to hull name from tech-atlas.json
+   * Map design name to hull name from tech-atlas.data
    */
   getHullNameFromDesign(designId: string): string {
     const design = getDesign(designId);
@@ -326,14 +330,14 @@ export class FleetDetailComponent implements OnInit {
 
     // Map compiled design names to hull names
     const nameMap: Record<string, string> = {
-      'Scout': 'Scout',
-      'Frigate': 'Frigate',
-      'Destroyer': 'Destroyer',
+      Scout: 'Scout',
+      Frigate: 'Frigate',
+      Destroyer: 'Destroyer',
       'Small Freighter': 'Small Freighter',
-      'Super Freighter': 'Large Freighter',
-      'Fuel Transport': 'Small Freighter', // Using small freighter as fallback
+      'Super Freighter': 'Super Freighter',
+      'Fuel Transport': 'Fuel Transport',
       'Colony Ship': 'Colony Ship',
-      'Starbase': 'Orbital Fort'
+      Starbase: 'Orbital Fort',
     };
 
     return nameMap[name] || 'Scout'; // Default to Scout if not found
