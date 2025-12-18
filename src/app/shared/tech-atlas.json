@@ -1,0 +1,59 @@
+{
+  "techStreams": ["Energy", "Kinetics", "Propulsion", "Construction"],
+  "hulls": [
+    { "name": "Small Freighter", "role": "Transport", "techReq": { "Construction": 0 }, "mass": 15, "cost": 30, "slots": ["Engine", "Shield", "General", "General"], "img": "hull-freight-s" },
+    { "name": "Medium Freighter", "role": "Transport", "techReq": { "Construction": 3 }, "mass": 45, "cost": 80, "slots": ["Engine", "Shield", "General", "General", "General"], "img": "hull-freight-m" },
+    { "name": "Large Freighter", "role": "Transport", "techReq": { "Construction": 6 }, "mass": 120, "cost": 160, "slots": ["Engine", "Shield", "General", "General", "General", "General"], "img": "hull-freight-l" },
+    { "name": "Scout", "role": "Recon", "techReq": { "Construction": 0 }, "mass": 8, "cost": 10, "slots": ["Engine", "Computer", "General"], "img": "hull-scout" },
+    { "name": "Frigate", "role": "Skirmisher", "techReq": { "Construction": 1 }, "mass": 14, "cost": 30, "slots": ["Engine", "Weapon", "Weapon", "Shield", "General"], "img": "hull-frigate" },
+    { "name": "Destroyer", "role": "Support", "techReq": { "Construction": 4 }, "mass": 35, "cost": 90, "slots": ["Engine", "Weapon", "Weapon", "Weapon", "Computer", "General"], "img": "hull-destroyer" },
+    { "name": "Cruiser", "role": "Warship", "techReq": { "Construction": 8 }, "mass": 140, "cost": 220, "slots": ["Engine", "Engine", "Weapon", "Weapon", "Weapon", "Weapon", "Shield", "General", "General"], "img": "hull-cruiser" },
+    { "name": "Battle Cruiser", "role": "Heavy Striker", "techReq": { "Construction": 11 }, "mass": 260, "cost": 380, "slots": ["Engine", "Engine", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Shield", "Shield", "General"], "img": "hull-battle-cruiser" },
+    { "name": "Battleship", "role": "Capital", "techReq": { "Construction": 16 }, "mass": 500, "cost": 550, "slots": ["Engine", "Engine", "Engine", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Shield", "Shield", "Shield", "General", "General"], "img": "hull-battleship" },
+    { "name": "Dreadnought", "role": "Titan", "techReq": { "Construction": 20 }, "mass": 1000, "cost": 900, "slots": ["Engine", "Engine", "Engine", "Engine", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Weapon", "Shield", "Shield", "Shield", "General", "General", "General"], "img": "hull-dreadnought" },
+    { "name": "Privateer", "role": "Stealth Theft", "techReq": { "Construction": 4, "Propulsion": 4 }, "special": "Steals Cargo", "mass": 35, "cost": 60, "slots": ["Engine", "Weapon", "Weapon", "Computer", "General"], "img": "hull-privateer" },
+    { "name": "Rogue", "role": "Stealth Bomber", "techReq": { "Construction": 8, "Propulsion": 8 }, "special": "Cloaked", "mass": 40, "cost": 90, "slots": ["Engine", "Weapon", "Weapon", "Shield", "General"], "img": "hull-rogue" },
+    { "name": "Galleon", "role": "Armed Transport", "techReq": { "Construction": 10 }, "mass": 120, "cost": 320, "slots": ["Engine", "Engine", "Shield", "Shield", "General", "General", "General"], "img": "hull-galleon" },
+    { "name": "Colony Ship", "role": "Colonizer", "techReq": { "Construction": 2 }, "mass": 40, "cost": 40, "slots": ["Engine", "Shield", "General"], "img": "hull-colony" },
+    { "name": "Orbital Fort", "role": "Starbase", "techReq": { "Construction": 2 }, "mass": 0, "cost": 100, "slots": ["Weapon", "Weapon", "Shield", "Shield", "General", "General"], "img": "hull-sb-fort" },
+    { "name": "Space Station", "role": "Starbase", "techReq": { "Construction": 12 }, "mass": 0, "cost": 600, "slots": ["Weapon", "Weapon", "Weapon", "Weapon", "Shield", "Shield", "Shield", "General", "General", "General", "General"], "img": "hull-sb-station" }
+  ],
+  "components": [
+    { "category": "Engine", "items": [
+        { "name": "Settler's Drive", "tech": { "Propulsion": 0 }, "stats": { "warp": 6, "eff": 1.0 }, "img": "eng-settler" },
+        { "name": "Fuel Mizer", "tech": { "Propulsion": 3 }, "stats": { "warp": 8, "eff": 0.8 }, "img": "eng-mizer" },
+        { "name": "Trans-Galactic", "tech": { "Propulsion": 9 }, "stats": { "warp": 9, "eff": 1.5 }, "img": "eng-trans" },
+        { "name": "Ramscoop", "tech": { "Propulsion": 16 }, "stats": { "warp": 9, "eff": 1.0, "special": "GenFuel" }, "img": "eng-ram" }
+    ]},
+    { "category": "Scanner", "items": [
+        { "name": "Viewer 50", "tech": { "Energy": 0 }, "stats": { "range": 50, "pen": 0 }, "img": "scan-viewer" },
+        { "name": "Rhino Scanner", "tech": { "Energy": 2 }, "stats": { "range": 80, "pen": 0 }, "img": "scan-rhino" },
+        { "name": "Mole Scanner", "tech": { "Energy": 6 }, "stats": { "range": 120, "pen": 0 }, "img": "scan-mole" },
+        { "name": "Snooper 320", "tech": { "Energy": 12 }, "stats": { "range": 320, "pen": 100 }, "img": "scan-snooper" },
+        { "name": "Eagle Eye", "tech": { "Energy": 18 }, "stats": { "range": 450, "pen": 225 }, "img": "scan-eagle" }
+    ]},
+    { "category": "Shield", "items": [
+        { "name": "Mole-Skin", "tech": { "Energy": 0 }, "stats": { "shield": 25, "mass": 1 }, "img": "def-shield-mole" },
+        { "name": "Cow-Hide", "tech": { "Energy": 4 }, "stats": { "shield": 40, "mass": 2 }, "img": "def-shield-cow" },
+        { "name": "Wolverine", "tech": { "Energy": 8 }, "stats": { "shield": 75, "mass": 4 }, "img": "def-shield-wolf" },
+        { "name": "Phase Shield", "tech": { "Energy": 22 }, "stats": { "shield": 500, "mass": 10 }, "img": "def-shield-phase" }
+    ]},
+    { "category": "Armor", "items": [
+        { "name": "Tritanium", "tech": { "Construction": 0 }, "stats": { "armor": 50 }, "img": "def-armor-tri" },
+        { "name": "Crobmnium", "tech": { "Construction": 5 }, "stats": { "armor": 100 }, "img": "def-armor-crob" },
+        { "name": "Neutronium", "tech": { "Construction": 12 }, "stats": { "armor": 275 }, "img": "def-armor-neu" },
+        { "name": "Valanium", "tech": { "Construction": 20 }, "stats": { "armor": 500 }, "img": "def-armor-val" }
+    ]},
+    { "category": "Weapon", "items": [
+        { "name": "Laser", "type": "Beam", "tech": { "Energy": 0 }, "stats": { "dmg": 10, "range": 0 }, "img": "weap-laser" },
+        { "name": "X-Ray Laser", "type": "Beam", "tech": { "Energy": 3 }, "stats": { "dmg": 20, "range": 1 }, "img": "weap-xray" },
+        { "name": "Disruptor", "type": "Beam", "tech": { "Energy": 8 }, "stats": { "dmg": 35, "range": 2 }, "img": "weap-disrupt" },
+        { "name": "Phasor", "type": "Beam", "tech": { "Energy": 14 }, "stats": { "dmg": 100, "range": 3 }, "img": "weap-phasor" },
+        { "name": "Alpha Torp", "type": "Torp", "tech": { "Kinetics": 2 }, "stats": { "dmg": 12, "acc": 0.65 }, "img": "weap-torp-alpha" },
+        { "name": "Rho Torp", "type": "Torp", "tech": { "Kinetics": 8 }, "stats": { "dmg": 50, "acc": 0.85 }, "img": "weap-torp-rho" },
+        { "name": "Anti-Matter Torp", "type": "Torp", "tech": { "Kinetics": 14 }, "stats": { "dmg": 150, "acc": 0.90 }, "img": "weap-torp-anti" },
+        { "name": "Smart Bomb", "type": "Bomb", "tech": { "Kinetics": 5 }, "stats": { "kill": 1.3 }, "img": "weap-bomb-smart" },
+        { "name": "Cherry Bomb", "type": "Bomb", "tech": { "Kinetics": 10 }, "stats": { "kill": 2.5 }, "img": "weap-bomb-cherry" }
+    ]}
+  ]
+}
