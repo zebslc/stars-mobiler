@@ -12,24 +12,14 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
   selector: 'app-planet-detail',
   imports: [CommonModule, ShipSelectorComponent],
   template: `
-    <main *ngIf="planet(); else missing" style="padding:var(--space-lg)">
-      <header
-        style="display:flex;flex-direction:column;gap:var(--space-md);margin-bottom:var(--space-lg)"
+    <main *ngIf="planet(); else missing" style="padding:var(--space-md)">
+      <button
+        (click)="back()"
+        class="btn-small"
+        style="background:rgba(255,255,255,0.2);color:#fff;border:none;margin-bottom:var(--space-md)"
       >
-        <div
-          style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap"
-        >
-          <div style="display:flex;gap:var(--space-md);align-items:center">
-            <button
-              (click)="back()"
-              class="btn-small"
-              style="background:rgba(255,255,255,0.2);color:#fff;border:none"
-            >
-              ← Back
-            </button>
-          </div>
-        </div>
-      </header>
+        ← Back
+      </button>
       <section style="display:flex;flex-wrap:wrap;gap:var(--space-lg)">
         <div class="card" style="flex:1;min-width:280px">
           <h3
@@ -81,6 +71,14 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
             <div>
               <div class="text-small text-muted">Factories</div>
               <div class="font-medium">{{ planet()!.factories }}</div>
+            </div>
+            <div *ngIf="planet()!.defenses > 0">
+              <div class="text-small text-muted">Defense Coverage</div>
+              <div class="font-medium">{{ defenseCoverage() }}%</div>
+            </div>
+            <div *ngIf="planet()!.scanner > 0">
+              <div class="text-small text-muted">Scanner Range</div>
+              <div class="font-medium">{{ scannerRange() }} LY</div>
             </div>
           </div>
         </div>
@@ -136,128 +134,179 @@ import { ShipSelectorComponent, ShipOption } from '../../components/ship-selecto
       <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
       <section *ngIf="planet()!.ownerId === gs.player()?.id">
         <h3 style="margin-bottom:var(--space-lg)">Build Queue</h3>
-        <div style="display:flex;flex-direction:column;gap:var(--space-lg)">
+        <div style="display:flex;flex-direction:column;gap:var(--space-md)">
           <!-- Governor -->
           <div
-            style="background:rgba(255,255,255,0.05);padding:var(--space-md);border-radius:var(--radius-md);margin-bottom:var(--space-md)"
+            style="background:rgba(255,255,255,0.05);padding:var(--space-sm) var(--space-md);border-radius:var(--radius-sm)"
           >
-            <div style="display:flex;gap:var(--space-md);align-items:center;flex-wrap:wrap">
+            <div style="display:flex;gap:var(--space-sm);align-items:center;flex-wrap:wrap;font-size:0.9em">
               <label
-                style="font-weight:bold;white-space:nowrap;color:var(--color-text-primary);margin:0"
+                style="font-weight:500;white-space:nowrap;color:var(--color-text-primary);margin:0"
                 >Governor:</label
               >
               <select
                 [value]="planet()!.governor?.type ?? 'manual'"
                 (change)="onGovernorType($event)"
-                style="background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-sm);border-radius:var(--radius-sm);flex-grow:1;min-width:200px"
+                style="background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-xs) var(--space-sm);border-radius:var(--radius-sm);flex-grow:1;min-width:150px"
               >
-                <option value="manual">Manual Control</option>
-                <option value="balanced">Balanced (Auto-build all)</option>
-                <option value="mining">Mining (Focus Mines)</option>
-                <option value="industrial">Industrial (Focus Factories)</option>
-                <option value="military">Military (Focus Defenses)</option>
-                <option value="shipyard">Shipyard (Auto-build Ships)</option>
+                <option value="manual">Manual</option>
+                <option value="balanced">Balanced</option>
+                <option value="mining">Mining</option>
+                <option value="industrial">Industrial</option>
+                <option value="military">Military</option>
+                <option value="shipyard">Shipyard</option>
               </select>
-            </div>
-
-            <div
-              *ngIf="planet()!.governor?.type === 'shipyard'"
-              style="display:flex;gap:var(--space-md);align-items:end;margin-top:var(--space-md);flex-wrap:wrap"
-            >
-              <div style="flex-grow:1;min-width:150px">
-                <label style="display:block;margin-bottom:var(--space-xs);font-size:0.9em"
-                  >Auto-Design</label
-                >
+              <div
+                *ngIf="planet()!.governor?.type === 'shipyard'"
+                style="display:flex;gap:var(--space-sm);align-items:center"
+              >
                 <select
                   [value]="shipyardDesign"
                   (change)="onShipyardDesignChange($event)"
-                  style="width:100%;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-sm);border-radius:var(--radius-sm)"
+                  style="background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-xs) var(--space-sm);border-radius:var(--radius-sm)"
                 >
                   <option value="scout">Scout</option>
                   <option value="frigate">Frigate</option>
                   <option value="destroyer">Destroyer</option>
                   <option value="freighter">Freighter</option>
-                  <option value="super_freighter">Super Freighter</option>
-                  <option value="tanker">Fuel Tanker</option>
-                  <option value="settler">Colony Ship</option>
+                  <option value="super_freighter">S.Freighter</option>
+                  <option value="tanker">Tanker</option>
+                  <option value="settler">Colony</option>
                 </select>
-              </div>
-              <div style="width:100px">
-                <label style="display:block;margin-bottom:var(--space-xs);font-size:0.9em"
-                  >Build Limit</label
-                >
                 <input
                   type="number"
                   [value]="shipyardLimit"
                   (input)="onShipyardLimit($event)"
-                  style="width:100%;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-sm);border-radius:var(--radius-sm)"
+                  style="width:60px;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:1px solid var(--color-border);padding:var(--space-xs) var(--space-sm);border-radius:var(--radius-sm)"
                   placeholder="∞"
                 />
               </div>
             </div>
           </div>
 
-          <div
-            style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-md)"
-          >
-            <!-- Build Amount Selector -->
-            <div
-              style="grid-column: 1 / -1; display:flex; gap:var(--space-sm); align-items:center; margin-bottom:var(--space-sm)"
-            >
-              <span class="text-small text-muted">Quantity:</span>
+          <!-- Build Items -->
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-xs);align-items:center">
+            <!-- Mine -->
+            <div style="display:flex;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden">
               <button
-                *ngFor="let n of [1, 5, 10, 50, 100]"
-                (click)="setBuildAmount(n)"
-                [class]="buildAmount() === n ? 'btn-primary btn-small' : 'btn-small'"
-                [style.background]="
-                  buildAmount() === n ? 'var(--color-primary)' : 'var(--color-bg-tertiary)'
-                "
-                [style.color]="buildAmount() === n ? '#fff' : 'var(--color-text-primary)'"
-                style="border:1px solid var(--color-border)"
+                (click)="queue('mine')"
+                class="btn-dark"
+                style="padding:var(--space-xs) var(--space-sm);font-size:0.85em;border:none;border-radius:0;border-right:1px solid var(--color-border)"
               >
-                {{ n }}
+                Mine x{{ buildAmount() }}
               </button>
+              <select
+                [value]="buildAmount()"
+                (change)="onQuantityChange($event)"
+                style="padding:var(--space-xs);font-size:0.85em;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:none;cursor:pointer"
+              >
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
             </div>
 
-            <button
-              (click)="queue('mine')"
-              class="btn-dark"
-              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
+            <!-- Factory -->
+            <div style="display:flex;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden">
+              <button
+                (click)="queue('factory')"
+                class="btn-dark"
+                style="padding:var(--space-xs) var(--space-sm);font-size:0.85em;border:none;border-radius:0;border-right:1px solid var(--color-border)"
+              >
+                Factory x{{ buildAmount() }}
+              </button>
+              <select
+                [value]="buildAmount()"
+                (change)="onQuantityChange($event)"
+                style="padding:var(--space-xs);font-size:0.85em;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:none;cursor:pointer"
+              >
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+            </div>
+
+            <!-- Defense -->
+            <div style="display:flex;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden">
+              <button
+                (click)="queue('defense')"
+                class="btn-dark"
+                style="padding:var(--space-xs) var(--space-sm);font-size:0.85em;border:none;border-radius:0;border-right:1px solid var(--color-border)"
+              >
+                Defense x{{ buildAmount() }}
+              </button>
+              <select
+                [value]="buildAmount()"
+                (change)="onQuantityChange($event)"
+                style="padding:var(--space-xs);font-size:0.85em;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:none;cursor:pointer"
+              >
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+            </div>
+
+            <!-- Research -->
+            <div style="display:flex;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden">
+              <button
+                (click)="queue('research')"
+                class="btn-dark"
+                style="padding:var(--space-xs) var(--space-sm);font-size:0.85em;border:none;border-radius:0;border-right:1px solid var(--color-border)"
+              >
+                Research x{{ buildAmount() }}
+              </button>
+              <select
+                [value]="buildAmount()"
+                (change)="onQuantityChange($event)"
+                style="padding:var(--space-xs);font-size:0.85em;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:none;cursor:pointer"
+              >
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+            </div>
+
+            <!-- Terraform (conditional) -->
+            <div
+              *ngIf="shouldShowTerraform()"
+              style="display:flex;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden"
             >
-              <div class="font-bold">Mine</div>
-              <div class="text-xs" style="opacity:0.8">5 R</div>
-            </button>
+              <button
+                (click)="queue('terraform')"
+                class="btn-dark"
+                style="padding:var(--space-xs) var(--space-sm);font-size:0.85em;border:none;border-radius:0;border-right:1px solid var(--color-border)"
+              >
+                Terraform x{{ buildAmount() }}
+              </button>
+              <select
+                [value]="buildAmount()"
+                (change)="onQuantityChange($event)"
+                style="padding:var(--space-xs);font-size:0.85em;background:var(--color-bg-tertiary);color:var(--color-text-primary);border:none;cursor:pointer"
+              >
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+            </div>
+
+            <!-- Scanner (conditional, no quantity) -->
             <button
-              (click)="queue('factory')"
+              *ngIf="shouldShowScanner()"
+              (click)="queue('scanner')"
               class="btn-dark"
-              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
+              style="padding:var(--space-xs) var(--space-sm);font-size:0.85em;border:1px solid var(--color-border);border-radius:var(--radius-sm)"
             >
-              <div class="font-bold">Factory</div>
-              <div class="text-xs" style="opacity:0.8">10 R, 4 Ge</div>
-            </button>
-            <button
-              (click)="queue('defense')"
-              class="btn-dark"
-              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
-            >
-              <div class="font-bold">Defense</div>
-              <div class="text-xs" style="opacity:0.8">15 R, 2 Fe, 2 Bo</div>
-            </button>
-            <button
-              (click)="queue('research')"
-              class="btn-dark"
-              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
-            >
-              <div class="font-bold">Research</div>
-              <div class="text-xs" style="opacity:0.8">10 R</div>
-            </button>
-            <button
-              (click)="queue('terraform')"
-              class="btn-dark"
-              style="display:flex;flex-direction:column;gap:var(--space-xs);align-items:center"
-            >
-              <div class="font-bold">Terraform</div>
-              <div class="text-xs" style="opacity:0.8">25 R, 5 Ge</div>
+              Scanner
             </button>
           </div>
 
@@ -515,6 +564,20 @@ export class PlanetDetailComponent implements OnInit {
     }
   });
 
+  defenseCoverage = computed(() => {
+    const p = this.planet();
+    if (!p) return 0;
+    // Each defense provides roughly 1% coverage, capped at 100%
+    return Math.min(100, p.defenses);
+  });
+
+  scannerRange = computed(() => {
+    const p = this.planet();
+    if (!p || !p.scanner) return 0;
+    // Base scanner range - 50 LY per scanner level
+    return p.scanner * 50;
+  });
+
   colonizersInOrbit = computed(() => {
     const game = this.gs.game();
     const p = this.planet();
@@ -631,6 +694,11 @@ export class PlanetDetailComponent implements OnInit {
     this.buildAmount.set(amount);
   }
 
+  onQuantityChange(event: Event) {
+    const value = +(event.target as HTMLSelectElement).value;
+    this.setBuildAmount(value);
+  }
+
   getEta(fleet: any): number {
     const p = this.planet();
     if (!p) return 0;
@@ -697,7 +765,21 @@ export class PlanetDetailComponent implements OnInit {
     ]);
   }
 
-  canAfford(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'ship'): boolean {
+  shouldShowTerraform(): boolean {
+    const hab = this.habitability();
+    return hab < 100;
+  }
+
+  shouldShowScanner(): boolean {
+    const planet = this.planet();
+    if (!planet) return false;
+    if (planet.scanner > 0) return false;
+    const player = this.gs.player();
+    if (!player) return false;
+    return player.techLevels.electronics >= 1;
+  }
+
+  canAfford(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship'): boolean {
     const planet = this.planet();
     if (!planet) return false;
     if (project === 'ship') {
@@ -724,12 +806,14 @@ export class PlanetDetailComponent implements OnInit {
         return planet.resources >= 10;
       case 'terraform':
         return planet.resources >= 25 && planet.surfaceMinerals.germanium >= 5;
+      case 'scanner':
+        return planet.resources >= 50 && planet.surfaceMinerals.germanium >= 10 && planet.surfaceMinerals.iron >= 5;
       default:
         return false;
     }
   }
 
-  queue(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'ship') {
+  queue(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship') {
     const p = this.planet();
     if (!p) return;
     let item =
@@ -743,17 +827,18 @@ export class PlanetDetailComponent implements OnInit {
               ? { project, cost: { resources: 10 } }
               : project === 'terraform'
                 ? { project, cost: { resources: 25, germanium: 5 } }
-                : ({
-                    project: 'ship',
-                    cost: this.getShipCost(this.selectedDesign()),
-                    shipDesignId: this.selectedDesign(),
-                  } as any);
+                : project === 'scanner'
+                  ? { project, cost: { resources: 50, germanium: 10, iron: 5 } }
+                  : ({
+                      project: 'ship',
+                      cost: this.getShipCost(this.selectedDesign()),
+                      shipDesignId: this.selectedDesign(),
+                    } as any);
 
-    // Add count
-    item.count = this.buildAmount();
+    // Add count (scanner should always be 1)
+    item.count = project === 'scanner' ? 1 : this.buildAmount();
 
-    const ok = this.gs.addToBuildQueue(p.id, item);
-    // Removed insufficient alert since we allow queuing
+    this.gs.addToBuildQueue(p.id, item);
   }
 
   endTurn() {
