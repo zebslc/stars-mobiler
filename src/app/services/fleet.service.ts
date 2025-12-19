@@ -31,7 +31,10 @@ export class FleetService {
       .flatMap((s) => s.planets)
       .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
     if (!planet) return [game, null];
-    const colonyStack = fleet.ships.find((s) => getDesign(s.designId).colonyModule && s.count > 0);
+    const colonyStack = fleet.ships.find((s) => {
+      const design = game.shipDesigns.find(d => d.id === s.designId);
+      return design && getDesign(design.hullId)?.colonyModule && s.count > 0
+    });
     const hasColony = !!colonyStack;
     const hab = this.hab.calculate(
       planet,
@@ -39,6 +42,9 @@ export class FleetService {
     );
     // Allow colonization if hab <= 0, but warn (handled in UI). Logic here allows it.
     if (!hasColony) return [game, null];
+    const design = game.shipDesigns.find(d => d.id === colonyStack!.designId);
+    if (!design) return [game, null];
+
     colonyStack!.count -= 1;
     if (colonyStack!.count <= 0) {
       fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
@@ -59,7 +65,7 @@ export class FleetService {
     planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
     planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
     // Broken-down ship parts contribute minerals based on its build cost
-    const cost = this.shipyard.getShipCost(colonyStack!.designId);
+    const cost = this.shipyard.getShipCost(design);
     planet.resources += cost.resources;
     planet.surfaceMinerals.iron += cost.iron ?? 0;
     planet.surfaceMinerals.boranium += cost.boranium ?? 0;
@@ -276,11 +282,15 @@ export class FleetService {
         const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === order.planetId);
         if (!planet) continue;
         const colonyStack = fleet.ships.find(
-          (s) => getDesign(s.designId).colonyModule && s.count > 0,
-        );
+          (s) => {
+            const design = game.shipDesigns.find(d => d.id === s.designId);
+            return design && getDesign(design.hullId)?.colonyModule && s.count > 0
+          });
         const hasColony = !!colonyStack;
         const hab = this.hab.calculate(planet, game.humanPlayer.species);
         if (hasColony) {
+          const design = game.shipDesigns.find(d => d.id === colonyStack!.designId);
+          if (!design) continue;
           // consume one colony ship
           colonyStack!.count -= 1;
           if (colonyStack!.count <= 0) {
@@ -299,7 +309,7 @@ export class FleetService {
           planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
           planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
           // Ship breakdown minerals
-          const cost = this.shipyard.getShipCost(colonyStack!.designId);
+          const cost = this.shipyard.getShipCost(design);
           planet.resources += cost.resources;
           planet.surfaceMinerals.iron += cost.iron ?? 0;
           planet.surfaceMinerals.boranium += cost.boranium ?? 0;

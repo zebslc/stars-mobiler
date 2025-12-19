@@ -930,7 +930,7 @@ export class ResearchOverviewComponent {
     }
     const comp = details as ComponentStats;
     // Find category
-    const category = TECH_ATLAS.components.find((cat) => (cat.items as any[]).includes(comp));
+    const category = TECH_ATLAS.components.find((cat) => cat.items.includes(comp));
     return category ? `${category.category} Component` : 'Component';
   }
 
@@ -964,16 +964,10 @@ export class ResearchOverviewComponent {
     if ('slots' in details) {
       // Hull
       const hull = details as HullStats;
-      // Count slots
-      const slotCounts: Record<string, number> = {};
-      hull.slots.forEach((slot) => {
-        slotCounts[slot] = (slotCounts[slot] || 0) + 1;
-      });
+      // Count total slots
       stats.push({
         key: 'Slots',
-        value: Object.entries(slotCounts)
-          .map(([type, count]) => `${count}x ${type}`)
-          .join(', '),
+        value: `${hull.slots.length} total`,
       });
 
       if (hull.special) {

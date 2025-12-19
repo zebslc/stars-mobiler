@@ -184,10 +184,13 @@ export class ColonyService {
           break;
         case 'shipyard': {
           const designId = planet.governor.shipDesignId ?? 'scout';
+          const design = game.shipDesigns.find(d => d.id === designId);
+          if (!design) break;
+
           const limit = planet.governor.buildLimit ?? 0;
           const queuedShips = (planet.buildQueue ?? []).filter((i) => i.project === 'ship').length;
           if (limit === 0 || queuedShips < limit) {
-            const cost = this.shipyard.getShipCost(designId);
+            const cost = this.shipyard.getShipCost(design);
             this.addToBuildQueue(game, planet.id, {
               project: 'ship',
               cost,

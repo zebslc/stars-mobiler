@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TECH_ATLAS } from '../data/tech-atlas.data';
 import { GameState, ShipDesign } from '../models/game.model';
 
 @Injectable({ providedIn: 'root' })
@@ -42,31 +43,34 @@ export class ShipyardService {
     return game.shipDesigns.filter((d) => d.playerId === game.humanPlayer.id);
   }
 
-  getShipCost(designId: string): {
+  getShipCost(design: ShipDesign): {
     resources: number;
-    iron?: number;
-    boranium?: number;
-    germanium?: number;
+    iron: number;
+    boranium: number;
+    germanium: number;
   } {
-    switch (designId) {
-      case 'scout':
-        return { resources: 20, iron: 5 };
-      case 'frigate':
-        return { resources: 40, iron: 10, boranium: 5 };
-      case 'destroyer':
-        return { resources: 60, iron: 15, boranium: 10, germanium: 5 };
-      case 'freighter':
-        return { resources: 35, iron: 8, boranium: 5, germanium: 3 };
-      case 'super_freighter':
-        return { resources: 60, iron: 15, boranium: 8, germanium: 6 };
-      case 'tanker':
-        return { resources: 30, iron: 6, boranium: 6, germanium: 2 };
-      case 'settler':
-        return { resources: 80, iron: 10, boranium: 10, germanium: 8 };
-      case 'stardock':
-        return { resources: 200, iron: 50, boranium: 30, germanium: 40 };
-      default:
-        return { resources: 25, iron: 5 };
+    const hull = TECH_ATLAS.hulls.find((h) => h.name === design.hullId);
+    let totalCost = {
+      resources: hull?.cost.res ?? 0,
+      iron: hull?.cost.iron ?? 0,
+      boranium: hull?.cost.bor ?? 0,
+      germanium: hull?.cost.germ ?? 0,
+    };
+
+    for (const slot of design.slots) {
+      for (const component of slot.components) {
+        const allComponents = TECH_ATLAS.components.flatMap((c) => c.items);
+        const componentData = allComponents.find((item) => item.name === component.componentId);
+
+        if (componentData) {
+          totalCost.resources += (componentData.cost.res ?? 0) * component.count;
+          totalCost.iron += (componentData.cost.iron ?? 0) * component.count;
+          totalCost.boranium += (componentData.cost.bor ?? 0) * component.count;
+          totalCost.germanium += (componentData.cost.germ ?? 0) * component.count;
+        }
+      }
     }
+
+    return totalCost;
   }
 }
