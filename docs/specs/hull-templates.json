@@ -1,0 +1,818 @@
+{
+  "Templates": [
+    {
+      "Name": "Small Freighter",
+      "Structure": [
+        "E1,E1,C1,C1,SA1,SA1,SEM1,SEM1",
+        "E1,E1,C1,C1,SA1,SA1,SEM1,SEM1"
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+        { "Code": "C1", "Allowed": ["Cargo"], "Size": 70, "Editable": false },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 1 },
+        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+      ],
+      "Cost": { "Ironium": 12, "Boranium": 0, "Germanium": 17, "Resources": 20 },
+      "Stats": { "Mass": 25, "Max Fuel": 130, "Armor": 25, "Cargo": 70, "Initiative": 0 }
+    },
+    {
+      "Name": "Medium Freighter",
+      "Structure": [
+        "E1,E1,C1,C1,C1,C1,SA1,SA1,SEM1,SEM1",
+        "E1,E1,C1,C1,C1,C1,SA1,SA1,SEM1,SEM1"
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+        { "Code": "C1", "Allowed": ["Cargo"], "Size": 210, "Editable": false },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 1 },
+        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+      ],
+      "Cost": { "Ironium": 20, "Boranium": 0, "Germanium": 19, "Resources": 40 },
+      "Stats": { "Mass": 60, "Max Fuel": 450, "Armor": 50, "Cargo": 210, "Initiative": 0 }
+    },
+    {
+      "Name": "Large Freighter",
+      "Structure": [
+        ".,.,C1,C1,C1,C1,C1,SEM1,SEM1",
+        "E1,E1,C1,C1,C1,C1,C1,SEM1,SEM1",
+        "E1,E1,C1,C1,C1,C1,C1,SA1,SA1",
+        ".,.,C1,C1,C1,C1,C1,SA1,SA1"
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+        { "Code": "C1", "Allowed": ["Cargo"], "Size": 1200, "Editable": false },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
+        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 2 }
+      ],
+      "Cost": { "Ironium": 35, "Boranium": 0, "Germanium": 21, "Resources": 100 },
+      "Stats": { "Mass": 125, "Max Fuel": 2600, "Armor": 150, "Cargo": 1200, "Initiative": 0 }
+    },
+    {
+      "Name": "Super Freighter",
+      "Structure": [
+        ".,.,C1,C1,C1,C1,C1,C1,SEM1,SEM1",
+        ".,.,C1,C1,C1,C1,C1,C1,SEM1,SEM1",
+        "E1,E1,C1,C1,C1,C1,C1,C1,SA1,SA1",
+        "E1,E1,C1,C1,C1,C1,C1,C1,SA1,SA1",
+        ".,.,C1,C1,C1,C1,C1,C1,EL1,EL1",
+        ".,.,C1,C1,C1,C1,C1,C1,EL1,EL1"
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
+        { "Code": "C1", "Allowed": ["Cargo"], "Size": 3000, "Editable": false },
+        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 3 },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 5 },
+        { "Code": "EL1", "Allowed": ["Elect"], "Max": 2 }
+      ],
+      "Cost": { "Ironium": 45, "Boranium": 0, "Germanium": 21, "Resources": 125 },
+      "Stats": { "Mass": 175, "Max Fuel": 8000, "Armor": 400, "Cargo": 3000, "Initiative": 0 }
+    },
+
+    {
+      "Name": "Scout",
+      "Structure": [
+        "E1,E1,GP1,GP1,S1,S1",
+        "E1,E1,GP1,GP1,S1,S1"
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+        { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 1 },
+        { "Code": "S1", "Allowed": ["Scanner"], "Max": 1 }
+      ],
+      "Cost": { "Ironium": 4, "Boranium": 2, "Germanium": 4, "Resources": 10 },
+      "Stats": { "Mass": 8, "Max Fuel": 50, "Armor": 20, "Cargo": 0, "Initiative": 1 }
+    },
+    {
+      "Name": "Frigate",
+      "Structure": [
+        "E1,E1,SA1,SA1,GP1,GP1,S1,S1",
+        "E1,E1,SA1,SA1,GP1,GP1,S1,S1"
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
+        { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 3 },
+        { "Code": "S1", "Allowed": ["Scanner"], "Max": 2 }
+      ],
+      "Cost": { "Ironium": 4, "Boranium": 2, "Germanium": 4, "Resources": 12 },
+      "Stats": { "Mass": 8, "Max Fuel": 125, "Armor": 45, "Cargo": 0, "Initiative": 4 }
+    },
+    {
+      "Name": "Destroyer",
+      "Structure": [
+        ".,.,.,W1,W1,.",
+        ".,M1,M1,W1,W1,.",
+        ".,M1,M1,.,.,.",
+        "E1,E1,A1,A1,GP1,GP1",
+        "E1,E1,A1,A1,GP1,GP1",
+        ".,EL1,EL1,.,.,.",
+        ".,EL1,EL1,W2,W2,.",
+        ".,.,.,W2,W2,."
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+        { "Code": "A1", "Allowed": ["Armor"], "Max": 2 },
+        { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 1 },
+        { "Code": "M1", "Allowed": ["Mech"], "Max": 1 },
+        { "Code": "EL1", "Allowed": ["Elect"], "Max": 1 },
+        { "Code": "W1", "Allowed": ["Weapon"], "Max": 1 },
+        { "Code": "W2", "Allowed": ["Weapon"], "Max": 1 }
+      ],
+      "Cost": { "Ironium": 15, "Boranium": 3, "Germanium": 5, "Resources": 35 },
+      "Stats": { "Mass": 30, "Max Fuel": 280, "Armor": 200, "Cargo": 0, "Initiative": 3 }
+    },
+    {
+  "Name": "Cruiser",
+  "Structure": [
+    ".,.,.,.,W1,W1,.,.",
+    ".,.,SEM1,SEM1,W1,W1,.,.",
+    "E1,E1,SEM1,SEM1,SA1,SA1,GP1,GP1",
+    "E1,E1,SEM2,SEM2,SA1,SA1,GP1,GP1",
+    ".,.,SEM2,SEM2,W2,W2,.,.",
+    ".,.,.,.,W2,W2,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "SEM1", "Allowed": ["Shield", "Elect", "Mech"], "Max": 1 },
+    { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
+    { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 2 },
+    { "Code": "W1", "Allowed": ["Weapon"], "Max": 2 },
+    { "Code": "W2", "Allowed": ["Weapon"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 40, "Boranium": 5, "Germanium": 8, "Resources": 85 },
+  "Stats": { "Mass": 90, "Max Fuel": 600, "Armor": 700, "Cargo": 0, "Initiative": 5 }
+},
+{
+  "Name": "Battle Cruiser",
+  "Structure": [
+    ".,.,.,.,W1,W1,.,.",
+    ".,.,SEM1,SEM1,W1,W1,.,.",
+    "E1,E1,SEM1,SEM1,SA1,SA1,GP1,GP1",
+    "E1,E1,SEM2,SEM2,SA1,SA1,GP1,GP1",
+    ".,.,SEM2,SEM2,W2,W2,.,.",
+    ".,.,.,.,W2,W2,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "SEM1", "Allowed": ["Shield", "Elect", "Mech"], "Max": 2 },
+    { "Code": "SEM2", "Allowed": ["Shield", "Elect", "Mech"], "Max": 2 },
+    { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 4 },
+    { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "W1", "Allowed": ["Weapon"], "Max": 3 },
+    { "Code": "W2", "Allowed": ["Weapon"], "Max": 3 }
+  ],
+  "Cost": { "Ironium": 55, "Boranium": 8, "Germanium": 12, "Resources": 120 },
+  "Stats": { "Mass": 120, "Max Fuel": 1400, "Armor": 1000, "Cargo": 0, "Initiative": 5 }
+},
+{
+  "Name": "Battleship",
+  "Structure": [
+    ".,.,W1,W1,.,.,.,.,.,.",
+    ".,.,W1,W1,W2,W2,.,.,.,.",
+    ".,.,EL1,EL1,W2,W2,S1,S1,.,.",
+    "E1,E1,EL1,EL1,A1,A1,S1,S1,SEM1,SEM1",
+    "E1,E1,EL2,EL2,A1,A1,W3,W3,SEM1,SEM1",
+    ".,.,EL2,EL2,W4,W4,W3,W3,.,.",
+    ".,.,W5,W5,W4,W4,.,.,.,.",
+    ".,.,W5,W5,.,.,.,.,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 4, "Required": true },
+    { "Code": "EL1", "Allowed": ["Elect"], "Max": 3 },
+    { "Code": "EL2", "Allowed": ["Elect"], "Max": 3 },
+    { "Code": "A1", "Allowed": ["Armor"], "Max": 6 },
+    { "Code": "S1", "Allowed": ["Shield"], "Max": 8 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 },
+    { "Code": "W1", "Allowed": ["Weapon"], "Max": 2 },
+    { "Code": "W2", "Allowed": ["Weapon"], "Max": 6 },
+    { "Code": "W3", "Allowed": ["Weapon"], "Max": 4 },
+    { "Code": "W4", "Allowed": ["Weapon"], "Max": 6 },
+    { "Code": "W5", "Allowed": ["Weapon"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 120, "Boranium": 25, "Germanium": 20, "Resources": 225 },
+  "Stats": { "Mass": 222, "Max Fuel": 2800, "Armor": 2000, "Cargo": 0, "Initiative": 10 }
+},
+{
+  "Name": "Dreadnought",
+  "Structure": [
+    ".,.,W1,W1,.,.,.,.,.,.,",
+    "SA1,SA1,W1,W1,W2,W2,.,.,.,.,",
+    "SA1,SA1,EL1,EL1,W2,W2,WS1,WS1,.,.",
+    "E1,E1,EL1,EL1,A1,A1,WS1,WS1,GP1,GP1",
+    "E1,E1,EL2,EL2,A1,A1,WS2,WS2,GP1,GP1,.,.",  
+    "SA2,SA2,E2,E2,W3,W3,WS2,WS2,.,.",
+    "SA2,SA2,W4,W4,W3,W3,.,.,.,.",
+    ".,.,W4,W4,.,.,.,.,.,.,"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 5, "Required": true },
+    { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 4 },
+    { "Code": "SA2", "Allowed": ["Shield", "Armor"], "Max": 4 },
+    { "Code": "EL1", "Allowed": ["Elect"], "Max": 4 },
+    { "Code": "EL2", "Allowed": ["Elect"], "Max": 4 },
+    { "Code": "A1", "Allowed": ["Armor"], "Max": 8 },
+    { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 2 },
+    { "Code": "W1", "Allowed": ["Weapon"], "Max": 6 },
+    { "Code": "W2", "Allowed": ["Weapon"], "Max": 8 },
+    { "Code": "W3", "Allowed": ["Weapon"], "Max": 8 },
+    { "Code": "W4", "Allowed": ["Weapon"], "Max": 6 },
+    { "Code": "WS1", "Allowed": ["Weapon", "Shield"], "Max": 5 },
+    { "Code": "WS2", "Allowed": ["Weapon", "Shield"], "Max": 5 }
+  ],
+  "Cost": { "Ironium": 140, "Boranium": 30, "Germanium": 25, "Resources": 275 },
+  "Stats": { "Mass": 250, "Max Fuel": 4500, "Armor": 4500, "Cargo": 0, "Initiative": 10 }
+},
+{
+  "Name": "Privateer",
+  "Structure": [
+    ".,.,.,.,GP1,GP1,.,.",
+    ".,.,.,.,GP1,GP1,SA1,SA1",
+    "E1,E1,C1,C1,C1,C1,SA1,SA1",
+    "E1,E1,C1,C1,C1,C1,SEM1,SEM1",
+    ".,.,.,.,GP2,GP2,SEM1,SEM1",
+    ".,.,.,.,GP2,GP2,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "C1", "Allowed": ["Cargo"], "Size": 250, "Editable": false },
+    { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 1 },
+    { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 1 },
+    { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 50, "Boranium": 3, "Germanium": 2, "Resources": 50 },
+  "Stats": { "Mass": 65, "Max Fuel": 650, "Armor": 150, "Cargo": 250, "Initiative": 3 }
+},
+{
+  "Name": "Rogue",
+  "Structure": [
+    ".,EL1,EL1,GP1,GP1,.,.,.,.",
+    ".,EL1,EL1,GP1,GP1,MEM1,MEM1,.,.",
+    ".,.,.,C1,C1,C1,MEM1,MEM1,.,.",
+    "E1,E1,C1,C1,C1,SA1,SA1,S1,S1",
+    "E1,E1,C1,C1,C1,SA1,SA1,S1,S1",
+    ".,.,.,C1,C1,C1,MEM2,MEM2,.,.",
+    ".,EL2,EL2,GP2,GP2,MEM2,MEM2,.,.",
+    ".,EL2,EL2,GP2,GP2,.,.,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "C1", "Allowed": ["Cargo"], "Size": 500, "Editable": false },
+    { "Code": "EL1", "Allowed": ["Elect"], "Max": 1 },
+    { "Code": "EL2", "Allowed": ["Elect"], "Max": 1 },
+    { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 2 },
+    { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 2 },
+    { "Code": "MEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
+    { "Code": "MEM2", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
+    { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 3 },
+    { "Code": "S1", "Allowed": ["Scanner"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 80, "Boranium": 5, "Germanium": 5, "Resources": 60 },
+  "Stats": { "Mass": 75, "Max Fuel": 2250, "Armor": 450, "Cargo": 500, "Initiative": 4 }
+},
+{
+  "Name": "Galleon",
+  "Structure": [
+    ".,.,.,SA1,SA1,GP1,GP1,.,.,.",
+    ".,.,.,SA1,SA1,GP1,GP1,.,.,.",
+    ".,.,C1,C1,C1,C1,MEM1,MEM1,.,.,",
+    "E1,E1,C1,C1,C1,C1,MEM1,MEM1,S1,S1",
+    "E1,E1,C1,C1,C1,C1,EM1,EM1,S1,S1",
+    ".,.,C1,C1,C1,C1,EM1,EM1,.,.,",
+    ".,.,.,SA2,SA2,GP2,GP2,.,.,.",
+    ".,.,.,SA2,SA2,GP2,GP2,.,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 4, "Required": true },
+    { "Code": "C1", "Allowed": ["Cargo"], "Size": 1000, "Editable": false },
+    { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
+    { "Code": "SA2", "Allowed": ["Shield", "Armor"], "Max": 2 },
+    { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "MEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
+    { "Code": "EM1", "Allowed": ["Elect", "Mech"], "Max": 2 },
+    { "Code": "S1", "Allowed": ["Scanner"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 70, "Boranium": 5, "Germanium": 5, "Resources": 105 },
+  "Stats": { "Mass": 125, "Max Fuel": 2500, "Armor": 900, "Cargo": 1000, "Initiative": 4 }
+},
+{
+  "Name": "Mini-Colony Ship",
+  "Structure": [
+    "E1,E1,C1,C1,M1,M1",
+    "E1,E1,C1,C1,M1,M1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "C1", "Allowed": ["Cargo"], "Size": 10, "Editable": false },
+    { "Code": "M1", "Allowed": ["Mech"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 2, "Boranium": 0, "Germanium": 2, "Resources": 3 },
+  "Stats": { "Mass": 8, "Max Fuel": 150, "Armor": 10, "Cargo": 10, "Initiative": 0 }
+},
+{
+  "Name": "Colony Ship",
+  "Structure": [
+    "E1,E1,C1,C1,M1,M1",
+    "E1,E1,C1,C1,M1,M1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "C1", "Allowed": ["Cargo"], "Size": 25, "Editable": false },
+    { "Code": "M1", "Allowed": ["Mech"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 10, "Boranium": 0, "Germanium": 15, "Resources": 20 },
+  "Stats": { "Mass": 20, "Max Fuel": 200, "Armor": 20, "Cargo": 25, "Initiative": 0 }
+},
+{
+  "Name": "Mini Bomber",
+  "Structure": [
+    "E1,E1,B1,B1",
+    "E1,E1,B1,B1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "B1", "Allowed": ["Bomb"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 20, "Boranium": 5, "Germanium": 10, "Resources": 35 },
+  "Stats": { "Mass": 28, "Max Fuel": 120, "Armor": 50, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "B-17 Bomber",
+  "Structure": [
+    "E1,E1,B1,B1,B2,B2,SEM1,SEM1",
+    "E1,E1,B1,B1,B2,B2,SEM1,SEM1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "B1", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "B2", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 55, "Boranium": 10, "Germanium": 10, "Resources": 150 },
+  "Stats": { "Mass": 69, "Max Fuel": 400, "Armor": 175, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "Stealth Bomber",
+  "Structure": [
+    ".,.,B1,B1,SEM1,SEM1",
+    "E1,E1,B1,B1,SEM1,SEM1",
+    "E1,E1,B2,B2,EL1,EL1",
+    ".,.,B2,B2,EL1,EL1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "B1", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "B2", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 },
+    { "Code": "EL1", "Allowed": ["Elect"], "Max": 3 }
+  ],
+  "Cost": { "Ironium": 55, "Boranium": 10, "Germanium": 15, "Resources": 175 },
+  "Stats": { "Mass": 70, "Max Fuel": 750, "Armor": 225, "Cargo": 0, "Initiative": 0 }
+},{
+  "Name": "B-52 Bomber",
+  "Structure": [
+    ".,.,B1,B1,.,.,.,.",
+    ".,.,B1,B1,B2,B2,.,.",
+    "E1,E1,S1,S1,B2,B2,SEM1,SEM1",
+    "E1,E1,S1,S1,B3,B3,SEM1,SEM1",
+    ".,.,B4,B4,B3,B3,.,.",
+    ".,.,B4,B4,.,.,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
+    { "Code": "B1", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "B2", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "B3", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "B4", "Allowed": ["Bomb"], "Max": 4 },
+    { "Code": "S1", "Allowed": ["Shield"], "Max": 2 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 90, "Boranium": 15, "Germanium": 10, "Resources": 280 },
+  "Stats": { "Mass": 110, "Max Fuel": 750, "Armor": 450, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "Midget Miner",
+  "Structure": [
+    "E1,E1,M1,M1",
+    "E1,E1,M1,M1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "M1", "Allowed": ["Mining"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 10, "Boranium": 0, "Germanium": 3, "Resources": 20 },
+  "Stats": { "Mass": 10, "Max Fuel": 210, "Armor": 100, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "Mini-Miner",
+  "Structure": [
+    ".,.,M1,M1,.,.",
+    "E1,E1,M1,M1,SEM1,SEM1",
+    "E1,E1,M2,M2,SEM1,SEM1",
+    ".,.,M2,M2,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "M1", "Allowed": ["Mining"], "Max": 1 },
+    { "Code": "M2", "Allowed": ["Mining"], "Max": 1 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 25, "Boranium": 0, "Germanium": 6, "Resources": 50 },
+  "Stats": { "Mass": 80, "Max Fuel": 210, "Armor": 130, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "Miner",
+  "Structure": [
+    ".,.,M1,M1,M2,M2,.,.",
+    "E1,E1,M1,M1,M2,M2,SEM1,SEM1",
+    "E1,E1,M3,M3,M4,M4,SEM1,SEM1",
+    ".,.,M3,M3,M4,M4,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "M1", "Allowed": ["Mining"], "Max": 2 },
+    { "Code": "M2", "Allowed": ["Mining"], "Max": 1 },
+    { "Code": "M3", "Allowed": ["Mining"], "Max": 2 },
+    { "Code": "M4", "Allowed": ["Mining"], "Max": 1 },
+    { "Code": "SEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 32, "Boranium": 0, "Germanium": 6, "Resources": 110 },
+  "Stats": { "Mass": 110, "Max Fuel": 500, "Armor": 475, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "Maxi-Miner",
+  "Structure": [
+    ".,.,M1,M1,M2,M2,.,.",
+    "E1,E1,M1,M1,M2,M2,ASEM1,ASEM1",
+    "E1,E1,M3,M3,M4,M4,ASEM1,ASEM1",
+    ".,.,M3,M3,M4,M4,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
+    { "Code": "M1", "Allowed": ["Mining"], "Max": 4 },
+    { "Code": "M2", "Allowed": ["Mining"], "Max": 1 },
+    { "Code": "M3", "Allowed": ["Mining"], "Max": 4 },
+    { "Code": "M4", "Allowed": ["Mining"], "Max": 1 },
+    { "Code": "SEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 2 }
+  ],
+  "Cost": { "Ironium": 32, "Boranium": 0, "Germanium": 6, "Resources": 140 },
+  "Stats": { "Mass": 110, "Max Fuel": 850, "Armor": 1400, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "Ultra-Miner",
+  "Structure": [
+    ".,.,M1,M1,M2,M2,.,.",
+    "E1,E1,M1,M1,M2,M2,ASEM1,ASEM1",
+    "E1,E1,M3,M3,M4,M4,ASEM1,ASEM1",
+    ".,.,M3,M3,M4,M4,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "M1", "Allowed": ["Mining"], "Max": 4 },
+    { "Code": "M2", "Allowed": ["Mining"], "Max": 2 },
+    { "Code": "M3", "Allowed": ["Mining"], "Max": 4 },
+    { "Code": "M4", "Allowed": ["Mining"], "Max": 2 },
+    { "Code": "ASEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 3 }
+  ],
+  "Cost": { "Ironium": 30, "Boranium": 0, "Germanium": 6, "Resources": 130 },
+  "Stats": { "Mass": 100, "Max Fuel": 1300, "Armor": 1500, "Cargo": 0, "Initiative": 0 }
+},
+{
+  "Name": "Fuel Transport",
+  "Structure": [
+    "E1,E1,S1,S1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "S1", "Allowed": ["Shield"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 10, "Boranium": 0, "Germanium": 5, "Resources": 50 },
+  "Stats": {
+    "Mass": 12,
+    "Max Fuel": 750,
+    "Armor": 5,
+    "Cargo": 0,
+    "Initiative": 0,
+    "GenFuel": 200,
+    "Heal": 5
+  }
+},
+{
+  "Name": "Super-Fuel Export",
+  "Structure": [
+    "E1,E1,S1,S1,SC1,SC1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
+    { "Code": "S1", "Allowed": ["Shield"], "Max": 2 },
+    { "Code": "SC1", "Allowed": ["Scanner"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 20, "Boranium": 0, "Germanium": 8, "Resources": 70 },
+  "Stats": {
+    "Mass": 111,
+    "Max Fuel": 2250,
+    "Armor": 12,
+    "Cargo": 0,
+    "Initiative": 0,
+    "GenFuel": 200,
+    "Heal": 10
+  }
+},
+{
+  "Name": "Mini Mine Layer",
+  "Structure": [
+    ".,.,M1,M1,.,.",
+    "E1,E1,M1,M1,SEM1,SEM1",
+    "E1,E1,M2,M2,SEM1,SEM1",
+    ".,.,M2,M2,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
+    { "Code": "M1", "Allowed": ["Mine"], "Max": 2 },
+    { "Code": "M2", "Allowed": ["Mine"], "Max": 2 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+  ],
+  "Cost": { "Ironium": 8, "Boranium": 2, "Germanium": 5, "Resources": 20 },
+  "Stats": {
+    "Mass": 10,
+    "Max Fuel": 400,
+    "Armor": 60,
+    "Cargo": 0,
+    "Initiative": 0,
+    "MineEfficiency": 2
+  }
+},
+{
+  "Name": "Super Mine Layer",
+  "Structure": [
+    ".,.,M1,M1,.,.,SEM1,SEM1",
+    "E1,E1,M1,M1,SA1,SA1,SEM1,SEM1",
+    "E1,E1,M2,M2,SA1,SA1,MEM1,MEM1",
+    ".,.,M2,M2,.,.,MEM1,MEM1"
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
+    { "Code": "M1", "Allowed": ["Mine"], "Max": 8 },
+    { "Code": "M2", "Allowed": ["Mine"], "Max": 8 },
+    { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 3 },
+    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 3 },
+    { "Code": "MEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 3 }
+  ],
+  "Cost": { "Ironium": 20, "Boranium": 3, "Germanium": 9, "Resources": 30 },
+  "Stats": {
+    "Mass": 30,
+    "Max Fuel": 2200,
+    "Armor": 1200,
+    "Cargo": 0,
+    "Initiative": 0,
+    "MineEfficiency": 2
+  }
+},
+{
+  "Name": "Nubian",
+  "Structure": [
+    ".,.,GP1,GP1,.,.,.,.,.,.",
+    "GP2,GP2,GP1,GP1,GP3,GP3,.,.,.,.",
+    "GP2,GP2,GP4,GP4,GP3,GP3,GP5,GP5,.,.",
+    "E1,E1,GP4,GP4,GP6,GP6,GP5,GP5,GP7,GP7",
+    "E1,E1,GP8,GP8,GP6,GP6,GP9,GP9,GP7,GP7",
+    "GP10,GP10,GP8,GP8,GP11,GP11,GP9,GP9,.,.",
+    "GP10,GP10,GP12,GP12,GP11,GP11,.,.,.,.",
+    ".,.,GP12,GP12,.,.,.,.,.,."
+  ],
+  "Slots": [
+    { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
+    { "Code": "M1", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M2", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M3", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M4", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M5", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M6", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M7", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M8", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M9", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M10", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M11", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "M12", "Allowed": ["General Purpose"], "Max": 3 }
+
+  ],
+  "Cost": {
+    "Ironium": 75,
+    "Boranium": 12,
+    "Germanium": 12,
+    "Resources": 150
+  },
+  "Stats": {
+    "Mass": 100,
+    "Max Fuel": 5000,
+    "Armor": 5000,
+    "Cargo": 0,
+    "Initiative": 2
+  }
+},
+{
+  
+      "Name": "Meta Morph",
+      "Structure": [
+        ".,.,GP1,GP1,C1,C1,GP4,GP4,.,.",
+        ".,.,GP1,GP1,C1,C1,GP4,GP4,.,.",
+        "E1,E1,GP2,GP2,C1,C1,GP5,GP5,GP6,GP6",
+        "E1,E1,GP2,GP2,C1,C1,GP5,GP5,GP6,GP6",
+        ".,.,GP3,GP3,C1,C1,.,.,.,.",
+        ".,.,GP3,GP3,C1,C1,.,.,.,."
+      ],
+      "Slots": [
+        { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
+        { "Code": "C1", "Allowed": ["Cargo"], "Size": 300, "Editable": false },
+        { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 2 },
+        { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 8 },
+        { "Code": "GP3", "Allowed": ["General Purpose"], "Max": 2 },
+        { "Code": "GP4", "Allowed": ["General Purpose"], "Max": 2 },
+        { "Code": "GP5", "Allowed": ["General Purpose"], "Max": 2 },
+        { "Code": "GP6", "Allowed": ["General Purpose"], "Max": 1 }
+      ],
+      "Cost": { "Ironium": 50, "Boranium": 12, "Germanium": 12, "Resources": 120 },
+      "Stats": { "Mass": 85, "Max Fuel": 700, "Armor": 500, "Cargo": 300, "Initiative": 2 }
+    },
+
+    {
+      "Name": "Orbital Fort",
+      "Structure": [
+        ".,.,.,.,W1,W1,.,.,.,.",
+        ".,.,.,.,W1,W1,.,.,.,.",
+        ".,.,SA1,SA1,OE1,OE1,SA2,SA2,.,.",
+        ".,.,SA1,SA1,OE1,OE1,SA2,SA2,.,.",
+        ".,.,.,.,W2,W2,.,.,.,.",
+        ".,.,.,.,W2,W2,.,.,.,."
+      ],
+      "Slots": [
+        { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1, "Required": true },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 12 },
+        { "Code": "SA2", "Allowed": ["Shield", "Armor"], "Max": 12 },
+        { "Code": "W1", "Allowed": ["Weapon"], "Max": 12 },
+        { "Code": "W2", "Allowed": ["Weapon"], "Max": 12 }
+      ],
+      "Cost": { "Ironium": 12, "Boranium": 0, "Germanium": 17, "Resources": 40 },
+      "Stats": { "Mass": 0, "Max Fuel": 0, "Armor": 100, "Cargo": 0, "Initiative": 10 }
+    },
+
+    {
+      "Name": "Space Dock",
+      "Structure": [
+        "OE1,OE1,W1,W1,EL1,EL1",
+        "OE1,OE1,W1,W1,EL1,EL1",
+        "SA1,SA1,D1,D1,W2,W2",
+        "SA1,SA1,D1,D1,W2,W2",
+        "W3,W3,S1,S1,EL2,EL2",
+        "W3,W3,S1,S1,EL2,EL2"
+      ],
+      "Slots": [
+        { "Code": "D1", "Allowed": ["Dock"], "Size": 200, "Editable": false },
+        { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 24 },
+        { "Code": "S1", "Allowed": ["Shield"], "Max": 24 },
+        { "Code": "EL1", "Allowed": ["Elect"], "Max": 2 },
+        { "Code": "EL2", "Allowed": ["Elect"], "Max": 2 },
+        { "Code": "W1", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W2", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W3", "Allowed": ["Weapon"], "Max": 16 }
+      ],
+      "Cost": { "Ironium": 20, "Boranium": 5, "Germanium": 25, "Resources": 100 },
+      "Stats": { "Mass": 0, "Max Fuel": 0, "Armor": 250, "Cargo": 0, "Initiative": 12, "DockCapacity": 200, "CanBuildShips": true }
+    },
+
+    {
+      "Name": "Space Station",
+      "Structure": [
+        ".,.,.,S1,S1,W1,W1,.,.,.",
+        ".,.,.,S1,S1,W1,W1,.,.,.",
+        "W2,W2,OE1,OE1,EL1,EL1,OE2,OE2,SA1,SA1",
+        "W2,W2,OE1,OE1,EL1,EL1,OE2,OE2,SA1,SA1",
+        ".,.,.,.,D1,D1,.,.,W3,W3",
+        ".,.,.,.,D1,D1,.,.,W3,W3",
+        "W4,W4,.,.,EL2,EL2,.,.,SA2,SA2",
+        "W4,W4,.,.,EL2,EL2,.,.,SA2,SA2",
+        ".,.,.,W5,W5,S2,S2,.,.,.",
+        ".,.,.,W5,W5,S2,S2,.,.,."
+      ],
+      "Slots": [
+        { "Code": "D1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
+        { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
+        { "Code": "OE2", "Allowed": ["Orbital", "Elect"], "Max": 1 },
+        { "Code": "EL1", "Allowed": ["Elect"], "Max": 3 },
+        { "Code": "EL2", "Allowed": ["Elect"], "Max": 3 },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 16 },
+        { "Code": "SA2", "Allowed": ["Shield", "Armor"], "Max": 16 },
+        { "Code": "S1", "Allowed": ["Shield"], "Max": 16 },
+        { "Code": "S2", "Allowed": ["Shield"], "Max": 16 },
+        { "Code": "W1", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W2", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W3", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W4", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W5", "Allowed": ["Weapon"], "Max": 16 }
+      ],
+      "Cost": { "Ironium": 120, "Boranium": 80, "Germanium": 250, "Resources": 600 },
+      "Stats": { "Mass": 0, "Max Fuel": 0, "Armor": 500, "Cargo": 0, "Initiative": 14, "DockCapacity": "Unlimited", "CanBuildShips": true }
+    },
+
+    {
+      "Name": "Ultra Station",
+      "Structure": [
+        ".,.,.,.,W1,W1,EL1,EL1,.,.",
+        ".,.,.,.,W1,W1,EL1,EL1,.,.",
+        ".,.,SA1,SA1,OE1,OE1,S1,S1,.,.",
+        ".,.,SA1,SA1,OE1,OE1,S1,S1,.,.",
+        "W2,W2,EL2,EL2,D1,D1,EL3,EL3,W3,W3",
+        "W2,W2,EL2,EL2,D1,D1,EL3,EL3,W3,W3",
+        "W4,W4,S2,S2,OE2,OE2,SA2,SA2,W5,W5",
+        "W4,W4,S2,S2,OE2,OE2,SA2,SA2,W5,W5",
+        ".,.,EL4,EL4,W6,W6,.,.,.,.",
+        ".,.,EL4,EL4,W6,W6,.,.,.,."
+      ],
+      "Slots": [
+        { "Code": "D1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
+        { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
+        { "Code": "OE2", "Allowed": ["Orbital", "Elect"], "Max": 1 },
+        { "Code": "EL1", "Allowed": ["Elect"], "Max": 3 },
+        { "Code": "EL2", "Allowed": ["Elect"], "Max": 3 },
+        { "Code": "EL3", "Allowed": ["Elect"], "Max": 3 },
+        { "Code": "EL4", "Allowed": ["Elect"], "Max": 3 },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 20 },
+        { "Code": "SA2", "Allowed": ["Shield", "Armor"], "Max": 20 },
+        { "Code": "S1", "Allowed": ["Shield"], "Max": 20 },
+        { "Code": "S2", "Allowed": ["Shield"], "Max": 20 },
+        { "Code": "W1", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W2", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W3", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W4", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W5", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "W6", "Allowed": ["Weapon"], "Max": 16 }
+      ],
+      "Cost": { "Ironium": 120, "Boranium": 80, "Germanium": 300, "Resources": 600 },
+      "Stats": { "Mass": 0, "Max Fuel": 0, "Armor": 1000, "Cargo": 0, "Initiative": 16, "DockCapacity": "Unlimited", "CanBuildShips": true }
+    },
+
+    {
+      "Name": "Death Star",
+      "Structure": [
+        ".,.,W1,W1,OE1,OE1,EL1,EL1,.,.",
+        ".,.,W1,W1,OE1,OE1,EL1,EL1,.,.",
+        "EL2,EL2,SA1,SA1,.,.,S1,S1,W2,W2",
+        "EL2,EL2,SA1,SA1,.,.,S1,S1,W2,W2",
+        ".,.,EL3,EL3,D1,D1,EL4,EL4,.,.",
+        ".,.,EL3,EL3,D1,D1,EL4,EL4,.,.",
+        "W3,W3,S2,S2,.,.,SA2,SA2,EL5,EL5",
+        "W3,W3,S2,S2,.,.,SA2,SA2,EL5,EL5",
+        ".,.,EL6,EL6,OE2,OE2,W4,W4,.,.",
+        ".,.,EL6,EL6,OE2,OE2,W4,W4,.,."
+      ],
+      "Slots": [
+        { "Code": "D1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
+        { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
+        { "Code": "OE2", "Allowed": ["Orbital", "Elect"], "Max": 1 },
+        { "Code": "EL1", "Allowed": ["Elect"], "Max": 4 },
+        { "Code": "EL2", "Allowed": ["Elect"], "Max": 4 },
+        { "Code": "EL3", "Allowed": ["Elect"], "Max": 4 },
+        { "Code": "EL4", "Allowed": ["Elect"], "Max": 4 },
+        { "Code": "EL5", "Allowed": ["Elect"], "Max": 4 },
+        { "Code": "EL6", "Allowed": ["Elect"], "Max": 4 },
+        { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 20 },
+        { "Code": "SA2", "Allowed": ["Shield", "Armor"], "Max": 20 },
+        { "Code": "S1", "Allowed": ["Shield"], "Max": 30 },
+        { "Code": "S2", "Allowed": ["Shield"], "Max": 30 },
+        { "Code": "W1", "Allowed": ["Weapon"], "Max": 32 },
+        { "Code": "W2", "Allowed": ["Weapon"], "Max": 32 },
+        { "Code": "W3", "Allowed": ["Weapon"], "Max": 32 },
+        { "Code": "W4", "Allowed": ["Weapon"], "Max": 32 }
+      ],
+      "Cost": { "Ironium": 120, "Boranium": 80, "Germanium": 350, "Resources": 750 },
+      "Stats": { "Mass": 0, "Max Fuel": 0, "Armor": 1500, "Cargo": 0, "Initiative": 18, "DockCapacity": "Unlimited", "CanBuildShips": true }
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ]
+}
