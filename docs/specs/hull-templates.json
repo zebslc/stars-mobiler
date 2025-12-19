@@ -3,14 +3,14 @@
     {
       "Name": "Small Freighter",
       "Structure": [
-        "E1,E1,C1,C1,SA1,SA1,SEM1,SEM1",
-        "E1,E1,C1,C1,SA1,SA1,SEM1,SEM1"
+        "E1,E1,C1,C1,SA1,SA1,SCEM1,SCEM1",
+        "E1,E1,C1,C1,SA1,SA1,SCEM1,SCEM1"
       ],
       "Slots": [
         { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
         { "Code": "C1", "Allowed": ["Cargo"], "Size": 70, "Editable": false },
         { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 1 },
-        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+        { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
       ],
       "Cost": { "Ironium": 12, "Boranium": 0, "Germanium": 17, "Resources": 20 },
       "Stats": { "Mass": 25, "Max Fuel": 130, "Armor": 25, "Cargo": 70, "Initiative": 0 }
@@ -18,14 +18,14 @@
     {
       "Name": "Medium Freighter",
       "Structure": [
-        "E1,E1,C1,C1,C1,C1,SA1,SA1,SEM1,SEM1",
-        "E1,E1,C1,C1,C1,C1,SA1,SA1,SEM1,SEM1"
+        "E1,E1,C1,C1,C1,C1,SA1,SA1,SCEM1,SCEM1",
+        "E1,E1,C1,C1,C1,C1,SA1,SA1,SCEM1,SCEM1"
       ],
       "Slots": [
         { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
         { "Code": "C1", "Allowed": ["Cargo"], "Size": 210, "Editable": false },
         { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 1 },
-        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+        { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
       ],
       "Cost": { "Ironium": 20, "Boranium": 0, "Germanium": 19, "Resources": 40 },
       "Stats": { "Mass": 60, "Max Fuel": 450, "Armor": 50, "Cargo": 210, "Initiative": 0 }
@@ -33,8 +33,8 @@
     {
       "Name": "Large Freighter",
       "Structure": [
-        ".,.,C1,C1,C1,C1,C1,SEM1,SEM1",
-        "E1,E1,C1,C1,C1,C1,C1,SEM1,SEM1",
+        ".,.,C1,C1,C1,C1,C1,SCEM1,SCEM1",
+        "E1,E1,C1,C1,C1,C1,C1,SCEM1,SCEM1",
         "E1,E1,C1,C1,C1,C1,C1,SA1,SA1",
         ".,.,C1,C1,C1,C1,C1,SA1,SA1"
       ],
@@ -42,7 +42,7 @@
         { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
         { "Code": "C1", "Allowed": ["Cargo"], "Size": 1200, "Editable": false },
         { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
-        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 2 }
+        { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 2 }
       ],
       "Cost": { "Ironium": 35, "Boranium": 0, "Germanium": 21, "Resources": 100 },
       "Stats": { "Mass": 125, "Max Fuel": 2600, "Armor": 150, "Cargo": 1200, "Initiative": 0 }
@@ -50,8 +50,8 @@
     {
       "Name": "Super Freighter",
       "Structure": [
-        ".,.,C1,C1,C1,C1,C1,C1,SEM1,SEM1",
-        ".,.,C1,C1,C1,C1,C1,C1,SEM1,SEM1",
+        ".,.,C1,C1,C1,C1,C1,C1,SCEM1,SCEM1",
+        ".,.,C1,C1,C1,C1,C1,C1,SCEM1,SCEM1",
         "E1,E1,C1,C1,C1,C1,C1,C1,SA1,SA1",
         "E1,E1,C1,C1,C1,C1,C1,C1,SA1,SA1",
         ".,.,C1,C1,C1,C1,C1,C1,EL1,EL1",
@@ -60,7 +60,7 @@
       "Slots": [
         { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
         { "Code": "C1", "Allowed": ["Cargo"], "Size": 3000, "Editable": false },
-        { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 3 },
+        { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 3 },
         { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 5 },
         { "Code": "EL1", "Allowed": ["Elect"], "Max": 2 }
       ],
@@ -71,13 +71,13 @@
     {
       "Name": "Scout",
       "Structure": [
-        "E1,E1,GP1,GP1,S1,S1",
-        "E1,E1,GP1,GP1,S1,S1"
+        "E1,E1,GP1,GP1,SC1,SC1",
+        "E1,E1,GP1,GP1,SC1,SC1"
       ],
       "Slots": [
         { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
         { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 1 },
-        { "Code": "S1", "Allowed": ["Scanner"], "Max": 1 }
+        { "Code": "SC1", "Allowed": ["Scanner"], "Max": 1 }
       ],
       "Cost": { "Ironium": 4, "Boranium": 2, "Germanium": 4, "Resources": 10 },
       "Stats": { "Mass": 8, "Max Fuel": 50, "Armor": 20, "Cargo": 0, "Initiative": 1 }
@@ -85,14 +85,14 @@
     {
       "Name": "Frigate",
       "Structure": [
-        "E1,E1,SA1,SA1,GP1,GP1,S1,S1",
-        "E1,E1,SA1,SA1,GP1,GP1,S1,S1"
+        "E1,E1,SA1,SA1,GP1,GP1,SC1,SC1",
+        "E1,E1,SA1,SA1,GP1,GP1,SC1,SC1"
       ],
       "Slots": [
         { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
         { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
         { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 3 },
-        { "Code": "S1", "Allowed": ["Scanner"], "Max": 2 }
+        { "Code": "SC1", "Allowed": ["Scanner"], "Max": 2 }
       ],
       "Cost": { "Ironium": 4, "Boranium": 2, "Germanium": 4, "Resources": 12 },
       "Stats": { "Mass": 8, "Max Fuel": 125, "Armor": 45, "Cargo": 0, "Initiative": 4 }
@@ -125,15 +125,16 @@
   "Name": "Cruiser",
   "Structure": [
     ".,.,.,.,W1,W1,.,.",
-    ".,.,SEM1,SEM1,W1,W1,.,.",
-    "E1,E1,SEM1,SEM1,SA1,SA1,GP1,GP1",
-    "E1,E1,SEM2,SEM2,SA1,SA1,GP1,GP1",
-    ".,.,SEM2,SEM2,W2,W2,.,.",
+    ".,.,SHEM1,SHEM1,W1,W1,.,.",
+    "E1,E1,SHEM1,SHEM1,SA1,SA1,GP1,GP1",
+    "E1,E1,SHEM2,SHEM2,SA1,SA1,GP1,GP1",
+    ".,.,SHEM2,SHEM2,W2,W2,.,.",
     ".,.,.,.,W2,W2,.,."
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
-    { "Code": "SEM1", "Allowed": ["Shield", "Elect", "Mech"], "Max": 1 },
+    { "Code": "SHEM1", "Allowed": ["Shield", "Elect", "Mech"], "Max": 1 },
+    { "Code": "SHEM2", "Allowed": ["Shield", "Elect", "Mech"], "Max": 1 },
     { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
     { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 2 },
     { "Code": "W1", "Allowed": ["Weapon"], "Max": 2 },
@@ -146,16 +147,16 @@
   "Name": "Battle Cruiser",
   "Structure": [
     ".,.,.,.,W1,W1,.,.",
-    ".,.,SEM1,SEM1,W1,W1,.,.",
-    "E1,E1,SEM1,SEM1,SA1,SA1,GP1,GP1",
-    "E1,E1,SEM2,SEM2,SA1,SA1,GP1,GP1",
-    ".,.,SEM2,SEM2,W2,W2,.,.",
+    ".,.,SHEM1,SHEM1,W1,W1,.,.",
+    "E1,E1,SHEM1,SHEM1,SA1,SA1,GP1,GP1",
+    "E1,E1,SHEM2,SHEM2,SA1,SA1,GP1,GP1",
+    ".,.,SHEM2,SHEM2,W2,W2,.,.",
     ".,.,.,.,W2,W2,.,."
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
-    { "Code": "SEM1", "Allowed": ["Shield", "Elect", "Mech"], "Max": 2 },
-    { "Code": "SEM2", "Allowed": ["Shield", "Elect", "Mech"], "Max": 2 },
+    { "Code": "SHEM1", "Allowed": ["Shield", "Elect", "Mech"], "Max": 2 },
+    { "Code": "SHEM2", "Allowed": ["Shield", "Elect", "Mech"], "Max": 2 },
     { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 4 },
     { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 3 },
     { "Code": "W1", "Allowed": ["Weapon"], "Max": 3 },
@@ -170,8 +171,8 @@
     ".,.,W1,W1,.,.,.,.,.,.",
     ".,.,W1,W1,W2,W2,.,.,.,.",
     ".,.,EL1,EL1,W2,W2,S1,S1,.,.",
-    "E1,E1,EL1,EL1,A1,A1,S1,S1,SEM1,SEM1",
-    "E1,E1,EL2,EL2,A1,A1,W3,W3,SEM1,SEM1",
+    "E1,E1,EL1,EL1,A1,A1,S1,S1,SCEM1,SCEM1",
+    "E1,E1,EL2,EL2,A1,A1,W3,W3,SCEM1,SCEM1",
     ".,.,EL2,EL2,W4,W4,W3,W3,.,.",
     ".,.,W5,W5,W4,W4,.,.,.,.",
     ".,.,W5,W5,.,.,.,.,.,."
@@ -182,7 +183,7 @@
     { "Code": "EL2", "Allowed": ["Elect"], "Max": 3 },
     { "Code": "A1", "Allowed": ["Armor"], "Max": 6 },
     { "Code": "S1", "Allowed": ["Shield"], "Max": 8 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 },
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 },
     { "Code": "W1", "Allowed": ["Weapon"], "Max": 2 },
     { "Code": "W2", "Allowed": ["Weapon"], "Max": 6 },
     { "Code": "W3", "Allowed": ["Weapon"], "Max": 4 },
@@ -195,14 +196,14 @@
 {
   "Name": "Dreadnought",
   "Structure": [
-    ".,.,W1,W1,.,.,.,.,.,.,",
-    "SA1,SA1,W1,W1,W2,W2,.,.,.,.,",
+    ".,.,W1,W1,.,.,.,.,.,.",
+    "SA1,SA1,W1,W1,W2,W2,.,.,.,.",
     "SA1,SA1,EL1,EL1,W2,W2,WS1,WS1,.,.",
     "E1,E1,EL1,EL1,A1,A1,WS1,WS1,GP1,GP1",
-    "E1,E1,EL2,EL2,A1,A1,WS2,WS2,GP1,GP1,.,.",  
-    "SA2,SA2,E2,E2,W3,W3,WS2,WS2,.,.",
+    "E1,E1,EL2,EL2,A1,A1,WS2,WS2,GP1,GP1",  
+    "SA2,SA2,EL2,EL2,W3,W3,WS2,WS2,.,.",
     "SA2,SA2,W4,W4,W3,W3,.,.,.,.",
-    ".,.,W4,W4,.,.,.,.,.,.,"
+    ".,.,W4,W4,.,.,.,.,.,."
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 5, "Required": true },
@@ -228,8 +229,8 @@
     ".,.,.,.,GP1,GP1,.,.",
     ".,.,.,.,GP1,GP1,SA1,SA1",
     "E1,E1,C1,C1,C1,C1,SA1,SA1",
-    "E1,E1,C1,C1,C1,C1,SEM1,SEM1",
-    ".,.,.,.,GP2,GP2,SEM1,SEM1",
+    "E1,E1,C1,C1,C1,C1,SCEM1,SCEM1",
+    ".,.,.,.,GP2,GP2,SCEM1,SCEM1",
     ".,.,.,.,GP2,GP2,.,."
   ],
   "Slots": [
@@ -238,7 +239,7 @@
     { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 1 },
     { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 1 },
     { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 2 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
   ],
   "Cost": { "Ironium": 50, "Boranium": 3, "Germanium": 2, "Resources": 50 },
   "Stats": { "Mass": 65, "Max Fuel": 650, "Armor": 150, "Cargo": 250, "Initiative": 3 }
@@ -247,12 +248,12 @@
   "Name": "Rogue",
   "Structure": [
     ".,EL1,EL1,GP1,GP1,.,.,.,.",
-    ".,EL1,EL1,GP1,GP1,MEM1,MEM1,.,.",
-    ".,.,.,C1,C1,C1,MEM1,MEM1,.,.",
-    "E1,E1,C1,C1,C1,SA1,SA1,S1,S1",
-    "E1,E1,C1,C1,C1,SA1,SA1,S1,S1",
-    ".,.,.,C1,C1,C1,MEM2,MEM2,.,.",
-    ".,EL2,EL2,GP2,GP2,MEM2,MEM2,.,.",
+    ".,EL1,EL1,GP1,GP1,MIEM1,MIEM1,.,.",
+    ".,.,.,C1,C1,C1,MIEM1,MIEM1,.,.",
+    "E1,E1,C1,C1,C1,SA1,SA1,SC1,SC1",
+    "E1,E1,C1,C1,C1,SA1,SA1,SC1,SC1",
+    ".,.,.,C1,C1,C1,MIEM2,MIEM2,.,.",
+    ".,EL2,EL2,GP2,GP2,MIEM2,MIEM2,.,.",
     ".,EL2,EL2,GP2,GP2,.,.,.,."
   ],
   "Slots": [
@@ -262,10 +263,10 @@
     { "Code": "EL2", "Allowed": ["Elect"], "Max": 1 },
     { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 2 },
     { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 2 },
-    { "Code": "MEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
-    { "Code": "MEM2", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
+    { "Code": "MIEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
+    { "Code": "MIEM2", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
     { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 3 },
-    { "Code": "S1", "Allowed": ["Scanner"], "Max": 1 }
+    { "Code": "SC1", "Allowed": ["Scanner"], "Max": 1 }
   ],
   "Cost": { "Ironium": 80, "Boranium": 5, "Germanium": 5, "Resources": 60 },
   "Stats": { "Mass": 75, "Max Fuel": 2250, "Armor": 450, "Cargo": 500, "Initiative": 4 }
@@ -275,9 +276,9 @@
   "Structure": [
     ".,.,.,SA1,SA1,GP1,GP1,.,.,.",
     ".,.,.,SA1,SA1,GP1,GP1,.,.,.",
-    ".,.,C1,C1,C1,C1,MEM1,MEM1,.,.,",
-    "E1,E1,C1,C1,C1,C1,MEM1,MEM1,S1,S1",
-    "E1,E1,C1,C1,C1,C1,EM1,EM1,S1,S1",
+    ".,.,C1,C1,C1,C1,MIEM1,MIEM1,.,.,",
+    "E1,E1,C1,C1,C1,C1,MIEM1,MIEM1,SC1,SC1",
+    "E1,E1,C1,C1,C1,C1,EM1,EM1,SC1,SC1",
     ".,.,C1,C1,C1,C1,EM1,EM1,.,.,",
     ".,.,.,SA2,SA2,GP2,GP2,.,.,.",
     ".,.,.,SA2,SA2,GP2,GP2,.,.,."
@@ -289,9 +290,9 @@
     { "Code": "SA2", "Allowed": ["Shield", "Armor"], "Max": 2 },
     { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 3 },
     { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "MEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
+    { "Code": "MIEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 2 },
     { "Code": "EM1", "Allowed": ["Elect", "Mech"], "Max": 2 },
-    { "Code": "S1", "Allowed": ["Scanner"], "Max": 2 }
+    { "Code": "SC1", "Allowed": ["Scanner"], "Max": 2 }
   ],
   "Cost": { "Ironium": 70, "Boranium": 5, "Germanium": 5, "Resources": 105 },
   "Stats": { "Mass": 125, "Max Fuel": 2500, "Armor": 900, "Cargo": 1000, "Initiative": 4 }
@@ -340,14 +341,14 @@
 {
   "Name": "B-17 Bomber",
   "Structure": [
-    "E1,E1,B1,B1,B2,B2,SEM1,SEM1",
-    "E1,E1,B1,B1,B2,B2,SEM1,SEM1"
+    "E1,E1,B1,B1,B2,B2,SCEM1,SCEM1",
+    "E1,E1,B1,B1,B2,B2,SCEM1,SCEM1"
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
     { "Code": "B1", "Allowed": ["Bomb"], "Max": 4 },
     { "Code": "B2", "Allowed": ["Bomb"], "Max": 4 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
   ],
   "Cost": { "Ironium": 55, "Boranium": 10, "Germanium": 10, "Resources": 150 },
   "Stats": { "Mass": 69, "Max Fuel": 400, "Armor": 175, "Cargo": 0, "Initiative": 0 }
@@ -355,8 +356,8 @@
 {
   "Name": "Stealth Bomber",
   "Structure": [
-    ".,.,B1,B1,SEM1,SEM1",
-    "E1,E1,B1,B1,SEM1,SEM1",
+    ".,.,B1,B1,SCEM1,SCEM1",
+    "E1,E1,B1,B1,SCEM1,SCEM1",
     "E1,E1,B2,B2,EL1,EL1",
     ".,.,B2,B2,EL1,EL1"
   ],
@@ -364,7 +365,7 @@
     { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
     { "Code": "B1", "Allowed": ["Bomb"], "Max": 4 },
     { "Code": "B2", "Allowed": ["Bomb"], "Max": 4 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 },
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 },
     { "Code": "EL1", "Allowed": ["Elect"], "Max": 3 }
   ],
   "Cost": { "Ironium": 55, "Boranium": 10, "Germanium": 15, "Resources": 175 },
@@ -374,8 +375,8 @@
   "Structure": [
     ".,.,B1,B1,.,.,.,.",
     ".,.,B1,B1,B2,B2,.,.",
-    "E1,E1,S1,S1,B2,B2,SEM1,SEM1",
-    "E1,E1,S1,S1,B3,B3,SEM1,SEM1",
+    "E1,E1,S1,S1,B2,B2,SCEM1,SCEM1",
+    "E1,E1,S1,S1,B3,B3,SCEM1,SCEM1",
     ".,.,B4,B4,B3,B3,.,.",
     ".,.,B4,B4,.,.,.,."
   ],
@@ -386,7 +387,7 @@
     { "Code": "B3", "Allowed": ["Bomb"], "Max": 4 },
     { "Code": "B4", "Allowed": ["Bomb"], "Max": 4 },
     { "Code": "S1", "Allowed": ["Shield"], "Max": 2 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 2 }
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 2 }
   ],
   "Cost": { "Ironium": 90, "Boranium": 15, "Germanium": 10, "Resources": 280 },
   "Stats": { "Mass": 110, "Max Fuel": 750, "Armor": 450, "Cargo": 0, "Initiative": 0 }
@@ -408,15 +409,15 @@
   "Name": "Mini-Miner",
   "Structure": [
     ".,.,M1,M1,.,.",
-    "E1,E1,M1,M1,SEM1,SEM1",
-    "E1,E1,M2,M2,SEM1,SEM1",
+    "E1,E1,M1,M1,SCEM1,SCEM1",
+    "E1,E1,M2,M2,SCEM1,SCEM1",
     ".,.,M2,M2,.,."
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
     { "Code": "M1", "Allowed": ["Mining"], "Max": 1 },
     { "Code": "M2", "Allowed": ["Mining"], "Max": 1 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
   ],
   "Cost": { "Ironium": 25, "Boranium": 0, "Germanium": 6, "Resources": 50 },
   "Stats": { "Mass": 80, "Max Fuel": 210, "Armor": 130, "Cargo": 0, "Initiative": 0 }
@@ -425,8 +426,8 @@
   "Name": "Miner",
   "Structure": [
     ".,.,M1,M1,M2,M2,.,.",
-    "E1,E1,M1,M1,M2,M2,SEM1,SEM1",
-    "E1,E1,M3,M3,M4,M4,SEM1,SEM1",
+    "E1,E1,M1,M1,M2,M2,SCEM1,SCEM1",
+    "E1,E1,M3,M3,M4,M4,SCEM1,SCEM1",
     ".,.,M3,M3,M4,M4,.,."
   ],
   "Slots": [
@@ -435,7 +436,7 @@
     { "Code": "M2", "Allowed": ["Mining"], "Max": 1 },
     { "Code": "M3", "Allowed": ["Mining"], "Max": 2 },
     { "Code": "M4", "Allowed": ["Mining"], "Max": 1 },
-    { "Code": "SEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 2 }
+    { "Code": "SCEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 2 }
   ],
   "Cost": { "Ironium": 32, "Boranium": 0, "Germanium": 6, "Resources": 110 },
   "Stats": { "Mass": 110, "Max Fuel": 500, "Armor": 475, "Cargo": 0, "Initiative": 0 }
@@ -444,8 +445,8 @@
   "Name": "Maxi-Miner",
   "Structure": [
     ".,.,M1,M1,M2,M2,.,.",
-    "E1,E1,M1,M1,M2,M2,ASEM1,ASEM1",
-    "E1,E1,M3,M3,M4,M4,ASEM1,ASEM1",
+    "E1,E1,M1,M1,M2,M2,ASCEM1,ASCEM1",
+    "E1,E1,M3,M3,M4,M4,ASCEM1,ASCEM1",
     ".,.,M3,M3,M4,M4,.,."
   ],
   "Slots": [
@@ -454,7 +455,7 @@
     { "Code": "M2", "Allowed": ["Mining"], "Max": 1 },
     { "Code": "M3", "Allowed": ["Mining"], "Max": 4 },
     { "Code": "M4", "Allowed": ["Mining"], "Max": 1 },
-    { "Code": "SEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 2 }
+    { "Code": "ASCEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 2 }
   ],
   "Cost": { "Ironium": 32, "Boranium": 0, "Germanium": 6, "Resources": 140 },
   "Stats": { "Mass": 110, "Max Fuel": 850, "Armor": 1400, "Cargo": 0, "Initiative": 0 }
@@ -463,8 +464,8 @@
   "Name": "Ultra-Miner",
   "Structure": [
     ".,.,M1,M1,M2,M2,.,.",
-    "E1,E1,M1,M1,M2,M2,ASEM1,ASEM1",
-    "E1,E1,M3,M3,M4,M4,ASEM1,ASEM1",
+    "E1,E1,M1,M1,M2,M2,ASCEM1,ASCEM1",
+    "E1,E1,M3,M3,M4,M4,ASCEM1,ASCEM1",
     ".,.,M3,M3,M4,M4,.,."
   ],
   "Slots": [
@@ -473,7 +474,7 @@
     { "Code": "M2", "Allowed": ["Mining"], "Max": 2 },
     { "Code": "M3", "Allowed": ["Mining"], "Max": 4 },
     { "Code": "M4", "Allowed": ["Mining"], "Max": 2 },
-    { "Code": "ASEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 3 }
+    { "Code": "ASCEM1", "Allowed": ["Armor", "Scanner", "Elect", "Mech"], "Max": 3 }
   ],
   "Cost": { "Ironium": 30, "Boranium": 0, "Germanium": 6, "Resources": 130 },
   "Stats": { "Mass": 100, "Max Fuel": 1300, "Armor": 1500, "Cargo": 0, "Initiative": 0 }
@@ -481,6 +482,7 @@
 {
   "Name": "Fuel Transport",
   "Structure": [
+    "E1,E1,S1,S1",
     "E1,E1,S1,S1"
   ],
   "Slots": [
@@ -501,11 +503,12 @@
 {
   "Name": "Super-Fuel Export",
   "Structure": [
-    "E1,E1,S1,S1,SC1,SC1"
+    "E1,E1,SH1,SH1,SC1,SC1",
+    "E1,E1,SH1,SH1,SC1,SC1"
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 2, "Required": true },
-    { "Code": "S1", "Allowed": ["Shield"], "Max": 2 },
+    { "Code": "SH1", "Allowed": ["Shield"], "Max": 2 },
     { "Code": "SC1", "Allowed": ["Scanner"], "Max": 1 }
   ],
   "Cost": { "Ironium": 20, "Boranium": 0, "Germanium": 8, "Resources": 70 },
@@ -520,18 +523,18 @@
   }
 },
 {
-  "Name": "Mini Mine Layer",
+  "Name": "Mini-Mine Layer",
   "Structure": [
-    ".,.,M1,M1,.,.",
-    "E1,E1,M1,M1,SEM1,SEM1",
-    "E1,E1,M2,M2,SEM1,SEM1",
-    ".,.,M2,M2,.,."
+    ".,.,MI1,MI1,.,.",
+    "E1,E1,MI1,MI1,SCEM1,SCEM1",
+    "E1,E1,MI2,MI2,SCEM1,SCEM1",
+    ".,.,MI2,MI2,.,."
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 1, "Required": true },
-    { "Code": "M1", "Allowed": ["Mine"], "Max": 2 },
-    { "Code": "M2", "Allowed": ["Mine"], "Max": 2 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
+    { "Code": "MI1", "Allowed": ["Mine"], "Max": 2 },
+    { "Code": "MI2", "Allowed": ["Mine"], "Max": 2 },
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 1 }
   ],
   "Cost": { "Ironium": 8, "Boranium": 2, "Germanium": 5, "Resources": 20 },
   "Stats": {
@@ -544,20 +547,20 @@
   }
 },
 {
-  "Name": "Super Mine Layer",
+  "Name": "Super-Mine Layer",
   "Structure": [
-    ".,.,M1,M1,.,.,SEM1,SEM1",
-    "E1,E1,M1,M1,SA1,SA1,SEM1,SEM1",
-    "E1,E1,M2,M2,SA1,SA1,MEM1,MEM1",
-    ".,.,M2,M2,.,.,MEM1,MEM1"
+    ".,.,MI1,MI1,.,.,SCEM1,SCEM1",
+    "E1,E1,MI1,MI1,SA1,SA1,SCEM1,SCEM1",
+    "E1,E1,MI2,MI2,SA1,SA1,MIEM1,MIEM1",
+    ".,.,MI2,MI2,.,.,MIEM1,MIEM1"
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
-    { "Code": "M1", "Allowed": ["Mine"], "Max": 8 },
-    { "Code": "M2", "Allowed": ["Mine"], "Max": 8 },
+    { "Code": "MI1", "Allowed": ["Mine"], "Max": 8 },
+    { "Code": "MI2", "Allowed": ["Mine"], "Max": 8 },
     { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 3 },
-    { "Code": "SEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 3 },
-    { "Code": "MEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 3 }
+    { "Code": "SCEM1", "Allowed": ["Scanner", "Elect", "Mech"], "Max": 3 },
+    { "Code": "MIEM1", "Allowed": ["Mine", "Elect", "Mech"], "Max": 3 }
   ],
   "Cost": { "Ironium": 20, "Boranium": 3, "Germanium": 9, "Resources": 30 },
   "Stats": {
@@ -670,7 +673,6 @@
         ".,.,.,S1,S1,.,.,."
       ],
       "Slots": [
-        { "Code": "D1", "Allowed": ["Dock"], "Size": 200, "Editable": false },
         { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
         { "Code": "SA1", "Allowed": ["Shield", "Armor"], "Max": 24 },
         { "Code": "S1", "Allowed": ["Shield"], "Max": 24 },
@@ -758,19 +760,19 @@
     {
       "Name": "Death Star",
       "Structure": [
+        ".,.,W1,W1,.,.,EL1,EL1,.,.",
         ".,.,W1,W1,OE1,OE1,EL1,EL1,.,.",
-        ".,.,W1,W1,OE1,OE1,EL1,EL1,.,.",
+        "EL2,EL2,SA1,SA1,OE1,OE1,S1,S1,W2,W2",
         "EL2,EL2,SA1,SA1,.,.,S1,S1,W2,W2",
-        "EL2,EL2,SA1,SA1,.,.,S1,S1,W2,W2",
-        ".,.,EL3,EL3,D1,D1,EL4,EL4,.,.",
-        ".,.,EL3,EL3,D1,D1,EL4,EL4,.,.",
+        ".,EL3,EL3,.,SD1,SD1,.,EL4,EL4,.",
+        ".,EL3,EL3,.,SD1,SD1,.,EL4,EL4,.",
         "W3,W3,S2,S2,.,.,SA2,SA2,EL5,EL5",
-        "W3,W3,S2,S2,.,.,SA2,SA2,EL5,EL5",
+        "W3,W3,S2,S2,OE2,OE2,SA2,SA2,EL5,EL5",
         ".,.,EL6,EL6,OE2,OE2,W4,W4,.,.",
-        ".,.,EL6,EL6,OE2,OE2,W4,W4,.,."
+        ".,.,EL6,EL6,.,.,W4,W4,.,."
       ],
       "Slots": [
-        { "Code": "D1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
+        { "Code": "SD1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
         { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
         { "Code": "OE2", "Allowed": ["Orbital", "Elect"], "Max": 1 },
         { "Code": "EL1", "Allowed": ["Elect"], "Max": 4 },
