@@ -583,18 +583,18 @@
   ],
   "Slots": [
     { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
-    { "Code": "M1", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M2", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M3", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M4", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M5", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M6", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M7", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M8", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M9", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M10", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M11", "Allowed": ["General Purpose"], "Max": 3 },
-    { "Code": "M12", "Allowed": ["General Purpose"], "Max": 3 }
+    { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP3", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP4", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP5", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP6", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP7", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP8", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP9", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP10", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP11", "Allowed": ["General Purpose"], "Max": 3 },
+    { "Code": "GP12", "Allowed": ["General Purpose"], "Max": 3 }
 
   ],
   "Cost": {
@@ -615,22 +615,22 @@
   
       "Name": "Meta Morph",
       "Structure": [
-        ".,.,GP1,GP1,C1,C1,GP4,GP4,.,.",
-        ".,.,GP1,GP1,C1,C1,GP4,GP4,.,.",
-        "E1,E1,GP2,GP2,C1,C1,GP5,GP5,GP6,GP6",
-        "E1,E1,GP2,GP2,C1,C1,GP5,GP5,GP6,GP6",
-        ".,.,GP3,GP3,C1,C1,.,.,.,.",
-        ".,.,GP3,GP3,C1,C1,.,.,.,."
+        ".,.,GP1,GP1,.,.,.,.,.,.",
+        ".,.,GP1,GP1,C1,C1,GP2,GP2,.,.",
+        "E1,E1,GP3,GP3,C1,C1,GP2,GP2,GP4,GP4",
+        "E1,E1,GP3,GP3,C1,C1,GP5,GP5,GP4,GP4",
+        ".,.,GP6,GP6,C1,C1,GP5,GP5,.,.",
+        ".,.,GP6,GP6,.,.,.,.,.,."
       ],
       "Slots": [
         { "Code": "E1", "Allowed": ["Engine"], "Max": 3, "Required": true },
         { "Code": "C1", "Allowed": ["Cargo"], "Size": 300, "Editable": false },
         { "Code": "GP1", "Allowed": ["General Purpose"], "Max": 2 },
-        { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 8 },
-        { "Code": "GP3", "Allowed": ["General Purpose"], "Max": 2 },
-        { "Code": "GP4", "Allowed": ["General Purpose"], "Max": 2 },
+        { "Code": "GP2", "Allowed": ["General Purpose"], "Max": 2 },
+        { "Code": "GP3", "Allowed": ["General Purpose"], "Max": 8 },
+        { "Code": "GP4", "Allowed": ["General Purpose"], "Max": 1 },
         { "Code": "GP5", "Allowed": ["General Purpose"], "Max": 2 },
-        { "Code": "GP6", "Allowed": ["General Purpose"], "Max": 1 }
+        { "Code": "GP6", "Allowed": ["General Purpose"], "Max": 2 }
       ],
       "Cost": { "Ironium": 50, "Boranium": 12, "Germanium": 12, "Resources": 120 },
       "Stats": { "Mass": 85, "Max Fuel": 700, "Armor": 500, "Cargo": 300, "Initiative": 2 }
@@ -639,12 +639,12 @@
     {
       "Name": "Orbital Fort",
       "Structure": [
-        ".,.,.,.,W1,W1,.,.,.,.",
-        ".,.,.,.,W1,W1,.,.,.,.",
-        ".,.,SA1,SA1,OE1,OE1,SA2,SA2,.,.",
-        ".,.,SA1,SA1,OE1,OE1,SA2,SA2,.,.",
-        ".,.,.,.,W2,W2,.,.,.,.",
-        ".,.,.,.,W2,W2,.,.,.,."
+        ".,.,W1,W1,.,.",
+        ".,.,W1,W1,.,.",
+        "SA1,SA1,OE1,OE1,SA2,SA2",
+        "SA1,SA1,OE1,OE1,SA2,SA2",
+        ".,.,W2,W2,.,.",
+        ".,.,W2,W2,.,."
       ],
       "Slots": [
         { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1, "Required": true },
@@ -660,12 +660,14 @@
     {
       "Name": "Space Dock",
       "Structure": [
-        "OE1,OE1,W1,W1,EL1,EL1",
-        "OE1,OE1,W1,W1,EL1,EL1",
-        "SA1,SA1,D1,D1,W2,W2",
-        "SA1,SA1,D1,D1,W2,W2",
-        "W3,W3,S1,S1,EL2,EL2",
-        "W3,W3,S1,S1,EL2,EL2"
+        ".,.,.,W1,W1,.,.,.",
+        ".,OE1,OE1,W1,W1,EL1,EL1,.",
+        ".,OE1,OE1,.,.,EL1,EL1,.",
+        "SA1,SA1,.,SD1,SD1,.,W2,W2",
+        "SA1,SA1,.,SD1,SD1,.,W2,W2",
+        ".,W3,W3,.,.,EL2,EL2,.",
+        ".,W3,W3,S1,S1,EL2,EL2,.",
+        ".,.,.,S1,S1,.,.,."
       ],
       "Slots": [
         { "Code": "D1", "Allowed": ["Dock"], "Size": 200, "Editable": false },
@@ -676,7 +678,8 @@
         { "Code": "EL2", "Allowed": ["Elect"], "Max": 2 },
         { "Code": "W1", "Allowed": ["Weapon"], "Max": 16 },
         { "Code": "W2", "Allowed": ["Weapon"], "Max": 16 },
-        { "Code": "W3", "Allowed": ["Weapon"], "Max": 16 }
+        { "Code": "W3", "Allowed": ["Weapon"], "Max": 16 },
+        { "Code": "SD1", "Allowed": ["Dock"], "Size": 200, "Editable": false }
       ],
       "Cost": { "Ironium": 20, "Boranium": 5, "Germanium": 25, "Resources": 100 },
       "Stats": { "Mass": 0, "Max Fuel": 0, "Armor": 250, "Cargo": 0, "Initiative": 12, "DockCapacity": 200, "CanBuildShips": true }
@@ -687,17 +690,17 @@
       "Structure": [
         ".,.,.,S1,S1,W1,W1,.,.,.",
         ".,.,.,S1,S1,W1,W1,.,.,.",
-        "W2,W2,OE1,OE1,EL1,EL1,OE2,OE2,SA1,SA1",
-        "W2,W2,OE1,OE1,EL1,EL1,OE2,OE2,SA1,SA1",
-        ".,.,.,.,D1,D1,.,.,W3,W3",
-        ".,.,.,.,D1,D1,.,.,W3,W3",
-        "W4,W4,.,.,EL2,EL2,.,.,SA2,SA2",
-        "W4,W4,.,.,EL2,EL2,.,.,SA2,SA2",
-        ".,.,.,W5,W5,S2,S2,.,.,.",
-        ".,.,.,W5,W5,S2,S2,.,.,."
+        ".,.,.,.,EL1,EL1,.,.,.,.",
+        "W2,W2,.,.,EL1,EL1,.,.,SA1,SA1",
+        "W2,W2,OE1,OE1,SD1,SD1,OE2,OE2,SA1,SA1",
+        "SA2,SA2,OE1,OE1,SD1,SD1,OE2,OE2,W3,W3",
+        "SA2,SA2,.,.,EL2,EL2,.,.,W3,W3",
+        ".,.,.,.,EL2,EL2,.,.,.,.",
+        ".,.,.,W4,W4,S2,S2,.,.,.",
+        ".,.,.,W4,W4,S2,S2,.,.,."
       ],
       "Slots": [
-        { "Code": "D1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
+        { "Code": "SD1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
         { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
         { "Code": "OE2", "Allowed": ["Orbital", "Elect"], "Max": 1 },
         { "Code": "EL1", "Allowed": ["Elect"], "Max": 3 },
@@ -709,8 +712,7 @@
         { "Code": "W1", "Allowed": ["Weapon"], "Max": 16 },
         { "Code": "W2", "Allowed": ["Weapon"], "Max": 16 },
         { "Code": "W3", "Allowed": ["Weapon"], "Max": 16 },
-        { "Code": "W4", "Allowed": ["Weapon"], "Max": 16 },
-        { "Code": "W5", "Allowed": ["Weapon"], "Max": 16 }
+        { "Code": "W4", "Allowed": ["Weapon"], "Max": 16 }
       ],
       "Cost": { "Ironium": 120, "Boranium": 80, "Germanium": 250, "Resources": 600 },
       "Stats": { "Mass": 0, "Max Fuel": 0, "Armor": 500, "Cargo": 0, "Initiative": 14, "DockCapacity": "Unlimited", "CanBuildShips": true }
@@ -722,16 +724,16 @@
         ".,.,.,.,W1,W1,EL1,EL1,.,.",
         ".,.,.,.,W1,W1,EL1,EL1,.,.",
         ".,.,SA1,SA1,OE1,OE1,S1,S1,.,.",
-        ".,.,SA1,SA1,OE1,OE1,S1,S1,.,.",
-        "W2,W2,EL2,EL2,D1,D1,EL3,EL3,W3,W3",
-        "W2,W2,EL2,EL2,D1,D1,EL3,EL3,W3,W3",
+        "W2,W2,SA1,SA1,OE1,OE1,S1,S1,W3,W3",
+        "W2,W2,EL2,EL2,SD1,SD1,EL3,EL3,W3,W3",
+        "W4,W4,EL2,EL2,SD1,SD1,EL3,EL3,W5,W5",
         "W4,W4,S2,S2,OE2,OE2,SA2,SA2,W5,W5",
-        "W4,W4,S2,S2,OE2,OE2,SA2,SA2,W5,W5",
-        ".,.,EL4,EL4,W6,W6,.,.,.,.",
-        ".,.,EL4,EL4,W6,W6,.,.,.,."
+        ".,.,S2,S2,OE2,OE2,SA2,SA2,.,.",
+        ".,.,.,EL4,EL4,W6,W6,.,.,.,.",
+        ".,.,.,EL4,EL4,W6,W6,.,.,.,."
       ],
       "Slots": [
-        { "Code": "D1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
+        { "Code": "SD1", "Allowed": ["Dock"], "Size": "Unlimited", "Editable": false },
         { "Code": "OE1", "Allowed": ["Orbital", "Elect"], "Max": 1 },
         { "Code": "OE2", "Allowed": ["Orbital", "Elect"], "Max": 1 },
         { "Code": "EL1", "Allowed": ["Elect"], "Max": 3 },
@@ -792,27 +794,3 @@
   ]
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  ]
-}
