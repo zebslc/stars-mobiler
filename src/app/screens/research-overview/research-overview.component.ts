@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game-state.service';
 import { TECH_FIELDS, TECH_FIELD_LIST, TechField, TechLevel } from '../../data/tech-tree.data';
-import { TECH_ATLAS, HullStats, ComponentStats, TechRequirement } from '../../data/tech-atlas.data';
+import { TECH_ATLAS, HullTemplate, ComponentStats, TechRequirement } from '../../data/tech-atlas.data';
 
 @Component({
   standalone: true,
@@ -905,15 +905,15 @@ export class ResearchOverviewComponent {
     return allLevels.filter((level) => level.unlocks.length > 0);
   }
 
-  getTechDetails(name: string): HullStats | ComponentStats | null {
+  getTechDetails(name: string): HullTemplate | ComponentStats | null {
     // Search in hulls
-    const hull = TECH_ATLAS.hulls.find((h) => h.name === name);
-    if (hull) return hull as unknown as HullStats;
+    const hull = TECH_ATLAS.hulls.find((h) => h.Name === name);
+    if (hull) return hull;
 
     // Search in components
     for (const category of TECH_ATLAS.components) {
       const component = category.items.find((c) => c.name === name);
-      if (component) return component as unknown as ComponentStats;
+      if (component) return component;
     }
 
     return null;
@@ -924,7 +924,7 @@ export class ResearchOverviewComponent {
     return details?.img ?? '';
   }
 
-  getTechType(details: HullStats | ComponentStats): string {
+  getTechType(details: HullTemplate | ComponentStats): string {
     if ('role' in details) {
       return `Hull - ${details.role}`;
     }
@@ -934,44 +934,53 @@ export class ResearchOverviewComponent {
     return category ? `${category.category} Component` : 'Component';
   }
 
-  getTechCost(details: HullStats | ComponentStats): string {
-    const c = details.cost;
-    if (!c) return 'N/A';
-
+  getTechCost(details: HullTemplate | ComponentStats): string {
     const parts: string[] = [];
-    if (c.res) parts.push(`${c.res} Res`);
-    if (c.iron) parts.push(`${c.iron} Fe`);
-    if (c.bor) parts.push(`${c.bor} Bo`);
-    if (c.germ) parts.push(`${c.germ} Ge`);
+
+    if ('Cost' in details) {
+      // Hull uses PascalCase
+      const c = details.Cost;
+      if (c.Resources) parts.push(`${c.Resources} Res`);
+      if (c.Ironium) parts.push(`${c.Ironium} Fe`);
+      if (c.Boranium) parts.push(`${c.Boranium} Bo`);
+      if (c.Germanium) parts.push(`${c.Germanium} Ge`);
+    } else {
+      // Component uses lowercase
+      const comp = details as ComponentStats;
+      const c = comp.cost;
+      if (c.res) parts.push(`${c.res} Res`);
+      if (c.iron) parts.push(`${c.iron} Fe`);
+      if (c.bor) parts.push(`${c.bor} Bo`);
+      if (c.germ) parts.push(`${c.germ} Ge`);
+    }
 
     return parts.length > 0 ? parts.join(', ') : 'Free';
   }
 
-  getTechMass(details: HullStats | ComponentStats): number | null {
-    if ('mass' in details) {
-      return details.mass; // Hull has mass directly
+  getTechMass(details: HullTemplate | ComponentStats): number | null {
+    if ('Stats' in details) {
+      // Hull has mass in Stats
+      return details.Stats.Mass;
     }
+    // Component has mass directly
     const comp = details as ComponentStats;
-    if (comp.stats && 'mass' in comp.stats) {
-      return Number(comp.stats['mass']);
-    }
-    return null;
+    return comp.mass ?? null;
   }
 
-  getTechStats(details: HullStats | ComponentStats): { key: string; value: string }[] {
+  getTechStats(details: HullTemplate | ComponentStats): { key: string; value: string }[] {
     const stats: { key: string; value: string }[] = [];
 
-    if ('slots' in details) {
+    if ('Slots' in details) {
       // Hull
-      const hull = details as HullStats;
+      const hull = details as HullTemplate;
       // Count total slots
       stats.push({
         key: 'Slots',
-        value: `${hull.slots.length} total`,
+        value: `${hull.Slots.length} total`,
       });
 
-      if (hull.special) {
-        stats.push({ key: 'Special', value: hull.special });
+      if (hull.note) {
+        stats.push({ key: 'Note', value: hull.note });
       }
     } else {
       // Component
@@ -987,7 +996,7 @@ export class ResearchOverviewComponent {
     return stats;
   }
 
-  getTechRequirements(details: HullStats | ComponentStats): { field: string; level: number }[] {
+  getTechRequirements(details: HullTemplate | ComponentStats): { field: string; level: number }[] {
     const reqs: { field: string; level: number }[] = [];
 
     // techReq for hull, tech for component.

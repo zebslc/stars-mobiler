@@ -1,0 +1,186 @@
+import { HullTemplate } from '../tech-atlas.types';
+
+export const STARBASE_HULLS: HullTemplate[] = [
+  {
+    Name: 'Orbital Fort',
+    Structure: [
+      '.,.,W1,W1,.,.',
+      '.,.,W1,W1,.,.',
+      'SA1,SA1,OE1,OE1,SA2,SA2',
+      'SA1,SA1,OE1,OE1,SA2,SA2',
+      '.,.,W2,W2,.,.',
+      '.,.,W2,W2,.,.'
+    ],
+    Slots: [
+      { Code: 'OE1', Allowed: ['Orbital', 'Elect'], Max: 1, Required: true },
+      { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 12 },
+      { Code: 'SA2', Allowed: ['Shield', 'Armor'], Max: 12 },
+      { Code: 'W1', Allowed: ['Weapon'], Max: 12 },
+      { Code: 'W2', Allowed: ['Weapon'], Max: 12 }
+    ],
+    Cost: { Ironium: 12, Boranium: 0, Germanium: 17, Resources: 40 },
+    Stats: { Mass: 0, 'Max Fuel': 0, Armor: 100, Cargo: 0, Initiative: 10 }
+  },
+  {
+    Name: 'Space Dock',
+    Structure: [
+      '.,.,.,W1,W1,.,.,.',
+      '.,OE1,OE1,W1,W1,EL1,EL1,.',
+      '.,OE1,OE1,.,.,EL1,EL1,.',
+      'SA1,SA1,.,SD1,SD1,.,W2,W2',
+      'SA1,SA1,.,SD1,SD1,.,W2,W2',
+      '.,W3,W3,.,.,EL2,EL2,.',
+      '.,W3,W3,S1,S1,EL2,EL2,.',
+      '.,.,.,S1,S1,.,.,.'
+    ],
+    Slots: [
+      { Code: 'OE1', Allowed: ['Orbital', 'Elect'], Max: 1 },
+      { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 24 },
+      { Code: 'S1', Allowed: ['Shield'], Max: 24 },
+      { Code: 'EL1', Allowed: ['Elect'], Max: 2 },
+      { Code: 'EL2', Allowed: ['Elect'], Max: 2 },
+      { Code: 'W1', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W2', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'SD1', Allowed: ['Dock'], Size: 200, Editable: false }
+    ],
+    Cost: { Ironium: 20, Boranium: 5, Germanium: 25, Resources: 100 },
+    Stats: {
+      Mass: 0,
+      'Max Fuel': 0,
+      Armor: 250,
+      Cargo: 0,
+      Initiative: 12,
+      DockCapacity: 200,
+      CanBuildShips: true
+    }
+  },
+  {
+    Name: 'Space Station',
+    Structure: [
+      '.,.,.,S1,S1,W1,W1,.,.,.',
+      '.,.,.,S1,S1,W1,W1,.,.,.',
+      '.,.,.,.,EL1,EL1,.,.,.,.',
+      'W2,W2,.,.,EL1,EL1,.,.,SA1,SA1',
+      'W2,W2,OE1,OE1,SD1,SD1,OE2,OE2,SA1,SA1',
+      'SA2,SA2,OE1,OE1,SD1,SD1,OE2,OE2,W3,W3',
+      'SA2,SA2,.,.,EL2,EL2,.,.,W3,W3',
+      '.,.,.,.,EL2,EL2,.,.,.,.',
+      '.,.,.,W4,W4,S2,S2,.,.,.',
+      '.,.,.,W4,W4,S2,S2,.,.,.'
+    ],
+    Slots: [
+      { Code: 'SD1', Allowed: ['Dock'], Size: 'Unlimited', Editable: false },
+      { Code: 'OE1', Allowed: ['Orbital', 'Elect'], Max: 1 },
+      { Code: 'OE2', Allowed: ['Orbital', 'Elect'], Max: 1 },
+      { Code: 'EL1', Allowed: ['Elect'], Max: 3 },
+      { Code: 'EL2', Allowed: ['Elect'], Max: 3 },
+      { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 16 },
+      { Code: 'SA2', Allowed: ['Shield', 'Armor'], Max: 16 },
+      { Code: 'S1', Allowed: ['Shield'], Max: 16 },
+      { Code: 'S2', Allowed: ['Shield'], Max: 16 },
+      { Code: 'W1', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W2', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W4', Allowed: ['Weapon'], Max: 16 }
+    ],
+    Cost: { Ironium: 120, Boranium: 80, Germanium: 250, Resources: 600 },
+    Stats: {
+      Mass: 0,
+      'Max Fuel': 0,
+      Armor: 500,
+      Cargo: 0,
+      Initiative: 14,
+      DockCapacity: 'Unlimited',
+      CanBuildShips: true
+    }
+  },
+  {
+    Name: 'Ultra Station',
+    Structure: [
+      '.,.,.,.,W1,W1,EL1,EL1,.,.',
+      '.,.,.,.,W1,W1,EL1,EL1,.,.',
+      '.,.,SA1,SA1,OE1,OE1,S1,S1,.,.',
+      'W2,W2,SA1,SA1,OE1,OE1,S1,S1,W3,W3',
+      'W2,W2,EL2,EL2,SD1,SD1,EL3,EL3,W3,W3',
+      'W4,W4,EL2,EL2,SD1,SD1,EL3,EL3,W5,W5',
+      'W4,W4,S2,S2,OE2,OE2,SA2,SA2,W5,W5',
+      '.,.,S2,S2,OE2,OE2,SA2,SA2,.,.',
+      '.,.,.,EL4,EL4,W6,W6,.,.,.',
+      '.,.,.,EL4,EL4,W6,W6,.,.,.'
+    ],
+    Slots: [
+      { Code: 'SD1', Allowed: ['Dock'], Size: 'Unlimited', Editable: false },
+      { Code: 'OE1', Allowed: ['Orbital', 'Elect'], Max: 1 },
+      { Code: 'OE2', Allowed: ['Orbital', 'Elect'], Max: 1 },
+      { Code: 'EL1', Allowed: ['Elect'], Max: 3 },
+      { Code: 'EL2', Allowed: ['Elect'], Max: 3 },
+      { Code: 'EL3', Allowed: ['Elect'], Max: 3 },
+      { Code: 'EL4', Allowed: ['Elect'], Max: 3 },
+      { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 20 },
+      { Code: 'SA2', Allowed: ['Shield', 'Armor'], Max: 20 },
+      { Code: 'S1', Allowed: ['Shield'], Max: 20 },
+      { Code: 'S2', Allowed: ['Shield'], Max: 20 },
+      { Code: 'W1', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W2', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W4', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W5', Allowed: ['Weapon'], Max: 16 },
+      { Code: 'W6', Allowed: ['Weapon'], Max: 16 }
+    ],
+    Cost: { Ironium: 120, Boranium: 80, Germanium: 300, Resources: 600 },
+    Stats: {
+      Mass: 0,
+      'Max Fuel': 0,
+      Armor: 1000,
+      Cargo: 0,
+      Initiative: 16,
+      DockCapacity: 'Unlimited',
+      CanBuildShips: true
+    }
+  },
+  {
+    Name: 'Death Star',
+    Structure: [
+      '.,.,W1,W1,.,.,EL1,EL1,.,.',
+      '.,.,W1,W1,OE1,OE1,EL1,EL1,.,.',
+      'EL2,EL2,SA1,SA1,OE1,OE1,S1,S1,W2,W2',
+      'EL2,EL2,SA1,SA1,.,.,S1,S1,W2,W2',
+      '.,EL3,EL3,.,SD1,SD1,.,EL4,EL4,.',
+      '.,EL3,EL3,.,SD1,SD1,.,EL4,EL4,.',
+      'W3,W3,S2,S2,.,.,SA2,SA2,EL5,EL5',
+      'W3,W3,S2,S2,OE2,OE2,SA2,SA2,EL5,EL5',
+      '.,.,EL6,EL6,OE2,OE2,W4,W4,.,.',
+      '.,.,EL6,EL6,.,.,W4,W4,.,.'
+    ],
+    Slots: [
+      { Code: 'SD1', Allowed: ['Dock'], Size: 'Unlimited', Editable: false },
+      { Code: 'OE1', Allowed: ['Orbital', 'Elect'], Max: 1 },
+      { Code: 'OE2', Allowed: ['Orbital', 'Elect'], Max: 1 },
+      { Code: 'EL1', Allowed: ['Elect'], Max: 4 },
+      { Code: 'EL2', Allowed: ['Elect'], Max: 4 },
+      { Code: 'EL3', Allowed: ['Elect'], Max: 4 },
+      { Code: 'EL4', Allowed: ['Elect'], Max: 4 },
+      { Code: 'EL5', Allowed: ['Elect'], Max: 4 },
+      { Code: 'EL6', Allowed: ['Elect'], Max: 4 },
+      { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 20 },
+      { Code: 'SA2', Allowed: ['Shield', 'Armor'], Max: 20 },
+      { Code: 'S1', Allowed: ['Shield'], Max: 30 },
+      { Code: 'S2', Allowed: ['Shield'], Max: 30 },
+      { Code: 'W1', Allowed: ['Weapon'], Max: 32 },
+      { Code: 'W2', Allowed: ['Weapon'], Max: 32 },
+      { Code: 'W3', Allowed: ['Weapon'], Max: 32 },
+      { Code: 'W4', Allowed: ['Weapon'], Max: 32 }
+    ],
+    Cost: { Ironium: 120, Boranium: 80, Germanium: 350, Resources: 750 },
+    Stats: {
+      Mass: 0,
+      'Max Fuel': 0,
+      Armor: 1500,
+      Cargo: 0,
+      Initiative: 18,
+      DockCapacity: 'Unlimited',
+      CanBuildShips: true
+    }
+  }
+];

@@ -30,10 +30,10 @@ function getUnlocksForField(field: TechField): Record<number, string[]> {
   // Process Hulls
   TECH_ATLAS.hulls.forEach((hull) => {
     // hull.techReq uses keys like "Construction", "Energy" etc. matching TechField
-    const level = (hull.techReq as TechRequirement)[field];
+    const level = hull.techReq?.[field];
     if (level !== undefined) {
       if (!unlocks[level]) unlocks[level] = [];
-      unlocks[level].push(hull.name);
+      unlocks[level].push(hull.Name);
     }
   });
 

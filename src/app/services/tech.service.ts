@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TECH_ATLAS, HullStats, ComponentStats, ComponentCategory } from '../data/tech-atlas.data';
+import { TECH_ATLAS, HullTemplate, ComponentStats, ComponentCategory } from '../data/tech-atlas.data';
 
 @Injectable({
     providedIn: 'root'
@@ -19,15 +19,15 @@ export class TechService {
     /**
      * Get all hulls from tech atlas
      */
-    getHulls(): HullStats[] {
+    getHulls(): HullTemplate[] {
         return TECH_ATLAS.hulls;
     }
 
     /**
      * Get hull by name
      */
-    getHullByName(name: string): HullStats | undefined {
-        return TECH_ATLAS.hulls.find(h => h.name === name);
+    getHullByName(name: string): HullTemplate | undefined {
+        return TECH_ATLAS.hulls.find(h => h.Name === name);
     }
 
     /**
@@ -35,7 +35,7 @@ export class TechService {
      */
     getHullImageClass(hullName: string): string {
         const hull = this.getHullByName(hullName);
-        return hull ? hull.img : '';
+        return hull?.img ?? '';
     }
 
     /**
@@ -77,7 +77,8 @@ export class TechService {
     /**
      * Check if player meets tech requirements for a hull
      */
-    meetsHullRequirements(hull: HullStats, playerTechLevels: Record<string, number>): boolean {
+    meetsHullRequirements(hull: HullTemplate, playerTechLevels: Record<string, number>): boolean {
+        if (!hull.techReq) return true;
         for (const [techStream, requiredLevel] of Object.entries(hull.techReq)) {
             if (requiredLevel !== undefined && (playerTechLevels[techStream] || 0) < Number(requiredLevel)) {
                 return false;

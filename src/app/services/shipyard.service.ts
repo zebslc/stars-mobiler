@@ -49,12 +49,12 @@ export class ShipyardService {
     boranium: number;
     germanium: number;
   } {
-    const hull = TECH_ATLAS.hulls.find((h) => h.name === design.hullId);
+    const hull = TECH_ATLAS.hulls.find((h) => h.Name === design.hullId);
     let totalCost = {
-      resources: hull?.cost.res ?? 0,
-      iron: hull?.cost.iron ?? 0,
-      boranium: hull?.cost.bor ?? 0,
-      germanium: hull?.cost.germ ?? 0,
+      resources: hull?.Cost.Resources ?? 0,
+      iron: hull?.Cost.Ironium ?? 0,
+      boranium: hull?.Cost.Boranium ?? 0,
+      germanium: hull?.Cost.Germanium ?? 0,
     };
 
     for (const slot of design.slots) {
