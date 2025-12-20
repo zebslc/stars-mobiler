@@ -85,6 +85,9 @@ export type SlotType =
   | 'Computer'
   | 'Cloak'
   | 'Cargo'
+  | 'Orbital'
+  | 'Stargate'
+  | 'MassDriver'
   | 'General';
 
 export interface ComponentStats {
@@ -113,6 +116,10 @@ export interface ComponentStats {
     jamming?: number;
     cloak?: number;
     terraform?: number;
+    gateRange?: number;
+    gateMass?: number;
+    driverSpeed?: number;
+    driverCatch?: number;
   };
   img: string;
   description: string;
