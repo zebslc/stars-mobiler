@@ -19,7 +19,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 2 },
     mass: 5,
     cost: { iron: 3, bor: 0, germ: 2, res: 3 },
-    stats: { scan: 100, pen: 0 },
+    stats: { scan: 90, pen: 0 },
     img: 'scan-rhino',
     description: 'Heavy duty sensor array.'
   },
@@ -38,23 +38,12 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     id: 'scan_possum',
     name: 'Possum Scanner',
     type: 'Scanner',
-    tech: { Energy: 4 },
+    tech: { Energy: 5 },
     mass: 4,
     cost: { iron: 0, bor: 0, germ: 8, res: 8 },
     stats: { scan: 150, pen: 0 },
-    img: 'scan-mole',
+    img: 'scan-possum',
     description: 'Advanced stealth detection.'
-  },
-  {
-    id: 'scan_dna',
-    name: 'DNA Scanner',
-    type: 'Scanner',
-    tech: { Energy: 5 },
-    mass: 3,
-    cost: { iron: 0, bor: 0, germ: 5, res: 5 },
-    stats: { scan: 125, pen: 50 },
-    img: 'scan-viewer',
-    description: 'Detects life signs.'
   },
   {
     id: 'scan_snooper',
@@ -68,14 +57,25 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     description: 'Tachyon scanner. Penetrates cloaks.'
   },
   {
+    id: 'scan_eagle',
+    name: 'Eagle Eye',
+    type: 'Scanner',
+    tech: { Energy: 8 },
+    mass: 3,
+    cost: { iron: 0, bor: 2, germ: 21, res: 64 },
+    stats: { scan: 450, pen: 225 },
+    img: 'scan-eagle',
+    description: 'Long-range surveillance.'
+  },
+  {
     id: 'scan_peerless',
     name: 'Peerless Scanner',
     type: 'Scanner',
     tech: { Energy: 15 },
     mass: 5,
     cost: { iron: 0, bor: 0, germ: 24, res: 32 },
-    stats: { scan: 340, pen: 340 },
-    img: 'scan-eagle',
+    stats: { scan: 500, pen: 500 },
+    img: 'scan-peerless',
     description: 'The ultimate surveillance tech.'
   }
 ];
