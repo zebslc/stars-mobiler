@@ -92,7 +92,7 @@ export const CLOAK_COMPONENTS: ComponentStats[] = [
     mass: 2,
     cost: { iron: 2, bor: 0, germ: 2, res: 5 },
     stats: { cloak: 70 },
-    img: 'elec-cloak',
+    img: 'elec-cloak-stealth',
     description: 'Bends light around the hull.'
   },
   {
