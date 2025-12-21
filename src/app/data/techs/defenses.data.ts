@@ -27,34 +27,78 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     id: 'def_wolverine',
     name: 'Wolverine',
     type: 'Shield',
-    tech: { Energy: 5 },
+    tech: { Energy: 6 },
     mass: 1,
     cost: { iron: 3, bor: 0, germ: 3, res: 6 },
-    stats: { shield: 75 },
+    stats: { shield: 60 },
     img: 'def-shield-wolf',
-    description: 'Regenerative shield system.'
+    description: 'Diffuse shield technology.'
+  },
+  {
+    id: 'def_croby_sharmor',
+    name: "Crob'y Sharmor",
+    type: 'Shield',
+    tech: { Energy: 7, Construction: 4 },
+    mass: 10,
+    cost: { iron: 7, bor: 0, germ: 4, res: 15 },
+    stats: { shield: 60 },
+    img: 'def-shield-croby',
+    description: 'Shield-armor hybrid. Heavy but effective.'
+  },
+  {
+    id: 'def_shadow',
+    name: 'Shadow Shield',
+    type: 'Shield',
+    tech: { Energy: 7, Electronics: 3 },
+    mass: 2,
+    cost: { iron: 3, bor: 0, germ: 3, res: 7 },
+    stats: { shield: 75 },
+    img: 'def-shield-shadow',
+    description: 'Stealth-enhanced shielding.'
+  },
+  {
+    id: 'def_bear',
+    name: 'Bear Neutrino Barrier',
+    type: 'Shield',
+    tech: { Energy: 10 },
+    mass: 1,
+    cost: { iron: 4, bor: 0, germ: 4, res: 8 },
+    stats: { shield: 100 },
+    img: 'def-shield-bear',
+    description: 'Particle deflection field.'
+  },
+  {
+    id: 'def_gorilla',
+    name: 'Gorilla Delagator',
+    type: 'Shield',
+    tech: { Energy: 14 },
+    mass: 1,
+    cost: { iron: 5, bor: 0, germ: 6, res: 11 },
+    stats: { shield: 175 },
+    img: 'def-shield-gorilla',
+    description: 'Advanced energy distribution.'
+  },
+  {
+    id: 'def_elephant',
+    name: 'Elephant Hide Fortress',
+    type: 'Shield',
+    tech: { Energy: 18 },
+    mass: 1,
+    cost: { iron: 8, bor: 0, germ: 10, res: 15 },
+    stats: { shield: 300 },
+    img: 'def-shield-elephant',
+    description: 'Fortress-grade protection.'
   },
   {
     id: 'def_phase',
-    name: 'Phase Shield',
+    name: 'Complete Phase Shield',
     type: 'Shield',
-    tech: { Energy: 10 },
+    tech: { Energy: 22 },
     mass: 1,
     cost: { iron: 12, bor: 0, germ: 15, res: 20 },
     stats: { shield: 500 },
     img: 'def-shield-phase',
-    description: 'Phased energy barrier.'
-  },
-  {
-    id: 'def_langston',
-    name: 'Langston Shell',
-    type: 'Shield',
-    tech: { Energy: 24, Construction: 16 },
-    mass: 2,
-    cost: { iron: 20, bor: 50, germ: 50, res: 100 },
-    stats: { shield: 1200 },
-    img: 'def-shield-langston',
-    description: 'Full spectrum energy absorption.'
+    description: 'Complete phased energy barrier.'
   }
 ];
 
