@@ -1,86 +1,197 @@
 import { ComponentStats } from '../tech-atlas.types';
 
-export const COMPUTER_COMPONENTS: ComponentStats[] = [
+export const CLOAKING_COMPONENTS: ComponentStats[] = [
   {
-    id: 'elec_comp_bat',
-    name: 'Battle Computer',
-    type: 'Computer',
-    tech: { Energy: 1 },
+    id: 'elec_transport_cloak',
+    name: 'Transport Cloaking',
+    type: 'Cloak',
+    tech: { Energy: 0, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 0, BioTech: 0 },
     mass: 1,
-    cost: { iron: 0, bor: 0, germ: 15, res: 6 },
-    stats: { initiative: 1, accuracy: 20 },
-    img: 'elec-comp-bat',
-    description: 'Tactical analysis system.'
+    cost: { iron: 2, bor: 0, germ: 2, res: 3 },
+    stats: { cloak: 300 },
+    img: 'elec-transport-cloak',
+    description: 'Basic ship concealment.',
   },
   {
-    id: 'elec_comp_cyber',
-    name: 'Cybernetic Interface',
-    type: 'Computer',
-    tech: { Energy: 6 },
-    mass: 1,
-    cost: { iron: 0, bor: 0, germ: 20, res: 10 },
-    stats: { initiative: 2, accuracy: 35 },
-    img: 'elec-comp-cyber',
-    description: 'Direct neural link.'
-  },
-  {
-    id: 'elec_comp_nexus',
-    name: 'Battle Nexus',
-    type: 'Computer',
-    tech: { Energy: 12, Construction: 10 },
+    id: 'elec_stealth_cloak',
+    name: 'Stealth Cloak',
+    type: 'Cloak',
+    tech: { Energy: 2, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 5, BioTech: 0 },
     mass: 2,
-    cost: { iron: 0, bor: 0, germ: 50, res: 50 },
-    stats: { initiative: 3, accuracy: 50 },
-    img: 'elec-comp-nexus',
-    description: 'AI combat coordinator. The ultimate tactical edge.'
-  }
+    cost: { iron: 2, bor: 0, germ: 2, res: 5 },
+    stats: { cloak: 70 },
+    img: 'elec-stealth-cloak',
+    description: 'Advanced stealth system.',
+  },
+  {
+    id: 'elec_super_stealth_cloak',
+    name: 'Super-Stealth Cloak',
+    type: 'Cloak',
+    tech: { Energy: 4, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 10, BioTech: 0 },
+    mass: 3,
+    cost: { iron: 8, bor: 0, germ: 8, res: 15 },
+    stats: { cloak: 140 },
+    img: 'elec-super-stealth-cloak',
+    description: 'High-grade concealment technology.',
+  },
+  {
+    id: 'elec_ultra_stealth_cloak',
+    name: 'Ultra-Stealth Cloak',
+    type: 'Cloak',
+    tech: { Energy: 10, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 12, BioTech: 0 },
+    mass: 5,
+    cost: { iron: 10, bor: 0, germ: 10, res: 25 },
+    stats: { cloak: 540 },
+    img: 'elec-ultra-stealth-cloak',
+    description: 'Ultimate invisibility technology.',
+  },
 ];
 
-export const ELECTRICAL_COMPONENTS: ComponentStats[] = [
+export const COMPUTER_COMPONENTS: ComponentStats[] = [
   {
-    id: 'elec_jammer10',
+    id: 'elec_battle_computer',
+    name: 'Battle Computer',
+    type: 'Computer',
+    tech: { Energy: 0, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 0, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 0, bor: 0, germ: 15, res: 6 },
+    stats: { accuracy: 20 },
+    img: 'elec-battle-computer',
+    description: 'Basic targeting system.',
+  },
+  {
+    id: 'elec_battle_super_computer',
+    name: 'Battle Super Computer',
+    type: 'Computer',
+    tech: { Energy: 5, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 11, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 0, bor: 0, germ: 25, res: 14 },
+    stats: { accuracy: 30 },
+    img: 'elec-battle-super-computer',
+    description: 'Advanced tactical computer.',
+  },
+  {
+    id: 'elec_battle_nexus',
+    name: 'Battle Nexus',
+    type: 'Computer',
+    tech: { Energy: 10, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 19, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 0, bor: 0, germ: 30, res: 15 },
+    stats: { accuracy: 50 },
+    img: 'elec-battle-nexus',
+    description: 'Ultimate battle coordination system.',
+  },
+];
+
+export const JAMMER_COMPONENTS: ComponentStats[] = [
+  {
+    id: 'elec_jammer_10',
     name: 'Jammer 10',
     type: 'Electrical',
-    tech: { Energy: 2 },
+    tech: { Energy: 2, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 6, BioTech: 0 },
     mass: 1,
     cost: { iron: 0, bor: 0, germ: 2, res: 6 },
     stats: { jamming: 10 },
     img: 'elec-jammer-10',
-    description: 'Reduces incoming torpedo accuracy.'
+    description: 'Basic electronic countermeasures.',
   },
   {
-    id: 'elec_jammer20',
+    id: 'elec_jammer_20',
     name: 'Jammer 20',
     type: 'Electrical',
-    tech: { Energy: 5 },
+    tech: { Energy: 4, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 10, BioTech: 0 },
     mass: 1,
-    cost: { iron: 0, bor: 0, germ: 5, res: 10 },
+    cost: { iron: 1, bor: 0, germ: 5, res: 20 },
     stats: { jamming: 20 },
     img: 'elec-jammer-20',
-    description: 'Advanced ECM.'
+    description: 'Improved signal disruption.',
   },
   {
-    id: 'elec_jammer50',
+    id: 'elec_jammer_30',
+    name: 'Jammer 30',
+    type: 'Electrical',
+    tech: { Energy: 8, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 16, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 1, bor: 0, germ: 6, res: 20 },
+    stats: { jamming: 30 },
+    img: 'elec-jammer-30',
+    description: 'Advanced ECM suite.',
+  },
+  {
+    id: 'elec_jammer_50',
     name: 'Jammer 50',
     type: 'Electrical',
-    tech: { Energy: 16 },
-    mass: 2,
-    cost: { iron: 0, bor: 0, germ: 25, res: 50 },
+    tech: { Energy: 16, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 22, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 2, bor: 0, germ: 7, res: 20 },
     stats: { jamming: 50 },
     img: 'elec-jammer-50',
-    description: 'Fleet-wide signal disruption.'
+    description: 'Ultimate electronic warfare system.',
   },
+];
+
+export const CAPACITOR_COMPONENTS: ComponentStats[] = [
   {
-    id: 'elec_capacitor',
+    id: 'elec_energy_capacitor',
     name: 'Energy Capacitor',
     type: 'Electrical',
-    tech: { Energy: 6 },
-    mass: 4,
-    cost: { iron: 2, bor: 5, germ: 2, res: 10 },
-    stats: { cap: 250 },
-    img: 'elec-capacitor',
-    description: 'Boosts beam weapon recharge rates.'
-  }
+    tech: { Energy: 7, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 4, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 0, bor: 0, germ: 8, res: 5 },
+    stats: { energyBonus: 10 },
+    img: 'elec-energy-capacitor',
+    description: 'Stores energy for burst weapons.',
+  },
+  {
+    id: 'elec_flux_capacitor',
+    name: 'Flux Capacitor',
+    type: 'Electrical',
+    tech: { Energy: 14, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 8, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 0, bor: 0, germ: 8, res: 5 },
+    stats: { energyBonus: 20 },
+    img: 'elec-flux-capacitor',
+    description: 'Advanced energy storage system.',
+  },
+];
+
+export const DAMPENER_COMPONENTS: ComponentStats[] = [
+  {
+    id: 'elec_energy_dampener',
+    name: 'Energy Dampener',
+    type: 'Electrical',
+    tech: { Energy: 14, Weapons: 0, Propulsion: 8, Construction: 0, Electronics: 0, BioTech: 0 },
+    mass: 2,
+    cost: { iron: 5, bor: 10, germ: 0, res: 50 },
+    stats: { dampening: -4 },
+    img: 'elec-energy-dampener',
+    description: 'Reduces enemy weapon effectiveness.',
+  },
+  {
+    id: 'elec_tachyon_detector',
+    name: 'Tachyon Detector',
+    type: 'Electrical',
+    tech: { Energy: 8, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 14, BioTech: 0 },
+    mass: 1,
+    cost: { iron: 1, bor: 5, germ: 0, res: 70 },
+    stats: { detection: -5 },
+    img: 'elec-tachyon-detector',
+    description: 'Detects cloaked ships.',
+  },
+];
+
+export const GENERATOR_COMPONENTS: ComponentStats[] = [
+  {
+    id: 'elec_antimatter_generator',
+    name: 'Anti-matter Generator',
+    type: 'Electrical',
+    tech: { Energy: 0, Weapons: 12, Propulsion: 0, Construction: 0, Electronics: 0, BioTech: 7 },
+    mass: 10,
+    cost: { iron: 8, bor: 3, germ: 3, res: 10 },
+    stats: { energyGen: 200 },
+    img: 'elec-antimatter-generator',
+    description: 'Exotic matter power source.',
+  },
 ];
 
 export const CLOAK_COMPONENTS: ComponentStats[] = [

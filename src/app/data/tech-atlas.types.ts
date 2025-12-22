@@ -58,11 +58,11 @@ export type HullStats = HullTemplate;
 
 export interface TechRequirement {
   Energy?: number;
-  Kinetics?: number;
+  Weapons?: number;
   Propulsion?: number;
   Construction?: number;
   Electronics?: number;
-  Biotechnology?: number;
+  BioTech?: number;
 }
 
 export interface ComponentCost {
@@ -88,6 +88,9 @@ export type SlotType =
   | 'Orbital'
   | 'Stargate'
   | 'MassDriver'
+  | 'Planetary'
+  | 'Terraforming'
+  | 'Starbase'
   | 'General';
 
 export interface ComponentStats {
@@ -105,21 +108,42 @@ export interface ComponentStats {
     shield?: number;
     armor?: number;
     warp?: number;
+    maxWarp?: number;
+    fuelUsage?: {
+      warp1?: number;
+      warp2?: number;
+      warp3?: number;
+      warp4?: number;
+      warp5?: number;
+      warp6?: number;
+      warp7?: number;
+      warp8?: number;
+      warp9?: number;
+      warp10?: number;
+    };
     fuelEff?: number;
     kill?: number;
     struct?: number;
     scan?: number;
     pen?: number;
     mining?: number;
+    mines?: number;
     fuelGen?: number;
     cap?: number;
     jamming?: number;
     cloak?: number;
+    cloaking?: number;
     terraform?: number;
     gateRange?: number;
     gateMass?: number;
     driverSpeed?: number;
     driverCatch?: number;
+    defense?: number;
+    energyBonus?: number;
+    energyGen?: number;
+    dampening?: number;
+    detection?: number;
+    dockCapacity?: number;
   };
   img: string;
   description: string;
