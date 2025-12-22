@@ -109,7 +109,7 @@ export class ShipDesignerService {
     if (!design || !hull) return false;
 
     // Find the slot
-    const hullSlot = hull.slots.find((s) => s.id === slotId);
+    const hullSlot = hull.slots.find((s: any) => s.id === slotId);
     if (!hullSlot) {
       console.error(`Slot ${slotId} not found in hull`);
       return false;
@@ -158,6 +158,13 @@ export class ShipDesignerService {
     });
 
     return true;
+  }
+
+  /**
+   * Install a component in a slot (alias for addComponent)
+   */
+  installComponent(slotId: string, componentId: string, count: number = 1): boolean {
+    return this.addComponent(slotId, componentId, count);
   }
 
   /**
@@ -213,7 +220,7 @@ export class ShipDesignerService {
 
     if (!hull) return [];
 
-    const hullSlot = hull.slots.find((s) => s.id === slotId);
+    const hullSlot = hull.slots.find((s: any) => s.id === slotId);
     if (!hullSlot) return [];
 
     // Filter components that:
@@ -253,7 +260,7 @@ export class ShipDesignerService {
     const constructionLevel = techLevels.Construction;
 
     return Object.values(HULLS).filter(
-      (hull) => (hull.techRequired?.construction || 0) <= constructionLevel
+      (hull: any) => (hull.techRequired?.construction || 0) <= constructionLevel
     );
   }
 
