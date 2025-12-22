@@ -1,24 +1,17 @@
 # =============================================================================
-# Stars! Mobile Asset Builder v13 (Complete V9 List)
-# Usage: Run inside 'src/assets/imagemaps-old'
-# Output: ../imagemaps/tech-atlas.png
-#         ../../app/shared/tech-atlas.css
+# Stars! Mobile Asset Builder v8 (Full Restoration)
+# Usage: pwsh build-assets-v8.ps1
 # =============================================================================
 
-# 1. CONFIGURATION
-$tempDir = "temp_sprites_v13"
-$outputImage = "../imagemaps/tech-atlas.png"
-$outputCSS = "../../app/shared/tech-atlas.css"
-
-# Ensure output directories exist
-$imgDir = [System.IO.Path]::GetDirectoryName($outputImage)
-$cssDir = [System.IO.Path]::GetDirectoryName($outputCSS)
-if (-not (Test-Path $imgDir)) { New-Item -ItemType Directory -Path $imgDir | Out-Null }
-if (-not (Test-Path $cssDir)) { New-Item -ItemType Directory -Path $cssDir | Out-Null }
-
-# 2. DEFINE ASSETS 
-# We use an array to preserve exact order for the CSS strip
+# 1. RESET
+$assets = $null
+$spriteList = $null
 $assets = @()
+$spriteList = @()
+
+# 2. DEFINE ASSETS
+# Format: Source X Y (Positive integers from top-left)
+
 
 # --- ENGINES ---
 $assets += @{ Name="eng-settler";    Source="techs02.png"; X=0;   Y=64 }
@@ -58,10 +51,10 @@ $assets += @{ Name="weap-torp-rho";          Source="techs01.png"; X=320; Y=192 
 $assets += @{ Name="weap-torp-upsilon";      Source="techs01.png"; X=448; Y=192 }
 $assets += @{ Name="weap-torp-omega";        Source="techs01.png"; X=384; Y=192 }
 $assets += @{ Name="weap-torp-anti";         Source="techs04.png"; X=256; Y=64 }
-$assets += @{ Name="weap-missile-jihad";     Source="techs01.png"; X=0;   Y=256 }
-$assets += @{ Name="weap-missile-juggernaut";Source="techs01.png"; X=64;  Y=256 }
-$assets += @{ Name="weap-missile-doomsday";  Source="techs01.png"; X=128; Y=256 }
-$assets += @{ Name="weap-missile-armageddon";Source="techs01.png"; X=192; Y=256 }
+$assets += @{ Name="weap-missile-jihad";     Source="techs017.png"; X=0;   Y=64 }
+# $assets += @{ Name="weap-missile-juggernaut";Source="techs01.png"; X=64;  Y=256 }
+# $assets += @{ Name="weap-missile-doomsday";  Source="techs01.png"; X=128; Y=256 }
+# $assets += @{ Name="weap-missile-armageddon";Source="techs01.png"; X=192; Y=256 }
 
 # --- BOMBS ---
 $assets += @{ Name="weap-bomb-lady";             Source="techs03.png"; X=192; Y=0 }
@@ -129,9 +122,9 @@ $assets += @{ Name="scan-eagle";    Source="techs03.png"; X=192; Y=128 }
 $assets += @{ Name="scan-peerless"; Source="techs01.png"; X=384; Y=128 }
 
 # --- CARGO ---
-$assets += @{ Name="icon-cargo-small"; Source="techs08.png"; X=0;   Y=0 }
-$assets += @{ Name="icon-cargo-med";   Source="techs08.png"; X=64;  Y=0 }
-$assets += @{ Name="icon-cargo-large"; Source="techs08.png"; X=128; Y=0 }
+$assets += @{ Name="icon-cargo-small"; Source="techs04.png"; X=0;   Y=0 }
+$assets += @{ Name="icon-cargo-med";   Source="techs04.png"; X=64;  Y=0 }
+$assets += @{ Name="icon-cargo-large"; Source="techs04.png"; X=128; Y=0 }
 
 # --- ORBITAL ---
 $assets += @{ Name="orb-dock";   Source="techs07.png"; X=0;   Y=0 }
@@ -176,51 +169,44 @@ $assets += @{ Name="hull-sb-space-station";    Source="starbases.png"; X=128; Y=
 $assets += @{ Name="hull-sb-ultra-station";    Source="starbases.png"; X=192; Y=0 }
 $assets += @{ Name="hull-sb-death-star";       Source="starbases.png"; X=256; Y=0 }
 
-# 3. EXECUTION
-Write-Host "--- Stars! Asset Builder v13 ---" -ForegroundColor Cyan
-Write-Host "Total Assets: $($assets.Count)" -ForegroundColor Yellow
 
+# --- EXECUTION ---
+$outputImage = "tech-atlas.png"
+$outputCSS = "tech-atlas.css"
+$tempDir = "temp_sprites_v8"
+
+Write-Host "--- Stars! Asset Builder v8 ---" -ForegroundColor Cyan
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 New-Item -ItemType Directory -Path $tempDir | Out-Null
 
-$spritePaths = @()
 $i = 0
-
 foreach ($item in $assets) {
     $src = $item.Source
     $name = $item.Name
-    $idx = "{0:d3}" -f $i
+    $idx = "{0:d2}" -f $i
     $outFile = "$tempDir/${idx}_${name}.png"
     
-    if (-not (Test-Path $src)) {
-        Write-Warning "MISSING: $src"
-    } else {
-        # FORCE CLEAN CROP + REPAGE
+    if (Test-Path $src) {
         magick $src -crop 64x64+$($item.X)+$($item.Y) +repage $outFile
-        if (Test-Path $outFile) { $spritePaths += $outFile }
+        if (Test-Path $outFile) { $spriteList += $outFile }
+    } else {
+        Write-Warning "Missing: $src"
     }
     $i++
 }
 
-if ($spritePaths.Count -gt 0) {
-    Write-Host "Stitching $($spritePaths.Count) sprites..."
+if ($spriteList.Count -gt 0) {
+    Write-Host "Stitching $($spriteList.Count) sprites..."
+    magick montage $spriteList -tile 1x -geometry +0+0 -background none $outputImage
     
-    # FORCE VERTICAL STACK WITH NO ALPHA BLENDING
-    magick -background none $spritePaths -compose Copy -append $outputImage
-    
-    # Generate CSS
-    $cssContent = "/* Stars! Tech Atlas v13 */`n"
-    $cssContent += ".tech-icon {`n  width: 64px;`n  height: 64px;`n  background-image: url('/assets/imagemaps/tech-atlas.png');`n  background-repeat: no-repeat;`n  display: inline-block;`n  image-rendering: pixelated;`n}`n"
-
-    $yOffset = 0
-    foreach ($path in $spritePaths) {
-        $n = (Get-Item $path).BaseName -replace '^\d{3}_',''
-        $cssContent += ".$n { background-position: 0px -${yOffset}px; }`n"
-        $yOffset += 64
+    $css = "/* Stars! Tech Atlas v8 */`n.tech-icon { width: 64px; height: 64px; background-image: url('assets/mobile-tech-atlas.png'); background-repeat: no-repeat; display: inline-block; image-rendering: pixelated; }`n"
+    $y = 0
+    foreach ($file in $spriteList) {
+        $n = (Get-Item $file).BaseName -replace '^\d{2}_',''
+        $css += ".$n { background-position: 0px -${y}px; }`n"
+        $y += 64
     }
-    
-    Set-Content -Path $outputCSS -Value $cssContent
-    Write-Host "Done! Saved to $outputImage" -ForegroundColor Green
+    Set-Content $outputCSS $css
+    Write-Host "Done! Created $outputImage and $outputCSS" -ForegroundColor Green
 }
-
 Remove-Item $tempDir -Recurse -Force
