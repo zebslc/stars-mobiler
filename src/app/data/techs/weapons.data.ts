@@ -49,14 +49,14 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     description: 'Compact phaser.'
   },
   {
-    id: 'weap_disrupt',
+    id: 'weap_disruptor',
     name: 'Disruptor',
     type: 'Weapon',
     tech: { Energy: 8 },
     mass: 2,
     cost: { iron: 0, bor: 16, germ: 0, res: 20 },
     stats: { power: 35, range: 2, initiative: 4 },
-    img: 'weap-disrupt',
+    img: 'weap-disruptor',
     description: 'Destabilized ion bolt.'
   },
   {
@@ -103,6 +103,14 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     img: 'weap-bludgeon',
     description: 'Ramming weapon. Devastating at point blank.'
   },
+
+// TODO THIS IS MISSING THESE WEAPONS
+//  "weap-blackjack", "weap-pulsed-sapper", "weap-colloidal-phaser", "weap-mini-blaster", "weap-mark-iv-blaster", "weap-phased-sapper", "weap-heavy-blaster", "weap-gatling-neutrino", "weap-myopic-disrupter", "weap-mega-disrupter", "weap-streaming-pulverizer", "weap-anti-matter-pulverizer", "weap-syncro-sapper"
+
+
+
+
+
 
   // ========================================================================
   // TORPEDOES

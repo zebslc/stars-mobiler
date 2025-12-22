@@ -173,7 +173,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-trans-galactic',
+    img: 'eng-trans-galactic-drive',
     description: 'Advanced interstellar drive.',
   },
   {
@@ -248,8 +248,8 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-radiating-hydro-ram',
-    description: 'Ram scoop fuel collector.',
+    img: 'eng-radiating-hydro-ram-scoop',
+    description: 'Dirty ram scoop fuel collector. Kills settlers in transit',
   },
   {
     id: 'eng_sub_galactic_scoop',
@@ -277,7 +277,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     description: 'Improved ram scoop technology.',
   },
   {
-    id: 'eng_trans_galactic_scoop',
+    id: 'eng_trans_galactic_fuel_scoop',
     name: 'Trans-Galactic Fuel Scoop',
     type: 'Engine',
     tech: { Energy: 3, Weapons: 0, Propulsion: 9, Construction: 0, Electronics: 0, BioTech: 0 },
@@ -298,7 +298,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-trans-galactic-scoop',
+    img: 'eng-trans-galactic-fuel-scoop',
     description: 'Advanced fuel scoop system.',
   },
   {
