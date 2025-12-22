@@ -205,7 +205,7 @@ export class ShipDesignOverviewComponent {
 
   // Parse hull visual grid for display
   getHullLayout(hull: Hull): string[][] {
-    const lines = hull.visualGrid.split('\n');
+    const lines = (hull.visualGrid || '').split('\n');
     return lines.map(line => line.split(''));
   }
 }

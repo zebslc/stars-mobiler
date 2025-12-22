@@ -1,0 +1,108 @@
+// Legacy ships.data.ts - Compatibility layer for compiled ship designs
+import { HullTemplate, ComponentStats } from './tech-atlas.types';
+import { ALL_HULLS } from './tech-atlas.data';
+import { COMPONENTS } from './components.data';
+
+// CompiledDesign interface - represents a fully compiled ship design with calculated stats
+export interface CompiledDesign {
+  id: string;
+  name: string;
+  hullId: string;
+  hullName: string;
+  mass: number;
+  cargoCapacity: number;
+  fuelCapacity: number;
+  fuelEfficiency: number;
+  warpSpeed: number;
+  idealWarp: number;
+  armor: number;
+  shields: number;
+  initiative: number;
+  firepower: number;
+  colonistCapacity?: number;
+  cost: {
+    iron: number;
+    boranium: number;
+    germanium: number;
+    resources: number;
+  };
+  colonyModule: boolean;
+  scannerRange: number;
+  components: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+  }>;
+}
+
+// Sample compiled designs - these would normally be computed from player designs
+// For now, creating basic designs from hulls for compatibility
+const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
+  const designs: { [key: string]: CompiledDesign } = {};
+  
+  ALL_HULLS.forEach((hull, index) => {
+    const designId = hull.id || hull.Name.toLowerCase().replace(/\s+/g, '_');
+    
+    designs[designId] = {
+      id: designId,
+      name: hull.Name,
+      hullId: designId,
+      hullName: hull.Name,
+      mass: hull.Stats.Mass,
+      cargoCapacity: hull.Stats.Cargo || 0,
+      fuelCapacity: hull.Stats['Max Fuel'] || 0,
+      fuelEfficiency: 100, // Default fuel efficiency
+      warpSpeed: 6, // Default warp speed
+      idealWarp: 6, // Default ideal warp
+      armor: hull.Stats.Armor || 0,
+      shields: 0,
+      initiative: hull.Stats.Initiative || 0,
+      firepower: 0,
+      colonistCapacity: hull.Name.toLowerCase().includes('colony') ? 25000 : undefined, // 25kT = 25,000 colonists
+      cost: {
+        iron: hull.Cost.Ironium,
+        boranium: hull.Cost.Boranium,
+        germanium: hull.Cost.Germanium,
+        resources: hull.Cost.Resources
+      },
+      colonyModule: hull.Name.toLowerCase().includes('colony') || hull.Name.toLowerCase().includes('settler'),
+      scannerRange: 0,
+      components: []
+    };
+  });
+
+  return designs;
+};
+
+// Export compiled designs
+export const COMPILED_DESIGNS = createBasicDesigns();
+
+// Utility function to get design by ID
+export function getDesign(designId: string): CompiledDesign {
+  const design = COMPILED_DESIGNS[designId];
+  if (!design) {
+    console.warn(`Design not found: ${designId}`);
+    // Return a default design to prevent crashes
+    return {
+      id: designId,
+      name: 'Unknown Design',
+      hullId: 'unknown',
+      hullName: 'Unknown Hull',
+      mass: 100,
+      cargoCapacity: 0,
+      fuelCapacity: 100,
+      fuelEfficiency: 100,
+      warpSpeed: 6,
+      idealWarp: 6,
+      armor: 25,
+      shields: 0,
+      initiative: 0,
+      firepower: 0,
+      cost: { iron: 10, boranium: 0, germanium: 10, resources: 25 },
+      colonyModule: false,
+      scannerRange: 0,
+      components: []
+    };
+  }
+  return design;
+}

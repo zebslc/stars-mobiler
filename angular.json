@@ -22,7 +22,7 @@
             ],
             "styles": [
               "src/styles.css",
-              "src/app/shared/tech-atlas.css"
+              "src/app/shared/components/tech-atlas.css"
             ],
             "scripts": []
           },

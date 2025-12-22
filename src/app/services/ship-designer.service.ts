@@ -253,7 +253,7 @@ export class ShipDesignerService {
     const constructionLevel = techLevels.Construction;
 
     return Object.values(HULLS).filter(
-      (hull) => hull.techRequired.construction <= constructionLevel
+      (hull) => (hull.techRequired?.construction || 0) <= constructionLevel
     );
   }
 

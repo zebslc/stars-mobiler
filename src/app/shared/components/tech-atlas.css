@@ -1,5 +1,5 @@
 /* Stars! Tech Atlas v8 */
-.tech-icon { width: 64px; height: 64px; background-image: url('assets/imagemaps/tech-atlas.png'); background-repeat: no-repeat; display: inline-block; image-rendering: pixelated; }
+.tech-icon { width: 64px; height: 64px; background-image: url('/assets/imagemaps/tech-atlas.png'); background-repeat: no-repeat; display: inline-block; image-rendering: pixelated; }
 .eng-settler { background-position: 0px -0px; }
 .eng-mizer { background-position: 0px -64px; }
 .eng-long-hump { background-position: 0px -128px; }

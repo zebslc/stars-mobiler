@@ -107,7 +107,7 @@ export function compileShipStats(
       if (miniComponent.cost.germanium) cost.germanium += miniComponent.cost.germanium * count;
 
       // Apply component effects based on type (using base stats, multiplied by count)
-      switch (baseComponent.type) {
+      switch (baseComponent.type.toLowerCase()) {
         case 'engine':
           hasEngine = true;
           // For engines, only the best one matters (not cumulative)
@@ -197,23 +197,25 @@ export function canInstallComponent(
  * Get the slot type that corresponds to a component type
  */
 function getSlotTypeForComponent(component: Component): SlotType {
-  switch (component.type) {
+  switch (component.type.toLowerCase()) {
     case 'engine':
-      return 'engine';
+      return SlotType.Engine;
     case 'weapon':
-      return 'weapon';
+      return SlotType.Weapon;
     case 'shield':
-      return 'shield';
+      return SlotType.Shield;
     case 'scanner':
-      return 'electronics';
+      return SlotType.Scanner;
     case 'armor':
-      return 'general';
+      return SlotType.Armor;
     case 'cargo':
-      return 'cargo';
+      return SlotType.Cargo;
     case 'electronics':
-      return 'electronics';
+    case 'computer':
+    case 'elect':
+      return SlotType.Elect;
     default:
-      return 'general';
+      return SlotType.General;
   }
 }
 
@@ -232,8 +234,8 @@ export function createEmptyDesign(
 
   return {
     id: `design_${Date.now()}`,
-    name: `New ${hull.name}`,
-    hullId: hull.id,
+    name: `New ${hull.Name}`,
+    hullId: hull.id || hull.Name.toLowerCase().replace(/\s+/g, '_'),
     slots,
     createdTurn: turn,
     playerId,
