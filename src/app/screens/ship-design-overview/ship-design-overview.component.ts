@@ -41,7 +41,7 @@ export class ShipDesignOverviewComponent {
     const slotId = this.selectedSlotId();
     const hull = this.hull();
     if (!slotId || !hull) return null;
-    return hull.slots.find((s) => s.id === slotId);
+    return hull.slots.find((s: any) => s.id === slotId);
   });
 
   readonly availableComponentsForSlot = computed(() => {
@@ -206,6 +206,6 @@ export class ShipDesignOverviewComponent {
   // Parse hull visual grid for display
   getHullLayout(hull: Hull): string[][] {
     const lines = (hull.visualGrid || '').split('\n');
-    return lines.map(line => line.split(''));
+    return lines.map((line: string) => line.split(''));
   }
 }

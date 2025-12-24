@@ -227,7 +227,7 @@ export function createEmptyDesign(
   playerId: string,
   turn: number
 ): import('../models/game.model').ShipDesign {
-  const slots: SlotAssignment[] = hull.slots.map((slot) => ({
+  const slots: SlotAssignment[] = hull.slots.map((slot: HullSlot) => ({
     slotId: slot.id,
     components: [],
   }));

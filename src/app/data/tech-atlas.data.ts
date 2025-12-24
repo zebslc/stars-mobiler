@@ -16,7 +16,7 @@ import { STARBASE_HULLS } from './starbases/orbital-structures.data';
 import { CARGO_COMPONENTS } from './techs/cargo.data';
 import { ENGINE_COMPONENTS } from './techs/engines.data';
 import { SCANNER_COMPONENTS } from './techs/scanners.data';
-import { COMPUTER_COMPONENTS, ELECTRICAL_COMPONENTS, CLOAK_COMPONENTS } from './techs/electronics.data';
+import { COMPUTER_COMPONENTS, CAPACITOR_COMPONENTS, CLOAK_COMPONENTS } from './techs/electronics.data';
 import { MECHANICAL_COMPONENTS } from './techs/mechanical.data';
 import { WEAPON_COMPONENTS } from './techs/weapons.data';
 import { BOMB_COMPONENTS } from './techs/bombs.data';
@@ -43,7 +43,7 @@ export const ALL_COMPONENTS: ComponentCategory[] = [
   { category: 'Engines', items: ENGINE_COMPONENTS },
   { category: 'Scanners', items: SCANNER_COMPONENTS },
   { category: 'Computers', items: COMPUTER_COMPONENTS },
-  { category: 'Electrical', items: ELECTRICAL_COMPONENTS },
+  { category: 'Electrical', items: CAPACITOR_COMPONENTS },
   { category: 'Cloaking', items: CLOAK_COMPONENTS },
   { category: 'Mechanical', items: MECHANICAL_COMPONENTS },
   { category: 'Weapons', items: WEAPON_COMPONENTS },

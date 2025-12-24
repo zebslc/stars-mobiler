@@ -37,15 +37,15 @@ $spriteList = @()
 # Row 0=Y:0, Row 1=Y:64, Row 2=Y:128, etc.
 
 # --- ENGINES ---
-$assets += @{ Name= "eng-quick-jump-5";              Source="techs02.png"; Col=0; Row=0 }
-$assets += @{ Name= "eng-long-hump-6";               Source="techs02.png"; Col=1; Row=0 }
-$assets += @{ Name= "eng-daddy-long-legs-7";         Source="techs02.png"; Col=3; Row=0 }
-$assets += @{ Name= "eng-alpha-drive-8";             Source="techs02.png"; Col=4 Row=0 }
-$assets += @{ Name="eng-sub-galactic-fuel-scoop";        Source="techs02.png"; Col=5; Row=0 }
-$assets += @{ Name = "eng-trans-galactic-drive"; Source = "techs02.png"; Col = 5; Row = 0 }
-$assets += @{ Name="eng-trans-galactic-fuel-scoop";      Source="techs02.png"; Col=6; Row=0 }
-$assets += @{ Name="eng-radiating-hydro-ram-scoop";       Source="techs02.png"; Col=7; Row=0 }
-$assets += @{ Name = "eng-settlers-delight"; Source = "techs02.png"; Col = 0; Row = 1 }
+$assets += @{ Name= "eng-quick-jump-5";              Source="techs02.png"; Col=0; Row=0; }
+$assets += @{ Name= "eng-long-hump-6";               Source="techs02.png"; Col=1; Row=0; }
+$assets += @{ Name= "eng-daddy-long-legs-7";         Source="techs02.png"; Col=3; Row=0; }
+$assets += @{ Name= "eng-alpha-drive-8";             Source="techs02.png"; Col=4; Row=0; }
+$assets += @{ Name="eng-sub-galactic-fuel-scoop";        Source="techs02.png"; Col=5; Row=0; }
+$assets += @{ Name = "eng-trans-galactic-drive"; Source = "techs02.png"; Col = 5; Row = 0; }
+$assets += @{ Name="eng-trans-galactic-fuel-scoop";      Source="techs02.png"; Col=6; Row=0; }
+$assets += @{ Name="eng-radiating-hydro-ram-scoop";       Source="techs02.png"; Col=7; Row=0; }
+$assets += @{ Name = "eng-settlers-delight"; Source = "techs02.png"; Col = 0; Row = 1 ;}
 $assets += @{ Name = "eng-fuel-mizer"; Source = "techs02.png"; Col = 1; Row = 1}
 $assets += @{ Name="eng-trans-galactic-super-scoop"; Source="techs02.png"; Col=2; Row=1 }
 $assets += @{ Name="eng-trans-galactic-mizer-scoop"; Source="techs02.png"; Col=3; Row=1 }
@@ -54,10 +54,10 @@ $assets += @{ Name = "eng-trans-star-10"; Source = "techs04.png"; Col = 5; Row =
 $assets += @{ Name = "eng-sub-galaxy-scoop"; Source = "techs06.png"; Col = 7; Row = 3 }
 
 # --- STARGATES ---
-$assets += @{ Name = "gate-std"; Source = "techs05.png"; Col = 0; Row = 2 }
-$assets += @{ Name = "gate-weight"; Source = "techs05.png"; Col = 1; Row = 2 }
-$assets += @{ Name = "gate-distance"; Source = "techs05.png"; Col = 4; Row = 2 }
-$assets += @{ Name = "gate-any"; Source = "techs05.png"; Col = 6 Row = 2 }
+$assets += @{ Name = "gate-std"; Source = "techs05.png"; Col = 0; Row = 2; }
+$assets += @{ Name = "gate-weight"; Source = "techs05.png"; Col = 1; Row = 2 ;}
+$assets += @{ Name = "gate-distance"; Source = "techs05.png"; Col = 4; Row = 2; }
+$assets += @{ Name = "gate-any"; Source = "techs05.png"; Col = 6; Row = 2 ;}
 
 # --- MASS DRIVERS ---
 $assets += @{ Name = "driver-std"; Source = "techs05.png"; Col = 7; Row = 2 }

@@ -47,7 +47,7 @@ export class ShipDesignerComponent implements OnInit {
     if (!design || !slotId) return null;
 
     const assignment = design.slots.find((s) => s.slotId === slotId);
-    return assignment?.componentId || null;
+    return assignment?.components?.[0]?.componentId || null;
   });
 
   readonly hullSelectOpen = signal(false);
@@ -94,9 +94,10 @@ export class ShipDesignerComponent implements OnInit {
 
   removeComponent() {
     const slotId = this.selectedSlotId();
-    if (!slotId) return;
+    const componentId = this.currentComponent();
+    if (!slotId || !componentId) return;
 
-    this.designer.removeComponent(slotId);
+    this.designer.removeComponent(slotId, componentId);
     this.componentSelectOpen.set(false);
     this.selectedSlotId.set(null);
   }
@@ -137,7 +138,7 @@ export class ShipDesignerComponent implements OnInit {
     if (!design) return null;
 
     const assignment = design.slots.find((s) => s.slotId === slotId);
-    return assignment?.componentId || null;
+    return assignment?.components?.[0]?.componentId || null;
   }
 
   formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {

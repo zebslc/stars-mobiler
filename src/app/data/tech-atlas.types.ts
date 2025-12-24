@@ -59,6 +59,7 @@ export type HullStats = HullTemplate;
 export interface TechRequirement {
   Energy?: number;
   Weapons?: number;
+  Kinetics?: number;
   Propulsion?: number;
   Construction?: number;
   Electronics?: number;

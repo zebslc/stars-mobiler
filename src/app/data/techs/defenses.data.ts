@@ -78,6 +78,9 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     img: 'def-shield-gorilla',
     description: 'Heavy-duty deflector array.'
   },
+  {
+    id: 'def_shadow',
+    name: 'Shadow Shield',
     type: 'Shield',
     tech: { Energy: 7, Electronics: 3 },
     mass: 2,
