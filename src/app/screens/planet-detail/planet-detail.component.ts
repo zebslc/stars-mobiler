@@ -641,15 +641,18 @@ export class PlanetDetailComponent implements OnInit {
       'scout',
       'frigate',
       'destroyer',
-      'freighter',
+      'small_freighter',
       'super_freighter',
-      'tanker',
-      'settler',
+      'fuel_transport',
+      'colony_ship',
     ];
 
-    return shipDesigns.map((designId) => {
-      const design = COMPILED_DESIGNS[designId];
-      const cost = this.getShipCost(designId);
+    return shipDesigns
+      .map((designId) => {
+        const design = COMPILED_DESIGNS[designId];
+        if (!design) return null;
+
+        const cost = design.cost;
 
       // Determine ship type
       let shipType: 'attack' | 'cargo' | 'support' | 'colony';
@@ -672,13 +675,14 @@ export class PlanetDetailComponent implements OnInit {
           planet.surfaceMinerals.germanium >= (cost.germanium ?? 0)
         : false;
 
-      return {
-        design,
-        cost,
-        shipType,
-        canAfford,
-      } as ShipOption;
-    });
+        return {
+          design,
+          cost,
+          shipType,
+          canAfford,
+        } as ShipOption;
+      })
+      .filter((opt): opt is ShipOption => opt !== null);
   });
 
   selectedShipOption = computed(() => {
@@ -784,7 +788,9 @@ export class PlanetDetailComponent implements OnInit {
     const planet = this.planet();
     if (!planet) return false;
     if (project === 'ship') {
-      const cost = this.getShipCost(this.selectedDesign());
+      const design = COMPILED_DESIGNS[this.selectedDesign()];
+      if (!design) return false;
+      const cost = design.cost;
       return (
         planet.resources >= cost.resources &&
         planet.surfaceMinerals.iron >= (cost.iron ?? 0) &&
@@ -832,7 +838,7 @@ export class PlanetDetailComponent implements OnInit {
                   ? { project, cost: { resources: 50, germanium: 10, iron: 5 } }
                   : ({
                       project: 'ship',
-                      cost: this.getShipCost(this.selectedDesign()),
+                      cost: COMPILED_DESIGNS[this.selectedDesign()]?.cost || { resources: 0 },
                       shipDesignId: this.selectedDesign(),
                     } as any);
 
