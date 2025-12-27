@@ -221,7 +221,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 50,
     cost: { iron: 10, bor: 0, germ: 2, res: 28 },
     stats: { armor: 200 },
-    img: 'def-armor-depleted-neutronium',
+    img: 'def-armor-neu',
     description: 'Processed neutron star matter.'
   },
   {

@@ -24,7 +24,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
       },
     },
     img: 'eng-settlers-delight',
-    description: 'Basic colonist transport engine.',
+    description: 'Basic colonist transport engine.'
   },
   {
     id: 'eng_quick_jump_5',
