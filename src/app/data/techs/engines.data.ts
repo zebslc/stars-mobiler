@@ -5,7 +5,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_settlers_delight',
     name: "Settler's Delight",
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 2,
     cost: { iron: 1, bor: 0, germ: 1, res: 2 },
     stats: {
@@ -24,13 +24,13 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
       },
     },
     img: 'eng-settlers-delight',
-    description: 'Basic colonist transport engine.',
+    description: 'Basic colonist transport engine.'
   },
   {
     id: 'eng_quick_jump_5',
     name: 'Quick Jump 5',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 0, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 4,
     cost: { iron: 3, bor: 0, germ: 1, res: 3 },
     stats: {
@@ -55,7 +55,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_fuel_mizer',
     name: 'Fuel Mizer',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 2, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 2, Construction: 0 },
     mass: 6,
     cost: { iron: 8, bor: 0, germ: 0, res: 11 },
     stats: {
@@ -80,7 +80,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_long_hump_6',
     name: 'Jump Hub 6',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 3, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 3, Construction: 0 },
     mass: 9,
     cost: { iron: 5, bor: 0, germ: 1, res: 6 },
     stats: {
@@ -105,7 +105,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_daddy_long_legs_7',
     name: 'Daddy Long Legs 7',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 5, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 5, Construction: 0 },
     mass: 13,
     cost: { iron: 11, bor: 0, germ: 3, res: 12 },
     stats: {
@@ -130,7 +130,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_alpha_drive_8',
     name: 'Alpha Drive 8',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 7, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 7, Construction: 0 },
     mass: 17,
     cost: { iron: 16, bor: 0, germ: 3, res: 28 },
     stats: {
@@ -155,7 +155,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_trans_galactic',
     name: 'Trans-Galactic Drive',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 9, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 9, Construction: 0 },
     mass: 25,
     cost: { iron: 20, bor: 20, germ: 9, res: 50 },
     stats: {
@@ -180,7 +180,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_interspace_10',
     name: 'Interspace-10',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 11, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 11, Construction: 0 },
     mass: 25,
     cost: { iron: 18, bor: 25, germ: 10, res: 60 },
     stats: {
@@ -205,7 +205,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_trans_star_10',
     name: 'Trans-Star 10',
     type: 'Engine',
-    tech: { Energy: 0, Weapons: 0, Propulsion: 23, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 23, Construction: 0 },
     mass: 5,
     cost: { iron: 3, bor: 0, germ: 3, res: 10 },
     stats: {
@@ -230,7 +230,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_radiating_hydro_ram',
     name: 'Radiating Hydro-Ram Scoop',
     type: 'Engine',
-    tech: { Energy: 2, Weapons: 0, Propulsion: 6, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 2, Kinetics: 0, Propulsion: 6, Construction: 0 },
     mass: 10,
     cost: { iron: 3, bor: 2, germ: 9, res: 8 },
     stats: {
@@ -255,7 +255,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_sub_galactic_scoop',
     name: 'Sub-Galactic Fuel Scoop',
     type: 'Engine',
-    tech: { Energy: 2, Weapons: 0, Propulsion: 8, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 2, Kinetics: 0, Propulsion: 8, Construction: 0 },
     mass: 20,
     cost: { iron: 4, bor: 4, germ: 7, res: 12 },
     stats: {
@@ -280,7 +280,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_trans_galactic_fuel_scoop',
     name: 'Trans-Galactic Fuel Scoop',
     type: 'Engine',
-    tech: { Energy: 3, Weapons: 0, Propulsion: 9, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 3, Kinetics: 0, Propulsion: 9, Construction: 0 },
     mass: 19,
     cost: { iron: 5, bor: 4, germ: 12, res: 18 },
     stats: {
@@ -305,7 +305,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_trans_galactic_super_scoop',
     name: 'Trans-Galactic Super Scoop',
     type: 'Engine',
-    tech: { Energy: 4, Weapons: 0, Propulsion: 12, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 4, Kinetics: 0, Propulsion: 12, Construction: 0 },
     mass: 18,
     cost: { iron: 6, bor: 4, germ: 16, res: 24 },
     stats: {
@@ -330,7 +330,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_trans_galactic_mizer_scoop',
     name: 'Trans-Galactic Mizer Scoop',
     type: 'Engine',
-    tech: { Energy: 4, Weapons: 0, Propulsion: 16, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 4, Kinetics: 0, Propulsion: 16, Construction: 0 },
     mass: 11,
     cost: { iron: 5, bor: 2, germ: 13, res: 20 },
     stats: {
@@ -355,7 +355,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     id: 'eng_galaxy_scoop',
     name: 'Galaxy Scoop',
     type: 'Engine',
-    tech: { Energy: 5, Weapons: 0, Propulsion: 20, Construction: 0, Electronics: 0, BioTech: 0 },
+    tech: { Energy: 5, Kinetics: 0, Propulsion: 20, Construction: 0 },
     mass: 8,
     cost: { iron: 4, bor: 2, germ: 9, res: 12 },
     stats: {

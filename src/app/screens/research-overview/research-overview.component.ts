@@ -51,7 +51,7 @@ import { TECH_ATLAS, HullTemplate, ComponentStats, TechRequirement } from '../..
             <div class="unlock-items">
               @for (unlock of getNextUnlocks(selectedField()); track unlock) {
                 <button class="unlock-chip" (click)="showUnlockDetails(unlock)">
-                  <span class="tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
+                  <span class="tech-icon" [ngClass]="getUnlockIcon(unlock)" style="transform: scale(0.5); width: 32px; height: 32px; margin-right: 4px; vertical-align: middle;"></span>
                   {{ unlock }}
                   @for (dep of getExternalDependenciesWithStatus(unlock, selectedField()); track dep.label) {
                     <span class="dep-badge" [class]="'dep-badge-' + dep.status">{{ dep.label }}</span>
@@ -134,7 +134,7 @@ import { TECH_ATLAS, HullTemplate, ComponentStats, TechRequirement } from '../..
                       <div class="level-unlocks">
                         @for (unlock of level.unlocks; track unlock) {
                           <button class="unlock-chip" (click)="showUnlockDetails(unlock)">
-                            <span class="tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
+                            <span class="tech-icon" [ngClass]="getUnlockIcon(unlock)" style="transform: scale(0.5); width: 32px; height: 32px; margin-right: 4px; vertical-align: middle;"></span>
                             {{ unlock }}
                             @for (
                               dep of getExternalDependenciesWithStatus(unlock, selectedField());
@@ -248,12 +248,12 @@ import { TECH_ATLAS, HullTemplate, ComponentStats, TechRequirement } from '../..
       }
 
       /* Apply background positions to the pseudo-element - matches tech-atlas.css */
-      .tech-icon-small.eng-settler::before { background-position: 0px -0px; }
-      .tech-icon-small.eng-mizer::before { background-position: 0px -64px; }
-      .tech-icon-small.eng-long-hump::before { background-position: 0px -128px; }
-      .tech-icon-small.eng-trans::before { background-position: 0px -192px; }
-      .tech-icon-small.eng-ram::before { background-position: 0px -256px; }
-      .tech-icon-small.eng-interspace::before { background-position: 0px -320px; }
+      .tech-icon-small.eng-quick-jump-5::before { background-position: 0px -0px; }
+      .tech-icon-small.eng-long-hump-6::before { background-position: 0px -64px; }
+      .tech-icon-small.eng-daddy-long-legs-7::before { background-position: 0px -128px; }
+      .tech-icon-small.eng-alpha-drive-8::before { background-position: 0px -192px; }
+      .tech-icon-small.eng-sub-galactic-fuel-scoop::before { background-position: 0px -256px; }
+      .tech-icon-small.eng-trans-galactic-drive::before { background-position: 0px -320px; }
       .tech-icon-small.gate-std::before { background-position: 0px -384px; }
       .tech-icon-small.gate-jump::before { background-position: 0px -448px; }
       .tech-icon-small.gate-any::before { background-position: 0px -512px; }
@@ -264,7 +264,7 @@ import { TECH_ATLAS, HullTemplate, ComponentStats, TechRequirement } from '../..
       .tech-icon-small.weap-xray::before { background-position: 0px -832px; }
       .tech-icon-small.weap-minigun::before { background-position: 0px -896px; }
       .tech-icon-small.weap-yakimora::before { background-position: 0px -960px; }
-      .tech-icon-small.weap-disrupt::before { background-position: 0px -1024px; }
+      .tech-icon-small.weap-disruptor::before { background-position: 0px -1024px; }
       .tech-icon-small.weap-phasor::before { background-position: 0px -1088px; }
       .tech-icon-small.weap-gatling::before { background-position: 0px -1152px; }
       .tech-icon-small.weap-big-mutha::before { background-position: 0px -1216px; }
