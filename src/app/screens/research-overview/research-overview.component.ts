@@ -927,7 +927,7 @@ export class ResearchOverviewComponent {
 
   getVisibleLevels(field: TechField): TechLevel[] {
     const allLevels = this.getAllLevels(field);
-    return allLevels.filter((level) => level.unlocks.length > 0);
+    return allLevels.filter((level) => level.level > 0 && level.unlocks.length > 0);
   }
 
   getTechDetails(name: string): HullTemplate | ComponentStats | null {
