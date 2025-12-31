@@ -88,67 +88,114 @@
           <!-- Hull Selector -->
           <div class="hull-selector">
             <label>Hull Type:</label>
-            <select [value]="currentHull.id" (change)="selectHull($any($event.target).value)">
+            <select [value]="currentHull.id" (change)="selectHull($any($event.target).value)" title="Select hull type">
               @for (h of availableHulls(); track h.id) {
-                <option [value]="h.id">{{ h.name }}</option>
+                <option [value]="h.id">{{ h.Name || h.name }}</option>
               }
             </select>
           </div>
 
           <!-- Hull Info Box (like original game) -->
           <div class="hull-info-box">
-            <div class="hull-title">{{ currentHull.name }}</div>
+            <div class="hull-title">{{ currentHull.Name || currentHull.name }}</div>
             <div class="hull-stats-grid">
               <div class="hull-stat">
                 <span class="label">Ironium</span>
-                <span class="value">{{ currentHull.baseCost.ironium }}kt</span>
+                <span class="value">{{ currentHull.baseCost?.ironium || currentHull.Cost?.Ironium }}kt</span>
               </div>
               <div class="hull-stat">
                 <span class="label">Max Fuel:</span>
-                <span class="value">{{ currentHull.fuelCapacity }}mg</span>
+                <span class="value">{{ currentHull.fuelCapacity || currentHull.Stats?.['Max Fuel'] }}mg</span>
               </div>
               <div class="hull-stat">
                 <span class="label">Boranium</span>
-                <span class="value">{{ currentHull.baseCost.boranium }}kt</span>
+                <span class="value">{{ currentHull.baseCost?.boranium || currentHull.Cost?.Boranium }}kt</span>
               </div>
               <div class="hull-stat">
                 <span class="label">Armor:</span>
-                <span class="value">{{ currentHull.armor }}dp</span>
+                <span class="value">{{ currentHull.armor || currentHull.Stats?.Armor }}dp</span>
               </div>
               <div class="hull-stat">
                 <span class="label">Germanium</span>
-                <span class="value">{{ currentHull.baseCost.germanium }}kt</span>
+                <span class="value">{{ currentHull.baseCost?.germanium || currentHull.Cost?.Germanium }}kt</span>
               </div>
               <div class="hull-stat">
                 <span class="label">Mass:</span>
-                <span class="value">{{ currentHull.mass }}kt</span>
+                <span class="value">{{ currentHull.mass || currentHull.Stats?.Mass }}kt</span>
               </div>
-              @if (currentHull.cargoCapacity) {
+              @if (currentHull.cargoCapacity || currentHull.Stats?.Cargo) {
                 <div class="hull-stat">
                   <span class="label">Cargo:</span>
-                  <span class="value">{{ currentHull.cargoCapacity }}kt</span>
+                  <span class="value">{{ currentHull.cargoCapacity || currentHull.Stats?.Cargo }}kt</span>
                 </div>
               }
             </div>
           </div>
 
-          <!-- Hull Visual Slots (like original game) -->
+          <!-- Hull Visual Grid (Grouped Slot System) -->
           <div class="hull-visual">
-            <div class="slots-grid">
-              @for (slot of currentHull.slots; track slot.id) {
-                <div
-                  class="hull-slot"
-                  [class.filled]="getComponentsInSlot(slot.id).length > 0"
-                  [class.selected]="selectedSlotId() === slot.id"
-                  (click)="selectSlot(slot.id)"
-                >
-                  <div class="slot-icon">{{ getSlotTypeIcon(slot.allowedTypes) }}</div>
-                  <div class="slot-label">{{ getSlotTypeLabel(slot.allowedTypes) }}</div>
+            <!-- Background grid for positioning -->
+            <div class="hull-grid-background" 
+                 [style.grid-template-columns]="'repeat(' + getGridDimensions(currentHull).cols + ', 1fr)'"
+                 [style.grid-template-rows]="'repeat(' + getGridDimensions(currentHull).rows + ', 1fr)'">
+              
+              <!-- Draw the hull structure as background -->
+              @for (row of getHullStructure(currentHull); track $index; let rowIndex = $index) {
+                @for (cell of row; track $index; let colIndex = $index) {
+                  <div class="hull-background-cell"
+                       [class.empty]="cell === '.'"
+                       [class.occupied]="cell !== '.'"
+                       [attr.data-slot]="cell !== '.' ? cell : null">
+                  </div>
+                }
+              }
+            </div>
+            
+            <!-- Slot components overlaid on top -->
+            <div class="slot-overlay">
+              @for (slotGroup of getSlotGroups(currentHull); track slotGroup.slotCode) {
+                <div class="slot-component"
+                     [class.filled]="getComponentsInSlot(slotGroup.slotCode).length > 0"
+                     [class.selected]="selectedSlotId() === slotGroup.slotCode"
+                     [style.grid-column]="(slotGroup.bounds.minCol + 1) + ' / ' + (slotGroup.bounds.maxCol + 2)"
+                     [style.grid-row]="(slotGroup.bounds.minRow + 1) + ' / ' + (slotGroup.bounds.maxRow + 2)"
+                     (click)="selectSlot(slotGroup.slotCode)">
+                  
                   <div class="slot-content">
-                    {{ getSlotSummary(slot.id) }}
+                    <div class="slot-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
+                    <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
+                    <div class="slot-code">{{ slotGroup.slotCode }}</div>
+                    
+                    @if (getComponentsInSlot(slotGroup.slotCode).length === 0) {
+                      <div class="slot-status empty">Empty</div>
+                    } @else {
+                      <div class="slot-status filled">
+                        @if (getComponentsInSlot(slotGroup.slotCode).length === 1) {
+                          @let comp = getComponentsInSlot(slotGroup.slotCode)[0];
+                          <div class="component-display">
+                            <span class="component-name">{{ getComponentName(comp.componentId) }}</span>
+                            @if (comp.count > 1) {
+                              <span class="component-count">×{{ comp.count }}</span>
+                            }
+                          </div>
+                        } @else {
+                          <div class="multiple-components">
+                            {{ getTotalComponentCount(slotGroup.slotCode) }} items
+                          </div>
+                        }
+                      </div>
+                    }
                   </div>
                 </div>
               }
+            </div>
+            
+            <!-- Hull Info Overlay -->
+            <div class="hull-info-overlay">
+              <div class="hull-name">{{ currentHull.Name || currentHull.name }}</div>
+              <div class="hull-dimensions">
+                {{ getGridDimensions(currentHull).cols }}×{{ getGridDimensions(currentHull).rows }} grid
+              </div>
             </div>
           </div>
         </div>

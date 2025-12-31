@@ -201,69 +201,196 @@
   color: #000;
 }
 
-/* Hull Visual Slots */
+/* Hull Visual Grid (Grouped Slot System) */
 .hull-visual {
   background: #c0c0c0;
   border: 2px solid #808080;
   border-radius: 4px;
   padding: 1.5rem;
+  position: relative;
+    min-height: 400px;
+    overflow: auto;
 }
 
-.slots-grid {
+.hull-grid-background {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  max-width: 600px;
+  gap: 1px;
+    background: #808080;
+    border: 1px solid #666;
+    padding: 2px;
+    max-width: 100%;
   margin: 0 auto;
+  width: fit-content;
+    position: relative;
 }
 
-.hull-slot {
-  background: #999;
-  border: 2px solid #666;
+.hull-background-cell {
+  min-height: 16px;
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.hull-background-cell.empty {
+  background: #333;
+  border: 1px solid #555;
+}
+
+.hull-background-cell.occupied {
+  background: #666;
+  border: 1px solid #777;
+}
+
+.slot-overlay {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  display: grid;
+  grid-template-columns: inherit;
+  grid-template-rows: inherit;
+  gap: 1px;
+  pointer-events: none;
+}
+
+.slot-component {
+  background: #b0b0b0;
+  border: 2px solid #777;
   border-radius: 4px;
-  padding: 0.75rem;
-  text-align: center;
   cursor: pointer;
   transition: all 0.2s;
+  pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    padding: 4px;
 }
 
-.hull-slot:hover {
-  background: #aaa;
+.slot-component:hover {
+  background: #c0c0c0;
   border-color: #4a90e2;
+  transform: scale(1.02);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.hull-slot.selected {
+.slot-component.selected {
   background: #b0d0ff;
   border-color: #4a90e2;
   border-width: 3px;
+  transform: scale(1.05);
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
 }
 
-.hull-slot.filled {
+.slot-component.filled {
   background: #a0c0a0;
   border-color: #5a8;
 }
 
-.slot-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.slot-label {
-  font-size: 0.75rem;
-  color: #fff;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
+.slot-component.filled:hover {
+  background: #b0d0b0;
 }
 
 .slot-content {
-  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+}
+.slot-icon {
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+}
+
+.slot-name {
+  font-weight: bold;
   color: #000;
+  font-size: 0.8rem;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.slot-code {
+  font-size: 0.7rem;
+  color: #333;
   font-weight: 600;
-  margin-top: 0.25rem;
-  background: #fff;
-  padding: 0.25rem;
-  border-radius: 2px;
+  margin-bottom: 2px;
+}
+
+.slot-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.slot-status.empty {
+  color: #666;
+  font-style: italic;
+}
+
+.slot-status.filled {
+  color: #000;
+}
+
+.component-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.component-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #000;
+    text-align: center;
+    line-height: 1.1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .component-count {
+    font-size: 0.65rem;
+    color: #4a90e2;
+    font-weight: bold;
+  }
+  
+  .multiple-components {
+    font-size: 0.7rem;
+    color: #4a90e2;
+    font-weight: bold;
+  }
+  
+  .hull-info-overlay {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    z-index: 100;
+  }
+  
+  .hull-name {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+  
+  .hull-dimensions {
+    font-size: 0.75rem;
+    color: #ccc;
 }
 
 /* Stats Panel (Right) - mimics original game */
@@ -620,5 +747,78 @@
   .modal-content {
     min-width: 90vw;
     max-width: 90vw;
+  }
+}
+
+/* Mobile responsive adjustments for hull grid */
+@media (max-width: 768px) {
+  .hull-background-cell {
+    min-height: 14px;
+    min-width: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .slot-component {
+    min-height: 50px;
+    padding: 3px;
+  }
+
+  .slot-icon {
+    font-size: 1.2rem;
+  }
+
+  .slot-name {
+    font-size: 0.7rem;
+  }
+
+  .slot-code {
+    font-size: 0.6rem;
+  }
+
+  .slot-status {
+    font-size: 0.65rem;
+  }
+
+  .component-name {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hull-background-cell {
+    min-height: 12px;
+    min-width: 12px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .slot-component {
+    min-height: 40px;
+    padding: 2px;
+  }
+
+  .slot-icon {
+    font-size: 1rem;
+  }
+
+  .slot-name {
+    font-size: 0.6rem;
+  }
+
+  .slot-code {
+    font-size: 0.55rem;
+  }
+
+  .slot-status {
+    font-size: 0.6rem;
+  }
+
+  .component-name {
+    font-size: 0.55rem;
+  }
+
+  .hull-visual {
+    padding: 1rem;
   }
 }
