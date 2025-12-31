@@ -46,5 +46,5 @@ output staticWebAppHostname string = staticWebApp.properties.defaultHostname
 @description('The resource ID of the Static Web App')
 output staticWebAppId string = staticWebApp.id
 
-@description('The deployment token for GitHub Actions')
-output deploymentToken string = staticWebApp.listSecrets().properties.apiKey
+// Note: Deployment token should be retrieved manually from Azure Portal
+// or using Azure CLI: az staticwebapp secrets list --name <app-name>
