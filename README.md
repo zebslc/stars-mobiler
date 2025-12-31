@@ -2,7 +2,7 @@
 
 > A modern, zoneless Angular 21 implementation of the classic 4X space strategy game, rebuilt from the ground up with cutting-edge web technologies.
 
-[![Azure Static Web Apps CI/CD](https://github.com/YOUR_USERNAME/stars-mobiler/actions/workflows/azure-static-web-apps-deploy.yml/badge.svg)](https://github.com/YOUR_USERNAME/stars-mobiler/actions/workflows/azure-static-web-apps-deploy.yml)
+[![Azure Static Web Apps CI/CD](https://github.com/zebslc/stars-mobiler/actions/workflows/azure-static-web-apps-deploy.yml/badge.svg)](https://github.com/zebslc/stars-mobiler/actions/workflows/azure-static-web-apps-deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 🎮 About
@@ -46,7 +46,7 @@ Stars Mobiler is a comprehensive modernization of the beloved Stars! 4X strategy
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/stars-mobiler.git
+git clone https://github.com/zebslc/stars-mobiler.git
 cd stars-mobiler
 
 # Install dependencies
@@ -144,7 +144,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment instructions.
    - Output location: `dist/stars-mobiler`
 5. Deploy automatically on push to `main`
 
-**Live Demo**: `https://stars-mobiler.azurestaticapps.net` *(replace with your URL)*
+**Live Demo**: `https://victorious-bush-0d7258103.4.azurestaticapps.net/` *(replace with your URL)*
 
 ## 📚 Documentation
 
@@ -213,8 +213,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/stars-mobiler/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/stars-mobiler/discussions)
+- **Issues**: [GitHub Issues](https://github.com/zebslc/stars-mobiler/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/zebslc/stars-mobiler/discussions)
 
 ---
 
