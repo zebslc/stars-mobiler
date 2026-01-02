@@ -85,15 +85,47 @@ export class ShipDesignOverviewComponent {
 
   selectSlot(slotId: string) {
     this.selectedSlotId.set(slotId);
-    this.componentSelectOpen.set(true);
+    
+    // Check if there's only one available component for this slot
+    const availableComponents = this.designer.getAvailableComponentsForSlot(slotId);
+    if (availableComponents.length === 1) {
+      // Auto-add the single component and don't open modal
+      this.designer.addComponent(slotId, availableComponents[0].id, 1);
+      this.selectedSlotId.set(null);
+    } else {
+      // Open modal for selection
+      this.componentSelectOpen.set(true);
+    }
   }
 
   addComponent(componentId: string) {
     const slotId = this.selectedSlotId();
     if (!slotId) return;
 
-    this.designer.addComponent(slotId, componentId, 1);
-    // Don't close modal - allow adding more
+    const success = this.designer.addComponent(slotId, componentId, 1);
+    if (success) {
+      // Auto-close if there's only one available component for this slot
+      const availableComponents = this.availableComponentsForSlot();
+      if (availableComponents.length === 1) {
+        this.componentSelectOpen.set(false);
+        this.selectedSlotId.set(null);
+      }
+    }
+  }
+
+  // Get component icon - use actual component image from CSS sprite
+  getComponentIcon(componentId: string): string {
+    const component = COMPONENTS[componentId];
+    if (!component || !component.img) return '';
+
+    // Return the CSS class name for the component image
+    return component.img;
+  }
+
+  // Check if component has an image
+  hasComponentImage(componentId: string): boolean {
+    const component = COMPONENTS[componentId];
+    return !!(component && component.img);
   }
 
   removeComponentFromSlot(componentId: string) {
@@ -226,14 +258,16 @@ export class ShipDesignOverviewComponent {
   // Parse hull structure and group quarter squares into complete slots
   getSlotGroups(hull: HullTemplate): Array<{
     slotCode: string;
-    positions: Array<{row: number, col: number}>;
-    bounds: {minRow: number, maxRow: number, minCol: number, maxCol: number};
+    positions: Array<{ row: number; col: number }>;
+    bounds: { minRow: number; maxRow: number; minCol: number; maxCol: number };
     centerRow: number;
     centerCol: number;
+    width: number;
+    height: number;
   }> {
     const structure = this.getHullStructure(hull);
-    const slotMap = new Map<string, Array<{row: number, col: number}>>();
-    
+    const slotMap = new Map<string, Array<{ row: number; col: number }>>();
+
     // Group all positions by slot code
     structure.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
@@ -245,20 +279,22 @@ export class ShipDesignOverviewComponent {
         }
       });
     });
-    
+
     // Calculate bounds and center for each slot group
     return Array.from(slotMap.entries()).map(([slotCode, positions]) => {
-      const minRow = Math.min(...positions.map(p => p.row));
-      const maxRow = Math.max(...positions.map(p => p.row));
-      const minCol = Math.min(...positions.map(p => p.col));
-      const maxCol = Math.max(...positions.map(p => p.col));
-      
+      const minRow = Math.min(...positions.map((p) => p.row));
+      const maxRow = Math.max(...positions.map((p) => p.row));
+      const minCol = Math.min(...positions.map((p) => p.col));
+      const maxCol = Math.max(...positions.map((p) => p.col));
+
       return {
         slotCode,
         positions,
         bounds: { minRow, maxRow, minCol, maxCol },
         centerRow: minRow + (maxRow - minRow) / 2,
-        centerCol: minCol + (maxCol - minCol) / 2
+        centerCol: minCol + (maxCol - minCol) / 2,
+        width: maxCol - minCol + 1,
+        height: maxRow - minRow + 1,
       };
     });
   }
@@ -267,25 +303,39 @@ export class ShipDesignOverviewComponent {
   getSlotIcon(slotCode: string, hull: HullTemplate): string {
     const slotDef = this.getSlotByCode(hull, slotCode);
     if (!slotDef) return '⚪';
-    
+
     const allowedTypes = slotDef.Allowed;
     const primary = allowedTypes[0]?.toLowerCase();
-    
+
     switch (primary) {
-      case 'engine': return '⚙️';
-      case 'weapon': return '🔫';
-      case 'shield': return '🛡️';
-      case 'armor': return '🛡️';
-      case 'scanner': return '📡';
-      case 'elect': return '⚡';
-      case 'mech': return '🔧';
-      case 'cargo': return '📦';
-      case 'bomb': return '💣';
-      case 'mining': return '⛏️';
-      case 'mine': return '💥';
-      case 'orbital': return '🏗️';
-      case 'dock': return '🚢';
-      default: return '⚪';
+      case 'engine':
+        return '⚙️';
+      case 'weapon':
+        return '🔫';
+      case 'shield':
+        return '🛡️';
+      case 'armor':
+        return '🛡️';
+      case 'scanner':
+        return '📡';
+      case 'elect':
+        return '⚡';
+      case 'mech':
+        return '🔧';
+      case 'cargo':
+        return '📦';
+      case 'bomb':
+        return '💣';
+      case 'mining':
+        return '⛏️';
+      case 'mine':
+        return '💥';
+      case 'orbital':
+        return '🏗️';
+      case 'dock':
+        return '🚢';
+      default:
+        return '⚪';
     }
   }
 
@@ -293,26 +343,41 @@ export class ShipDesignOverviewComponent {
   getSlotDisplayName(slotCode: string, hull: HullTemplate): string {
     const slotDef = this.getSlotByCode(hull, slotCode);
     if (!slotDef) return slotCode;
-    
+
     const allowedTypes = slotDef.Allowed;
     if (allowedTypes.length === 1) {
       const type = allowedTypes[0];
       switch (type.toLowerCase()) {
-        case 'engine': return 'Engine';
-        case 'weapon': return 'Weapon';
-        case 'shield': return 'Shield';
-        case 'armor': return 'Armor';
-        case 'scanner': return 'Scanner';
-        case 'elect': return 'Electronics';
-        case 'mech': return 'Mechanical';
-        case 'cargo': return 'Cargo';
-        case 'bomb': return 'Bomb';
-        case 'mining': return 'Mining';
-        case 'mine': return 'Mine Layer';
-        case 'orbital': return 'Orbital';
-        case 'dock': return 'Dock';
-        case 'general purpose': return 'General';
-        default: return type;
+        case 'engine':
+          return 'Engine';
+        case 'weapon':
+          return 'Weapon';
+        case 'shield':
+          return 'Shield';
+        case 'armor':
+          return 'Armor';
+        case 'scanner':
+          return 'Scanner';
+        case 'elect':
+          return 'Electronics';
+        case 'mech':
+          return 'Mechanical';
+        case 'cargo':
+          return 'Cargo';
+        case 'bomb':
+          return 'Bomb';
+        case 'mining':
+          return 'Mining';
+        case 'mine':
+          return 'Mine Layer';
+        case 'orbital':
+          return 'Orbital';
+        case 'dock':
+          return 'Dock';
+        case 'general purpose':
+          return 'General';
+        default:
+          return type;
       }
     }
     return 'Multi-purpose';
@@ -343,5 +408,17 @@ export class ShipDesignOverviewComponent {
   getTotalComponentCount(slotCode: string): number {
     const components = this.getComponentsInSlot(slotCode);
     return components.reduce((total, comp) => total + comp.count, 0);
+  }
+
+  // Check if slot has any components
+  hasComponentInSlot(slotCode: string): boolean {
+    const components = this.getComponentsInSlot(slotCode);
+    return components.length > 0;
+  }
+
+  // Get first component in slot (for display)
+  getFirstComponentInSlot(slotCode: string): ComponentAssignment | null {
+    const components = this.getComponentsInSlot(slotCode);
+    return components.length > 0 ? components[0] : null;
   }
 }
