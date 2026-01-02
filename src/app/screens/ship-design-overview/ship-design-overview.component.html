@@ -149,7 +149,11 @@
             <div class="hull-visual">
               <!-- Hull Header -->
               <div class="hull-header">
-                <div class="hull-icon">🚀</div>
+                @if (hasHullImage(currentHull.Name || currentHull.name)) {
+                  <div class="hull-image tech-icon {{ getHullIcon(currentHull.Name || currentHull.name) }}"></div>
+                } @else {
+                  <div class="hull-icon">🚀</div>
+                }
                 <div class="hull-info">
                   <div class="hull-name">{{ currentHull.Name || currentHull.name }}</div>
                   <div class="hull-dimensions">
@@ -186,7 +190,7 @@
                     <div class="slot-content">
                       @if (hasComponentInSlot(slotGroup.slotCode)) {
                         <!-- Show installed component -->
-                        @let installedComp = getFirstComponentInSlot(slotGroup.slotCode);
+                        @let installedComp = getSlotComponent(slotGroup.slotCode);
                         <div class="component-display">
                           @if (hasComponentImage(installedComp.componentId)) {
                             <div class="component-image tech-icon {{ getComponentIcon(installedComp.componentId) }}"></div>
@@ -194,8 +198,8 @@
                             <div class="component-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
                           }
                           <div class="component-name">{{ getComponentName(installedComp.componentId) }}</div>
-                          @if (getTotalComponentCount(slotGroup.slotCode) > 1) {
-                            <div class="component-count">{{ getTotalComponentCount(slotGroup.slotCode) }}</div>
+                          @if (installedComp.count > 1) {
+                            <div class="component-count">{{ installedComp.count }}</div>
                           }
                         </div>
                       } @else {
@@ -353,61 +357,76 @@
           </div>
         </div>
 
-        <!-- Current Components in Slot -->
-        @if (currentComponentsInSlot().length > 0) {
-          <div class="current-components">
-            <strong>Installed:</strong>
-            @for (comp of currentComponentsInSlot(); track comp.componentId) {
-              <div class="installed-component">
-                <span>{{ getComponentName(comp.componentId) }} ({{ comp.count }})</span>
-                <div class="component-controls">
-                  <button type="button" class="btn-tiny" (click)="removeComponentFromSlot(comp.componentId)">-</button>
-                  <button type="button" class="btn-tiny" (click)="addComponent(comp.componentId)">+</button>
-                </div>
-              </div>
-            }
-            <button type="button" (click)="clearSlot()" class="btn-small btn-danger">Clear All</button>
-          </div>
-        }
-
-        <!-- Available Components -->
-        <div class="component-list">
-          <div class="component-list-header">Available Components:</div>
-          @for (component of availableComponentsForSlot(); track component.id) {
-            <div
-              class="component-item"
-              (click)="addComponent(component.id)"
-            >
-              @if (hasComponentImage(component.id)) {
-                <div class="component-image tech-icon {{ getComponentIcon(component.id) }}"></div>
+        <!-- Current Component in Slot -->
+        @if (hasComponentInSlot(selectedSlotId()!)) {
+          @let currentComp = getSlotComponent(selectedSlotId()!);
+          @let maxCapacity = getSlotMaxCapacity(selectedSlotId()!);
+          <div class="current-component">
+            <div class="current-component-header">
+              <strong>Installed:</strong>
+              <button type="button" (click)="removeComponent(selectedSlotId()!)" class="btn-small btn-danger">Remove</button>
+            </div>
+            <div class="installed-component">
+              @if (hasComponentImage(currentComp.componentId)) {
+                <div class="component-image tech-icon {{ getComponentIcon(currentComp.componentId) }}"></div>
               } @else {
                 <div class="component-icon-fallback">{{ getSlotTypeIcon(['general']) }}</div>
               }
               <div class="component-info">
-                <div class="component-name">{{ component.name }}</div>
-                <div class="component-details">
-                  <span>Mass: {{ component.mass }}kt</span>
-                  @if (component.miniaturizationLevel > 0) {
-                    <span class="mini-badge">
-                      -{{ ((component.baseMass - component.mass) / component.baseMass * 100).toFixed(0) }}%
-                    </span>
-                  }
-                </div>
-                <div class="component-cost">
-                  {{ formatCost(component.cost) }}
-                </div>
-              </div>
-              <div class="component-count-display">
-                @let currentCount = getComponentCount(selectedSlotId()!, component.id);
-                @if (currentCount > 0) {
-                  <div class="current-count">{{ currentCount }}</div>
-                } @else {
-                  <div class="add-button">+</div>
+                <div class="component-name">{{ getComponentName(currentComp.componentId) }}</div>
+                @if (maxCapacity > 1) {
+                  <div class="quantity-controls">
+                    <label>Quantity:</label>
+                    <div class="quantity-input">
+                      <button type="button" class="btn-tiny" 
+                              (click)="setComponentQuantity(selectedSlotId()!, currentComp.componentId, Math.max(1, currentComp.count - 1))"
+                              [disabled]="currentComp.count <= 1">-</button>
+                      <span class="quantity-display">{{ currentComp.count }}</span>
+                      <button type="button" class="btn-tiny"
+                              (click)="setComponentQuantity(selectedSlotId()!, currentComp.componentId, Math.min(maxCapacity, currentComp.count + 1))"
+                              [disabled]="currentComp.count >= maxCapacity">+</button>
+                    </div>
+                    <span class="max-info">Max: {{ maxCapacity }}</span>
+                  </div>
                 }
               </div>
             </div>
-          }
-        </div>
+          </div>
+        }
+
+        <!-- Available Components (only show if slot is empty) -->
+        @if (!hasComponentInSlot(selectedSlotId()!)) {
+          <div class="component-list">
+            <div class="component-list-header">Available Components:</div>
+            @for (component of availableComponentsForSlot(); track component.id) {
+              <div
+                class="component-item"
+                (click)="addComponent(component.id)"
+              >
+                @if (hasComponentImage(component.id)) {
+                  <div class="component-image tech-icon {{ getComponentIcon(component.id) }}"></div>
+                } @else {
+                  <div class="component-icon-fallback">{{ getSlotTypeIcon(['general']) }}</div>
+                }
+                <div class="component-info">
+                  <div class="component-name">{{ component.name }}</div>
+                  <div class="component-details">
+                    <span>Mass: {{ component.mass }}kt</span>
+                    @if (component.miniaturizationLevel > 0) {
+                      <span class="mini-badge">
+                        -{{ ((component.baseMass - component.mass) / component.baseMass * 100).toFixed(0) }}%
+                      </span>
+                    }
+                  </div>
+                  <div class="component-cost">
+                    {{ formatCost(component.cost) }}
+                  </div>
+                </div>
+                <div class="add-button">+</div>
+              </div>
+            }
+          </div>
+        }
 
         <button type="button" (click)="componentSelectOpen.set(false)" class="btn-text">Close</button>
       </div>

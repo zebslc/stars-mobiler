@@ -228,6 +228,11 @@
   font-size: 2rem;
 }
 
+.hull-image {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
 .hull-info {
   display: flex;
   flex-direction: column;
@@ -660,21 +665,85 @@
   margin-bottom: 1rem;
 }
 
-.current-components strong {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #000;
+.current-component {
+  background: #ccffcc;
+  border: 2px solid #5a8;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.installed-component {
+.current-component-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.current-components strong,
+.current-component-header strong {
+  display: block;
+  color: #000;
+  }
+  
+  .quantity-controls {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .quantity-controls label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #000;
+  }
+  
+  .quantity-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .quantity-display {
+    min-width: 2rem;
+    text-align: center;
+    font-weight: bold;
+  color: #000;
+}
+
+.max-info {
+  font-size: 0.75rem;
+  color: #666;
+}
+.installed-component {
+  display: flex;
+  align-items: flex-start;
+    gap: 0.75rem;
   padding: 0.5rem;
   background: #fff;
   border: 1px solid #999;
   border-radius: 4px;
-  margin-bottom: 0.5rem;
+}
+
+.installed-component .component-info {
+  flex: 1;
+}
+
+.installed-component .component-image {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.installed-component .component-icon-fallback {
+  font-size: 1.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .component-controls {

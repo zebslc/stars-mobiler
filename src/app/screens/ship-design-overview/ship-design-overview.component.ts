@@ -85,12 +85,14 @@ export class ShipDesignOverviewComponent {
 
   selectSlot(slotId: string) {
     this.selectedSlotId.set(slotId);
-    
+
     // Check if there's only one available component for this slot
     const availableComponents = this.designer.getAvailableComponentsForSlot(slotId);
-    if (availableComponents.length === 1) {
-      // Auto-add the single component and don't open modal
-      this.designer.addComponent(slotId, availableComponents[0].id, 1);
+    const slotDef = this.getSlotByCode(this.hull()!, slotId);
+
+    if (availableComponents.length === 1 && slotDef?.Max === 1) {
+      // Auto-add the single component with quantity 1 and don't open modal
+      this.designer.setSlotComponent(slotId, availableComponents[0].id, 1);
       this.selectedSlotId.set(null);
     } else {
       // Open modal for selection
@@ -102,15 +104,30 @@ export class ShipDesignOverviewComponent {
     const slotId = this.selectedSlotId();
     if (!slotId) return;
 
-    const success = this.designer.addComponent(slotId, componentId, 1);
+    const slotDef = this.getSlotByCode(this.hull()!, slotId);
+    if (!slotDef) return;
+
+    // Set the component with the max quantity (user can adjust later)
+    const quantity = slotDef.Max || 1;
+    const success = this.designer.setSlotComponent(slotId, componentId, quantity);
+
     if (success) {
-      // Auto-close if there's only one available component for this slot
-      const availableComponents = this.availableComponentsForSlot();
-      if (availableComponents.length === 1) {
+      // Auto-close if max is 1, otherwise keep open for quantity adjustment
+      if (slotDef.Max === 1) {
         this.componentSelectOpen.set(false);
         this.selectedSlotId.set(null);
       }
     }
+  }
+
+  // Set component quantity for a slot (replaces any existing component)
+  setComponentQuantity(slotId: string, componentId: string, quantity: number) {
+    this.designer.setSlotComponent(slotId, componentId, quantity);
+  }
+
+  // Remove component from slot entirely
+  removeComponent(slotId: string) {
+    this.designer.clearSlot(slotId);
   }
 
   // Get component icon - use actual component image from CSS sprite
@@ -171,11 +188,24 @@ export class ShipDesignOverviewComponent {
     }
   }
 
-  getComponentsInSlot(slotId: string): ComponentAssignment[] {
+  // Get the single component in a slot (since each slot can only have one component type)
+  getSlotComponent(slotId: string): ComponentAssignment | null {
     const design = this.design();
-    if (!design) return [];
+    if (!design) return null;
     const assignment = design.slots.find((s) => s.slotId === slotId);
-    return assignment?.components || [];
+    return assignment?.components?.[0] || null;
+  }
+
+  // Check if slot has any components
+  hasComponentInSlot(slotId: string): boolean {
+    const component = this.getSlotComponent(slotId);
+    return component !== null;
+  }
+
+  // Get component count in slot
+  getSlotComponentCount(slotId: string): number {
+    const component = this.getSlotComponent(slotId);
+    return component?.count || 0;
   }
 
   getComponentName(componentId: string): string {
@@ -183,19 +213,72 @@ export class ShipDesignOverviewComponent {
     return component ? component.name : 'Empty';
   }
 
-  getSlotSummary(slotId: string): string {
-    const components = this.getComponentsInSlot(slotId);
-    if (components.length === 0) return 'Empty';
-    if (components.length === 1 && components[0].count === 1) {
-      return this.getComponentName(components[0].componentId);
-    }
-    return `${components.length} types`;
+  // Legacy compatibility methods (updated to work with single-component-per-slot)
+  getTotalComponentCount(slotCode: string): number {
+    return this.getSlotComponentCount(slotCode);
   }
 
-  getComponentCount(slotId: string, componentId: string): number {
-    const components = this.getComponentsInSlot(slotId);
-    const comp = components.find((c) => c.componentId === componentId);
-    return comp?.count || 0;
+  getFirstComponentInSlot(slotCode: string): ComponentAssignment | null {
+    return this.getSlotComponent(slotCode);
+  }
+
+  // Get hull icon CSS class
+  getHullIcon(hullName: string): string {
+    const hullIconMap: { [key: string]: string } = {
+      Scout: 'hull-scout',
+      Frigate: 'hull-frigate',
+      Destroyer: 'hull-destroyer',
+      Cruiser: 'hull-cruiser',
+      'Battle Cruiser': 'hull-battle-cruiser',
+      Battleship: 'hull-battleship',
+      Dreadnought: 'hull-dreadnought',
+      Privateer: 'hull-privateer',
+      Rogue: 'hull-rogue',
+      Galleon: 'hull-galleon',
+      Nubian: 'hull-nubian',
+      'Meta Morph': 'hull-meta-morph',
+      'Mini Colony Ship': 'hull-mini-colony',
+      'Colony Ship': 'hull-colony',
+      'Mini Bomber': 'hull-mini-bomber',
+      'B-17 Bomber': 'hull-b17',
+      'Stealth Bomber': 'hull-stealth-bomber',
+      'B-52 Bomber': 'hull-b52',
+      'Midget Miner': 'hull-midget-miner',
+      'Mini Miner': 'hull-mini-miner',
+      Miner: 'hull-miner',
+      'Maxi Miner': 'hull-maxi-miner',
+      'Ultra Miner': 'hull-ultra-miner',
+      'Fuel Transport': 'hull-fuel-transport',
+      'Super Fuel Xport': 'hull-super-fuel-export',
+      'Mini Mine Layer': 'hull-mini-mine-layer',
+      'Super Mine Layer': 'hull-super-mine-layer',
+      'Small Freighter': 'hull-freight-s',
+      'Medium Freighter': 'hull-freight-m',
+      'Large Freighter': 'hull-freight-l',
+      'Super Freighter': 'hull-freight-super',
+      'Orbital Fort': 'hull-orbital-fort',
+      'Space Dock': 'hull-space-dock',
+      'Space Station': 'hull-space-station',
+      'Ultra Station': 'hull-ultra-station',
+      'Death Star': 'hull-death-star',
+    };
+
+    return hullIconMap[hullName] || 'hull-scout';
+  }
+
+  // Check if hull has an image
+  hasHullImage(hullName: string): boolean {
+    const hullIconMap: { [key: string]: string } = {
+      Scout: 'hull-scout',
+      Frigate: 'hull-frigate',
+      Destroyer: 'hull-destroyer',
+      Cruiser: 'hull-cruiser',
+      'Battle Cruiser': 'hull-battle-cruiser',
+      Battleship: 'hull-battleship',
+      Dreadnought: 'hull-dreadnought',
+    };
+
+    return !!hullIconMap[hullName];
   }
 
   formatType(design: any): string {
@@ -402,23 +485,5 @@ export class ShipDesignOverviewComponent {
 
   getSlotByCode(hull: HullTemplate, slotCode: string): SlotDefinition | null {
     return hull.Slots.find((slot) => slot.Code === slotCode) || null;
-  }
-
-  // Get total component count in slot
-  getTotalComponentCount(slotCode: string): number {
-    const components = this.getComponentsInSlot(slotCode);
-    return components.reduce((total, comp) => total + comp.count, 0);
-  }
-
-  // Check if slot has any components
-  hasComponentInSlot(slotCode: string): boolean {
-    const components = this.getComponentsInSlot(slotCode);
-    return components.length > 0;
-  }
-
-  // Get first component in slot (for display)
-  getFirstComponentInSlot(slotCode: string): ComponentAssignment | null {
-    const components = this.getComponentsInSlot(slotCode);
-    return components.length > 0 ? components[0] : null;
   }
 }

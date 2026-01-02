@@ -42,9 +42,7 @@ export class ShipDesignerService {
 
   readonly miniaturizedComponents = computed(() => {
     const techLevels = this._techLevels();
-    return Object.values(COMPONENTS).map((comp) =>
-      miniaturizeComponent(comp, techLevels)
-    );
+    return Object.values(COMPONENTS).map((comp) => miniaturizeComponent(comp, techLevels));
   });
 
   readonly compiledStats = computed(() => {
@@ -101,6 +99,52 @@ export class ShipDesignerService {
   }
 
   /**
+   * Set a component in a slot (replaces any existing components)
+   */
+  setSlotComponent(slotId: string, componentId: string, count: number = 1): boolean {
+    const design = this._currentDesign();
+    const hull = this.currentHull();
+    if (!design || !hull) return false;
+
+    // Find the slot
+    const hullSlot = hull.slots.find((s: any) => s.id === slotId);
+    if (!hullSlot) {
+      console.error(`Slot ${slotId} not found in hull`);
+      return false;
+    }
+
+    // Get the component
+    const component = getComponent(componentId);
+    if (!component) {
+      console.error(`Component ${componentId} not found`);
+      return false;
+    }
+
+    // Check if component can be installed
+    if (!canInstallComponent(component, hullSlot)) {
+      console.error(`Component ${component.name} cannot be installed in slot ${slotId}`);
+      return false;
+    }
+
+    // Replace all components in the slot with this one
+    const newSlots = design.slots.map((slot) => {
+      if (slot.slotId !== slotId) return slot;
+
+      return {
+        ...slot,
+        components: [{ componentId, count }],
+      };
+    });
+
+    this._currentDesign.set({
+      ...design,
+      slots: newSlots,
+    });
+
+    return true;
+  }
+
+  /**
    * Add a component to a slot (or increment if already present)
    */
   addComponent(slotId: string, componentId: string, count: number = 1): boolean {
@@ -124,9 +168,7 @@ export class ShipDesignerService {
 
     // Check if component can be installed
     if (!canInstallComponent(component, hullSlot)) {
-      console.error(
-        `Component ${component.name} cannot be installed in slot ${slotId}`
-      );
+      console.error(`Component ${component.name} cannot be installed in slot ${slotId}`);
       return false;
     }
 
@@ -140,7 +182,7 @@ export class ShipDesignerService {
         return {
           ...slot,
           components: slot.components.map((c) =>
-            c.componentId === componentId ? { ...c, count: c.count + count } : c
+            c.componentId === componentId ? { ...c, count: c.count + count } : c,
           ),
         };
       } else {
@@ -180,9 +222,7 @@ export class ShipDesignerService {
       return {
         ...slot,
         components: slot.components
-          .map((c) =>
-            c.componentId === componentId ? { ...c, count: c.count - 1 } : c
-          )
+          .map((c) => (c.componentId === componentId ? { ...c, count: c.count - 1 } : c))
           .filter((c) => c.count > 0),
       };
     });
@@ -201,7 +241,7 @@ export class ShipDesignerService {
     if (!design) return;
 
     const newSlots = design.slots.map((slot) =>
-      slot.slotId === slotId ? { ...slot, components: [] } : slot
+      slot.slotId === slotId ? { ...slot, components: [] } : slot,
     );
 
     this._currentDesign.set({
@@ -232,12 +272,12 @@ export class ShipDesignerService {
 
       // Map old tech field names to new ones
       const fieldMap: Record<string, keyof PlayerTech> = {
-        'energy': 'Energy',
-        'weapons': 'Kinetics',
-        'propulsion': 'Propulsion',
-        'construction': 'Construction',
-        'electronics': 'Energy',
-        'biotechnology': 'Construction'
+        energy: 'Energy',
+        weapons: 'Kinetics',
+        propulsion: 'Propulsion',
+        construction: 'Construction',
+        electronics: 'Energy',
+        biotechnology: 'Construction',
       };
 
       // Check tech level requirement
@@ -260,7 +300,7 @@ export class ShipDesignerService {
     const constructionLevel = techLevels.Construction;
 
     return Object.values(HULLS).filter(
-      (hull: any) => (hull.techRequired?.construction || 0) <= constructionLevel
+      (hull: any) => (hull.techRequired?.construction || 0) <= constructionLevel,
     );
   }
 
