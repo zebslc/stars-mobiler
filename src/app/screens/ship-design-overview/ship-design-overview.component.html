@@ -97,7 +97,17 @@
 
           <!-- Hull Info Box (like original game) -->
           <div class="hull-info-box">
-            <div class="hull-title">{{ currentHull.Name || currentHull.name }}</div>
+            <div class="hull-title-section">
+              @if (hasHullImage(currentHull.Name || currentHull.name)) {
+                <div class="hull-image-large tech-icon {{ getHullIcon(currentHull.Name || currentHull.name) }}"></div>
+              } @else {
+                <div class="hull-icon-large">🚀</div>
+              }
+              <div class="hull-title-info">
+                <div class="hull-title">{{ currentHull.Name || currentHull.name }}</div>
+                <div class="hull-description">{{ getHullDescription(currentHull.Name || currentHull.name) }}</div>
+              </div>
+            </div>
             <div class="hull-stats-grid">
               <div class="hull-stat">
                 <span class="label">Ironium</span>
@@ -132,90 +142,60 @@
             </div>
           </div>
 
-          <!-- Hull Visual Grid (Quarter Square System) -->
+          <!-- Hull Visual Grid (Grouped Slot System) -->
           <div class="hull-visual">
-            <!-- Hull Header -->
-            <div class="hull-header">
-              <div class="hull-icon">🚀</div>
-              <div class="hull-info">
-                <div class="hull-name">{{ currentHull.Name || currentHull.name }}</div>
-                <div class="hull-dimensions">
-                  {{ getGridDimensions(currentHull).cols }}×{{ getGridDimensions(currentHull).rows }} grid
-                </div>
-              </div>
-            </div>
-            
-            <!-- Hull Visual Grid (Grouped Slot System) -->
-            <div class="hull-visual">
-              <!-- Hull Header -->
-              <div class="hull-header">
-                @if (hasHullImage(currentHull.Name || currentHull.name)) {
-                  <div class="hull-image tech-icon {{ getHullIcon(currentHull.Name || currentHull.name) }}"></div>
-                } @else {
-                  <div class="hull-icon">🚀</div>
-                }
-                <div class="hull-info">
-                  <div class="hull-name">{{ currentHull.Name || currentHull.name }}</div>
-                  <div class="hull-dimensions">
-                    {{ getGridDimensions(currentHull).cols }}×{{ getGridDimensions(currentHull).rows }} grid
-                  </div>
-                </div>
-              </div>
+            <!-- Background Grid (Quarter Squares for Layout) -->
+            <div class="hull-grid-background" 
+                 [style.grid-template-columns]="'repeat(' + getGridDimensions(currentHull).cols + ', 1fr)'"
+                 [style.grid-template-rows]="'repeat(' + getGridDimensions(currentHull).rows + ', 1fr)'">
               
-              <!-- Background Grid (Quarter Squares for Layout) -->
-              <div class="hull-grid-background" 
-                   [style.grid-template-columns]="'repeat(' + getGridDimensions(currentHull).cols + ', 1fr)'"
-                   [style.grid-template-rows]="'repeat(' + getGridDimensions(currentHull).rows + ', 1fr)'">
-                
-                @for (row of getHullStructure(currentHull); track $index; let rowIndex = $index) {
-                  @for (cell of row; track $index; let colIndex = $index) {
-                    <div class="hull-background-cell"
-                         [class.empty]="cell === '.'"
-                         [class.occupied]="cell !== '.'">
-                    </div>
-                  }
-                }
-              </div>
-
-              <!-- Slot Overlay (Grouped Slots) -->
-              <div class="slot-overlay">
-                @for (slotGroup of getSlotGroups(currentHull); track slotGroup.slotCode) {
-                  <div class="slot-component"
-                       [class.filled]="hasComponentInSlot(slotGroup.slotCode)"
-                       [class.selected]="selectedSlotId() === slotGroup.slotCode"
-                       [style.grid-column]="(slotGroup.bounds.minCol + 1) + ' / ' + (slotGroup.bounds.maxCol + 2)"
-                       [style.grid-row]="(slotGroup.bounds.minRow + 1) + ' / ' + (slotGroup.bounds.maxRow + 2)"
-                       (click)="selectSlot(slotGroup.slotCode)">
-                    
-                    <div class="slot-content">
-                      @if (hasComponentInSlot(slotGroup.slotCode)) {
-                        <!-- Show installed component -->
-                        @let installedComp = getSlotComponent(slotGroup.slotCode);
-                        <div class="component-display">
-                          @if (hasComponentImage(installedComp.componentId)) {
-                            <div class="component-image tech-icon {{ getComponentIcon(installedComp.componentId) }}"></div>
-                          } @else {
-                            <div class="component-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
-                          }
-                          <div class="component-name">{{ getComponentName(installedComp.componentId) }}</div>
-                          @if (installedComp.count > 1) {
-                            <div class="component-count">{{ installedComp.count }}</div>
-                          }
-                        </div>
-                      } @else {
-                        <!-- Show slot type -->
-                        <div class="slot-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
-                        <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
-                        <div class="slot-code">{{ slotGroup.slotCode }}</div>
-                        <div class="slot-status empty">Empty</div>
-                      }
-                    </div>
+              @for (row of getHullStructure(currentHull); track $index; let rowIndex = $index) {
+                @for (cell of row; track $index; let colIndex = $index) {
+                  <div class="hull-background-cell"
+                       [class.empty]="cell === '.'"
+                       [class.occupied]="cell !== '.'">
                   </div>
                 }
-              </div>
+              }
+            </div>
+
+            <!-- Slot Overlay (Grouped Slots) -->
+            <div class="slot-overlay">
+              @for (slotGroup of getSlotGroups(currentHull); track slotGroup.slotCode) {
+                <div class="slot-component"
+                     [class.filled]="hasComponentInSlot(slotGroup.slotCode)"
+                     [class.selected]="selectedSlotId() === slotGroup.slotCode"
+                     [style.grid-column]="(slotGroup.bounds.minCol + 1) + ' / ' + (slotGroup.bounds.maxCol + 2)"
+                     [style.grid-row]="(slotGroup.bounds.minRow + 1) + ' / ' + (slotGroup.bounds.maxRow + 2)"
+                     (click)="selectSlot(slotGroup.slotCode)">
+                  
+                  <div class="slot-content">
+                    @if (hasComponentInSlot(slotGroup.slotCode)) {
+                      <!-- Show installed component -->
+                      @let installedComp = getSlotComponent(slotGroup.slotCode);
+                      <div class="component-display">
+                        @if (hasComponentImage(installedComp.componentId)) {
+                          <div class="component-image tech-icon {{ getComponentIcon(installedComp.componentId) }}"></div>
+                        } @else {
+                          <div class="component-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
+                        }
+                        <div class="component-name">{{ getComponentName(installedComp.componentId) }}</div>
+                        <div class="component-count">{{ installedComp.count }}</div>
+                      </div>
+                    } @else {
+                      <!-- Show slot type -->
+                      <div class="slot-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
+                      <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
+                      <div class="slot-max">Max: {{ getSlotMaxCapacity(slotGroup.slotCode) }}</div>
+                    }
+                  </div>
+                </div>
+              }
             </div>
           </div>
         </div>
+
+
 
         <!-- Right: Stats -->
         @if (stats(); as compiledStats) {
@@ -404,12 +384,16 @@
                 (click)="addComponent(component.id)"
               >
                 @if (hasComponentImage(component.id)) {
-                  <div class="component-image tech-icon {{ getComponentIcon(component.id) }}"></div>
+                  <div class="component-image-large tech-icon {{ getComponentIcon(component.id) }}"></div>
                 } @else {
-                  <div class="component-icon-fallback">{{ getSlotTypeIcon(['general']) }}</div>
+                  <div class="component-icon-large">{{ getSlotTypeIcon(['general']) }}</div>
                 }
                 <div class="component-info">
                   <div class="component-name">{{ component.name }}</div>
+                  <div class="component-description">{{ getComponentDescription(component.id) }}</div>
+                  <div class="component-stats">
+                    {{ getComponentStats(component.id) }}
+                  </div>
                   <div class="component-details">
                     <span>Mass: {{ component.mass }}kt</span>
                     @if (component.miniaturizationLevel > 0) {

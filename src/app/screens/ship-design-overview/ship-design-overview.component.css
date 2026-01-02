@@ -177,8 +177,42 @@
   font-size: 1.2rem;
   font-weight: bold;
   color: #000;
+  margin-bottom: 0.25rem;
+}
+
+.hull-title-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 0.75rem;
-  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #999;
+}
+
+.hull-image-large {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.hull-icon-large {
+  font-size: 2.5rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hull-title-info {
+  flex: 1;
+}
+
+.hull-description {
+  font-size: 0.85rem;
+  color: #555;
+  font-style: italic;
 }
 
 .hull-stats-grid {
@@ -245,7 +279,8 @@
   font-size: 1.1rem;
 }
 
-.hull-dimensions {
+.hull-dimensions,
+.hull-description {
   font-size: 0.85rem;
   color: #333;
 }
@@ -385,6 +420,12 @@
   color: #333;
   font-weight: 600;
   margin-bottom: 2px;
+}
+
+.slot-max {
+  font-size: 0.7rem;
+  color: #666;
+  font-weight: 600;
 }
 
 .slot-status {
@@ -631,29 +672,31 @@
   background: #e0e0e0;
   border: 3px solid #666;
   border-radius: 4px;
-  padding: 1.5rem;
-  max-width: 500px;
-  max-height: 80vh;
+  padding: 1rem;
+  max-width: 90vw;
+  max-height: 85vh;
   overflow-y: auto;
-  min-width: 400px;
+  min-width: 320px;
+  width: 100%;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
   border-bottom: 2px solid #999;
 }
 
 .modal-header h3 {
   margin: 0;
   color: #000;
+  font-size: 1.1rem;
 }
 
 .slot-info {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #000;
 }
 
@@ -770,8 +813,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1rem;
-  max-height: 400px;
+  margin-bottom: 0.75rem;
+  max-height: 60vh;
   overflow-y: auto;
 }
 
@@ -782,18 +825,19 @@
   padding: 0.5rem;
   background: #d0d0d0;
   border-radius: 4px;
+  font-size: 0.9rem;
 }
 
 .component-item {
   background: #c0c0c0;
   border: 2px solid #999;
   border-radius: 4px;
-  padding: 0.75rem;
+  padding: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
-    align-items: center;
-    gap: 0.75rem;
+  align-items: flex-start;
+  gap: 0.75rem;
 }
 
 .component-item:hover {
@@ -821,6 +865,13 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
+.component-item .component-image-large {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
 .component-item .component-icon-fallback {
   font-size: 2rem;
   min-width: 2rem;
@@ -828,9 +879,23 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
+.component-item .component-icon-large {
+  font-size: 3rem;
+  min-width: 64px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
 .component-info {
   flex: 1;
+  min-width: 0; /* Allow text to wrap */
 }
+
 .component-name {
   font-weight: 600;
   color: #000;
@@ -838,12 +903,28 @@
   font-size: 1rem;
 }
 
+.component-description {
+  font-size: 0.8rem;
+  color: #444;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
+.component-stats {
+  font-size: 0.75rem;
+  color: #2a5aa0;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
 .component-details {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #333;
   display: flex;
   gap: 0.5rem;
   margin-bottom: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .mini-badge {
@@ -851,12 +932,12 @@
   color: #fff;
   padding: 1px 4px;
   border-radius: 3px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
 }
 
 .component-cost {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: #555;
 }
 

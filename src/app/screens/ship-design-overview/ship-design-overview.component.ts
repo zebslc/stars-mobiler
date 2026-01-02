@@ -213,6 +213,55 @@ export class ShipDesignOverviewComponent {
     return component ? component.name : 'Empty';
   }
 
+  // Get component description
+  getComponentDescription(componentId: string): string {
+    const component = COMPONENTS[componentId];
+    return component?.description || '';
+  }
+
+  // Get component stats summary
+  getComponentStats(componentId: string): string {
+    const component = COMPONENTS[componentId];
+    if (!component || !component.stats) return '';
+
+    const stats: string[] = [];
+    const s = component.stats;
+
+    // Shields
+    if (s.shield) stats.push(`${s.shield}dp shields`);
+
+    // Armor
+    if (s.armor) stats.push(`${s.armor}dp armor`);
+
+    // Weapons
+    if (s.power) stats.push(`${s.power} power`);
+    if (s.range) stats.push(`Range ${s.range}`);
+    if (s.accuracy) stats.push(`${s.accuracy}% accuracy`);
+
+    // Engines
+    if (s.warp) stats.push(`Warp ${s.warp}`);
+    if (s.fuelEff !== undefined) {
+      if (s.fuelEff === 0) stats.push('Ramscoop');
+      else stats.push(`${s.fuelEff}mg/ly fuel`);
+    }
+
+    // Scanners
+    if (s.scan) stats.push(`${s.scan}ly scan range`);
+
+    // Cargo
+    if (s.cap) stats.push(`${s.cap}kt capacity`);
+
+    // Mining
+    if (s.mining) stats.push(`${s.mining}kt/year mining`);
+
+    // Other
+    if (s.initiative) stats.push(`+${s.initiative} initiative`);
+    if (s.jamming) stats.push(`${s.jamming}% jamming`);
+    if (s.cloak) stats.push(`${s.cloak}% cloak`);
+
+    return stats.join(', ');
+  }
+
   // Legacy compatibility methods (updated to work with single-component-per-slot)
   getTotalComponentCount(slotCode: string): number {
     return this.getSlotComponentCount(slotCode);
@@ -485,5 +534,57 @@ export class ShipDesignOverviewComponent {
 
   getSlotByCode(hull: HullTemplate, slotCode: string): SlotDefinition | null {
     return hull.Slots.find((slot) => slot.Code === slotCode) || null;
+  }
+
+  // Get maximum capacity for a slot
+  getSlotMaxCapacity(slotCode: string): number {
+    const hull = this.hull();
+    if (!hull) return 0;
+    const slotDef = this.getSlotByCode(hull, slotCode);
+    return slotDef?.Max || 1;
+  }
+
+  // Get hull description
+  getHullDescription(hullName: string): string {
+    const hullDescriptions: { [key: string]: string } = {
+      Scout: 'Fast, lightly armed reconnaissance vessel',
+      Frigate: 'Light warship with balanced capabilities',
+      Destroyer: 'Medium warship with heavy armament',
+      Cruiser: 'Heavy warship with advanced systems',
+      'Battle Cruiser': 'Heavily armed capital ship',
+      Battleship: 'Massive warship with maximum firepower',
+      Dreadnought: 'Ultimate capital ship design',
+      Privateer: 'Fast raider with stealth capabilities',
+      Rogue: 'Agile combat vessel',
+      Galleon: 'Large cargo and passenger transport',
+      Nubian: 'Exotic alien hull design',
+      'Meta Morph': 'Adaptive multi-role vessel',
+      'Mini Colony Ship': 'Small colonization vessel',
+      'Colony Ship': 'Large-scale colonization transport',
+      'Mini Bomber': 'Light bombing craft',
+      'B-17 Bomber': 'Medium strategic bomber',
+      'Stealth Bomber': 'Cloaked bombing platform',
+      'B-52 Bomber': 'Heavy strategic bomber',
+      'Midget Miner': 'Compact mining vessel',
+      'Mini Miner': 'Small-scale mining ship',
+      Miner: 'Standard mining vessel',
+      'Maxi Miner': 'Large mining operation ship',
+      'Ultra Miner': 'Massive mining platform',
+      'Fuel Transport': 'Specialized fuel carrier',
+      'Super Fuel Xport': 'High-capacity fuel transport',
+      'Mini Mine Layer': 'Compact mine deployment vessel',
+      'Super Mine Layer': 'Heavy mine warfare ship',
+      'Small Freighter': 'Light cargo transport',
+      'Medium Freighter': 'Standard cargo vessel',
+      'Large Freighter': 'Heavy cargo transport',
+      'Super Freighter': 'Massive cargo hauler',
+      'Orbital Fort': 'Defensive space station',
+      'Space Dock': 'Ship construction facility',
+      'Space Station': 'Multi-purpose orbital platform',
+      'Ultra Station': 'Massive space complex',
+      'Death Star': 'Ultimate weapon platform',
+    };
+
+    return hullDescriptions[hullName] || 'Versatile spacecraft design';
   }
 }
