@@ -21,7 +21,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
     ],
     Cost: { Ironium: 50, Boranium: 3, Germanium: 2, Resources: 50 },
-    Stats: { Mass: 65, 'Max Fuel': 650, Armor: 150, Cargo: 250, Initiative: 3 }
+    Stats: { Mass: 65, 'Max Fuel': 650, Armor: 150, Cargo: 250, Initiative: 3 },
+    img: 'hull-privateer'
   },
   {
     Name: 'Rogue',
@@ -48,7 +49,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'SC1', Allowed: ['Scanner'], Max: 1 }
     ],
     Cost: { Ironium: 80, Boranium: 5, Germanium: 5, Resources: 60 },
-    Stats: { Mass: 75, 'Max Fuel': 2250, Armor: 450, Cargo: 500, Initiative: 4 }
+    Stats: { Mass: 75, 'Max Fuel': 2250, Armor: 450, Cargo: 500, Initiative: 4 },
+    img: 'hull-rogue'
   },
   {
     Name: 'Galleon',
@@ -74,7 +76,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'SC1', Allowed: ['Scanner'], Max: 2 }
     ],
     Cost: { Ironium: 70, Boranium: 5, Germanium: 5, Resources: 105 },
-    Stats: { Mass: 125, 'Max Fuel': 2500, Armor: 900, Cargo: 1000, Initiative: 4 }
+    Stats: { Mass: 125, 'Max Fuel': 2500, Armor: 900, Cargo: 1000, Initiative: 4 },
+    img: 'hull-galleon'
   },
   {
     Name: 'Nubian',
@@ -104,7 +107,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'GP12', Allowed: ['General Purpose'], Max: 3 }
     ],
     Cost: { Ironium: 75, Boranium: 12, Germanium: 12, Resources: 150 },
-    Stats: { Mass: 100, 'Max Fuel': 5000, Armor: 5000, Cargo: 0, Initiative: 2 }
+    Stats: { Mass: 100, 'Max Fuel': 5000, Armor: 5000, Cargo: 0, Initiative: 2 },
+    img: 'hull-nubian'
   },
   {
     Name: 'Meta Morph',
@@ -127,7 +131,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'GP6', Allowed: ['General Purpose'], Max: 2 }
     ],
     Cost: { Ironium: 50, Boranium: 12, Germanium: 12, Resources: 120 },
-    Stats: { Mass: 85, 'Max Fuel': 700, Armor: 500, Cargo: 300, Initiative: 2 }
+    Stats: { Mass: 85, 'Max Fuel': 700, Armor: 500, Cargo: 300, Initiative: 2 },
+    img: 'hull-meta-morph'
   },
 
   // Colony Ships
@@ -143,7 +148,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'M1', Allowed: ['Mech'], Max: 1 }
     ],
     Cost: { Ironium: 2, Boranium: 0, Germanium: 2, Resources: 3 },
-    Stats: { Mass: 8, 'Max Fuel': 150, Armor: 10, Cargo: 10, Initiative: 0 }
+    Stats: { Mass: 8, 'Max Fuel': 150, Armor: 10, Cargo: 10, Initiative: 0 },
+    img: 'hull-mini-colony'
   },
   {
     Name: 'Colony Ship',
@@ -157,7 +163,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'M1', Allowed: ['Mech'], Max: 1 }
     ],
     Cost: { Ironium: 10, Boranium: 0, Germanium: 15, Resources: 20 },
-    Stats: { Mass: 20, 'Max Fuel': 200, Armor: 20, Cargo: 25, Initiative: 0 }
+    Stats: { Mass: 20, 'Max Fuel': 200, Armor: 20, Cargo: 25, Initiative: 0 },
+    img: 'hull-colony'
   },
 
   // Bombers
@@ -172,7 +179,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'B1', Allowed: ['Bomb'], Max: 2 }
     ],
     Cost: { Ironium: 20, Boranium: 5, Germanium: 10, Resources: 35 },
-    Stats: { Mass: 28, 'Max Fuel': 120, Armor: 50, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 28, 'Max Fuel': 120, Armor: 50, Cargo: 0, Initiative: 0 },
+    img: 'hull-mini-bomber'
   },
   {
     Name: 'B-17 Bomber',
@@ -187,7 +195,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
     ],
     Cost: { Ironium: 55, Boranium: 10, Germanium: 10, Resources: 150 },
-    Stats: { Mass: 69, 'Max Fuel': 400, Armor: 175, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 69, 'Max Fuel': 400, Armor: 175, Cargo: 0, Initiative: 0 },
+    img: 'hull-b17'
   },
   {
     Name: 'Stealth Bomber',
@@ -205,7 +214,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'EL1', Allowed: ['Elect'], Max: 3 }
     ],
     Cost: { Ironium: 55, Boranium: 10, Germanium: 15, Resources: 175 },
-    Stats: { Mass: 70, 'Max Fuel': 750, Armor: 225, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 70, 'Max Fuel': 750, Armor: 225, Cargo: 0, Initiative: 0 },
+    img: 'hull-stealth-bomber'
   },
   {
     Name: 'B-52 Bomber',
@@ -227,7 +237,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 2 }
     ],
     Cost: { Ironium: 90, Boranium: 15, Germanium: 10, Resources: 280 },
-    Stats: { Mass: 110, 'Max Fuel': 750, Armor: 450, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 110, 'Max Fuel': 750, Armor: 450, Cargo: 0, Initiative: 0 },
+    img: 'hull-b52'
   },
 
   // Miners
@@ -242,7 +253,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'M1', Allowed: ['Mining'], Max: 2 }
     ],
     Cost: { Ironium: 10, Boranium: 0, Germanium: 3, Resources: 20 },
-    Stats: { Mass: 10, 'Max Fuel': 210, Armor: 100, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 10, 'Max Fuel': 210, Armor: 100, Cargo: 0, Initiative: 0 },
+    img: 'hull-midget-miner'
   },
   {
     Name: 'Mini-Miner',
@@ -259,7 +271,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
     ],
     Cost: { Ironium: 25, Boranium: 0, Germanium: 6, Resources: 50 },
-    Stats: { Mass: 80, 'Max Fuel': 210, Armor: 130, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 80, 'Max Fuel': 210, Armor: 130, Cargo: 0, Initiative: 0 },
+    img: 'hull-mini-miner'
   },
   {
     Name: 'Miner',
@@ -278,7 +291,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 2 }
     ],
     Cost: { Ironium: 32, Boranium: 0, Germanium: 6, Resources: 110 },
-    Stats: { Mass: 110, 'Max Fuel': 500, Armor: 475, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 110, 'Max Fuel': 500, Armor: 475, Cargo: 0, Initiative: 0 },
+    img: 'hull-miner'
   },
   {
     Name: 'Maxi-Miner',
@@ -297,7 +311,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'ASCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 2 }
     ],
     Cost: { Ironium: 32, Boranium: 0, Germanium: 6, Resources: 140 },
-    Stats: { Mass: 110, 'Max Fuel': 850, Armor: 1400, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 110, 'Max Fuel': 850, Armor: 1400, Cargo: 0, Initiative: 0 },
+    img: 'hull-maxi-miner'
   },
   {
     Name: 'Ultra-Miner',
@@ -316,7 +331,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'ASCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 3 }
     ],
     Cost: { Ironium: 30, Boranium: 0, Germanium: 6, Resources: 130 },
-    Stats: { Mass: 100, 'Max Fuel': 1300, Armor: 1500, Cargo: 0, Initiative: 0 }
+    Stats: { Mass: 100, 'Max Fuel': 1300, Armor: 1500, Cargo: 0, Initiative: 0 },
+    img: 'hull-ultra-miner'
   },
 
   // Support Ships
@@ -339,7 +355,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Initiative: 0,
       GenFuel: 200,
       Heal: 5
-    }
+    },
+    img: 'hull-fuel-transport'
   },
   {
     Name: 'Super-Fuel Export',
@@ -361,7 +378,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Initiative: 0,
       GenFuel: 200,
       Heal: 10
-    }
+    },
+    img: 'hull-super-fuel-export'
   },
   {
     Name: 'Mini-Mine Layer',
@@ -385,7 +403,8 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 0,
       MineEfficiency: 2
-    }
+    },
+    img: 'hull-mini-mine-layer'
   },
   {
     Name: 'Super-Mine Layer',
@@ -411,6 +430,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 0,
       MineEfficiency: 2
-    }
+    },
+    img: 'hull-super-mine-layer'
   }
 ];

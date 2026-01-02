@@ -13,7 +13,8 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'SC1', Allowed: ['Scanner'], Max: 1 }
     ],
     Cost: { Ironium: 4, Boranium: 2, Germanium: 4, Resources: 10 },
-    Stats: { Mass: 8, 'Max Fuel': 50, Armor: 20, Cargo: 0, Initiative: 1 }
+    Stats: { Mass: 8, 'Max Fuel': 50, Armor: 20, Cargo: 0, Initiative: 1 },
+    img: 'hull-scout'
   },
   {
     Name: 'Frigate',
@@ -28,7 +29,8 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'SC1', Allowed: ['Scanner'], Max: 2 }
     ],
     Cost: { Ironium: 4, Boranium: 2, Germanium: 4, Resources: 12 },
-    Stats: { Mass: 8, 'Max Fuel': 125, Armor: 45, Cargo: 0, Initiative: 4 }
+    Stats: { Mass: 8, 'Max Fuel': 125, Armor: 45, Cargo: 0, Initiative: 4 },
+    img: 'hull-frigate'
   },
   {
     Name: 'Destroyer',
@@ -52,7 +54,8 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'W2', Allowed: ['Weapon'], Max: 1 }
     ],
     Cost: { Ironium: 15, Boranium: 3, Germanium: 5, Resources: 35 },
-    Stats: { Mass: 30, 'Max Fuel': 280, Armor: 200, Cargo: 0, Initiative: 3 }
+    Stats: { Mass: 30, 'Max Fuel': 280, Armor: 200, Cargo: 0, Initiative: 3 },
+    img: 'hull-destroyer'
   },
   {
     Name: 'Cruiser',
@@ -74,7 +77,8 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'W2', Allowed: ['Weapon'], Max: 2 }
     ],
     Cost: { Ironium: 40, Boranium: 5, Germanium: 8, Resources: 85 },
-    Stats: { Mass: 90, 'Max Fuel': 600, Armor: 700, Cargo: 0, Initiative: 5 }
+    Stats: { Mass: 90, 'Max Fuel': 600, Armor: 700, Cargo: 0, Initiative: 5 },
+    img: 'hull-cruiser'
   },
   {
     Name: 'Battle Cruiser',
@@ -96,7 +100,8 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'W2', Allowed: ['Weapon'], Max: 3 }
     ],
     Cost: { Ironium: 55, Boranium: 8, Germanium: 12, Resources: 120 },
-    Stats: { Mass: 120, 'Max Fuel': 1400, Armor: 1000, Cargo: 0, Initiative: 5 }
+    Stats: { Mass: 120, 'Max Fuel': 1400, Armor: 1000, Cargo: 0, Initiative: 5 },
+    img: 'hull-battle-cruiser'
   },
   {
     Name: 'Battleship',
@@ -124,7 +129,8 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'W5', Allowed: ['Weapon'], Max: 2 }
     ],
     Cost: { Ironium: 120, Boranium: 25, Germanium: 20, Resources: 225 },
-    Stats: { Mass: 222, 'Max Fuel': 2800, Armor: 2000, Cargo: 0, Initiative: 10 }
+    Stats: { Mass: 222, 'Max Fuel': 2800, Armor: 2000, Cargo: 0, Initiative: 10 },
+    img: 'hull-battleship'
   },
   {
     Name: 'Dreadnought',
@@ -154,6 +160,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'WS2', Allowed: ['Weapon', 'Shield'], Max: 5 }
     ],
     Cost: { Ironium: 140, Boranium: 30, Germanium: 25, Resources: 275 },
-    Stats: { Mass: 250, 'Max Fuel': 4500, Armor: 4500, Cargo: 0, Initiative: 10 }
+    Stats: { Mass: 250, 'Max Fuel': 4500, Armor: 4500, Cargo: 0, Initiative: 10 },
+    img: 'hull-dreadnought'
   }
 ];

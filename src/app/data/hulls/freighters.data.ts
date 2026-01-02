@@ -14,7 +14,8 @@ export const FREIGHTER_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
     ],
     Cost: { Ironium: 12, Boranium: 0, Germanium: 17, Resources: 20 },
-    Stats: { Mass: 25, 'Max Fuel': 130, Armor: 25, Cargo: 70, Initiative: 0 }
+    Stats: { Mass: 25, 'Max Fuel': 130, Armor: 25, Cargo: 70, Initiative: 0 },
+    img: 'hull-freight-s'
   },
   {
     Name: 'Medium Freighter',
@@ -29,7 +30,8 @@ export const FREIGHTER_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
     ],
     Cost: { Ironium: 20, Boranium: 0, Germanium: 19, Resources: 40 },
-    Stats: { Mass: 60, 'Max Fuel': 450, Armor: 50, Cargo: 210, Initiative: 0 }
+    Stats: { Mass: 60, 'Max Fuel': 450, Armor: 50, Cargo: 210, Initiative: 0 },
+    img: 'hull-freight-m'
   },
   {
     Name: 'Large Freighter',
@@ -46,7 +48,8 @@ export const FREIGHTER_HULLS: HullTemplate[] = [
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 2 }
     ],
     Cost: { Ironium: 35, Boranium: 0, Germanium: 21, Resources: 100 },
-    Stats: { Mass: 125, 'Max Fuel': 2600, Armor: 150, Cargo: 1200, Initiative: 0 }
+    Stats: { Mass: 125, 'Max Fuel': 2600, Armor: 150, Cargo: 1200, Initiative: 0 },
+    img: 'hull-freight-l'
   },
   {
     Name: 'Super Freighter',
@@ -66,6 +69,7 @@ export const FREIGHTER_HULLS: HullTemplate[] = [
       { Code: 'EL1', Allowed: ['Elect'], Max: 2 }
     ],
     Cost: { Ironium: 45, Boranium: 0, Germanium: 21, Resources: 125 },
-    Stats: { Mass: 175, 'Max Fuel': 8000, Armor: 400, Cargo: 3000, Initiative: 0 }
+    Stats: { Mass: 175, 'Max Fuel': 8000, Armor: 400, Cargo: 3000, Initiative: 0 },
+    img: 'hull-freight-super'
   }
 ];
