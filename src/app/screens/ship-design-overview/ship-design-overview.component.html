@@ -95,228 +95,161 @@
             </select>
           </div>
 
-          <!-- Hull Info Box (like original game) -->
+          <!-- Hull Info Box (compact mobile-first) -->
           <div class="hull-info-box">
             <div class="hull-title-section">
               @if (hasHullImage(currentHull.Name || currentHull.name)) {
-                <div class="hull-image-large tech-icon {{ getHullIcon(currentHull.Name || currentHull.name) }}"></div>
+                <div class="hull-image-compact tech-icon {{ getHullIcon(currentHull.Name || currentHull.name) }}"></div>
               } @else {
-                <div class="hull-icon-large">🚀</div>
+                <div class="hull-icon-compact">🚀</div>
               }
               <div class="hull-title-info">
                 <div class="hull-title">{{ currentHull.Name || currentHull.name }}</div>
                 <div class="hull-description">{{ getHullDescription(currentHull.Name || currentHull.name) }}</div>
               </div>
             </div>
-            <div class="hull-stats-grid">
-              <div class="hull-stat">
-                <span class="label">Ironium</span>
-                <span class="value">{{ currentHull.baseCost?.ironium || currentHull.Cost?.Ironium }}kt</span>
+            <div class="hull-stats-compact">
+              <div class="hull-stat-row">
+                <span class="stat-label">Mass:</span>
+                <span class="stat-value">{{ currentHull.mass || currentHull.Stats?.Mass }}kt</span>
+                <span class="stat-label">Fuel:</span>
+                <span class="stat-value">{{ currentHull.fuelCapacity || currentHull.Stats?.['Max Fuel'] }}mg</span>
               </div>
-              <div class="hull-stat">
-                <span class="label">Max Fuel:</span>
-                <span class="value">{{ currentHull.fuelCapacity || currentHull.Stats?.['Max Fuel'] }}mg</span>
+              <div class="hull-stat-row">
+                <span class="stat-label">Armor:</span>
+                <span class="stat-value">{{ currentHull.armor || currentHull.Stats?.Armor }}dp</span>
+                @if (currentHull.cargoCapacity || currentHull.Stats?.Cargo) {
+                  <span class="stat-label">Cargo:</span>
+                  <span class="stat-value">{{ currentHull.cargoCapacity || currentHull.Stats?.Cargo }}kt</span>
+                }
               </div>
-              <div class="hull-stat">
-                <span class="label">Boranium</span>
-                <span class="value">{{ currentHull.baseCost?.boranium || currentHull.Cost?.Boranium }}kt</span>
-              </div>
-              <div class="hull-stat">
-                <span class="label">Armor:</span>
-                <span class="value">{{ currentHull.armor || currentHull.Stats?.Armor }}dp</span>
-              </div>
-              <div class="hull-stat">
-                <span class="label">Germanium</span>
-                <span class="value">{{ currentHull.baseCost?.germanium || currentHull.Cost?.Germanium }}kt</span>
-              </div>
-              <div class="hull-stat">
-                <span class="label">Mass:</span>
-                <span class="value">{{ currentHull.mass || currentHull.Stats?.Mass }}kt</span>
-              </div>
-              @if (currentHull.cargoCapacity || currentHull.Stats?.Cargo) {
-                <div class="hull-stat">
-                  <span class="label">Cargo:</span>
-                  <span class="value">{{ currentHull.cargoCapacity || currentHull.Stats?.Cargo }}kt</span>
-                </div>
-              }
             </div>
           </div>
 
-          <!-- Hull Visual Grid (Grouped Slot System) -->
-          <div class="hull-visual">
-            <!-- Background Grid (Quarter Squares for Layout) -->
-            <div class="hull-grid-background" 
-                 [style.grid-template-columns]="'repeat(' + getGridDimensions(currentHull).cols + ', 1fr)'"
-                 [style.grid-template-rows]="'repeat(' + getGridDimensions(currentHull).rows + ', 1fr)'">
-              
-              @for (row of getHullStructure(currentHull); track $index; let rowIndex = $index) {
-                @for (cell of row; track $index; let colIndex = $index) {
-                  <div class="hull-background-cell"
-                       [class.empty]="cell === '.'"
-                       [class.occupied]="cell !== '.'">
-                  </div>
-                }
-              }
-            </div>
-
-            <!-- Slot Overlay (Grouped Slots) -->
-            <div class="slot-overlay">
-              @for (slotGroup of getSlotGroups(currentHull); track slotGroup.slotCode) {
-                <div class="slot-component"
-                     [class.filled]="hasComponentInSlot(slotGroup.slotCode)"
-                     [class.selected]="selectedSlotId() === slotGroup.slotCode"
-                     [class.non-editable]="!isSlotEditable(slotGroup.slotCode)"
-                     [style.grid-column]="(slotGroup.bounds.minCol + 1) + ' / ' + (slotGroup.bounds.maxCol + 2)"
-                     [style.grid-row]="(slotGroup.bounds.minRow + 1) + ' / ' + (slotGroup.bounds.maxRow + 2)"
-                     (click)="selectSlot(slotGroup.slotCode)">
+          <!-- Compact Slot List (Mobile-Optimized) -->
+          <div class="slots-list">
+            <div class="slots-header">Components</div>
+            @for (slotGroup of getSlotGroups(currentHull); track slotGroup.slotCode) {
+              <div class="slot-row"
+                   [class.filled]="hasComponentInSlot(slotGroup.slotCode)"
+                   [class.non-editable]="!isSlotEditable(slotGroup.slotCode)"
+                   (click)="selectSlot(slotGroup.slotCode)">
+                
+                <div class="slot-icon-small">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
+                
+                <div class="slot-info">
+                  <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
                   
-                  <div class="slot-content">
+                  @if (hasComponentInSlot(slotGroup.slotCode)) {
+                    @let installedComp = getSlotComponent(slotGroup.slotCode);
+                    <div class="slot-content-text">
+                      {{ getComponentName(installedComp.componentId) }}
+                      @if (installedComp.count > 1) {
+                        <span class="component-count-badge">{{ installedComp.count }}</span>
+                      }
+                    </div>
+                  } @else if (!isSlotEditable(slotGroup.slotCode)) {
+                    <div class="slot-content-text builtin">
+                      Built-in ({{ getBuiltinSlotCapacity(slotGroup.slotCode) }}kt)
+                    </div>
+                  } @else {
+                    <div class="slot-content-text empty">
+                      Max: {{ getSlotMaxCapacity(slotGroup.slotCode) }}
+                    </div>
+                  }
+                </div>
+
+                @if (isSlotEditable(slotGroup.slotCode)) {
+                  <div class="slot-action">
                     @if (hasComponentInSlot(slotGroup.slotCode)) {
-                      <!-- Show installed component -->
-                      @let installedComp = getSlotComponent(slotGroup.slotCode);
-                      <div class="component-display">
-                        @if (hasComponentImage(installedComp.componentId)) {
-                          <div class="component-image tech-icon {{ getComponentIcon(installedComp.componentId) }}"></div>
-                        } @else {
-                          <div class="component-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
-                        }
-                        <div class="component-name">{{ getComponentName(installedComp.componentId) }}</div>
-                        <div class="component-count">{{ installedComp.count }}</div>
-                      </div>
-                    } @else if (!isSlotEditable(slotGroup.slotCode)) {
-                      <!-- Show built-in slot (non-editable) -->
-                      <div class="builtin-slot">
-                        <div class="slot-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
-                        <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
-                        <div class="builtin-capacity">{{ getBuiltinSlotCapacity(slotGroup.slotCode) }}kt</div>
-                      </div>
+                      <span class="edit-icon">✏️</span>
                     } @else {
-                      <!-- Show empty slot -->
-                      <div class="slot-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
-                      <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
-                      <div class="slot-max">Max: {{ getSlotMaxCapacity(slotGroup.slotCode) }}</div>
+                      <span class="add-icon">+</span>
                     }
                   </div>
-                </div>
-              }
-            </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
 
 
-        <!-- Right: Stats -->
+        <!-- Right: Stats (Compact Mobile-First) -->
         @if (stats(); as compiledStats) {
           <div class="stats-panel">
             <div class="stats-box">
-              <div class="stats-title">Ship Statistics</div>
+              <div class="stats-title">{{ design()?.name || 'New Design' }}</div>
 
-              <!-- Cost -->
-              <div class="stat-section">
-                <div class="section-header">Cost of one {{ design()?.name }}</div>
-                <div class="cost-grid">
-                  <div class="cost-row">
-                    <span class="cost-label ironium">Ironium</span>
-                    <span class="cost-value">{{ compiledStats.cost.ironium }}kt</span>
-                  </div>
-                  <div class="cost-row">
-                    <span class="cost-label boranium">Boranium</span>
-                    <span class="cost-value">{{ compiledStats.cost.boranium }}kt</span>
-                  </div>
-                  <div class="cost-row">
-                    <span class="cost-label germanium">Germanium</span>
-                    <span class="cost-value">{{ compiledStats.cost.germanium }}kt</span>
-                  </div>
-                  <div class="cost-row">
-                    <span class="cost-label">Mass:</span>
-                    <span class="cost-value">{{ compiledStats.mass }}kt</span>
-                  </div>
+              <!-- Essential Stats (Always Visible) -->
+              <div class="essential-stats">
+                <div class="stat-row">
+                  <span class="stat-label">Mass:</span>
+                  <span class="stat-value">{{ compiledStats.mass }}kt</span>
                 </div>
+                <div class="stat-row">
+                  <span class="stat-label">Armor:</span>
+                  <span class="stat-value">{{ compiledStats.armor }}dp</span>
+                </div>
+                @if (compiledStats.shields > 0) {
+                  <div class="stat-row">
+                    <span class="stat-label">Shields:</span>
+                    <span class="stat-value">{{ compiledStats.shields }}dp</span>
+                  </div>
+                }
+                @if (compiledStats.warpSpeed > 0) {
+                  <div class="stat-row">
+                    <span class="stat-label">Warp:</span>
+                    <span class="stat-value">{{ compiledStats.warpSpeed }}</span>
+                  </div>
+                }
+                @if (compiledStats.firepower > 0) {
+                  <div class="stat-row">
+                    <span class="stat-label">Firepower:</span>
+                    <span class="stat-value">{{ compiledStats.firepower }}</span>
+                  </div>
+                }
+                @if (compiledStats.initiative > 0) {
+                  <div class="stat-row">
+                    <span class="stat-label">Initiative:</span>
+                    <span class="stat-value">{{ compiledStats.initiative }}</span>
+                  </div>
+                }
+                @if (compiledStats.cargoCapacity > 0) {
+                  <div class="stat-row">
+                    <span class="stat-label">Cargo:</span>
+                    <span class="stat-value">{{ compiledStats.cargoCapacity }}kt</span>
+                  </div>
+                }
+                @if (compiledStats.scanRange > 0) {
+                  <div class="stat-row">
+                    <span class="stat-label">Scan:</span>
+                    <span class="stat-value">{{ compiledStats.scanRange }}ly</span>
+                  </div>
+                }
               </div>
 
-              <!-- Combat Stats -->
-              @if (compiledStats.firepower > 0 || compiledStats.shields > 0) {
-                <div class="stat-section">
-                  <div class="section-header">Combat</div>
-                  <div class="stat-list">
-                    @if (compiledStats.firepower > 0) {
-                      <div class="stat-item">
-                        <span>Firepower:</span>
-                        <span>{{ compiledStats.firepower }}</span>
-                      </div>
-                    }
-                    <div class="stat-item">
-                      <span>Armor:</span>
-                      <span>{{ compiledStats.armor }}dp</span>
-                    </div>
-                    @if (compiledStats.shields > 0) {
-                      <div class="stat-item">
-                        <span>Shields:</span>
-                        <span>{{ compiledStats.shields }}dp</span>
-                      </div>
-                    }
-                    @if (compiledStats.accuracy > 0) {
-                      <div class="stat-item">
-                        <span>Accuracy:</span>
-                        <span>{{ compiledStats.accuracy }}%</span>
-                      </div>
-                    }
-                    @if (compiledStats.initiative > 0) {
-                      <div class="stat-item">
-                        <span>Initiative:</span>
-                        <span>{{ compiledStats.initiative }}</span>
-                      </div>
-                    }
-                  </div>
+              <!-- Cost Summary -->
+              <div class="cost-summary">
+                <div class="cost-title">Build Cost</div>
+                <div class="cost-row">
+                  <span class="cost-label ironium">Iron:</span>
+                  <span class="cost-value">{{ compiledStats.cost.ironium }}kt</span>
                 </div>
-              }
-
-              <!-- Movement -->
-              <div class="stat-section">
-                <div class="section-header">Movement</div>
-                <div class="stat-list">
-                  <div class="stat-item">
-                    <span>Warp Speed:</span>
-                    <span>{{ compiledStats.warpSpeed > 0 ? compiledStats.warpSpeed : 'None' }}</span>
-                  </div>
-                  <div class="stat-item">
-                    <span>Fuel Capacity:</span>
-                    <span>{{ compiledStats.fuelCapacity }}mg</span>
-                  </div>
-                  @if (compiledStats.warpSpeed > 0) {
-                    <div class="stat-item">
-                      <span>Fuel Efficiency:</span>
-                      <span>{{ compiledStats.fuelEfficiency === 0 ? 'Ramscoop' : compiledStats.fuelEfficiency }}</span>
-                    </div>
-                  }
+                <div class="cost-row">
+                  <span class="cost-label boranium">Bor:</span>
+                  <span class="cost-value">{{ compiledStats.cost.boranium }}kt</span>
+                </div>
+                <div class="cost-row">
+                  <span class="cost-label germanium">Germ:</span>
+                  <span class="cost-value">{{ compiledStats.cost.germanium }}kt</span>
                 </div>
               </div>
-
-              <!-- Utility -->
-              @if (compiledStats.cargoCapacity > 0 || compiledStats.scanRange > 0) {
-                <div class="stat-section">
-                  <div class="section-header">Utility</div>
-                  <div class="stat-list">
-                    @if (compiledStats.cargoCapacity > 0) {
-                      <div class="stat-item">
-                        <span>Cargo:</span>
-                        <span>{{ compiledStats.cargoCapacity }}kt</span>
-                      </div>
-                    }
-                    @if (compiledStats.scanRange > 0) {
-                      <div class="stat-item">
-                        <span>Scan Range:</span>
-                        <span>{{ compiledStats.scanRange }}ly</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
 
               <!-- Validation -->
               @if (!compiledStats.isValid) {
                 <div class="validation-error">
-                  <div class="error-header">⚠ Design Invalid</div>
+                  <div class="error-header">⚠ Invalid Design</div>
                   @for (error of compiledStats.validationErrors; track error) {
                     <div class="error-message">{{ error }}</div>
                   }

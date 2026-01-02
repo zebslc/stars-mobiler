@@ -1,4 +1,5 @@
 @import url('../../../assets/imagemaps-old/tech-atlas.css');
+
 .ship-design-screen {
   padding: 1rem;
   max-width: 1400px;
@@ -98,7 +99,7 @@
   border-top: 1px solid #999;
 }
 
-/* Designer Mode */
+/* Designer Mode - Mobile First */
 .designer-container {
   background: #fff;
 }
@@ -107,7 +108,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 0.75rem;
   background: #e0e0e0;
   border: 2px solid #999;
   border-radius: 4px;
@@ -115,7 +116,7 @@
 }
 
 .design-name input {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: bold;
   padding: 0.25rem 0.5rem;
   border: 1px solid #999;
@@ -129,23 +130,23 @@
 }
 
 .designer-content {
-  display: grid;
-  grid-template-columns: 1fr 400px;
+  display: flex;
+    flex-direction: column;
   gap: 1rem;
 }
 
-/* Hull Panel (Left) */
+/* Hull Panel - Compact */
 .hull-panel {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .hull-selector {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.5rem;
   background: #e0e0e0;
   border: 2px solid #999;
   border-radius: 4px;
@@ -154,51 +155,43 @@
 .hull-selector label {
   font-weight: 600;
   color: #000;
+  font-size: 0.9rem;
 }
 
 .hull-selector select {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.4rem;
   border: 1px solid #999;
   background: #fff;
   color: #000;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
-/* Hull Info Box (mimics original game) */
+/* Hull Info Box - Compact */
 .hull-info-box {
   background: #c0c0c0;
   border: 2px solid #808080;
   border-radius: 4px;
-  padding: 1rem;
-}
-
-.hull-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #000;
-  margin-bottom: 0.25rem;
+  padding: 0.75rem;
 }
 
 .hull-title-section {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #999;
+  gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
-.hull-image-large {
-  width: 48px;
-  height: 48px;
+.hull-image-compact {
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
 }
 
-.hull-icon-large {
-  font-size: 2.5rem;
-  width: 48px;
-  height: 48px;
+.hull-icon-compact {
+  font-size: 1.8rem;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,343 +202,212 @@
   flex: 1;
 }
 
+.hull-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 0.1rem;
+}
 .hull-description {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #555;
   font-style: italic;
+  line-height: 1.2;
 }
 
-.hull-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-}
-
-.hull-stat {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.25rem;
-}
-
-.hull-stat .label {
-  color: #000;
-  font-weight: 600;
-}
-
-.hull-stat .value {
-  color: #000;
-}
-
-/* Hull Visual Grid (Grouped Slot System) */
-.hull-visual {
-  background: #c0c0c0;
-  border: 2px solid #808080;
-  border-radius: 4px;
-  padding: 1.5rem;
-  position: relative;
-  min-height: 400px;
-    overflow: auto;
-}
-
-.hull-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: #b0b0b0;
-  border: 1px solid #999;
-  border-radius: 4px;
-}
-
-.hull-icon {
-  font-size: 2rem;
-}
-
-.hull-image {
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-}
-.hull-info {
+.hull-stats-compact {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.hull-name {
-  font-weight: bold;
-  color: #000;
-  font-size: 1.1rem;
-}
-
-.hull-dimensions,
-.hull-description {
-  font-size: 0.85rem;
-  color: #333;
-}
-
-/* Background Grid (Quarter Squares for Layout) */
-.hull-grid-background {
-  display: grid;
-  gap: 1px;
-  background: #808080;
-    border: 1px solid #666;
-    padding: 2px;
-    max-width: 100%;
-  margin: 0 auto;
-  width: fit-content;
-  position: relative;
-}
-
-.hull-background-cell {
-  min-height: 16px;
-  min-width: 16px;
-  width: 16px;
-  height: 16px;
-}
-
-.hull-background-cell.empty {
-  background: #333;
-  border: 1px solid #555;
-}
-
-.hull-background-cell.occupied {
-  background: #666;
-  border: 1px solid #777;
-}
-
-/* Slot Overlay (Grouped Slots) */
-.slot-overlay {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  display: grid;
-  grid-template-columns: inherit;
-  grid-template-rows: inherit;
-  gap: 1px;
-  pointer-events: none;
-}
-
-.slot-component {
-  background: #b0b0b0;
-  border: 2px solid #777;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  pointer-events: auto;
+.hull-stat-row {
   display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 60px;
-    padding: 4px;
+  gap: 1rem;
+    font-size: 0.8rem;
 }
 
-.slot-component:hover {
+.stat-label {
+  color: #000;
+  font-weight: 600;
+  min-width: 40px;
+}
+
+.stat-value {
+  color: #000;
+  margin-right: 1rem;
+}
+
+/* Compact Slot List */
+.slots-list {
   background: #c0c0c0;
-  border-color: #4a90e2;
-  transform: scale(1.02);
-  z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #808080;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.slot-component.selected {
-  background: #b0d0ff;
-  border-color: #4a90e2;
-  border-width: 3px;
-  transform: scale(1.05);
-  z-index: 20;
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+.slots-header {
+  background: #999;
+  color: #fff;
+  padding: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
-.slot-component.filled {
-  background: linear-gradient(135deg, #a0c0a0, #90b090);
-  border-color: #5a8;
-  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3);
+.slot-row {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+    border-bottom: 1px solid #999;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-height: 50px;
 }
 
-.slot-component.non-editable {
+.slot-row:last-child {
+  border-bottom: none;
+}
+
+.slot-row:hover:not(.non-editable) {
+  background: #d0d0d0;
+}
+
+.slot-row.filled {
+  background: linear-gradient(135deg, #b0d0b0, #a0c0a0);
+}
+
+.slot-row.non-editable {
   background: #a0a0a0;
-  border-color: #666;
   cursor: default;
   opacity: 0.8;
 }
 
-.slot-component.non-editable:hover {
-  background: #a0a0a0;
-  border-color: #666;
-  transform: none;
-  box-shadow: none;
-}
-
-.builtin-slot {
+.slot-icon-small {
+  font-size: 1.2rem;
+  width: 24px;
+  height: 24px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.builtin-capacity {
-  font-size: 0.7rem;
-  color: #333;
-  font-weight: bold;
-}
-
-.slot-content {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  width: 100%;
-  height: 100%;
-  gap: 2px;
+  margin-right: 0.75rem;
+    flex-shrink: 0;
 }
 
-.slot-icon {
-  font-size: 1.5rem;
-  margin-bottom: 2px;
-  opacity: 0.6;
-  }
-  
-  .component-icon {
-    font-size: 2rem;
-    margin-bottom: 4px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  }
-  
-  .component-image {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 4px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  }
-  
-  .component-icon-fallback {
-    font-size: 2rem;
-    margin-bottom: 4px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+.slot-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .slot-name {
-  font-weight: bold;
+  font-weight: 600;
   color: #000;
-  font-size: 0.8rem;
-  line-height: 1;
-  margin-bottom: 1px;
+  font-size: 0.85rem;
+    margin-bottom: 0.1rem;
 }
 
-.slot-code {
-  font-size: 0.7rem;
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-.slot-max {
-  font-size: 0.7rem;
-  color: #666;
-  font-weight: 600;
-}
-
-.slot-status {
+.slot-content-text {
   font-size: 0.75rem;
-  font-weight: 600;
-  max-width: 100%;
-  overflow: hidden;
-    text-overflow: ellipsis;
+  color: #333;
+  line-height: 1.2;
 }
 
-.slot-status.empty {
+.slot-content-text.empty {
   color: #666;
   font-style: italic;
 }
 
-.slot-status.filled {
-  color: #000;
-}
-
-.component-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.component-name {
-  font-size: 0.7rem;
+.slot-content-text.builtin {
+  color: #555;
   font-weight: 600;
-  color: #000;
-  text-align: center;
-    line-height: 1.1;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .component-count {
-    font-size: 0.65rem;
-    color: #4a90e2;
-    font-weight: bold;
-  }
-  
-  .multiple-components {
-    font-size: 0.7rem;
-    color: #4a90e2;
-    font-weight: bold;
-  }
-
-/* Stats Panel (Right) - mimics original game */
-.stats-panel {
-  position: sticky;
-  top: 1rem;
-  height: fit-content;
 }
 
-.stats-box {
+.component-count-badge {
+  background: #4a90e2;
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  margin-left: 0.25rem;
+}
+
+.slot-action {
+  margin-left: 0.5rem;
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+.edit-icon,
+.add-icon {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+}
+
+/* Stats Panel - Compact */
+.stats-panel {
   background: #c0c0c0;
   border: 2px solid #808080;
   border-radius: 4px;
-  padding: 1rem;
+  padding: 0.75rem;
 }
-
 .stats-title {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
   color: #000;
-  margin-bottom: 1rem;
-  text-align: center;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #808080;
+    margin-bottom: 0.75rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #808080;
+}
+.essential-stats {
+  margin-bottom: 0.75rem;
 }
 
-.stat-section {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.stat-row .stat-label {
+  color: #000;
+  font-weight: 600;
+}
+
+.stat-row .stat-value {
+  color: #000;
+  font-weight: bold;
+}
+
+.cost-summary {
   background: #d0d0d0;
   border: 1px solid #999;
   border-radius: 4px;
+  padding: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
-.section-header {
+.cost-title {
   font-weight: 600;
   color: #000;
   margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.cost-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  font-size: 0.85rem;
+    text-align: center;
 }
 
 .cost-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .cost-row:last-child {
+    margin-bottom: 0;
 }
 
 .cost-label {
@@ -566,57 +428,53 @@
 
 .cost-value {
   color: #000;
-}
-
-.stat-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.stat-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-}
-
-.stat-item span:first-child {
-  color: #000;
-}
-
-.stat-item span:last-child {
-  font-weight: 600;
-  color: #000;
+  font-weight: bold;
 }
 
 .validation-error {
-  padding: 0.75rem;
+  padding: 0.5rem;
   background: #ffcccc;
   border: 2px solid #cc0000;
   border-radius: 4px;
-  margin-top: 1rem;
+  text-align: center;
 }
 
 .error-header {
   font-weight: 600;
   color: #cc0000;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+    font-size: 0.85rem;
 }
 
 .error-message {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #990000;
 }
 
 .validation-success {
-  padding: 0.75rem;
+  padding: 0.5rem;
   background: #ccffcc;
   border: 2px solid #00cc00;
   border-radius: 4px;
-  margin-top: 1rem;
   text-align: center;
   font-weight: 600;
   color: #006600;
+  font-size: 0.85rem;
+  }
+  
+  /* Desktop Layout */
+  @media (min-width: 768px) {
+    .designer-content {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1rem;
+    }
+  
+    .stats-panel {
+      position: sticky;
+      top: 1rem;
+      height: fit-content;
+    }
 }
 
 /* Buttons */
@@ -724,14 +582,6 @@
   font-weight: 600;
 }
 
-.current-components {
-  background: #ccffcc;
-  border: 2px solid #5a8;
-  border-radius: 4px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-}
-
 .current-component {
   background: #ccffcc;
   border: 2px solid #5a8;
@@ -747,35 +597,34 @@
   margin-bottom: 0.75rem;
 }
 
-.current-components strong,
 .current-component-header strong {
   display: block;
   color: #000;
-  }
-  
-  .quantity-controls {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  
-  .quantity-controls label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #000;
-  }
-  
-  .quantity-input {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .quantity-display {
-    min-width: 2rem;
-    text-align: center;
-    font-weight: bold;
+}
+
+.quantity-controls {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.quantity-controls label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.quantity-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quantity-display {
+  min-width: 2rem;
+  text-align: center;
+  font-weight: bold;
   color: #000;
 }
 
@@ -783,6 +632,7 @@
   font-size: 0.75rem;
   color: #666;
 }
+
 .installed-component {
   display: flex;
   align-items: flex-start;
@@ -811,11 +661,6 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.component-controls {
-  display: flex;
-  gap: 0.25rem;
 }
 
 .btn-tiny {
@@ -869,37 +714,10 @@
   border-color: #4a90e2;
 }
 
-.component-item.selected {
-  background: #b0d0ff;
-  border-color: #4a90e2;
-  border-width: 3px;
-}
-
-.component-item .component-icon {
-  font-size: 2rem;
-  min-width: 2rem;
-  text-align: center;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.component-item .component-image {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
 .component-item .component-image-large {
   width: 64px;
   height: 64px;
   min-width: 64px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.component-item .component-icon-fallback {
-  font-size: 2rem;
-  min-width: 2rem;
-  text-align: center;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
@@ -917,7 +735,7 @@
 
 .component-info {
   flex: 1;
-  min-width: 0; /* Allow text to wrap */
+  min-width: 0;
 }
 
 .component-name {
@@ -961,28 +779,9 @@
 }
 
 .component-cost {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: #555;
-}
-
-.component-count-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2rem;
-}
-
-.current-count {
-  background: #5a8;
-  color: #fff;
-  border-radius: 50%;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .add-button {
@@ -1012,83 +811,5 @@
   .modal-content {
     min-width: 90vw;
     max-width: 90vw;
-  }
-}
-
-/* Mobile responsive adjustments for hull grid */
-@media (max-width: 768px) {
-  .hull-cell {
-      width: 28px;
-      height: 28px;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .slot-type-icon {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 1rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .component-icon {
-    font-size: 1.2rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .slot-code {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 0.45rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .component-count {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 0.45rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .hull-visual {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  padding: 1rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .hull-header {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  flex-direction: column;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  align-items: flex-start;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  gap: 0.5rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .hull-icon {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .hull-cell {
-      width: 24px;
-      height: 24px;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .slot-type-icon {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 0.9rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .component-icon {
-    font-size: 1rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .slot-code {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 0.4rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .component-count {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 0.4rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  padding: 0px 1px;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .hull-visual {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  padding: 0.75rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .hull-header {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  padding: 0.5rem;
-  }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .hull-name {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 1rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .hull-dimensions {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 0.75rem;
   }
 }
