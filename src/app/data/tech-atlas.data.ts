@@ -10,7 +10,7 @@ export * from './tech-atlas.types';
 import { FREIGHTER_HULLS } from './hulls/freighters.data';
 import { WARSHIP_HULLS } from './hulls/warships.data';
 import { UTILITY_HULLS } from './hulls/utility.data';
-import { STARBASE_HULLS } from './starbases/orbital-structures.data';
+import { STARBASE_HULLS } from './hulls/starbases.data';
 
 // Component imports
 import { CARGO_COMPONENTS } from './techs/cargo.data';

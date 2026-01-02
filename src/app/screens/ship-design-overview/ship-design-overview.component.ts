@@ -228,21 +228,21 @@ export class ShipDesignOverviewComponent {
     const s = component.stats;
 
     // Shields
-    if (s.shield) stats.push(`${s.shield}dp shields`);
+    if (s.shield) stats.push(`${s.shield}dp shield protection`);
 
     // Armor
-    if (s.armor) stats.push(`${s.armor}dp armor`);
+    if (s.armor) stats.push(`${s.armor}dp armor protection`);
 
     // Weapons
-    if (s.power) stats.push(`${s.power} power`);
+    if (s.power) stats.push(`${s.power} damage`);
     if (s.range) stats.push(`Range ${s.range}`);
     if (s.accuracy) stats.push(`${s.accuracy}% accuracy`);
 
     // Engines
-    if (s.warp) stats.push(`Warp ${s.warp}`);
+    if (s.warp) stats.push(`Warp ${s.warp} capable`);
     if (s.fuelEff !== undefined) {
-      if (s.fuelEff === 0) stats.push('Ramscoop');
-      else stats.push(`${s.fuelEff}mg/ly fuel`);
+      if (s.fuelEff === 0) stats.push('Ramscoop drive');
+      else stats.push(`${s.fuelEff}mg/ly fuel consumption`);
     }
 
     // Scanners
@@ -252,12 +252,12 @@ export class ShipDesignOverviewComponent {
     if (s.cap) stats.push(`${s.cap}kt capacity`);
 
     // Mining
-    if (s.mining) stats.push(`${s.mining}kt/year mining`);
+    if (s.mining) stats.push(`${s.mining}kt/year mining rate`);
 
     // Other
-    if (s.initiative) stats.push(`+${s.initiative} initiative`);
+    if (s.initiative) stats.push(`+${s.initiative} initiative bonus`);
     if (s.jamming) stats.push(`${s.jamming}% jamming`);
-    if (s.cloak) stats.push(`${s.cloak}% cloak`);
+    if (s.cloak) stats.push(`${s.cloak}% cloaking`);
 
     return stats.join(', ');
   }
@@ -271,8 +271,14 @@ export class ShipDesignOverviewComponent {
     return this.getSlotComponent(slotCode);
   }
 
-  // Get hull icon CSS class
+  // Get hull icon CSS class from data
   getHullIcon(hullName: string): string {
+    const hull = this.hull();
+    if (hull && hull.img) {
+      return hull.img;
+    }
+    
+    // Fallback to name-based mapping if no img field
     const hullIconMap: { [key: string]: string } = {
       Scout: 'hull-scout',
       Frigate: 'hull-frigate',
@@ -281,35 +287,6 @@ export class ShipDesignOverviewComponent {
       'Battle Cruiser': 'hull-battle-cruiser',
       Battleship: 'hull-battleship',
       Dreadnought: 'hull-dreadnought',
-      Privateer: 'hull-privateer',
-      Rogue: 'hull-rogue',
-      Galleon: 'hull-galleon',
-      Nubian: 'hull-nubian',
-      'Meta Morph': 'hull-meta-morph',
-      'Mini Colony Ship': 'hull-mini-colony',
-      'Colony Ship': 'hull-colony',
-      'Mini Bomber': 'hull-mini-bomber',
-      'B-17 Bomber': 'hull-b17',
-      'Stealth Bomber': 'hull-stealth-bomber',
-      'B-52 Bomber': 'hull-b52',
-      'Midget Miner': 'hull-midget-miner',
-      'Mini Miner': 'hull-mini-miner',
-      Miner: 'hull-miner',
-      'Maxi Miner': 'hull-maxi-miner',
-      'Ultra Miner': 'hull-ultra-miner',
-      'Fuel Transport': 'hull-fuel-transport',
-      'Super Fuel Xport': 'hull-super-fuel-export',
-      'Mini Mine Layer': 'hull-mini-mine-layer',
-      'Super Mine Layer': 'hull-super-mine-layer',
-      'Small Freighter': 'hull-freight-s',
-      'Medium Freighter': 'hull-freight-m',
-      'Large Freighter': 'hull-freight-l',
-      'Super Freighter': 'hull-freight-super',
-      'Orbital Fort': 'hull-orbital-fort',
-      'Space Dock': 'hull-space-dock',
-      'Space Station': 'hull-space-station',
-      'Ultra Station': 'hull-ultra-station',
-      'Death Star': 'hull-death-star',
     };
 
     return hullIconMap[hullName] || 'hull-scout';
@@ -317,6 +294,12 @@ export class ShipDesignOverviewComponent {
 
   // Check if hull has an image
   hasHullImage(hullName: string): boolean {
+    const hull = this.hull();
+    if (hull && hull.img) {
+      return true;
+    }
+    
+    // Fallback check
     const hullIconMap: { [key: string]: string } = {
       Scout: 'hull-scout',
       Frigate: 'hull-frigate',
@@ -346,6 +329,23 @@ export class ShipDesignOverviewComponent {
     return parts.join(', ');
   }
 
+  // Format component cost from MiniaturizedComponent
+  formatComponentCost(component: any): string {
+    if (!component || !component.cost) return '';
+    const parts: string[] = [];
+    if (component.cost.iron) parts.push(`${component.cost.iron}kt Iron`);
+    if (component.cost.bor) parts.push(`${component.cost.bor}kt Bor`);
+    if (component.cost.germ) parts.push(`${component.cost.germ}kt Germ`);
+    if (component.cost.res) parts.push(`${component.cost.res} Res`);
+    return parts.join(', ');
+  }
+
+  // Get component by ID (for detailed display)
+  getComponentById(componentId: string): any {
+    const miniComponents = this.designer.miniaturizedComponents();
+    return COMPONENTS[componentId] || miniComponents.find((c: any) => c.id === componentId);
+  }
+
   getSlotTypeIcon(allowedTypes: string[]): string {
     const primary = allowedTypes[0];
     switch (primary) {
@@ -359,6 +359,8 @@ export class ShipDesignOverviewComponent {
         return '📡';
       case 'cargo':
         return '📦';
+      case 'bomb':
+        return '💣';
       default:
         return '⚪';
     }
@@ -466,6 +468,8 @@ export class ShipDesignOverviewComponent {
         return '🏗️';
       case 'dock':
         return '🚢';
+      case 'general purpose':
+        return '⚪';
       default:
         return '⚪';
     }
@@ -544,47 +548,14 @@ export class ShipDesignOverviewComponent {
     return slotDef?.Max || 1;
   }
 
-  // Get hull description
+  // Get hull description from data
   getHullDescription(hullName: string): string {
-    const hullDescriptions: { [key: string]: string } = {
-      Scout: 'Fast, lightly armed reconnaissance vessel',
-      Frigate: 'Light warship with balanced capabilities',
-      Destroyer: 'Medium warship with heavy armament',
-      Cruiser: 'Heavy warship with advanced systems',
-      'Battle Cruiser': 'Heavily armed capital ship',
-      Battleship: 'Massive warship with maximum firepower',
-      Dreadnought: 'Ultimate capital ship design',
-      Privateer: 'Fast raider with stealth capabilities',
-      Rogue: 'Agile combat vessel',
-      Galleon: 'Large cargo and passenger transport',
-      Nubian: 'Exotic alien hull design',
-      'Meta Morph': 'Adaptive multi-role vessel',
-      'Mini Colony Ship': 'Small colonization vessel',
-      'Colony Ship': 'Large-scale colonization transport',
-      'Mini Bomber': 'Light bombing craft',
-      'B-17 Bomber': 'Medium strategic bomber',
-      'Stealth Bomber': 'Cloaked bombing platform',
-      'B-52 Bomber': 'Heavy strategic bomber',
-      'Midget Miner': 'Compact mining vessel',
-      'Mini Miner': 'Small-scale mining ship',
-      Miner: 'Standard mining vessel',
-      'Maxi Miner': 'Large mining operation ship',
-      'Ultra Miner': 'Massive mining platform',
-      'Fuel Transport': 'Specialized fuel carrier',
-      'Super Fuel Xport': 'High-capacity fuel transport',
-      'Mini Mine Layer': 'Compact mine deployment vessel',
-      'Super Mine Layer': 'Heavy mine warfare ship',
-      'Small Freighter': 'Light cargo transport',
-      'Medium Freighter': 'Standard cargo vessel',
-      'Large Freighter': 'Heavy cargo transport',
-      'Super Freighter': 'Massive cargo hauler',
-      'Orbital Fort': 'Defensive space station',
-      'Space Dock': 'Ship construction facility',
-      'Space Station': 'Multi-purpose orbital platform',
-      'Ultra Station': 'Massive space complex',
-      'Death Star': 'Ultimate weapon platform',
-    };
-
-    return hullDescriptions[hullName] || 'Versatile spacecraft design';
+    const hull = this.hull();
+    if (hull && hull.description) {
+      return hull.description;
+    }
+    
+    // If no description in data, return a generic message
+    return 'Versatile spacecraft design';
   }
 }

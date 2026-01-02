@@ -214,6 +214,13 @@ function getSlotTypeForComponent(component: Component): SlotType {
     case 'computer':
     case 'elect':
       return SlotType.Elect;
+    case 'mechanical':
+    case 'mech':
+      return SlotType.Mech;
+    case 'mining':
+      return SlotType.Mech; // Mining components go in mechanical slots
+    case 'bomb':
+      return SlotType.Bomb;
     default:
       return SlotType.General;
   }

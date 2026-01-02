@@ -676,8 +676,9 @@
   max-width: 90vw;
   max-height: 85vh;
   overflow-y: auto;
-  min-width: 320px;
+  min-width: 400px;
   width: 100%;
+  max-width: 600px;
 }
 
 .modal-header {
@@ -692,12 +693,13 @@
 .modal-header h3 {
   margin: 0;
   color: #000;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 
 .slot-info {
   font-size: 1rem;
   color: #000;
+  font-weight: 600;
 }
 
 .current-components {
@@ -762,8 +764,8 @@
 .installed-component {
   display: flex;
   align-items: flex-start;
-    gap: 0.75rem;
-  padding: 0.5rem;
+  gap: 1rem;
+    padding: 0.75rem;
   background: #fff;
   border: 1px solid #999;
   border-radius: 4px;
@@ -773,16 +775,16 @@
   flex: 1;
 }
 
-.installed-component .component-image {
-  width: 32px;
-  height: 32px;
+.installed-component .component-image-large {
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
 }
 
-.installed-component .component-icon-fallback {
-  font-size: 1.5rem;
-  width: 32px;
-  height: 32px;
+.installed-component .component-icon-large {
+  font-size: 3rem;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -904,26 +906,26 @@
 }
 
 .component-description {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #444;
-  margin-bottom: 0.25rem;
-  line-height: 1.2;
+  margin-bottom: 0.5rem;
+    line-height: 1.3;
 }
 
 .component-stats {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #2a5aa0;
   font-weight: 600;
-  margin-bottom: 0.25rem;
-  line-height: 1.2;
+  margin-bottom: 0.5rem;
+    line-height: 1.3;
 }
 
 .component-details {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #333;
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  gap: 0.75rem;
+    margin-bottom: 0.5rem;
   flex-wrap: wrap;
 }
 

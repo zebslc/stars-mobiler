@@ -330,7 +330,13 @@
     <div class="modal-overlay" (click)="componentSelectOpen.set(false)">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>Select Component</h3>
+          <h3>
+            @if (hasComponentInSlot(selectedSlotId()!)) {
+              Choose How Many
+            } @else {
+              Select Component
+            }
+          </h3>
           <div class="slot-info">
             {{ getSlotTypeIcon(selectedSlot()!.allowedTypes) }}
             {{ getSlotTypeLabel(selectedSlot()!.allowedTypes) }}
@@ -341,6 +347,7 @@
         @if (hasComponentInSlot(selectedSlotId()!)) {
           @let currentComp = getSlotComponent(selectedSlotId()!);
           @let maxCapacity = getSlotMaxCapacity(selectedSlotId()!);
+          @let component = getComponentById(currentComp.componentId);
           <div class="current-component">
             <div class="current-component-header">
               <strong>Installed:</strong>
@@ -348,12 +355,19 @@
             </div>
             <div class="installed-component">
               @if (hasComponentImage(currentComp.componentId)) {
-                <div class="component-image tech-icon {{ getComponentIcon(currentComp.componentId) }}"></div>
+                <div class="component-image-large tech-icon {{ getComponentIcon(currentComp.componentId) }}"></div>
               } @else {
-                <div class="component-icon-fallback">{{ getSlotTypeIcon(['general']) }}</div>
+                <div class="component-icon-large">{{ getSlotTypeIcon(['general']) }}</div>
               }
               <div class="component-info">
                 <div class="component-name">{{ getComponentName(currentComp.componentId) }}</div>
+                <div class="component-description">{{ getComponentDescription(currentComp.componentId) }}</div>
+                <div class="component-stats">
+                  {{ getComponentStats(currentComp.componentId) }}
+                </div>
+                <div class="component-cost">
+                  {{ formatComponentCost(component) }}
+                </div>
                 @if (maxCapacity > 1) {
                   <div class="quantity-controls">
                     <label>Quantity:</label>
@@ -396,14 +410,14 @@
                   </div>
                   <div class="component-details">
                     <span>Mass: {{ component.mass }}kt</span>
-                    @if (component.miniaturizationLevel > 0) {
+                    @if (component.miniaturizationLevel && component.miniaturizationLevel > 0) {
                       <span class="mini-badge">
                         -{{ ((component.baseMass - component.mass) / component.baseMass * 100).toFixed(0) }}%
                       </span>
                     }
                   </div>
                   <div class="component-cost">
-                    {{ formatCost(component.cost) }}
+                    {{ formatComponentCost(component) }}
                   </div>
                 </div>
                 <div class="add-button">+</div>

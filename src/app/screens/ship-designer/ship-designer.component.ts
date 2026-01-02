@@ -3,9 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { GameStateService } from '../../services/game-state.service';
-import { HULLS, Hull } from '../../data/hulls.data';
-import { Component as ShipComponent } from '../../data/components.data';
-import { MiniaturizedComponent } from '../../utils/miniaturization.util';
 
 @Component({
   selector: 'app-ship-designer',
@@ -152,10 +149,11 @@ export class ShipDesignerComponent implements OnInit {
   getSlotTypeDisplay(allowedTypes: string[]): string {
     const typeMap: Record<string, string> = {
       engine: '⚙️',
-      weapon: '🔫',
+      weapon: '🗡️',
       shield: '🛡️',
       electronics: '📡',
-      general: '⚪',
+      general: '🛠️',
+      bomb: '💣',
       cargo: '📦',
     };
     return allowedTypes.map((t) => typeMap[t] || '?').join('');
