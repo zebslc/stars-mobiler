@@ -84,6 +84,11 @@ export class ShipDesignOverviewComponent {
   }
 
   selectSlot(slotId: string) {
+    // Don't allow selection of non-editable slots
+    if (!this.isSlotEditable(slotId)) {
+      return;
+    }
+
     this.selectedSlotId.set(slotId);
 
     // Check if there's only one available component for this slot
@@ -98,6 +103,23 @@ export class ShipDesignOverviewComponent {
       // Open modal for selection
       this.componentSelectOpen.set(true);
     }
+  }
+
+  // Check if a slot is editable
+  isSlotEditable(slotCode: string): boolean {
+    const hull = this.hull();
+    if (!hull) return false;
+    const slotDef = this.getSlotByCode(hull, slotCode);
+    return slotDef?.Editable !== false; // Default to true if not specified
+  }
+
+  // Get built-in capacity for non-editable slots
+  getBuiltinSlotCapacity(slotCode: string): number {
+    const hull = this.hull();
+    if (!hull) return 0;
+    const slotDef = this.getSlotByCode(hull, slotCode);
+    const size = slotDef?.Size;
+    return typeof size === 'number' ? size : 0;
   }
 
   addComponent(componentId: string) {
@@ -277,7 +299,7 @@ export class ShipDesignOverviewComponent {
     if (hull && hull.img) {
       return hull.img;
     }
-    
+
     // Fallback to name-based mapping if no img field
     const hullIconMap: { [key: string]: string } = {
       Scout: 'hull-scout',
@@ -298,7 +320,7 @@ export class ShipDesignOverviewComponent {
     if (hull && hull.img) {
       return true;
     }
-    
+
     // Fallback check
     const hullIconMap: { [key: string]: string } = {
       Scout: 'hull-scout',
@@ -554,7 +576,7 @@ export class ShipDesignOverviewComponent {
     if (hull && hull.description) {
       return hull.description;
     }
-    
+
     // If no description in data, return a generic message
     return 'Versatile spacecraft design';
   }

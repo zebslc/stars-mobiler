@@ -67,7 +67,7 @@ export function compileShipStats(
   let firepower = 0;
   let shields = 0;
   let accuracy = 0;
-  let initiative = 0;
+  let initiative = hull.Stats.Initiative || 0; // Start with hull base initiative
   let cargoCapacity = hull.cargoCapacity || 0;
   let colonistCapacity = 0;
   let scanRange = 0;
@@ -124,12 +124,23 @@ export function compileShipStats(
             accuracy = Math.max(accuracy, baseComponent.accuracy);
           }
           if (baseComponent.initiative) {
-            initiative = Math.max(initiative, baseComponent.initiative);
+            initiative += baseComponent.initiative * count; // Initiative is additive
           }
           break;
 
         case 'shield':
           shields += (baseComponent.shieldStrength || 0) * count;
+          break;
+
+        case 'mechanical':
+        case 'mech':
+          // Handle mechanical components like maneuvering jets
+          if (baseComponent.initiative) {
+            initiative += baseComponent.initiative * count; // Initiative is additive
+          }
+          if (baseComponent.cargoCapacity) {
+            cargoCapacity += baseComponent.cargoCapacity * count;
+          }
           break;
 
         case 'scanner':

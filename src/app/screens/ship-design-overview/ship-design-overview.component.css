@@ -366,9 +366,31 @@
   box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3);
 }
 
-.slot-component.filled:hover {
-  background: linear-gradient(135deg, #b0d0b0, #a0c0a0);
-    box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+.slot-component.non-editable {
+  background: #a0a0a0;
+  border-color: #666;
+  cursor: default;
+  opacity: 0.8;
+}
+
+.slot-component.non-editable:hover {
+  background: #a0a0a0;
+  border-color: #666;
+  transform: none;
+  box-shadow: none;
+}
+
+.builtin-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.builtin-capacity {
+  font-size: 0.7rem;
+  color: #333;
+  font-weight: bold;
 }
 
 .slot-content {

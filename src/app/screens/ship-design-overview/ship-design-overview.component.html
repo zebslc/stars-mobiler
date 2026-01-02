@@ -165,6 +165,7 @@
                 <div class="slot-component"
                      [class.filled]="hasComponentInSlot(slotGroup.slotCode)"
                      [class.selected]="selectedSlotId() === slotGroup.slotCode"
+                     [class.non-editable]="!isSlotEditable(slotGroup.slotCode)"
                      [style.grid-column]="(slotGroup.bounds.minCol + 1) + ' / ' + (slotGroup.bounds.maxCol + 2)"
                      [style.grid-row]="(slotGroup.bounds.minRow + 1) + ' / ' + (slotGroup.bounds.maxRow + 2)"
                      (click)="selectSlot(slotGroup.slotCode)">
@@ -182,8 +183,15 @@
                         <div class="component-name">{{ getComponentName(installedComp.componentId) }}</div>
                         <div class="component-count">{{ installedComp.count }}</div>
                       </div>
+                    } @else if (!isSlotEditable(slotGroup.slotCode)) {
+                      <!-- Show built-in slot (non-editable) -->
+                      <div class="builtin-slot">
+                        <div class="slot-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
+                        <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
+                        <div class="builtin-capacity">{{ getBuiltinSlotCapacity(slotGroup.slotCode) }}kt</div>
+                      </div>
                     } @else {
-                      <!-- Show slot type -->
+                      <!-- Show empty slot -->
                       <div class="slot-icon">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
                       <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
                       <div class="slot-max">Max: {{ getSlotMaxCapacity(slotGroup.slotCode) }}</div>
