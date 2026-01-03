@@ -63,8 +63,6 @@ Ramscoops simply scoop fuel from the surrounding universe
 
 Factories produce resources. Resources are units of work created by people and factories for use in production, research and other tasks.
 
-GLO S SAR Y GL-3
-
 ## FIBONACCI SERIES
 
 Fibonacci numbers are the unending sequence 1, 1, 2, 3, 5, 8, 13, 21, 34 ... where each term is defined as the sum of its two
@@ -110,17 +108,12 @@ These scanners can detect fleets in orbit around a planet. They also
 
 ## PLAYER LOG FILE
 
-gamename.mN —- N is a number from 1 to 16, representing the player number. This is the individual file for each player, containing all the data about that player’s race and state of the player’s empire at the beginning of a turn. Both the player and the host maintain copies
+gamenameis a number from 1 to 16, representing the player number. This is the individual file for each player, containing all the data about that player’s race and state of the player’s empire at the beginning of a turn. Both the player and the host maintain copies
 
 You can load the current turn in a game by opening the .m file which has your player number in the extension. If the file is password-
 
-## RACE FILE
-
-name.rN — This file contains a race description created and saved using the Custom Race wizard. If you open this file from File (Open),
-
-GLO S SAR Y GL-5
-
-the Custom Race wizard. If the file is password-protected, you will be asked for a password. The .r extension is not required for a race file, so you may open race files saved using a different extension as well.
+## RACE FILE name.
+— This file contains a race description created and saved using the Custom Race wizard. If you open this file from File (Open), the Custom Race wizard. If the file is password-protected, you will be asked for a password. The .r extension is not required for a race file, so you may open race files saved using a different extension as well.
 
 ## RATING
 
@@ -159,9 +152,9 @@ Bomber — any ship based on one of the Bomber hulls.
 
 Each token is a stack of identical ships from a single fleet.
 
-## INDEX
+# INDEX
 
-A
+## A
 
 ### Auto-build Beam weapons
 

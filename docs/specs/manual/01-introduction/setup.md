@@ -10,9 +10,7 @@
 
 The first time you run Stars!, you will be asked to enter your unique serial number. The number is printed on 2 labels enclosed in the pack.
 
-### It is very important that you keep the serial number where you can find it
-
-later .
+### It is very important that you keep the serial number where you can find it later.
 
 Stars! may ask for the number again if :
 
@@ -29,9 +27,7 @@ Stars! is played by submitting player log files to the host (either a human or t
 
 The Host Doesn’t Need a Serial Number
 
-### A host can use the same serial number as one other player without affecting
-
-the host or the player. This allows you to host and play from the same copy of
+### A host can use the same serial number as one other player without affecting the host or the player. This allows you to host and play from the same copy of
 
 ### Stars!
 
