@@ -324,10 +324,6 @@
   background-image: url('/assets/tech-icons/def-shield-phase.png');
 }
 
-.def-shield-langston {
-  background-image: url('/assets/tech-icons/def-shield-langston.png');
-}
-
 .def-armor-tri {
   background-image: url('/assets/tech-icons/def-armor-tri.png');
 }
@@ -603,4 +599,5 @@
 .hull-death-star {
   background-image: url('/assets/tech-icons/hull-death-star.png');
 }
+
 
