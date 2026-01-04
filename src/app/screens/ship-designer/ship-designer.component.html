@@ -203,12 +203,14 @@
   }
 
   <!-- Component Selection Modal -->
-  @if (componentSelectOpen() && selectedSlot()) {
+  @if (componentSelectOpen() && selectedSlotId()) {
     <div class="modal-overlay" (click)="componentSelectOpen.set(false)">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <h3>
           Select Component for {{ getSlotDisplayName(selectedSlotId()!) }}
-          {{ getSlotTypeDisplay(selectedSlot()!.allowedTypes) }}
+          @if (selectedSlot()) {
+            {{ getSlotTypeDisplay(selectedSlot()!.allowedTypes) }}
+          }
         </h3>
 
         @if (currentComponent()) {
@@ -225,16 +227,25 @@
               [class.selected]="currentComponent() === component.id"
               (click)="installComponent(component.id)"
             >
-              <div class="component-name">{{ component.name }}</div>
-              <div class="component-mass">
-                Mass: {{ component.mass }}kt
-                @if (component.miniaturizationLevel > 0) {
-                  <span class="miniaturized">
-                    ({{ ((component.baseMass - component.mass) / component.baseMass * 100).toFixed(0) }}% smaller)
-                  </span>
-                }
+              <div class="component-icon">
+                <img 
+                  [src]="getComponentImagePath(component.id)" 
+                  [alt]="component.name"
+                  (error)="onImageError($event)"
+                />
               </div>
-              <div class="component-cost">Cost: {{ formatCost(component.cost) }}</div>
+              <div class="component-details">
+                <div class="component-name">{{ component.name }}</div>
+                <div class="component-mass">
+                  Mass: {{ component.mass }}kt
+                  @if (component.miniaturizationLevel > 0) {
+                    <span class="miniaturized">
+                      ({{ ((component.baseMass - component.mass) / component.baseMass * 100).toFixed(0) }}% smaller)
+                    </span>
+                  }
+                </div>
+                <div class="component-cost">Cost: {{ formatCost(component.cost) }}</div>
+              </div>
             </div>
           }
         </div>

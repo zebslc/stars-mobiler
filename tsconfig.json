@@ -13,6 +13,9 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "types": []
+  },
+  "angularCompilerOptions": {
+      "strictTemplates": true,
   }
 }
 

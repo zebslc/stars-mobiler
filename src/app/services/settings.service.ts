@@ -5,7 +5,7 @@ import { GovernorType } from '../models/game.model';
   providedIn: 'root',
 })
 export class SettingsService {
-  readonly showMapControls = signal<boolean>(true);
+  readonly showMapControls = signal<boolean>(false);
   readonly defaultGovernor = signal<GovernorType>('balanced');
 
   toggleMapControls(show: boolean) {

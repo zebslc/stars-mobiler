@@ -169,6 +169,10 @@
                           @if (installedComp.count > 1) {
                             <div class="component-count-visual">{{ installedComp.count }}</div>
                           }
+                          <!-- Delete button on hover -->
+                          <div class="component-delete-btn" 
+                               (click)="removeComponent(slotGroup.slotCode); $event.stopPropagation()"
+                               title="Remove component">×</div>
                         </div>
                       } @else if (!isSlotEditable(slotGroup.slotCode)) {
                         <!-- Show built-in slot -->
@@ -295,10 +299,12 @@
               Select Component
             }
           </h3>
-          <div class="slot-info">
-            {{ getSlotTypeIcon(selectedSlot()!.allowedTypes) }}
-            {{ getSlotTypeLabel(selectedSlot()!.allowedTypes) }}
-          </div>
+          @if (selectedSlot(); as slot) {
+            <div class="slot-info">
+              {{ getSlotTypeIcon(getSlotAllowedTypesAsStrings(slot)) }}
+              {{ getSlotTypeLabel(getSlotAllowedTypesAsStrings(slot)) }}
+            </div>
+          }
         </div>
 
         <!-- Current Component in Slot -->

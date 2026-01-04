@@ -48,7 +48,7 @@ export class ShipDesignOverviewComponent {
     const slotId = this.selectedSlotId();
     const hull = this.hull();
     if (!slotId || !hull) return null;
-    return hull.slots.find((s: any) => s.id === slotId);
+    return hull.slots?.find((s: any) => s.id === slotId) || null;
   });
 
   readonly availableComponentsForSlot = computed(() => {
@@ -391,6 +391,10 @@ export class ShipDesignOverviewComponent {
       default:
         return '⚪';
     }
+  }
+
+  getSlotAllowedTypesAsStrings(slot: any): string[] {
+    return slot.allowedTypes.map((t: any) => t.toString().toLowerCase());
   }
 
   getSlotTypeLabel(allowedTypes: string[]): string {

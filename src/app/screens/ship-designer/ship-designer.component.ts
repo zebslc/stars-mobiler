@@ -18,7 +18,7 @@ export class ShipDesignerComponent implements OnInit {
     private router: Router
   ) {}
 
-  private selectedSlotId = signal<string | null>(null);
+  readonly selectedSlotId = signal<string | null>(null);
 
   get design() { return this.designer.currentDesign; }
   get hull() { return this.designer.currentHull; }
@@ -157,5 +157,17 @@ export class ShipDesignerComponent implements OnInit {
       cargo: '📦',
     };
     return allowedTypes.map((t) => typeMap[t] || '?').join('');
+  }
+
+  getComponentImagePath(componentId: string): string {
+    const component = this.availableComponentsForSlot().find(c => c.id === componentId);
+    if (component && (component as any).img) {
+      return `/assets/tech-icons/${(component as any).img}.png`;
+    }
+    return '/assets/tech-icons/placeholder.png';
+  }
+
+  onImageError(event: any): void {
+    event.target.src = '/assets/tech-icons/placeholder.png';
   }
 }

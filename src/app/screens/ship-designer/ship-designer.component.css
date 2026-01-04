@@ -282,11 +282,14 @@
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000;
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {
@@ -298,6 +301,9 @@
   max-height: 80vh;
   overflow-y: auto;
   min-width: 400px;
+  position: relative;
+  z-index: 10001;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
 .modal-content h3 {
@@ -378,6 +384,31 @@
   padding: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.component-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(100, 150, 255, 0.3);
+}
+
+.component-icon img {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.component-details {
+  flex: 1;
 }
 
 .component-option:hover {

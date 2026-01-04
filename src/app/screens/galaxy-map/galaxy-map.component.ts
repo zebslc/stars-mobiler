@@ -334,6 +334,13 @@ export class GalaxyMapComponent {
   startY = 0;
   lastTouchDistance = 0;
 
+  // Touch state
+  touchStartClientX = 0;
+  touchStartClientY = 0;
+  touchStartTranslateX = 0;
+  touchStartTranslateY = 0;
+  readonly TOUCH_SENSITIVITY = 2.5;
+
   // Context menu state
   planetContextMenu = signal<{ visible: boolean; x: number; y: number; star: Star | null }>({
     visible: false,
@@ -497,8 +504,11 @@ export class GalaxyMapComponent {
 
     if (event.touches.length === 1) {
       this.isPanning = true;
-      this.startX = event.touches[0].clientX - this.translateX();
-      this.startY = event.touches[0].clientY - this.translateY();
+      // Record initial touch position and current translation
+      this.touchStartClientX = event.touches[0].clientX;
+      this.touchStartClientY = event.touches[0].clientY;
+      this.touchStartTranslateX = this.translateX();
+      this.touchStartTranslateY = this.translateY();
 
       // Start touch-and-hold timer for context menu
       this.onTouchHoldStart(event, svgElement);
@@ -516,8 +526,12 @@ export class GalaxyMapComponent {
     this.onTouchHoldMove(event);
 
     if (event.touches.length === 1 && this.isPanning) {
-      this.translateX.set(event.touches[0].clientX - this.startX);
-      this.translateY.set(event.touches[0].clientY - this.startY);
+      const deltaX = event.touches[0].clientX - this.touchStartClientX;
+      const deltaY = event.touches[0].clientY - this.touchStartClientY;
+
+      // Apply sensitivity multiplier to the delta
+      this.translateX.set(this.touchStartTranslateX + deltaX * this.TOUCH_SENSITIVITY);
+      this.translateY.set(this.touchStartTranslateY + deltaY * this.TOUCH_SENSITIVITY);
     } else if (event.touches.length === 2) {
       const dist = this.getTouchDistance(event.touches);
       const factor = dist / this.lastTouchDistance;
