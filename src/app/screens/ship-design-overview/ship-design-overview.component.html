@@ -126,51 +126,68 @@
             </div>
           </div>
 
-          <!-- Compact Slot List (Mobile-Optimized) -->
-          <div class="slots-list">
-            <div class="slots-header">Components</div>
-            @for (slotGroup of getSlotGroups(currentHull); track slotGroup.slotCode) {
-              <div class="slot-row"
-                   [class.filled]="hasComponentInSlot(slotGroup.slotCode)"
-                   [class.non-editable]="!isSlotEditable(slotGroup.slotCode)"
-                   (click)="selectSlot(slotGroup.slotCode)">
-                
-                <div class="slot-icon-small">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
-                
-                <div class="slot-info">
-                  <div class="slot-name">{{ getSlotDisplayName(slotGroup.slotCode, currentHull) }}</div>
-                  
-                  @if (hasComponentInSlot(slotGroup.slotCode)) {
-                    @let installedComp = getSlotComponent(slotGroup.slotCode);
-                    <div class="slot-content-text">
-                      {{ getComponentName(installedComp.componentId) }}
-                      @if (installedComp.count > 1) {
-                        <span class="component-count-badge">{{ installedComp.count }}</span>
+          <!-- Hull Visual Structure -->
+          <div class="hull-visual">
+            <div class="hull-structure-title">Hull Structure</div>
+            <!-- Background Grid (Quarter Squares for Layout) -->
+            <div class="hull-grid-background" 
+                 [style.grid-template-columns]="'repeat(' + getGridDimensions(currentHull).cols + ', 1fr)'"
+                 [style.grid-template-rows]="'repeat(' + getGridDimensions(currentHull).rows + ', 1fr)'">
+              
+              @for (row of getHullStructure(currentHull); track $index; let rowIndex = $index) {
+                @for (cell of row; track $index; let colIndex = $index) {
+                  <div class="hull-background-cell"
+                       [class.empty]="cell === '.'"
+                       [class.occupied]="cell !== '.'">
+                  </div>
+                }
+              }
+
+              <!-- Slot Overlay (Grouped Slots) - positioned within the grid -->
+              <div class="slot-overlay"
+                   [style.grid-template-columns]="'repeat(' + getGridDimensions(currentHull).cols + ', 1fr)'"
+                   [style.grid-template-rows]="'repeat(' + getGridDimensions(currentHull).rows + ', 1fr)'">
+                @for (slotGroup of getSlotGroups(currentHull); track slotGroup.slotCode) {
+                  <div class="slot-component-visual"
+                       [class.filled]="hasComponentInSlot(slotGroup.slotCode)"
+                       [class.selected]="selectedSlotId() === slotGroup.slotCode"
+                       [class.non-editable]="!isSlotEditable(slotGroup.slotCode)"
+                       [style.grid-column]="(slotGroup.bounds.minCol + 1) + ' / ' + (slotGroup.bounds.maxCol + 2)"
+                       [style.grid-row]="(slotGroup.bounds.minRow + 1) + ' / ' + (slotGroup.bounds.maxRow + 2)"
+                       (click)="selectSlot(slotGroup.slotCode)">
+                    
+                    <div class="slot-content-visual">
+                      @if (hasComponentInSlot(slotGroup.slotCode)) {
+                        <!-- Show installed component -->
+                        @let installedComp = getSlotComponent(slotGroup.slotCode);
+                        <div class="component-display-visual">
+                          @if (hasComponentImage(installedComp.componentId)) {
+                            <div class="component-image-visual tech-icon {{ getComponentIcon(installedComp.componentId) }}"></div>
+                          } @else {
+                            <div class="component-icon-visual">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
+                          }
+                          @if (installedComp.count > 1) {
+                            <div class="component-count-visual">{{ installedComp.count }}</div>
+                          }
+                        </div>
+                      } @else if (!isSlotEditable(slotGroup.slotCode)) {
+                        <!-- Show built-in slot -->
+                        <div class="builtin-slot-visual">
+                          <div class="slot-icon-visual">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
+                          <div class="builtin-capacity-visual">{{ getBuiltinSlotCapacity(slotGroup.slotCode) }}kt</div>
+                        </div>
+                      } @else {
+                        <!-- Show empty slot -->
+                        <div class="slot-icon-visual">{{ getSlotIcon(slotGroup.slotCode, currentHull) }}</div>
                       }
                     </div>
-                  } @else if (!isSlotEditable(slotGroup.slotCode)) {
-                    <div class="slot-content-text builtin">
-                      Built-in ({{ getBuiltinSlotCapacity(slotGroup.slotCode) }}kt)
-                    </div>
-                  } @else {
-                    <div class="slot-content-text empty">
-                      Max: {{ getSlotMaxCapacity(slotGroup.slotCode) }}
-                    </div>
-                  }
-                </div>
-
-                @if (isSlotEditable(slotGroup.slotCode)) {
-                  <div class="slot-action">
-                    @if (hasComponentInSlot(slotGroup.slotCode)) {
-                      <span class="edit-icon">✏️</span>
-                    } @else {
-                      <span class="add-icon">+</span>
-                    }
                   </div>
                 }
               </div>
-            }
+            </div>
           </div>
+
+
         </div>
 
 

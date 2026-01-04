@@ -5,97 +5,71 @@
 ---
 
 
-The essence of Stars! is resource management. To win, learn what it takes to smoothly and effectively grow and manage your empire’s industrial infrastructure. Learn when to colonize, when to move people and other resources so that your empire becomes stronger and more balanced with each passing year. Learn how to make resource management more expensive for your opponents than it is for you. When you attack, look for targets where the cost to your opponent is greater than your investment in the
+The essence of Stars! is resource management. To win, learn what it takes to smoothly and effectively grow and manage your empire's industrial infrastructure. Learn when to colonize, when to move people and other resources so that your empire becomes stronger and more balanced with each passing year. Learn how to make resource management more expensive for your opponents than it is for you. When you attack, look for targets where the cost to your opponent is greater than your investment in the attack.
 
-6 PLANETS
+Planets are the gold nuggets of the Stars! universe: the minerals in each planet provide the building blocks for all the technology you create, including planetary installations such as defenses and scanners, and starbases with stargates that act as navigational shortcuts and mass drivers that fling minerals between systems.
 
-Planets are the gold nuggets of the Stars! universe: everybody minerals in each planet provide the building blocks for all the technology you create, including planetary installations such as defenses and scanners, and starbases with stargates that act as navigational shortcuts and mass drivers that fling minerals between systems.
-
-When you click on a planet in the Scanner, you’re actually selecting a star system. The planet that appears on your screen is the most desirable planet in that system. (There may be lesser rocks in the system, too, but you won’t want them.) If you colonize a planet, it becomes your capitol world in that system, the local center of government and industry. If the planet is dangerous to your people, you can mine it from orbit, and ship its valuable minerals to other parts of your empire. If the planet is inhabited by another player, you can try to take it away. If the owner is another human, you can also try to establish
+When you click on a planet in the Scanner, you're actually selecting a star system. The planet that appears on your screen is the most desirable planet in that system. (There may be lesser rocks in the system, too, but you won't want them.) If you colonize a planet, it becomes your capitol world in that system, the local center of government and industry. If the planet is dangerous to your people, you can mine it from orbit, and ship its valuable minerals to other parts of your empire. If the planet is inhabited by another player, you can try to take it away. If the owner is another human, you can also try to establish diplomatic relations.
 
 No matter how you play, you need to give your people room to grow. That growth rate will vary on any given planet, depending on the levels of gravity, temperature, and radiation. You can create a race that is immune to one or more of these environmental factors—a very expensive advantage. You can also make a planet’s environment more hospitable by terraforming.
 
 ## YOUR HOME WORLD AND OTHER INHABITED PLANETS
 
-You start the game on your home world, a place with optimal environmental conditions where you have a small but thriving population, basic industry in the form of factories and mines, fundamental technology, and a short range, planet-based scanner. In orbit, you have a starbase capable of building ships and providing a small amount of planetary defense. Each player’s home
+You start the game on your home world, a place with optimal environmental conditions where you have a small but thriving population, basic industry in the form of factories and mines, fundamental technology, and a short range, planet-based scanner. In orbit, you have a starbase capable of building ships and providing a small amount of planetary defense. Each player's home world, whether it belongs to a computer-generated AI or a human, starts out with these same items. When you colonize another planet, you can build these and other items as your resources and knowledge of technology allow.
 
+All home worlds start with equivalent mineral content — adjusted to even out any advantages or disadvantages provided by racial attributes. If your home planet has a serious lack of a specific mineral on its surface then your opponents are initially faced with the same problem.
 
-world, whether it belongs to a computer-generated AI or a human, starts out with these same items. When you colonize another planet, you can build these and other items as your resources and knowledge of technology allow. mineral content — adjusted to even out any advantages or disadvantages provided by racial attributes. If your home planet has a serious lack of a specific mineral on its surface then your opponents are initially faced with the same problem.
-
-### All the information about a planet you own and the controls you use to give To learn about the
-
-orders to that planet are available in Command pane. The Selection Summary the Stars! screen, rate at which your population will grow. Environmental conditions on your home world are optimal for your species.
+All the information about a planet you own and the controls you use to give orders to that planet are available in the Command pane. The Selection Summary shows the rate at which your population will grow. Environmental conditions on your home world are optimal for your species.
 
 ### Abandoning a Planet
 
-When you abandon a planet, the starbase and all installations on that planet
+When you abandon a planet, the starbase and all installations on that planet are destroyed. Any colonists remaining on the planet will die unless another player colonizes the planet within the same year.
 
 ## POPULATION
 
-People, along with factories, create the resources you need to build your empire. The more people you have, the more resources you have, and the resource per year, use the View (Race) Your maximum population on a planet is based on the planet’s Habitability Value. When you select a planet in the Scanner its value, along with other information, appears in the Selection Summary: The first number is the current value. The number in
+People, along with factories, create the resources you need to build your empire. The more people you have, the more resources you have. To see the total number of resources per year, use the View (Race) dialog.
 
-The higher the percentage, the more people the planet will support. A negative value tells you the percentage of population the planet will kill if you colonize under the current environmental conditions. For example, a planet
+Your maximum population on a planet is based on the planet's Habitability Value. When you select a planet in the Scanner, its value, along with other information, appears in the Selection Summary. The first number is the current value. The number in parentheses shows the potential value after terraforming.
 
-
-with the optimal value of 100% may fully support 1,000,000 people. A planet with a value of 50% can support only 500,000 people. A planet with a value of -9% will kill 0.9% of the colonists on that planet each year.
+The higher the percentage, the more people the planet will support. A negative value tells you the percentage of population the planet will kill if you colonize under the current environmental conditions. For example, a planet with the optimal value of 100% may fully support 1,000,000 people. A planet with a value of 50% can support only 500,000 people. A planet with a value of -9% will kill 0.9% of the colonists on that planet each year.
 
 ### Colonist Growth
 
-Growth View Race dialog. The habitability value also determines your population’s annual growth rate.
+The habitability value also determines your population's annual growth rate. You can see the growth rate in the View Race dialog.
 
-### For races with the
+Left-click on the habitability value to display the current growth rate, as well as the total number of people the planet will support based on current environmental conditions. The growth rate is shown as "up to n%" because the rate slows as the population approaches the maximum. Growth begins to slow when the population reaches 25% of that displayed.
 
-Left-click on the value to display the current growth rate, as well the total number of people the planet will support based on current environmental conditions. The growth rate is shown as “up to n%” because the rate slows as maximum colonists the population approaches the maximum. growth begins to that displayed.
+### Maximum Population
 
-### Alternate Reality
+Since Alternate Reality races use a different population model, all maximum population figures in this manual should be multiplied by 10. For example, the typical maximum population under optimal conditions is 1,000,000.
 
-Maximum Population
+Hyper-Expansion races grow fast but are limited to one-half the typical maximum population: 500,000 on an optimal world. The ingenuity of Jack-of-All-Trades races grants them a maximum population that is 20% greater than normal: under optimal conditions a Jack-of-All-Trades world supports up to 1,200,000.
 
-### Since Alternate
-
-1,000,000.
-
-### Hyper-Expansion races grow fast but are limited to one-half the typical use a different
-
-maximum population: 500,000 on an optimal world. The ingenuity of Jack-of- population model. All-Trades races grants them a maximum population that is 20% greater than Read more about normal: under optimal conditions a Jack-of-All-Trades world supports up to
-
-### Races who possess the Only Basic Remote Mining trait also receive an
-
-additional 10% increase beyond their normal limit. For example, the maximum population for a Jack-of-All-Trades race with Only Basic Remote Mining is 1,320,000 (under optimal conditions).
+Races who possess the Only Basic Remote Mining trait also receive an additional 10% increase beyond their normal limit. For example, the maximum population for a Jack-of-All-Trades race with Only Basic Remote Mining is 1,320,000 (under optimal conditions).
 
 ### Overcrowding
 
-The number of people between 100% and 300% population capacity work at 50% efficiency. Any population in excess of 300% capacity can perform no
-
-Deaths from overcrowding reach an annual maximum of 12% at 400%
+The number of people between 100% and 300% population capacity work at 50% efficiency. Any population in excess of 300% capacity can perform no work at all. Deaths from overcrowding reach an annual maximum of 12% at 400% capacity or higher.
 
 
 ### Killer Planets
 
-Planets with negative habitability values kill colonists. The annual death rate
-
-### Planets
-
-Habitability Value / 10 of the colonists on the planet each year trait, For example, a planet with a habitability value of -10% inhabited by 2000 colonists will kill 1% or 20 colonists per year. environmental conditions become favorable (the value becomes 0% or a positive number).
+Planets with negative habitability values kill colonists. The annual death rate equals the absolute value of the Habitability Value divided by 10. For example, a planet with a habitability value of -10% inhabited by 2000 colonists will kill 1% or 20 colonists per year. This continues until the environmental conditions become favorable (the value becomes 0% or a positive number).
 
 ## MINERALS
 
 All planets contain three important raw minerals: ironium, boranium and germanium. These provide the building blocks for almost everything your race produces. Minerals exist both on and under the planet’s surface. Minerals found on the surface can be used immediately in production. Those under the surface must be mined to become available for use. Minerals can be transported to other planets where they’re needed using freighters and mass drivers. Minerals can also be created through a production-based recycling effort called Mineral Alchemy. You also receive minerals when you initially scrap a ship at a planet you own. concentration of minerals under the surface, and the mining rate for the selected planet. Each mineral is represented by a colored bar. The bright colored bar shows how much of the mineral is on the surface and ready to use; the dark colored bar shows the amount that will be mined next year. The diamond shows the current mineral concentration, measured from 0 to if the concentration exceeds the current scale. If you are scanning the planet but don't own it, you see only the mineral concentration. You see all mineral information as soon as you colonize the planet.
 
-### Left-click on a bar to
-
-mineral.
+Left-click on a bar to see specific information about that mineral.
 
 
-The mineral concentration on your home, or starting world never drops below 30. This world always retains this advantage, regardless of who occupies it
+The mineral concentration on your home, or starting world never drops below 30. This world always retains this advantage, regardless of who occupies it.
 
-### Flinging Mass
+### MINES
 
-MINES Mines extract minerals from the planet. As you mine, you decrease the concentration of minerals under the surface, adding them to the supply on the surface and making them available for immediate use. You never run out of minerals on a planet, you just decrease the concentration until it reaches 1%, The Minerals on when it becomes difficult to extract more than tiny amounts from each mine
+Mines extract minerals from the planet. As you mine, you decrease the concentration of minerals under the surface, adding them to the supply on the surface and making them available for immediate use. You never run out of minerals on a planet, you just decrease the concentration until it reaches 1%, when it becomes difficult to extract more than tiny amounts from each mine.
 
-### You can build mines on any planet you inhabit or use robot miners on operating on a
-
-uninhabited planets.
+You can build mines on any planet you inhabit or use robot miners on uninhabited planets.
 
 ### FACTORIES population can
 
@@ -106,56 +80,34 @@ Factories, along with people, create resources used to build items such as ships
 You do not need factories in order to build things. Factories only increase the races cannot build total number of resources you receive each year. For a typical race, you can factories or any double the number of resources generated per year by building factories. Think of factories as virtual colonists. Once built they produce work and consume nothing. Nothing is wasted—factory resources not used for kT Less when defining your race, factories cost 3 kT of germanium. No minerals other than germanium are used. Defenses partially protect a planet from bombs, incoming mass packets and invasion. Unless you are playing an race, you should always build defenses, especially in a single player game. AIs love to bomb planets. While you can’t build a perfect planetary defense system you can significantly reduce the number of bombs, mass packets and invading colonists that make it to the surface.
 
 
-### Whether you build defenses in a multi-player game depends on how much Alternate Reality
+Whether you build defenses in a multi-player game depends on how much you can trust other players to leave your worlds in peace (there's room enough for all in the Stars! universe—isn't there?)
 
-you can trust other players to leave your worlds in peace (there’s room enough for all in the Stars! universe—isn’t there?)
+For Alternate Reality races, while you can build as many defenses as you wish, you can only operate as many as your population can support.
 
-### Alternate Reality
+To learn about defense technology, open the Technology Browser and select Defense from the dropdown menu. Press Next until the defense technology appears. As a game progresses, you can increase the number of defenses and upgrade the technology (and the efficiency) of existing defenses.
 
-While you can build as many defenses as you wish, you can only operate as
+Each type of defense has different capabilities based on the technology you're currently employing. For example, if you're using Missile Batteries, then adding Defenses to the production queue causes more Missile Batteries to be built. For more advanced technology that applies to defense, all defenses on all your planets upgrade automatically when you research better technology.
 
-### To learn about
+## PLANET-BASED SCANNERS
 
-defense technology, open the
+A scanner is the inhabited planet's radar, giving you information about all objects within scanner range. There are several types of planet-based scanners, with different ranges for detecting fleets, mass packets, mine fields and wormholes, and different ranges for detecting the environment and mineral content of other planets. You start the game with a basic scanner on your home world.
 
-### Technology
-
-
-### Next until the
-
-defense technology. As a game progresses, you can increase the number of defenses and upgrade
-
-### Each type of
-
-the technology (and the efficiency) of existing defenses: currently employing. For example, if you’re using Missile Batteries, then adding Defenses to the production queue causes more Missile Batteries to be For more technology that applies to defense, all defenses on all your planets upgrade from mineral
-
-### Guts of Mass
-
-PLANET-BASED SCANNERS A scanner is the inhabited planet’s radar, giving you information about all objects within scanner range. There are several types of planet-based scanners, with different ranges for detecting fleets, mass packets, mine fields and wormholes, and different ranges for detecting the environment and mineral content of other planets. You start the
-
-The cost of building a scanner is fixed. Once you build a scanner, it will automatically be upgraded when your research allows you to build a better
-
+The cost of building a scanner is fixed. Once you build a scanner, it will automatically be upgraded when your research allows you to build a better one.
 
 A planet’s scanner type and range appear in the Status tile.
 
-Planet-based scanners are useful for detecting opponent’s fleets that pass near or enter your empire. Only fleets that are cloaked have a chance of escaping Races and
-
-### Planetary Scanners
-
-detection. You can reduce the chances of fleets sneaking past if you place scanners on all your planets. When you select an enemy fleet, the scanner will also show the estimated path of the fleet. overlay. Your basic radar coverage appears in red. Planet-penetrating radar
+Planet-based scanners are useful for detecting opponent's fleets that pass near or enter your empire. Only fleets that are cloaked have a chance of escaping detection. You can reduce the chances of fleets sneaking past if you place scanners on all your planets. When you select an enemy fleet, the scanner will also show the estimated path of the fleet.\n\nIn the Scanner overlay, your basic radar coverage appears in red. Planet-penetrating radar coverage appears in a different color.
 
 ## STARBASES
 
-A starbase can be an orbiting shipyard, fuel depot, defensive station, and a platform for a stargate and mass drivers. Before a on a specific planet can build ships, it must have a starbase with a space dock. Starbases stand in the way of attacks against the planet— Browser. Just press your fleet must destroy the starbase before bombing can commence. Starbases with weapons always strike back and can initiate Hulls category. A starbase can also carry cloaks, and thus can partially cloak itself from remote scans. Cloaking a starbase does not cloak the planet.
+A starbase can be an orbiting shipyard, fuel depot, defensive station, and a platform for a stargate and mass drivers. Before a planet can build ships, it must have a starbase with a space dock. Starbases stand in the way of attacks against the planet—your fleet must destroy the starbase before bombing can commence. Starbases with weapons always strike back and can initiate combat. You can view starbase designs in the Technology Browser under the Hulls category. A starbase can also carry cloaks, and thus can partially cloak itself from remote scans. Cloaking a starbase does not cloak the planet.
 
 
-### Your starbase is your primary defense against bombing and invasion by enemy Alternate Reality
+Your starbase is your primary defense against bombing and invasion by enemy fleets. Your planet cannot be bombed or invaded as long as your starbase still exists. For Alternate Reality races and some other special races, different rules may apply.
 
-fleets. Your planet can not be bombed or invaded as long as your starbase still Races and
+In the Scanner pane, a starbase appears as a yellow dot in orbit if a spacedock is present or blue dot if no space dock is present. The Starbase tile describes the current design and its capabilities.
 
-### Alternate Reality
-
-In the Scanner pane, a starbase appears as a yellow dot in orbit if a spacedock is present or blue dot, if no space dock is present. The Starbase tile describes means that the Build a starbase by adding it to the production queue. Like a ship, cost a starbase hull is very expensive, so you’ll need to plan how to afford it. You’ll homes. Read more also find that hull parts attached to a starbase are 50% cheaper than the same about these unusual parts attached to ship hulls, helping balance out the cost and making the chapter 22.
+Build a starbase by adding it to the production queue. Like a ship hull, a starbase hull is very expensive, so you'll need to plan how to afford it. You'll also find that hull parts attached to a starbase are 50% cheaper than the same parts attached to ship hulls, helping balance out the cost and making the starbase more affordable for defending your worlds.
 
 A planet can have only one starbase at a time. An existing starbase can be upgraded or replaced, with credit given for the recycled materials.
 
@@ -165,15 +117,15 @@ You’ll have access to additional starbase hulls if you have the Improved Starb
 
 There are five starbase hulls, with slots for weapons, armor and other items:
 
-Orbital Fort — No ship building or refueling capacity. These don’t count as
+**Orbital Fort** — No ship building or refueling capacity. These don't count as starbases for some game purposes, but provide basic orbital defense.
 
-Space Dock — Ship building capacity: 200kT or smaller ships. This hull
+**Space Dock** — Ship building capacity: 200kT or smaller ships. This hull provides basic shipyard capability.
 
-Space Station — Unlimited ship building capacity.
+**Space Station** — Unlimited ship building capacity.
 
-Ultra Station — Unlimited ship building capacity, with more slots for weapons, shields and other components. This hull requires the Improved Starbases trait.
+**Ultra Station** — Unlimited ship building capacity, with more slots for weapons, shields and other components. This hull requires the Improved Starbases trait.
 
-Death Star – Top of the line orbital habitat for races.
+**Death Star** — Top of the line orbital habitat for races with the Improved Starbases trait.
 
 
 ### Upgrading a Starbase
@@ -190,11 +142,9 @@ If the hull does not change: - Slots where only the count of the component incre
 
 1. Press F3 to open the Planet Summary Report, then maximize the report 2. Click on the top of the Starbase column and select the Starbase sort order. 3. Find the first planet with a starbase design you want to upgrade. 4. Click on the Production column for that planet. The Production dialog
 
-### Learn about
-
 5. In the Production dialog, double click on the new design listed in the
 
-### Adding Items to the
+### Adding Items to the     Production Queue
 
 6. Click on Next. Notice that the Next and Prev buttons follow the sort 7. Keep adding upgrades for each planet until you’ve upgraded all your
 
@@ -218,28 +168,19 @@ A stargate occupies an Orbital slot in a starbase hull. You can add a stargate H
 
 To upgrade a hull and add the gate:
 
-### Orbital section of
-
 1. Choose the Commands (Ship Design) menu item, opening the Ship and Starbase Designer.
-
-### Learn about
-
-4. Click on Copy Selected Design. The dialog changes, offering the design
-
-### Adding Items to the
-
-5. Select a hull picture (using the arrows under the picture) and type in a Production Queue, new name, or use the defaults shown in the dialog.
-
-### Navigating Using
-
-6. Drag the stargate from the component list to an Orbital slot in the design. Stargates, p 11-3 Subtract and add any other components as you wish. 8. Click on Change in the Production tile, and add the new starbase to the
+2. Select the starbase design you want to upgrade.
+3. Click on Copy Selected Design. The dialog changes, offering the design for modification.
+4. Select a hull picture (using the arrows under the picture) and type in a new name, or use the defaults shown in the dialog.
+5. Drag the stargate from the component list to an Orbital slot in the design. Add and subtract any other components as you wish.
+6. Click on Save Design to store the new starbase design.
+7. Return to the planet and click on Change in the Production tile.
+8. Add the new starbase to the production queue.
 
 
 ## MASS DRIVER BASICS
 
-### Mass drivers provide a fuel-free method of transporting mineral
-
-cargo packets between planets, and, secondarily, can act as an effective long range weapon. Mineral packets are bundles of packets at high rates of acceleration. This prevents you from flinging Fuel, which would explode, or colonists, who would, well, also explode.
+Mass drivers provide a fuel-free method of transporting mineral cargo packets between planets, and, secondarily, can act as an effective long range weapon. Mineral packets are bundles of minerals accelerated at high rates. This prevents you from flinging fuel, which would explode, or colonists, who would, well, also explode.
 
 In the Scanner pane, a mass driver appears as a purple dot orbiting the planet.
 
@@ -247,11 +188,16 @@ In the Scanner pane, a mass driver appears as a purple dot orbiting the planet.
 
 A mass driver occupies the Orbital slot in a starbase hull. You’ll have to research Energy—the requirement for each type of driver is listed in the Orbital section of the Technology Browser.
 
-Once you complete your research, upgrade your starbase hull design to hold the driver (or design a new starbase hull that includes the driver). To upgrade 1. Choose the Commands (Ship Design...) menu item, opening the Ship and Starbase Designer. 4. Click on Copy Selected Design. The dialog changes, offering the design 5. Select a hull picture and type in a new name, or use the defaults shown 6. Drag the driver from the component list to an Orbital slot in the design. Subtract and add any other components as you wish.
+Once you complete your research, upgrade your starbase hull design to hold the driver (or design a new starbase hull that includes the driver). To upgrade:
 
-### Learn about
-
-8. Click on Change in the Production tile, and add the new starbase to the
+1. Choose the Commands (Ship Design...) menu item, opening the Ship and Starbase Designer.
+2. Select the starbase design you want to upgrade.
+3. Click on Copy Selected Design. The dialog changes, offering the design for modification.
+4. Select a hull picture and type in a new name, or use the defaults shown in the dialog.
+5. Drag the driver from the component list to an Orbital slot in the design. Add and subtract any other components as you wish.
+6. Click on Save Design to store the new starbase design.
+7. Return to the planet and click on Change in the Production tile.
+8. Add the new starbase to the production queue.
 
 
 ### Building and Flinging Packets
@@ -264,8 +210,6 @@ that contains all three minerals. When you click on a packet type in the invento
 
 ### The Scanner pane
 
-Physics race).
-
 Once a packet is built, the driver automatically flings them at the destination you’ve set. If you don’t set a destination, the packet disintegrates.
 
 ### Interstellar Traveler
@@ -274,9 +218,7 @@ Once a packet is built, the driver automatically flings them at the destination 
 
 For the packet to arrive safely, the target must also have a driver of equal or greater capacity. If the planet has a lesser mass driver, or no driver at all, the packet destroys colonists and installations on the planet surface.
 
-### The gauge in the Starbase tile allows you to control the speed at which SHIFT-clicking on
-
-packets are flung. You can purposefully fling packets at a slower speed if your the destination. receiving planet isn’t equipped with an accelerator that’s high tech enough to
+The gauge in the Starbase tile allows you to control the speed at which packets are flung. You can purposefully fling packets at a slower speed if your receiving planet isn't equipped with an accelerator that's high tech enough to handle high-speed packets. Set the destination by clicking on it in the Scanner, or SHIFT-clicking on the destination for multiple waypoints.
 
 
 ### You may fling packets at speeds up to three Warp levels above the rated
@@ -285,13 +227,13 @@ speed. Packets flung above the rated speed become unstable, decaying at 10% per 
 
 During a packet’s first year out, it travels only half the normal distance, then the normal distance in any following years of travel. Since production happens all year long, the packets could be launched at any point. Stars! simplifies this by averaging it out to a half-year’s travel.
 
-### Planet-penetrating
+### Packets as Scanners
 
-Packets as Scanners around a planet. behaving like a planet-penetrating scanner. The radius of the scan is equal to They also can tell
+Mineral packets in flight act like planet-penetrating scanners around a planet. The radius of the scan is equal to the packet's warp speed. They also can detect planets and provide environmental information.
 
 ### Packets Perform Terraforming
 
-Packet Physics mineral packets only do 1/3 the normal damage when hitting a planet, but have a 50% chance per 100kT of minerals to terraform the planet’s For Packet Physics You can’t attack mineral packets. You can only intercept them and transfer their contents to your fleet, as described below in Stealing Mineral Packets.
+For Packet Physics races, mineral packets only do 1/3 the normal damage when hitting a planet, but have a 50% chance per 100kT of minerals to terraform the planet's environment in a favorable direction. For Packet Physics races, you can't attack mineral packets. You can only intercept them and transfer their contents to your fleet, as described below in Stealing Mineral Packets.
 
 ### Stealing Mineral Packets
 
@@ -308,15 +250,13 @@ than the driver’s nominal rating; and 2) packets flung at a speed higher than 
 
 Packets flung at planets with a lesser mass driver or no mass driver damage the planet and kill inhabitants. A warp 13 mineral packet is about as close as Mineral Packet Stars! comes to a doomsday weapon.
 
-### The Guts of Mass
+## TERRAFORMING
 
-TERRAFORMING Terraforming is the ability to change a planet’s environment to make it more habitable for your race. If you are immune to environmental conditions, you You won’t know if you need to terraform or can terraform a planet unless you habitability range, can scan it, gathering information about the planet’s environment. To see all choose the View terraformable planets you’ve found use the Scanner pane’s Planet Value view. (Race) menu item, You possess the technology to terraform Yellow planets, making them larger the yellow dot, the better the planet will be once you terraform it.
+Terraforming is the ability to change a planet's environment to make it more habitable for your race. If you are immune to environmental conditions, you won't need to terraform. You won't know if you need to terraform or can terraform a planet unless you can scan it, gathering information about the planet's environment. To see all terraformable planets you've found, use the Scanner pane's Planet Value view. Choose the View (Race) menu item to see your habitability range. You possess the technology to terraform yellow planets, making them green. The brighter the yellow dot, the better the planet will be once you terraform it.
 
 Click on a planet in the Scanner pane, then look in the Selection Summary pane. The habitability value shows the current value of the planet followed in parentheses by the value the planet would be after terraforming (given the
 
 The environment graph shows how much you can modify the planet’s environment, given your level of terraforming technology. The following graph shows that the player possesses Gravity and Radiation terraforming technology, and that Radiation must be terraformed to make the planet habitable. Gravity is currently well within this race’s habitable range, and may
-
-PLANETS 6-15
 
 ### Habitable range
 
@@ -324,11 +264,7 @@ the exact range
 
 Original Current value Best value possible applying You don’t have to worry about the order in which the different factors are terraformed. The terraforming task that appears in the production dialog always works on the factor that is the furthest out of range. If you can improve Gravity by 3%, Temperature by 5% and Radiation by 2% the Production dialog will let you add 10% Terraforming to the queue. Each 1% Terraforming task executed will modify one of the environmental factors by 1%, which will improve the overall habitability value by at least 1% and probably more.
 
-Find out which factor should be terraformed to maximize the planet’s habitability value by clicking in the environment graph of the Summary pane.
-
-### A pop-up will tell you the potential increase in habitability value if you
-
-modify that factor to the limits of your current level of technology.
+Find out which factor should be terraformed to maximize the planet's habitability value by clicking in the environment graph of the Selection Summary pane. A pop-up will tell you the potential increase in habitability value if you modify that factor to the limits of your current level of technology.
 
 There are two basic ways to terraform a planet. The first and easiest is to add auto-build terraforming tasks to the production queue. Min and Max
 
@@ -368,7 +304,7 @@ That’s it. The default production orders will take affect on every planet take
 
 1. Double-click on the planet you wish to terraform, placing it in the 3. In the production inventory, click on the Terraform Environment task. Then click on Add to add the desired number of this task to perform.
 
-### Each Terraform Environment task you add to the production queue improves
+Each Terraform Environment task you add to the production queue improves
 
 an environment factor by 1%. The number of tasks you may add to the queue is limited by the current level of your terraforming technology. When you have successfully completed all the tasks you can add to the queue, the Terraform Environment task disappears from the production inventory. It will reappear once you achieve a higher level of technology that allows you to
 
@@ -377,17 +313,17 @@ an environment factor by 1%. The number of tasks you may add to the queue is lim
 
 Each of a planet’s three environmental factors has a matching type of terraforming technology: Temperature Terraforming, Gravity Terraforming, and Radiation Terraforming. Each requires a different combination of research: - Temperature terraforming requires research into Biotechnology and Energy.
 
-### Biotechnology to
+ Biotechnology to
 
 - Radiation terraforming requires research into Biotechnology and Each technology allows you to improve a specific factor a minimum of 3% from its initial value and a maximum (without Total Terraforming) of 15%.
 
-### The percentage of improvement does not always indicate how much the
+ The percentage of improvement does not always indicate how much the
 
 value of the planet will increase. Often only one or two environmental factors will be negative, while the remaining factors look pretty attractive. In this case improving the negative factors can improve the planet’s overall value to a much higher percentage than that indicated by the technology.
 
 As you upgrade your terraforming technology, you’ll see the amount you can improve the planet increase. You may also see that some planets that were previously not terraformable (red in Planet Value view) become terraformable (yellow in Planet Value view).
 
-### To learn more about the individual types of terraforming technology and their
+ To learn more about the individual types of terraforming technology and their
 
 research requirements, open the Technology Browser (Press F2) and select Terraforming from the dropdown list.
 
@@ -398,11 +334,11 @@ Total Terraforming is a race trait, not a type of technology. Races Terraforming
 
 of just 15% normally. Terraforming requires research into only Biotechnology, To determine if instead of Biotechnology and three different additional fields.
 
-### Races based on the Claim Adjuster trait automatically terraform new colonies of the View Race
+Races based on the Claim Adjuster trait automatically terraform new colonies of the View Race
 
 dialog. upon landing. This terraforming action is both instantaneous and temporary— as soon as the planet is deserted or taken over, the environmental conditions
 
-### As the race learns more about terraforming all its planets are automatically
+ As the race learns more about terraforming all its planets are automatically
 
 and instantaneously terraformed to the limits of the technology.
 
@@ -414,7 +350,7 @@ Terraforming from orbit requires a fleet outfitted with Orbital Adjusters. These
 
 Terraforming from orbit is a great vehicle for diplomacy: in return for other technology, an alliance, or just a plain thank you, you can help your friends make their planets a better place to live. Only offer this assistance to friends Specify Friends, who have lesser terraforming capabilities than yourself. Terraforming is not Enemies and
 
-### Neutrals using the
+Neutrals using the
 
 additive—you can’t combine your orbital terraforming abilities with those of
 
@@ -437,48 +373,30 @@ A planet report contains the following information:
 
 Planet name – the color of the dot, if present, indicates the type of starbase, and whether a mass driver and stargate are present. In the report, the name of
 
-Yellow dot — starbase has a space dock (can build ships)
+- Yellow dot — starbase has a space dock (can build ships)
+- Blue dot — starbase without a space dock
+- Purple dot — mass driver
+- green dot — stargate
+- Starbase – Click to display the starbase design.
+- Population – Current population. Click to display details.
+- Cap – Percentage of planetary population capacity.
+- Value – Shows the maximum population percentage relative to maximum growth under optimal conditions (100%). A second number is the value after terraforming using your current technology. Click to display details.
+Production – the item at the top that planet’s production queue. 
+- Mine – Number of mines in existence. Click for details.
+- Fact – Number of factories in existence. Click for details.
+- Defense – Type of planetary defenses.
+- Minerals – Number in kT of each type of Mineral on the planet surface. Click
+- Mining – Mining rate of each mineral in kT/year. Click for details.
+- Min Conc – Mineral concentration for each type of mineral. Click for details.
+- Resources – Resources available for use by the planet, followed by total resources generated by the planet. Click for details, including the number of Changing the Order Production dialog, 
+  - Driver Dest – Destination of mineral packets flung from that mass driver. 
+- Sorting Starbases for Routing Dest – Destination planet for ships routed from production.
 
-Blue dot — starbase without a space dock
-
-Purple dot — mass driver
-
-green dot — stargate
-
-Starbase – Click to display the starbase design.
-
-Population – Current population. Click to display details.
-
-Cap – Percentage of planetary population capacity.
-
-Value – Shows the maximum population percentage relative to maximum growth under optimal conditions (100%). A second number is the value after terraforming using your current technology. Click to display details.
-
-
-Production – the item at the top that planet’s production queue. Click to
-
-Mine – Number of mines in existence. Click for details.
-
-Fact – Number of factories in existence. Click for details.
-
-Defense – Type of planetary defenses.
-
-Minerals – Number in kT of each type of Mineral on the planet surface. Click
-
-Mining – Mining rate of each mineral in kT/year. Click for details.
-
-Min Conc – Mineral concentration for each type of mineral. Click for details.
-
-Resources – Resources available for use by the planet, followed by total resources generated by the planet. Click for details, including the number of Changing the Order Production dialog, Driver Dest – Destination of mineral packets flung from that mass driver. p 7-10
-
-### Sorting Starbases for
-
-Routing Dest – Destination planet for ships routed from production.
-
-7 PRODUCTION
+### PRODUCTION
 
 In Stars! you produce ships, mines, factories and defenses, and assign tasks, such as terraforming. The Production dialog lists all the things you can build or tasks you can perform on a specific planet, commands that allow you to add these items to the queue, information showing how much each item will cost and when or if it will be completed given your available resources.
 
-### HOW PRODUCTION WORKS required to perform
+### HOW PRODUCTION WORKS 
 
 You have one production queue per planet. The queue is essentially a work list. Items are produced in the order shown in the queue, from top to bottom.
 
@@ -489,17 +407,11 @@ the selected item in the specified quantity
 You can add, delete or move items at any time, anywhere in the queue. The percentage complete is shown for the selected item. If you add an item to the top of the queue in front of something that is partially complete, your people will not work to complete the original item until the new item you placed in the queue is complete or has been deleted. Production of items that require minerals is halted if the planet runs out of minerals. Auto-build items that
 
 
-### The production inventory lists all the things you know how to build or tasks
+### The production inventory lists all the things you know how to build or tasks you can currently perform on that planet.
 
-you can currently perform on that planet.
+- Inventory of everything the planet in the same color.
 
-### Inventory of everything the planet
-
-in the same color.
-
-### Amount of each mineral and
-
-selected in the inventory.
+- Amount of each mineral and selected in the inventory.
 
 ### Unique Items
 

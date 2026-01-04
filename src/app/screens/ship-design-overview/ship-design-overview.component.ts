@@ -65,13 +65,18 @@ export class ShipDesignOverviewComponent {
     return assignment?.components || [];
   });
 
-  startNewDesign(hullId: string = 'scout') {
+  startNewDesign(hullId?: string) {
     const player = this.gameState.player();
     const turn = this.gameState.turn();
     if (!player) return;
 
+    // If no hullId provided, use the first available hull
+    const availableHulls = this.designer.getAvailableHulls();
+    const defaultHullId =
+      hullId || (availableHulls.length > 0 ? availableHulls[0].Name : 'Small Freighter');
+
     this.designer.setTechLevels(player.techLevels);
-    this.designer.startNewDesign(hullId, player.id, turn);
+    this.designer.startNewDesign(defaultHullId, player.id, turn);
     this.mode.set('designer');
   }
 
