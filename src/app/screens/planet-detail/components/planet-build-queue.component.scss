@@ -1,16 +1,25 @@
 .build-queue-container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-sm);
+  
+    @media (min-width: 768px) {
+    gap: var(--space-md);
+    }
 }
 
 .section-title {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
+    font-size: 1.1rem;
+  
+    @media (min-width: 768px) {
+    margin-bottom: var(--space-lg);
+    }
 }
 
 .governor-section {
   background: rgba(255, 255, 255, 0.05);
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
 
   .controls {
@@ -38,13 +47,18 @@
 
   .main-select {
     flex-grow: 1;
-    min-width: 150px;
+    min-width: 120px;
   }
 
   .shipyard-controls {
     display: flex;
     gap: var(--space-sm);
     align-items: center;
+    width: 100%;
+    
+      @media (min-width: 768px) {
+        width: auto;
+      }
 
     input {
       width: 60px;
@@ -64,18 +78,22 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   overflow: hidden;
+  flex: 1 1 auto;
+    /* Allow growth */
 
   button {
     padding: var(--space-xs) var(--space-sm);
-    font-size: 0.85em;
+    font-size: 0.8em;
     border: none;
     border-radius: 0;
     border-right: 1px solid var(--color-border);
+    flex-grow: 1;
+      white-space: nowrap;
   }
 
   select {
     padding: var(--space-xs);
-    font-size: 0.85em;
+    font-size: 0.8em;
     background: var(--color-bg-tertiary);
     color: var(--color-text-primary);
     border: none;
@@ -85,27 +103,37 @@
 
 .scanner-btn {
   padding: var(--space-xs) var(--space-sm);
-  font-size: 0.85em;
+  font-size: 0.8em;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+  flex: 1 1 auto;
+    text-align: center;
 }
 
 .ship-construction-section {
   background: var(--color-primary-light);
-  padding: var(--space-lg);
+  padding: var(--space-md);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-primary);
 
+  @media (min-width: 768px) {
+      padding: var(--space-lg);
+    }
   .title {
     font-weight: bold;
     color: var(--color-primary-dark);
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-sm);
   }
 
   .controls {
     display: flex;
-    gap: var(--space-md);
-    flex-wrap: wrap;
+    flex-direction: column;
+      gap: var(--space-sm);
+    
+      @media (min-width: 768px) {
+        flex-direction: row;
+        gap: var(--space-md);
+      }
 
     app-ship-selector {
       flex-grow: 1;

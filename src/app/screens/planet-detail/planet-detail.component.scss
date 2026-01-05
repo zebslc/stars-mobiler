@@ -5,7 +5,9 @@
 }
 
 .planet-detail-container {
-  padding: var(--space-md);
+  padding: var(--space-sm);
+  max-width: 100%;
+  overflow-x: hidden;
 
   @media (min-width: 768px) {
     padding: var(--space-lg);
@@ -16,7 +18,7 @@
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
   border: none;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
   
   &:hover {
     background: rgba(255, 255, 255, 0.3);
@@ -24,15 +26,24 @@
 }
 
 .summary-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-lg);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+  }
 }
 
 .divider {
   border: none;
   border-top: 1px solid var(--color-border);
-  margin: var(--space-xl) 0;
+  margin: var(--space-md) 0;
+  
+  @media (min-width: 768px) {
+    margin: var(--space-xl) 0;
+  }
 }
 
 .error-container {

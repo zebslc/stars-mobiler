@@ -24,7 +24,7 @@ import { inject } from '@angular/core';
         </div>
         <div class="stat-item">
           <div class="label">Population</div>
-          <div>{{ planet().population | number }}</div>
+          <div class="value">{{ planet().population | number }}</div>
           <div
             [class.positive]="projectionDelta() >= 0"
             [class.negative]="projectionDelta() < 0"
