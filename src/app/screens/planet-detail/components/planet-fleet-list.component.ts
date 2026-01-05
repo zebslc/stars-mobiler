@@ -14,16 +14,14 @@ import { getDesign } from '../../../data/ships.data';
         @for (fleet of fleets(); track fleet.id) {
           <div class="fleet-card">
             <div class="fleet-header">
-              <span class="fleet-name">Fleet {{ fleet.id }}</span>
+              <span class="fleet-name">{{ fleet.name || 'Fleet ' + fleet.id.slice(-4) }}</span>
               <span class="fleet-owner" [class.me]="fleet.ownerId === gs.player()?.id">
                 {{ fleet.ownerId === gs.player()?.id ? 'Me' : 'Enemy' }}
               </span>
             </div>
-            
+
             <div class="fleet-details">
-              <div class="ship-count">
-                {{ getShipCount(fleet) }} Ships
-              </div>
+              <div class="ship-count">{{ getShipCount(fleet) }} Ships</div>
               @if (hasColonyShip(fleet)) {
                 <div class="badge colony">Colony Ship</div>
               }
@@ -34,7 +32,7 @@ import { getDesign } from '../../../data/ships.data';
                 <div class="badge attack">Armed</div>
               }
             </div>
-            
+
             <div class="fleet-cargo">
               @if (fleet.cargo.colonists > 0) {
                 <span class="cargo-item">{{ fleet.cargo.colonists }} Colonists</span>
@@ -43,16 +41,12 @@ import { getDesign } from '../../../data/ships.data';
 
             <!-- Actions -->
             @if (canColonize(fleet)) {
-              <button (click)="colonize.emit(fleet.id)" class="btn-action">
-                Colonize Planet
-              </button>
+              <button (click)="colonize.emit(fleet.id)" class="btn-action">Colonize Planet</button>
             }
           </div>
         }
       } @else {
-        <div class="empty-state">
-          No ships in orbit.
-        </div>
+        <div class="empty-state">No ships in orbit.</div>
       }
     </div>
   `,
@@ -61,10 +55,10 @@ import { getDesign } from '../../../data/ships.data';
 })
 export class PlanetFleetListComponent {
   gs = inject(GameStateService);
-  
+
   fleets = input.required<Fleet[]>();
   planetOwnerId = input<string | null>(null);
-  
+
   colonize = output<string>();
 
   getShipCount(fleet: Fleet): number {
@@ -72,21 +66,21 @@ export class PlanetFleetListComponent {
   }
 
   hasColonyShip(fleet: Fleet): boolean {
-    return fleet.ships.some(s => {
+    return fleet.ships.some((s) => {
       const d = getDesign(s.designId);
       return !!d?.colonyModule;
     });
   }
 
   hasCargo(fleet: Fleet): boolean {
-    return fleet.ships.some(s => {
+    return fleet.ships.some((s) => {
       const d = getDesign(s.designId);
       return (d?.cargoCapacity ?? 0) > 0;
     });
   }
 
   hasWeapons(fleet: Fleet): boolean {
-    return fleet.ships.some(s => {
+    return fleet.ships.some((s) => {
       const d = getDesign(s.designId);
       return (d?.firepower ?? 0) > 0;
     });

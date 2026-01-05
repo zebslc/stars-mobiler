@@ -98,7 +98,7 @@ export class FleetContextMenuComponent {
     // If context menu is opened on a fleet
     if (fleet) {
       opts.push({
-        label: `View Fleet ${fleet.id}`,
+        label: `View ${fleet.name || 'Fleet ' + fleet.id.slice(-4)}`,
         action: () => this.viewFleet.emit(fleet.id),
       });
 

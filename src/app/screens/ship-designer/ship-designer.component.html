@@ -7,12 +7,18 @@
           type="text"
           [value]="design()?.name || ''"
           title="Design Name"
+          maxlength="50"
           (blur)="updateDesignName($any($event.target).value)"
           (keyup.enter)="updateDesignName($any($event.target).value)"
           autofocus
         />
       } @else {
-        <h2 (click)="designNameEditing.set(true)">{{ design()?.name || 'New Design' }}</h2>
+        <div class="title-container">
+          <h3 (click)="designNameEditing.set(true)">{{ design()?.name || 'New Design' }}</h3>
+          <button class="btn-icon" (click)="designNameEditing.set(true)" title="Rename Design">
+            ✏️
+          </button>
+        </div>
       }
     </div>
     <div class="header-actions">

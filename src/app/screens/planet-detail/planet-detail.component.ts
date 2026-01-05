@@ -99,6 +99,11 @@ import { Fleet } from '../../models/game.model';
                   [defenseCoverage]="defenseCoverage()"
                   [scannerRange]="scannerRange()"
                   [resourcesPerTurn]="resourcesPerTurn()"
+                  [shipyardDesign]="shipyardDesign"
+                  [shipyardLimit]="shipyardLimit"
+                  (onGovernorType)="onGovernorType($event)"
+                  (onShipyardDesignChange)="onShipyardDesignChange($event)"
+                  (onShipyardLimit)="onShipyardLimit($event)"
                 ></app-planet-summary>
               </section>
             }
@@ -111,15 +116,10 @@ import { Fleet } from '../../models/game.model';
                     [selectedShipOption]="selectedShipOption()"
                     [buildAmount]="buildAmount()"
                     [shipBuildAmount]="shipBuildAmount()"
-                    [shipyardDesign]="shipyardDesign"
-                    [shipyardLimit]="shipyardLimit"
                     [shouldShowTerraform]="shouldShowTerraform()"
                     [shouldShowScanner]="shouldShowScanner()"
                     (queue)="queue($event)"
                     (remove)="remove($event)"
-                    (onGovernorType)="onGovernorType($event)"
-                    (onShipyardDesignChange)="onShipyardDesignChange($event)"
-                    (onShipyardLimit)="onShipyardLimit($event)"
                     (setBuildAmount)="setBuildAmount($event)"
                     (setShipBuildAmount)="setShipBuildAmount($event)"
                     (onShipSelected)="onShipSelected($event)"

@@ -215,8 +215,15 @@ export class ShipDesignerComponent implements OnInit {
   }
 
   updateDesignName(name: string) {
-    if (name.trim()) {
-      this.designer.setDesignName(name.trim());
+    // Sanitize: allow only safe characters, max 50 chars
+    // Remove HTML tags and dangerous characters
+    const sanitized = name
+      .replace(/[<>]/g, '') // Remove potential HTML tags
+      .trim()
+      .slice(0, 50);
+
+    if (sanitized) {
+      this.designer.setDesignName(sanitized);
     }
     this.designNameEditing.set(false);
   }

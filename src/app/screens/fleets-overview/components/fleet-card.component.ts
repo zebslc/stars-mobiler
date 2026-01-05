@@ -13,7 +13,7 @@ import { getDesign } from '../../../data/ships.data';
     <div class="fleet-card">
       <div class="fleet-header">
         <div class="fleet-title">
-          <h3>Fleet {{ fleet.id.slice(-4) }}</h3>
+          <h3>{{ fleet.name || 'Fleet ' + fleet.id.slice(-4) }}</h3>
           <span class="fleet-status" [class]="'status-' + status().type">
             {{ status().label }}
           </span>

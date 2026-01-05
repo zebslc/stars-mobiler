@@ -1,8 +1,19 @@
-import { Component, ChangeDetectionStrategy, input, output, computed, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  output,
+  computed,
+  signal,
+  inject,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Planet } from '../../../models/game.model';
 import { ShipSelectorComponent, ShipOption } from '../../../components/ship-selector.component';
-import { COMPILED_DESIGNS } from '../../../data/ships.data';
+import { COMPILED_DESIGNS, getDesign } from '../../../data/ships.data';
+import { GameStateService } from '../../../services/game-state.service';
 
 export type BuildProject =
   | 'mine'
@@ -18,46 +29,7 @@ export type BuildProject =
   selector: 'app-planet-build-queue',
   imports: [CommonModule, ShipSelectorComponent],
   template: `
-    <h3 class="section-title">Build Queue</h3>
     <div class="build-queue-container">
-      <!-- Governor -->
-      <div class="governor-section">
-        <div class="controls">
-          <label>Governor:</label>
-          <select
-            [value]="planet().governor?.type ?? 'manual'"
-            (change)="onGovernorTypeChange($event)"
-            class="main-select"
-          >
-            <option value="manual">Manual</option>
-            <option value="balanced">Balanced</option>
-            <option value="mining">Mining</option>
-            <option value="industrial">Industrial</option>
-            <option value="military">Military</option>
-            <option value="shipyard">Shipyard</option>
-          </select>
-          @if (planet().governor?.type === 'shipyard') {
-            <div class="shipyard-controls">
-              <select [value]="shipyardDesign()" (change)="onShipyardDesignChange.emit($event)">
-                <option value="scout">Scout</option>
-                <option value="frigate">Frigate</option>
-                <option value="destroyer">Destroyer</option>
-                <option value="freighter">Freighter</option>
-                <option value="super_freighter">S.Freighter</option>
-                <option value="tanker">Tanker</option>
-                <option value="settler">Colony</option>
-              </select>
-              <input
-                type="number"
-                [value]="shipyardLimit()"
-                (input)="onShipyardLimit.emit($event)"
-                placeholder="∞"
-              />
-            </div>
-          }
-        </div>
-      </div>
-
       <!-- Build Items -->
       <div class="build-controls-row">
         <select
@@ -91,28 +63,35 @@ export type BuildProject =
 
       <div class="ship-construction-section">
         <div class="title">Ship Construction</div>
-        <div class="controls">
-          <app-ship-selector
-            [options]="availableShipOptions()"
-            [selectedShip]="selectedShipOption()"
-            (shipSelected)="onShipSelected.emit($event)"
-          ></app-ship-selector>
+        @if (availableShipOptions().length > 0) {
+          <div class="controls">
+            <app-ship-selector
+              [options]="availableShipOptions()"
+              [selectedShip]="selectedShipOption()"
+              (shipSelected)="onShipSelected.emit($event)"
+            ></app-ship-selector>
 
-          <select
-            [value]="shipBuildAmount()"
-            (change)="onShipQuantityChange($event)"
-            class="amount-select"
-          >
-            <option [value]="1">1</option>
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="25">25</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
-          </select>
+            <select
+              [value]="shipBuildAmount()"
+              (change)="onShipQuantityChange($event)"
+              class="amount-select"
+            >
+              <option [value]="1">1</option>
+              <option [value]="5">5</option>
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+              <option [value]="100">100</option>
+            </select>
 
-          <button (click)="buildShip()" class="btn-primary">Build Ship</button>
-        </div>
+            <button (click)="buildShip()" class="btn-primary">Build Ship</button>
+          </div>
+        } @else {
+          <div class="no-designs">
+            <p>No ship designs available.</p>
+            <button (click)="goToDesigner()" class="btn-primary">Design New Ship</button>
+          </div>
+        }
       </div>
     </div>
     @if ((planet().buildQueue?.length ?? 0) > 0) {
@@ -128,7 +107,9 @@ export type BuildProject =
                 }
               </span>
               @if (it.project === 'ship' && it.shipDesignId) {
-                <span class="text-small text-muted detail"> ({{ it.shipDesignId }}) </span>
+                <span class="text-small text-muted detail">
+                  ({{ getDesignName(it.shipDesignId) }})
+                </span>
               }
               @if (it.isAuto) {
                 <span class="text-small text-muted detail" style="font-style: italic;">
@@ -152,20 +133,20 @@ export type BuildProject =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanetBuildQueueComponent {
+  private router = inject(Router);
+  private gs = inject(GameStateService);
+
+  @ViewChild(ShipSelectorComponent) shipSelector?: ShipSelectorComponent;
+
   planet = input.required<Planet>();
   shipOptions = input.required<ShipOption[]>();
   selectedShipOption = input.required<ShipOption | null>();
   buildAmount = input.required<number>();
-  shipyardDesign = input.required<string>();
-  shipyardLimit = input.required<number>();
   shouldShowTerraform = input.required<boolean>();
   shouldShowScanner = input.required<boolean>();
 
   queue = output<BuildProject>();
   remove = output<number>();
-  onGovernorType = output<Event>();
-  onShipyardDesignChange = output<Event>();
-  onShipyardLimit = output<Event>();
   setBuildAmount = output<number>();
   onShipSelected = output<ShipOption>();
   setShipBuildAmount = output<number>();
@@ -191,6 +172,10 @@ export class PlanetBuildQueueComponent {
     this.queue.emit('ship');
   }
 
+  goToDesigner() {
+    this.router.navigate(['/ship-design']);
+  }
+
   onQuantityChange(event: Event) {
     const value = +(event.target as HTMLSelectElement).value;
     this.setBuildAmount.emit(value);
@@ -201,8 +186,15 @@ export class PlanetBuildQueueComponent {
     this.setShipBuildAmount.emit(value);
   }
 
-  onGovernorTypeChange(event: Event) {
-    this.onGovernorType.emit(event);
+  getDesignName(id: string): string {
+    // Try to find in game state designs first (user designs)
+    const gameDesigns = this.gs.game()?.shipDesigns;
+    const userDesign = gameDesigns?.find((d) => d.id === id);
+    if (userDesign) return userDesign.name;
+
+    // Fallback to compiled designs (built-in)
+    const design = getDesign(id);
+    return design?.name || id;
   }
 
   queueColor(item: any, index: number): string {

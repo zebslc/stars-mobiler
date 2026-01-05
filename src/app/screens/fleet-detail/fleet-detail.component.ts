@@ -26,7 +26,7 @@ import { TechService } from '../../services/tech.service';
           >
             ← Back
           </button>
-          <h2>Fleet</h2>
+          <h2>{{ fleet()!.name || 'Fleet' }}</h2>
         </div>
         <div class="text-small" style="opacity:0.9">
           Owner: {{ fleet()!.ownerId === gs.player()?.id ? 'You' : 'Enemy' }}

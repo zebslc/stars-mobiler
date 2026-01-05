@@ -121,6 +121,7 @@ export type FleetOrder =
 
 export type Fleet = {
   id: string;
+  name: string;
   ownerId: string;
   location: { type: 'orbit'; planetId: string } | { type: 'space'; x: number; y: number };
   ships: ShipStack[];

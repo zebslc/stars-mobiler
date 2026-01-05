@@ -33,12 +33,12 @@ export interface ShipOption {
         [class.open]="isOpen()"
       >
         <span *ngIf="selectedShip" class="selected-content">
-          <app-ship-design-item 
-              [design]="toDisplay(selectedShip.design)" 
-              [count]="selectedShip.existingCount"
-              mode="selector" 
-              class="flex-grow"
-            ></app-ship-design-item>
+          <app-ship-design-item
+            [design]="toDisplay(selectedShip.design)"
+            [count]="selectedShip.existingCount"
+            mode="selector"
+            class="flex-grow"
+          ></app-ship-design-item>
           <div class="selected-cost">{{ selectedShip.cost.resources }}R</div>
         </span>
         <span *ngIf="!selectedShip" class="placeholder">Select ship design...</span>
@@ -279,6 +279,10 @@ export class ShipSelectorComponent {
 
   toggleDropdown() {
     this.isOpen.update((val) => !val);
+  }
+
+  close() {
+    this.isOpen.set(false);
   }
 
   selectShip(option: ShipOption) {

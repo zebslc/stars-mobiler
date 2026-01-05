@@ -73,8 +73,31 @@ export class ColonyService {
                 );
                 let fleet = orbitFleets[0];
                 if (!fleet) {
+                  // Generate fleet name
+                  const userDesign = game.shipDesigns.find((d) => d.id === designId);
+                  const legacyDesign = getDesign(designId);
+                  const baseName = userDesign?.name || legacyDesign.name || 'Fleet';
+
+                  const sameNameFleets = game.fleets.filter(
+                    (f) =>
+                      f.ownerId === game.humanPlayer.id && f.name && f.name.startsWith(baseName),
+                  );
+                  let maxNum = 0;
+                  // Match "Name-1", "Name-2", etc.
+                  const escapedBaseName = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                  const regex = new RegExp(`^${escapedBaseName}-(\\d+)$`);
+                  for (const f of sameNameFleets) {
+                    const match = f.name.match(regex);
+                    if (match) {
+                      const num = parseInt(match[1], 10);
+                      if (num > maxNum) maxNum = num;
+                    }
+                  }
+                  const newName = `${baseName}-${maxNum + 1}`;
+
                   fleet = {
                     id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                    name: newName,
                     ownerId: game.humanPlayer.id,
                     location: { type: 'orbit', planetId: planet.id },
                     ships: [],

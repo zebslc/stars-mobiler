@@ -11,6 +11,43 @@ import { inject } from '@angular/core';
   template: `
     <div class="card planet-summary-card">
       <div class="status-section">
+        <div class="governor-section">
+          <div class="controls">
+            <label>Governor:</label>
+            <select
+              [value]="planet().governor?.type ?? 'manual'"
+              (change)="onGovernorTypeChange($event)"
+              class="main-select"
+            >
+              <option value="manual">Manual</option>
+              <option value="balanced">Balanced</option>
+              <option value="mining">Mining</option>
+              <option value="industrial">Industrial</option>
+              <option value="military">Military</option>
+              <option value="shipyard">Shipyard</option>
+            </select>
+            @if (planet().governor?.type === 'shipyard') {
+              <div class="shipyard-controls">
+                <select [value]="shipyardDesign()" (change)="onShipyardDesignChange.emit($event)">
+                  <option value="scout">Scout</option>
+                  <option value="frigate">Frigate</option>
+                  <option value="destroyer">Destroyer</option>
+                  <option value="freighter">Freighter</option>
+                  <option value="super_freighter">S.Freighter</option>
+                  <option value="tanker">Tanker</option>
+                  <option value="settler">Colony</option>
+                </select>
+                <input
+                  type="number"
+                  [value]="shipyardLimit()"
+                  (input)="onShipyardLimit.emit($event)"
+                  placeholder="∞"
+                />
+              </div>
+            }
+          </div>
+        </div>
+
         <div class="stats-list">
           <div class="stat-row">
             <div class="label">Population</div>
@@ -88,6 +125,17 @@ export class PlanetSummaryComponent {
   defenseCoverage = input.required<number>();
   scannerRange = input.required<number>();
   resourcesPerTurn = input.required<number>();
+
+  shipyardDesign = input<string>();
+  shipyardLimit = input<number>();
+
+  onGovernorType = output<Event>();
+  onShipyardDesignChange = output<Event>();
+  onShipyardLimit = output<Event>();
+
+  onGovernorTypeChange(event: Event) {
+    this.onGovernorType.emit(event);
+  }
 
   // Removed header outputs
   // prev = output<void>();
