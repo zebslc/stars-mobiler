@@ -87,7 +87,13 @@ import { TechRequirement } from '../../../data/tech-atlas.data';
         </div>
       } @else {
         <div class="next-unlocks">
-          <div class="unlock-max">🏆 Maximum level reached</div>
+          @if (currentLevel() >= 26) {
+            <div class="unlock-max">🏆 Maximum level reached</div>
+          } @else {
+            <div class="unlock-max" style="color: var(--color-text-muted)">
+              No new unlocks at Level {{ currentLevel() + 1 }}
+            </div>
+          }
         </div>
       }
 
