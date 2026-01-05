@@ -14,8 +14,9 @@ export interface CompiledShipStats {
   // Movement
   warpSpeed: number;
   fuelCapacity: number;
-  fuelEfficiency: number; // 0 = ramscoop
+  fuelEfficiency?: number;
   idealWarp: number;
+  isRamscoop: boolean;
 
   // Combat
   firepower: number;
@@ -55,15 +56,16 @@ export interface CompiledShipStats {
 export function compileShipStats(
   hull: Hull,
   assignments: SlotAssignment[],
-  miniaturizedComponents: MiniaturizedComponent[]
+  miniaturizedComponents: MiniaturizedComponent[],
 ): CompiledShipStats {
   const errors: string[] = [];
 
   // Start with hull base stats
   let totalMass = hull.mass;
   let warpSpeed = 0;
-  let fuelEfficiency = 0;
+  let fuelEfficiency: number | undefined = undefined;
   let idealWarp = 0;
+  let isRamscoop = false;
   let firepower = 0;
   let shields = 0;
   let accuracy = 0;
@@ -113,8 +115,10 @@ export function compileShipStats(
           // For engines, only the best one matters (not cumulative)
           if (baseComponent.warpSpeed && baseComponent.warpSpeed > warpSpeed) {
             warpSpeed = baseComponent.warpSpeed;
-            fuelEfficiency = baseComponent.fuelEfficiency || 0;
+            fuelEfficiency = baseComponent.fuelEfficiency;
             idealWarp = baseComponent.idealWarp || baseComponent.warpSpeed;
+            // Only engines ending in "Scoop" are ramscoops (flagged in data)
+            isRamscoop = !!baseComponent.isRamscoop;
           }
           break;
 
@@ -180,6 +184,7 @@ export function compileShipStats(
     fuelCapacity: hull.fuelCapacity,
     fuelEfficiency,
     idealWarp,
+    isRamscoop,
     firepower,
     armor: hull.armor,
     shields,

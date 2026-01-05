@@ -277,15 +277,21 @@ export class ShipDesignerService {
       // Map old tech field names to new ones
       const fieldMap: Record<string, keyof PlayerTech> = {
         energy: 'Energy',
+        Energy: 'Energy',
         weapons: 'Kinetics',
+        Kinetics: 'Kinetics',
         propulsion: 'Propulsion',
+        Propulsion: 'Propulsion',
         construction: 'Construction',
+        Construction: 'Construction',
         electronics: 'Energy',
+        Electronics: 'Energy',
         biotechnology: 'Construction',
+        Biotechnology: 'Construction',
       };
 
       // Check tech level requirement
-      const mappedField = fieldMap[baseComponent.techRequired.field] || 'Construction';
+      const mappedField = fieldMap[baseComponent.techRequired.field] || fieldMap[baseComponent.techRequired.field.toLowerCase()] || 'Construction';
       const playerLevel = techLevels[mappedField];
       if (playerLevel < baseComponent.techRequired.level) {
         return false;

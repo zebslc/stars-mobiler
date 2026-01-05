@@ -1,6 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { CompiledShipStats } from '../../../models/ship-design.model';
+import { Hull } from '../../../data/hulls.data';
 import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-stats.component';
 
 @Component({
@@ -19,6 +20,29 @@ import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-s
 
     @if (selectedTab() === 'summary' && stats) {
       <h3>Ship Statistics</h3>
+      @if (hull) {
+        <div class="stat-group">
+          <h4>Base</h4>
+          <div class="stat">
+            <span class="label">Hull Mass:</span>
+            <span class="value">{{ hull.mass }}kt</span>
+          </div>
+          <div class="stat">
+            <span class="label">Max Fuel:</span>
+            <span class="value">{{ hull.fuelCapacity }}mg</span>
+          </div>
+          <div class="stat">
+            <span class="label">Armor:</span>
+            <span class="value">{{ hull.armor }}</span>
+          </div>
+          @if (hull.Stats?.Initiative) {
+            <div class="stat">
+              <span class="label">Initiative:</span>
+              <span class="value">{{ hull.Stats.Initiative }}</span>
+            </div>
+          }
+        </div>
+      }
       <div class="stat-group">
         <h4>⚡ Movement</h4>
         <div class="stat">
@@ -32,7 +56,7 @@ import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-s
         <div class="stat">
           <span class="label">Fuel Efficiency:</span>
           <span class="value">
-            {{ stats.fuelEfficiency === 0 ? 'Ramscoop' : stats.fuelEfficiency }}
+            {{ stats.isRamscoop ? 'Ramscoop' : (stats.fuelEfficiency ?? '—') }}
           </span>
         </div>
         <div class="stat">
@@ -228,6 +252,7 @@ import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-s
 export class ShipDesignerStatsComponent {
   @Input({ required: true }) stats: CompiledShipStats | null = null;
   @Input() hoveredItem: any = null;
+  @Input() hull: Hull | null = null;
   selectedTab = signal<'summary' | 'details'>('summary');
 
   formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {

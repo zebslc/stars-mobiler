@@ -145,6 +145,7 @@ export interface ComponentStats {
   };
   img: string;
   description: string;
+  isRamscoop?: boolean;
 }
 
 export interface ComponentCategory {

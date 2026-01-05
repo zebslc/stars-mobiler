@@ -16,6 +16,7 @@ export interface MiniaturizedComponent {
   name: string;
   img: string;
   description?: string;
+  isRamscoop?: boolean;
   mass: number;
   baseMass: number;
   cost: {
@@ -66,15 +67,24 @@ export function miniaturizeComponent(
   // Map old tech field names to new ones
   const fieldMap: Record<string, keyof PlayerTech> = {
     energy: 'Energy',
+    Energy: 'Energy',
     weapons: 'Kinetics',
+    Kinetics: 'Kinetics',
     propulsion: 'Propulsion',
+    Propulsion: 'Propulsion',
     construction: 'Construction',
+    Construction: 'Construction',
     electronics: 'Energy', // Electronics tech is now part of Energy
+    Electronics: 'Energy',
     biotechnology: 'Construction', // Biotechnology removed, map to Construction as fallback
+    Biotechnology: 'Construction',
   };
 
   // Get player's tech level in the component's required field
-  const mappedField = fieldMap[component.techRequired.field] || 'Construction';
+  const mappedField =
+    fieldMap[component.techRequired.field] ||
+    fieldMap[component.techRequired.field.toLowerCase()] ||
+    'Construction';
   const playerLevel = techLevels[mappedField];
   const requiredLevel = component.techRequired.level;
 
@@ -107,6 +117,7 @@ export function miniaturizeComponent(
     name: component.name,
     img: component.img,
     description: component.description,
+    isRamscoop: component.isRamscoop,
     mass: miniaturizedMass,
     baseMass: component.mass,
     cost: miniaturizedCost,

@@ -37,7 +37,12 @@ import { getComponent } from '../../../data/components.data';
                 />
               </div>
               <div class="component-details">
-                <div class="component-name">{{ component.name }}</div>
+                <div class="component-name">
+                  {{ component.name }}
+                  @if (component.isRamscoop) {
+                    <span class="ramscoop-badge">Ramscoop</span>
+                  }
+                </div>
                 @if (component.description) {
                   <div class="component-description">{{ component.description }}</div>
                 }
@@ -165,6 +170,19 @@ import { getComponent } from '../../../data/components.data';
       .component-name {
         font-weight: bold;
         color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .ramscoop-badge {
+        font-size: 0.7rem;
+        background: rgba(255, 87, 34, 0.2);
+        color: #ff5722;
+        border: 1px solid #ff5722;
+        padding: 0 4px;
+        border-radius: 3px;
+        text-transform: uppercase;
       }
 
       .component-description {

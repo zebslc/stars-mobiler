@@ -165,43 +165,6 @@ interface GridSlot {
         padding: 1rem;
       }
 
-      .hull-info {
-        margin-bottom: 2rem;
-      }
-
-      .hull-info h3 {
-        margin: 0 0 1rem 0;
-        color: #4fc3f7;
-      }
-
-      .hull-stats {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9rem;
-      }
-
-      .label {
-        color: #888;
-      }
-
-      .value {
-        color: #fff;
-      }
-
-      .hull-cost {
-        font-size: 0.9rem;
-        color: #aaa;
-        padding-top: 0.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
       .slots-container h4 {
         margin: 0 0 1rem 0;
         color: #fff;

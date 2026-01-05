@@ -32,9 +32,9 @@ const convertComponentStats = (stats: ComponentStats): Component => {
   const component: Component = {
     ...stats,
     // Map stats properties to legacy property names
-    warpSpeed: stats.stats.warp,
+    warpSpeed: stats.stats.maxWarp,
     fuelEfficiency: stats.stats.fuelEff,
-    idealWarp: stats.stats.warp, // Use warp as idealWarp if not specified
+    idealWarp: stats.stats.maxWarp, // Use maxWarp as idealWarp if not specified
     damage: stats.stats.power || stats.stats.kill, // Use power or kill for damage
     accuracy: stats.stats.accuracy,
     initiative: stats.stats.initiative,
@@ -45,13 +45,13 @@ const convertComponentStats = (stats: ComponentStats): Component => {
     colonistCapacity: stats.stats.cap ? stats.stats.cap * 1000 : undefined, // Convert kT to colonists
     techRequired: {
       field: Object.keys(stats.tech)[0] || 'Construction',
-      level: Object.values(stats.tech)[0] || 0
+      level: Object.values(stats.tech)[0] || 0,
     },
     baseCost: {
       ironium: stats.cost.iron,
       boranium: stats.cost.bor,
       germanium: stats.cost.germ,
-    }
+    },
   };
   
   return component;

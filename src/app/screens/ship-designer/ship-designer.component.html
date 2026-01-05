@@ -24,6 +24,42 @@
     </div>
   </div>
 
+  <!-- Top Summary Bar -->
+  @if (stats() && hull()) {
+    <div class="summary-bar">
+      <div class="summary-item">
+        <span class="label">Mass</span>
+        <span class="value">{{ stats()!.mass }}kt</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Fuel</span>
+        <span class="value">{{ stats()!.fuelCapacity }}mg</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Armor</span>
+        <span class="value">{{ stats()!.armor }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Shields</span>
+        <span class="value">{{ stats()!.shields }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Init</span>
+        <span class="value">{{ stats()!.initiative }}</span>
+      </div>
+      <div class="summary-item wide">
+        <span class="label">Cost</span>
+        <span class="value">{{ stats() ? formatCost(stats()!.cost) : '' }}</span>
+      </div>
+      @if (hull()?.description) {
+        <div class="summary-item description">
+          <span class="label">About</span>
+          <span class="value">{{ hull()!.description }}</span>
+        </div>
+      }
+    </div>
+  }
+
   <!-- Main Content -->
   <div class="designer-content">
     <!-- Left: Hull and Slots -->
@@ -43,6 +79,7 @@
       <app-ship-designer-stats
         [stats]="stats()"
         [hoveredItem]="hoveredItem()"
+        [hull]="hull()"
       ></app-ship-designer-stats>
     </div>
   </div>

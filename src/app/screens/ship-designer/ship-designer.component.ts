@@ -76,6 +76,14 @@ export class ShipDesignerComponent implements OnInit {
   readonly designNameEditing = signal(false);
   readonly hoveredItem = signal<any>(null);
 
+  formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {
+    const parts: string[] = [];
+    if (cost.ironium) parts.push(`${cost.ironium} Fe`);
+    if (cost.boranium) parts.push(`${cost.boranium} B`);
+    if (cost.germanium) parts.push(`${cost.germanium} Ge`);
+    return parts.join(', ');
+  }
+
   ngOnInit() {
     // Set player tech levels for miniaturization
     const player = this.gameState.player();

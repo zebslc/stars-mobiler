@@ -24,7 +24,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
       },
     },
     img: 'eng-settlers-delight',
-    description: 'Basic colonist transport engine.'
+    description: 'Basic colonist transport engine.',
   },
   {
     id: 'eng_quick_jump_5',
@@ -250,6 +250,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     img: 'eng-radiating-hydro-ram-scoop',
     description: 'Dirty ram scoop fuel collector. Kills settlers in transit',
+    isRamscoop: true,
   },
   {
     id: 'eng_sub_galactic_scoop',
@@ -275,6 +276,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     img: 'eng-sub-galactic-scoop',
     description: 'Improved ram scoop technology.',
+    isRamscoop: true,
   },
   {
     id: 'eng_trans_galactic_fuel_scoop',
@@ -300,6 +302,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     img: 'eng-trans-galactic-fuel-scoop',
     description: 'Advanced fuel scoop system.',
+    isRamscoop: true,
   },
   {
     id: 'eng_trans_galactic_super_scoop',
@@ -325,6 +328,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     img: 'eng-trans-galactic-super-scoop',
     description: 'High-efficiency fuel collection.',
+    isRamscoop: true,
   },
   {
     id: 'eng_trans_galactic_mizer_scoop',
@@ -350,6 +354,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     img: 'eng-trans-galactic-mizer-scoop',
     description: 'Ultra-efficient fuel scoop.',
+    isRamscoop: true,
   },
   {
     id: 'eng_galaxy_scoop',
