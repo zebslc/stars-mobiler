@@ -35,7 +35,7 @@ import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-s
             <span class="label">Armor:</span>
             <span class="value">{{ hull.armor }}</span>
           </div>
-          @if (hull.Stats?.Initiative) {
+          @if (hull.Stats.Initiative) {
             <div class="stat">
               <span class="label">Initiative:</span>
               <span class="value">{{ hull.Stats.Initiative }}</span>

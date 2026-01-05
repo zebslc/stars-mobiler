@@ -8,37 +8,31 @@ import { Planet } from '../../../models/game.model';
   imports: [CommonModule],
   template: `
     <div class="card resources-card">
-      <h3 class="card-header">
-        Resources
-      </h3>
-      <div class="available-resources">
-        <div class="text-small text-muted">Available Resources</div>
-        <div class="value">
-          {{ planet().resources }}
-        </div>
-        <div class="text-xs text-muted">+{{ resourcesPerTurn() }}/turn</div>
-      </div>
+      <h3 class="card-header">Minerals On Hand</h3>
+
       <div class="minerals-grid">
         <div class="mineral-item">
-          <div class="label iron">Iron</div>
-          <div class="value">
-            {{ planet().surfaceMinerals.iron }}
-          </div>
-          <div class="text-xs text-muted">{{ planet().mineralConcentrations.iron }}%</div>
+          <div class="label iron">Ironium</div>
+          <div class="value">{{ planet().surfaceMinerals.iron }} kT</div>
         </div>
         <div class="mineral-item">
           <div class="label boranium">Boranium</div>
-          <div class="value">
-            {{ planet().surfaceMinerals.boranium }}
-          </div>
-          <div class="text-xs text-muted">{{ planet().mineralConcentrations.boranium }}%</div>
+          <div class="value">{{ planet().surfaceMinerals.boranium }} kT</div>
         </div>
         <div class="mineral-item">
           <div class="label germanium">Germanium</div>
-          <div class="value">
-            {{ planet().surfaceMinerals.germanium }}
-          </div>
-          <div class="text-xs text-muted">{{ planet().mineralConcentrations.germanium }}%</div>
+          <div class="value">{{ planet().surfaceMinerals.germanium }} kT</div>
+        </div>
+      </div>
+
+      <div class="facilities-grid">
+        <div class="facility-item">
+          <div class="label">Mines</div>
+          <div class="value">{{ planet().mines }} of {{ maxFacilities() }}</div>
+        </div>
+        <div class="facility-item">
+          <div class="label">Factories</div>
+          <div class="value">{{ planet().factories }} of {{ maxFacilities() }}</div>
         </div>
       </div>
     </div>
@@ -48,5 +42,8 @@ import { Planet } from '../../../models/game.model';
 })
 export class PlanetResourcesComponent {
   planet = input.required<Planet>();
-  resourcesPerTurn = input.required<number>();
+
+  maxFacilities() {
+    return Math.floor(this.planet().population / 10);
+  }
 }

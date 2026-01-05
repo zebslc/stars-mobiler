@@ -7,9 +7,8 @@ import { ToastService } from '../../services/toast.service';
 import { getDesign, COMPILED_DESIGNS } from '../../data/ships.data';
 import { ShipOption } from '../../components/ship-selector.component';
 import { PlanetSummaryComponent } from './components/planet-summary.component';
-import { PlanetResourcesComponent } from './components/planet-resources.component';
 import { PlanetBuildQueueComponent } from './components/planet-build-queue.component';
-import { PlanetColonizationComponent } from './components/planet-colonization.component';
+import { PlanetFleetListComponent } from './components/planet-fleet-list.component';
 import { Fleet } from '../../models/game.model';
 
 @Component({
@@ -18,66 +17,112 @@ import { Fleet } from '../../models/game.model';
   imports: [
     CommonModule,
     PlanetSummaryComponent,
-    PlanetResourcesComponent,
     PlanetBuildQueueComponent,
-    PlanetColonizationComponent,
+    PlanetFleetListComponent,
   ],
   template: `
     @if (planet(); as p) {
       <main class="planet-detail-container">
-        <button (click)="back()" class="btn-small back-btn">← Back</button>
-        <section class="summary-section">
-          <app-planet-summary
-            [planet]="p"
-            [habitability]="habitability()"
-            [planetTexture]="planetTexture()"
-            [projectionDelta]="projectionDelta()"
-            [defenseCoverage]="defenseCoverage()"
-            [scannerRange]="scannerRange()"
-          ></app-planet-summary>
+        <!-- Header Section -->
+        <div class="planet-header">
+          <div class="header-top">
+            <button (click)="back()" class="btn-small back-btn">← Back</button>
+            <div class="planet-controls">
+              <button class="nav-btn" (click)="prevPlanet()">Prev</button>
+              <button class="nav-btn" (click)="nextPlanet()">Next</button>
+            </div>
+          </div>
 
-          <app-planet-resources
-            [planet]="p"
-            [resourcesPerTurn]="resourcesPerTurn()"
-          ></app-planet-resources>
-        </section>
+          <div class="planet-info-banner">
+            <div class="planet-visual" [style.background]="planetTexture()"></div>
+            <div class="planet-text">
+              <h2>{{ p.name }}</h2>
+              <div class="coords">
+                X: {{ getPlanetCoordinates(p)?.x }} Y: {{ getPlanetCoordinates(p)?.y }}
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <hr class="divider" />
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+          <button
+            class="tab-btn"
+            [class.active]="activeTab() === 'status'"
+            (click)="activeTab.set('status')"
+          >
+            Status
+          </button>
 
-        @if (p.ownerId === gs.player()?.id) {
-          <section>
-            <app-planet-build-queue
-              [planet]="p"
-              [shipOptions]="shipOptions()"
-              [selectedShipOption]="selectedShipOption()"
-              [buildAmount]="buildAmount()"
-              [shipyardDesign]="shipyardDesign"
-              [shipyardLimit]="shipyardLimit"
-              [shouldShowTerraform]="shouldShowTerraform()"
-              [shouldShowScanner]="shouldShowScanner()"
-              (queue)="queue($event)"
-              (remove)="remove($event)"
-              (onGovernorType)="onGovernorType($event)"
-              (onShipyardDesignChange)="onShipyardDesignChange($event)"
-              (onShipyardLimit)="onShipyardLimit($event)"
-              (setBuildAmount)="setBuildAmount($event)"
-              (onShipSelected)="onShipSelected($event)"
-            ></app-planet-build-queue>
-          </section>
-        }
+          @if (p.ownerId === gs.player()?.id) {
+            <button
+              class="tab-btn"
+              [class.active]="activeTab() === 'queue'"
+              (click)="activeTab.set('queue')"
+            >
+              Build Queue
+            </button>
+          }
 
-        @if (p.ownerId !== gs.player()?.id) {
-          <section>
-            <app-planet-colonization
-              [planet]="p"
-              [colonizersInOrbit]="colonizersInOrbit()"
-              [colonizersEnRoute]="colonizersEnRoute()"
-              [colonizersIdle]="colonizersIdle()"
-              (colonizeNow)="colonizeNow($event)"
-              (sendColonizer)="sendColonizer($event)"
-            ></app-planet-colonization>
-          </section>
-        }
+          <button
+            class="tab-btn"
+            [class.active]="activeTab() === 'fleet'"
+            (click)="activeTab.set('fleet')"
+          >
+            Ships
+          </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          @switch (activeTab()) {
+            @case ('status') {
+              <section class="summary-section">
+                <app-planet-summary
+                  [planet]="p"
+                  [habitability]="habitability()"
+                  [planetTexture]="planetTexture()"
+                  [projectionDelta]="projectionDelta()"
+                  [defenseCoverage]="defenseCoverage()"
+                  [scannerRange]="scannerRange()"
+                  [resourcesPerTurn]="resourcesPerTurn()"
+                ></app-planet-summary>
+              </section>
+            }
+            @case ('queue') {
+              @if (p.ownerId === gs.player()?.id) {
+                <section>
+                  <app-planet-build-queue
+                    [planet]="p"
+                    [shipOptions]="shipOptions()"
+                    [selectedShipOption]="selectedShipOption()"
+                    [buildAmount]="buildAmount()"
+                    [shipyardDesign]="shipyardDesign"
+                    [shipyardLimit]="shipyardLimit"
+                    [shouldShowTerraform]="shouldShowTerraform()"
+                    [shouldShowScanner]="shouldShowScanner()"
+                    (queue)="queue($event)"
+                    (remove)="remove($event)"
+                    (onGovernorType)="onGovernorType($event)"
+                    (onShipyardDesignChange)="onShipyardDesignChange($event)"
+                    (onShipyardLimit)="onShipyardLimit($event)"
+                    (setBuildAmount)="setBuildAmount($event)"
+                    (onShipSelected)="onShipSelected($event)"
+                  ></app-planet-build-queue>
+                </section>
+              }
+            }
+            @case ('fleet') {
+              <section>
+                <app-planet-fleet-list
+                  [fleets]="fleetsInOrbit()"
+                  [planetOwnerId]="p.ownerId"
+                  (colonize)="colonizeNow($event)"
+                ></app-planet-fleet-list>
+              </section>
+            }
+          }
+        </div>
       </main>
     } @else {
       <main class="error-container">
@@ -95,27 +140,73 @@ export class PlanetDetailComponent implements OnInit {
   private hab = inject(HabitabilityService);
   private toast = inject(ToastService);
 
-  private planetId = this.route.snapshot.paramMap.get('id');
+  private planetIdSignal = signal<string | null>(null);
+  activeTab = signal<'status' | 'queue' | 'fleet'>('status');
+
+  constructor() {
+    this.route.paramMap.subscribe((params) => {
+      this.planetIdSignal.set(params.get('id'));
+      // Reset tab to status when navigating to new planet
+      this.activeTab.set('status');
+    });
+  }
+
+  ngOnInit() {}
 
   planet = computed(() => {
-    // Dependency on turn ensures re-evaluation when turn changes
     this.gs.turn();
+    const id = this.planetIdSignal();
     const p =
       this.gs
         .stars()
         .flatMap((s) => s.planets)
-        .find((p) => p.id === this.planetId) || null;
-    // Return a shallow copy to trigger change detection since the object might have been mutated in place
+        .find((p) => p.id === id) || null;
     return p ? { ...p } : null;
   });
 
-  ngOnInit() {
-    // Check if planet exists on init
-    const planet = this.planet();
-    if (!planet) {
-      this.toast.error(`Planet does not exist`);
-      this.router.navigateByUrl('/map');
+  getPlanetCoordinates(p: any) {
+    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
+    return star ? star.position : null;
+  }
+
+  prevPlanet() {
+    const currentId = this.planetIdSignal();
+    const playerPlanets = this.getPlayerPlanets();
+    if (playerPlanets.length === 0) return;
+
+    const currentIndex = playerPlanets.findIndex((p) => p.id === currentId);
+    if (currentIndex === -1) {
+      this.router.navigate(['/planet', playerPlanets[0].id]);
+      return;
     }
+
+    const prevIndex = (currentIndex - 1 + playerPlanets.length) % playerPlanets.length;
+    this.router.navigate(['/planet', playerPlanets[prevIndex].id]);
+  }
+
+  nextPlanet() {
+    const currentId = this.planetIdSignal();
+    const playerPlanets = this.getPlayerPlanets();
+    if (playerPlanets.length === 0) return;
+
+    const currentIndex = playerPlanets.findIndex((p) => p.id === currentId);
+    if (currentIndex === -1) {
+      this.router.navigate(['/planet', playerPlanets[0].id]);
+      return;
+    }
+
+    const nextIndex = (currentIndex + 1) % playerPlanets.length;
+    this.router.navigate(['/planet', playerPlanets[nextIndex].id]);
+  }
+
+  private getPlayerPlanets() {
+    const playerId = this.gs.player()?.id;
+    if (!playerId) return [];
+    return this.gs
+      .stars()
+      .flatMap((s) => s.planets)
+      .filter((p) => p.ownerId === playerId)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   resourcesPerTurn = computed(() => {
@@ -144,7 +235,6 @@ export class PlanetDetailComponent implements OnInit {
       color1 = '#e67e22'; // Orange
     else color1 = '#c0392b'; // Red
 
-    // Create a "rough" texture using multiple gradients
     return `
       radial-gradient(circle at 30% 30%, ${color1}, transparent 80%),
       radial-gradient(circle at 70% 70%, rgba(0,0,0,0.4), transparent 50%),
@@ -173,70 +263,23 @@ export class PlanetDetailComponent implements OnInit {
   defenseCoverage = computed(() => {
     const p = this.planet();
     if (!p) return 0;
-    // Each defense provides roughly 1% coverage, capped at 100%
     return Math.min(100, p.defenses);
   });
 
   scannerRange = computed(() => {
     const p = this.planet();
     if (!p || !p.scanner) return 0;
-    // Base scanner range - 50 LY per scanner level
     return p.scanner * 50;
   });
 
-  colonizersInOrbit = computed(() => {
+  fleetsInOrbit = computed(() => {
     const game = this.gs.game();
     const p = this.planet();
     if (!game || !p) return [];
+
     return game.fleets.filter(
-      (f) =>
-        f.ownerId === game.humanPlayer.id &&
-        f.ships.some((s) => s.designId === 'settler') &&
-        f.location.type === 'orbit' &&
-        (f.location as any).planetId === p.id,
+      (f) => f.location.type === 'orbit' && (f.location as any).planetId === p.id,
     ) as Fleet[];
-  });
-
-  colonizersEnRoute = computed(() => {
-    const game = this.gs.game();
-    const p = this.planet();
-    if (!game || !p) return [];
-    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
-    if (!star) return [];
-
-    return game.fleets.filter((f) => {
-      if (f.ownerId !== game.humanPlayer.id) return false;
-      if (!f.ships.some((s) => s.designId === 'settler')) return false;
-      const move = f.orders.find((o) => o.type === 'move');
-      if (!move) return false;
-      return move.destination.x === star.position.x && move.destination.y === star.position.y;
-    }) as Fleet[];
-  });
-
-  colonizersIdle = computed(() => {
-    const game = this.gs.game();
-    const p = this.planet();
-    if (!game || !p) return [];
-    return game.fleets.filter((f) => {
-      if (f.ownerId !== game.humanPlayer.id) return false;
-      if (!f.ships.some((s) => s.designId === 'settler')) return false;
-
-      if (f.location.type === 'orbit' && (f.location as any).planetId === p.id) return false;
-
-      const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
-      if (star) {
-        const move = f.orders.find((o) => o.type === 'move');
-        if (
-          move &&
-          move.destination.x === star.position.x &&
-          move.destination.y === star.position.y
-        )
-          return false;
-      }
-
-      const move = f.orders.find((o) => o.type === 'move');
-      return !move;
-    }) as Fleet[];
   });
 
   shipOptions = computed(() => {
@@ -260,7 +303,6 @@ export class PlanetDetailComponent implements OnInit {
 
         const cost = design.cost;
 
-        // Determine ship type
         let shipType: 'attack' | 'cargo' | 'support' | 'colony';
         if (design.colonyModule) {
           shipType = 'colony';
@@ -272,7 +314,6 @@ export class PlanetDetailComponent implements OnInit {
           shipType = 'support';
         }
 
-        // Check if affordable from this planet's resources
         const planet = this.planet();
         const canAfford = planet
           ? planet.resources >= cost.resources &&
@@ -309,18 +350,6 @@ export class PlanetDetailComponent implements OnInit {
     this.gs.colonizeNow(fleetId);
   }
 
-  sendColonizer(fleetId: string) {
-    const p = this.planet();
-    if (!p) return;
-    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
-    if (!star) return;
-
-    this.gs.setFleetOrders(fleetId, [
-      { type: 'move', destination: star.position },
-      { type: 'colonize', planetId: p.id },
-    ]);
-  }
-
   shouldShowTerraform(): boolean {
     const hab = this.habitability();
     return hab < 100;
@@ -332,7 +361,6 @@ export class PlanetDetailComponent implements OnInit {
     if (planet.scanner > 0) return false;
     const player = this.gs.player();
     if (!player) return false;
-    // Scanners are now part of Energy tech tree
     return player.techLevels.Energy >= 1;
   }
 
@@ -358,7 +386,6 @@ export class PlanetDetailComponent implements OnInit {
                       shipDesignId: this.selectedDesign(),
                     } as any);
 
-    // Add count (scanner should always be 1)
     item.count = project === 'scanner' ? 1 : this.buildAmount();
 
     this.gs.addToBuildQueue(p.id, item);

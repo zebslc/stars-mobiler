@@ -1,79 +1,69 @@
 :host {
   display: block;
 }
+
 .planet-summary-card {
   width: 100%;
+  max-width: 600px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 0 8px;
 }
 
-.card-header {
-  margin-bottom: var(--space-sm);
-  padding-bottom: var(--space-xs);
-  border-bottom: 1px solid var(--color-border);
+.status-section {
+  padding: 0;
+}
+
+.stats-list {
   display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--space-sm);
-
-  h3 {
-    margin: 0;
-    font-size: 1.1rem;
-  }
+  padding: 2px 4px;
+    /* Reduced padding */
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.05);
+  border-radius: 0;
+    min-height: 24px;
+    /* Reduced height */
 }
 
-.planet-visual {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  box-shadow: inset -10px -10px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
-  @media (min-width: 768px) {
-    width: 48px;
-    height: 48px;
-  }
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: var(--space-xs);
-  
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-md);
-  }
-}
-
-.stat-item {
-  background: rgba(255, 255, 255, 0.03);
-  padding: var(--space-xs);
-  border-radius: var(--radius-xs);
-  
+.minerals-inline {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  gap: 8px;
+}
 
-  .label {
-    width: 100%;
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-    margin-bottom: 2px;
-  }
-
-  .value {
-    font-weight: 500;
-    font-size: 0.95rem;
-  }
-
-  .delta {
-    font-size: var(--font-size-sm);
-    margin-left: var(--space-xs);
-    
-    &.positive {
-      color: var(--color-success);
+.min-val {
+  font-weight: bold;
+  font-size: 0.8rem;
+    /* Slightly smaller for dense info */
+  
+    &.iron {
+    color: var(--color-danger);
+      /* Red for Iron */
     }
-    
-    &.negative {
-      color: var(--color-danger);
-    }
-  }
+
+        &.boranium {
+          color: var(--color-boranium);
+        }
+
+        &.germanium {
+          color: var(--color-germanium);
+        }
+        }
+.label {
+  font-weight: bold;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+.value {
+  color: var(--color-text-highlight);
+    font-weight: bold;
+    font-size: 0.85rem;
 }

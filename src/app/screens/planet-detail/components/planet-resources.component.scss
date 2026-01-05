@@ -1,76 +1,49 @@
+:host {
+  display: block;
+}
+
 .resources-card {
   width: 100%;
 }
 
 .card-header {
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-xs);
   padding-bottom: var(--space-xs);
   border-bottom: 1px solid var(--color-border);
-  
+  text-align: center;
+
   h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    font-weight: bold;
   }
 }
 
-.available-resources {
-  background: var(--color-bg-tertiary);
-  padding: var(--space-sm);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--space-sm);
+.minerals-grid, .facilities-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.facilities-grid {
+  margin-top: var(--space-xs);
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--color-border);
+}
+
+.mineral-item, .facility-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 2px 4px;
+  font-size: 0.9rem;
 
-  @media (min-width: 768px) {
-    display: block;
-    text-align: center;
-    padding: var(--space-lg);
-    margin-bottom: var(--space-md);
-  }
-
-  .text-small {
-    font-size: 0.9em;
-  }
-
-  .value {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: var(--color-primary);
-    
-    @media (min-width: 768px) {
-      font-size: var(--font-size-xl);
-    }
-  }
-}
-
-.minerals-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-xs);
-  text-align: center;
-  
-  @media (min-width: 768px) {
-    gap: var(--space-md);
-  }
-}
-
-.mineral-item {
-  background: var(--color-bg-tertiary);
-  padding: var(--space-xs);
-  border-radius: var(--radius-sm);
-  
-  @media (min-width: 768px) {
-    padding: var(--space-md);
+  &:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .label {
     font-weight: bold;
-    font-size: 0.8rem;
-    
-    @media (min-width: 768px) {
-      font-size: 1rem;
-    }
     
     &.iron { color: var(--color-iron); }
     &.boranium { color: var(--color-boranium); }
@@ -78,15 +51,6 @@
   }
 
   .value {
-    font-weight: 500;
-    font-size: 0.9rem;
-    
-    @media (min-width: 768px) {
-      font-size: var(--font-size-lg);
-    }
-  }
-  
-  .text-xs {
-    font-size: 0.7rem;
+    font-family: monospace;
   }
 }
