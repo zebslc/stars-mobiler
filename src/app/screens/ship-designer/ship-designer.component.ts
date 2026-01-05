@@ -74,6 +74,7 @@ export class ShipDesignerComponent implements OnInit {
   readonly hullSelectOpen = signal(false);
   readonly componentSelectOpen = signal(false);
   readonly designNameEditing = signal(false);
+  readonly hoveredItem = signal<any>(null);
 
   ngOnInit() {
     // Set player tech levels for miniaturization
@@ -119,6 +120,14 @@ export class ShipDesignerComponent implements OnInit {
 
   onComponentIncremented(event: { slotId: string; componentId: string }) {
     this.designer.addComponent(event.slotId, event.componentId, 1);
+  }
+
+  onSlotCleared(slotId: string) {
+    this.designer.clearSlot(slotId);
+  }
+
+  onSlotHover(item: any) {
+    this.hoveredItem.set(item);
   }
 
   removeComponent() {

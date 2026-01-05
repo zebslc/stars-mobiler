@@ -6,6 +6,7 @@
         <input
           type="text"
           [value]="design()?.name || ''"
+          title="Design Name"
           (blur)="updateDesignName($any($event.target).value)"
           (keyup.enter)="updateDesignName($any($event.target).value)"
           autofocus
@@ -31,14 +32,17 @@
       [design]="design()"
       [selectedSlotId]="selectedSlotId()"
       (slotSelected)="selectSlot($event)"
+      (slotHover)="onSlotHover($event)"
       (componentRemoved)="onComponentRemoved($event)"
       (componentIncremented)="onComponentIncremented($event)"
+      (slotCleared)="onSlotCleared($event)"
     ></app-ship-designer-slots>
 
     <!-- Right: Stats -->
     <div class="stats-panel">
       <app-ship-designer-stats
         [stats]="stats()"
+        [hoveredItem]="hoveredItem()"
       ></app-ship-designer-stats>
     </div>
   </div>
