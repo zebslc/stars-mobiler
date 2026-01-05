@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { COMPILED_DESIGNS } from '../../data/ships.data';
 import { GameStateService } from '../../services/game-state.service';
@@ -16,10 +16,8 @@ type DesignerMode = 'list' | 'designer';
   styleUrls: ['./ship-design-overview.component.css'],
 })
 export class ShipDesignOverviewComponent {
-  constructor(
-    private gameState: GameStateService,
-    private designer: ShipDesignerService,
-  ) {}
+  private gameState = inject(GameStateService);
+  private designer = inject(ShipDesignerService);
 
   private mode = signal<DesignerMode>('list');
   readonly isDesignerMode = computed(() => this.mode() === 'designer');

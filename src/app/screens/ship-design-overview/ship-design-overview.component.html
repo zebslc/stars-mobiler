@@ -8,42 +8,44 @@
 
     <div class="designs-grid">
       <!-- Standard Designs -->
-      <div class="design-card" *ngFor="let design of shipDesigns">
-        <div class="design-header">
-          <h3>{{ design.name }}</h3>
-          <span class="design-type">{{ formatType(design) }}</span>
-        </div>
-        <div class="design-stats">
-          <div class="stat-row">
-            <span>Mass:</span>
-            <span>{{ design.mass }}kt</span>
+      @for (design of shipDesigns; track design.id) {
+        <div class="design-card">
+          <div class="design-header">
+            <h3>{{ design.name }}</h3>
+            <span class="design-type">{{ formatType(design) }}</span>
           </div>
-          <div class="stat-row">
-            <span>Armor:</span>
-            <span>{{ design.armor }}dp</span>
-          </div>
-          @if (design.firepower > 0) {
+          <div class="design-stats">
             <div class="stat-row">
-              <span>Firepower:</span>
-              <span>{{ design.firepower }}</span>
+              <span>Mass:</span>
+              <span>{{ design.mass }}kt</span>
             </div>
-          }
-          <div class="stat-row">
-            <span>Speed:</span>
-            <span>Warp {{ design.warpSpeed }}</span>
-          </div>
-          <div class="stat-row">
-            <span>Fuel:</span>
-            <span>{{ design.fuelCapacity }}mg</span>
-          </div>
-          @if (design.cargoCapacity > 0) {
             <div class="stat-row">
-              <span>Cargo:</span>
-              <span>{{ design.cargoCapacity }}kt</span>
+              <span>Armor:</span>
+              <span>{{ design.armor }}dp</span>
             </div>
-          }
+            @if (design.firepower > 0) {
+              <div class="stat-row">
+                <span>Firepower:</span>
+                <span>{{ design.firepower }}</span>
+              </div>
+            }
+            <div class="stat-row">
+              <span>Speed:</span>
+              <span>Warp {{ design.warpSpeed }}</span>
+            </div>
+            <div class="stat-row">
+              <span>Fuel:</span>
+              <span>{{ design.fuelCapacity }}mg</span>
+            </div>
+            @if (design.cargoCapacity > 0) {
+              <div class="stat-row">
+                <span>Cargo:</span>
+                <span>{{ design.cargoCapacity }}kt</span>
+              </div>
+            }
+          </div>
         </div>
-      </div>
+      }
 
       <!-- Custom Designs -->
       @for (design of customDesigns(); track design.id) {
