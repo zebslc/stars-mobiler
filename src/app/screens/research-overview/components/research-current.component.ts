@@ -1,9 +1,17 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import {
+  Component,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  inject,
+  computed,
+  input,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../../services/game-state.service';
 import { TechService } from '../../../services/tech.service';
 import { TechField, TECH_FIELDS } from '../../../data/tech-tree.data';
-import { TechRequirement, HullTemplate, ComponentStats } from '../../../data/tech-atlas.data';
+import { TechRequirement } from '../../../data/tech-atlas.data';
 
 @Component({
   selector: 'app-research-current',
@@ -31,7 +39,11 @@ import { TechRequirement, HullTemplate, ComponentStats } from '../../../data/tec
         </div>
         <div class="progress-stats">
           <span>{{ researchProgress() }} / {{ nextLevelCost() }} RP</span>
-          <span>{{ totalLabs() }} Labs | {{ researchPerTurn() }} RP/turn</span>
+          @if (researchPerTurn() > 0) {
+            <span>{{ turnsToNextLevel() }} turns left ({{ researchPerTurn() }} RP/turn)</span>
+          } @else {
+            <span class="warning-text">No Research! Build Labs on planets.</span>
+          }
         </div>
       </div>
 
@@ -294,19 +306,24 @@ import { TechRequirement, HullTemplate, ComponentStats } from '../../../data/tec
         background: var(--color-primary);
         color: white;
       }
+
+      .warning-text {
+        color: var(--color-warning);
+        font-weight: bold;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResearchCurrentComponent {
-  @Input({ required: true }) selectedField!: TechField;
+  selectedField = input.required<TechField>();
   @Output() showTechTree = new EventEmitter<void>();
   @Output() showUnlockDetails = new EventEmitter<string>();
 
   private gs = inject(GameStateService);
   private techService = inject(TechService);
 
-  fieldInfo = computed(() => TECH_FIELDS[this.selectedField]);
+  fieldInfo = computed(() => TECH_FIELDS[this.selectedField()]);
 
   fieldIcon = computed(() => {
     const icons: Record<TechField, string> = {
@@ -315,11 +332,11 @@ export class ResearchCurrentComponent {
       Propulsion: '✈️',
       Construction: '🏗️',
     };
-    return icons[this.selectedField];
+    return icons[this.selectedField()];
   });
 
   currentLevel = computed(() => {
-    return this.gs.player()?.techLevels[this.selectedField] ?? 0;
+    return this.gs.player()?.techLevels[this.selectedField()] ?? 0;
   });
 
   currentUnlocks = computed(() => {
@@ -328,7 +345,7 @@ export class ResearchCurrentComponent {
   });
 
   researchProgress = computed(() => {
-    return Math.floor(this.gs.player()?.researchProgress[this.selectedField] ?? 0);
+    return Math.floor(this.gs.player()?.researchProgress[this.selectedField()] ?? 0);
   });
 
   nextLevelCost = computed(() => {
@@ -359,6 +376,19 @@ export class ResearchCurrentComponent {
     const researchTrait =
       game.humanPlayer.species.traits.find((t) => t.type === 'research')?.modifier ?? 0;
     return Math.floor(this.totalLabs() * (1 + researchTrait));
+  });
+
+  turnsToNextLevel = computed(() => {
+    const cost = this.nextLevelCost();
+    if (cost === 0) return 0;
+
+    const progress = this.researchProgress();
+    const perTurn = this.researchPerTurn();
+
+    if (perTurn <= 0) return Infinity;
+
+    const remaining = Math.max(0, cost - progress);
+    return Math.ceil(remaining / perTurn);
   });
 
   nextUnlocks = computed(() => {
@@ -410,7 +440,7 @@ export class ResearchCurrentComponent {
 
     // Filter out requirements that match the current field and have level > 0
     return reqs
-      .filter((r) => r.field !== this.selectedField && r.level > 0)
+      .filter((r) => r.field !== this.selectedField() && r.level > 0)
       .map((r) => {
         const currentLevel = player.techLevels[r.field as TechField] ?? 0;
         const requiredLevel = r.level;

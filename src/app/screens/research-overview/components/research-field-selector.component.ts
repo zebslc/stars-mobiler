@@ -28,74 +28,83 @@ import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../../data/tech-tree
       </div>
     </div>
   `,
-  styles: [`
-    .field-selection {
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+  styles: [
+    `
+      .field-selection {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
 
-    .selection-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-md);
-    }
+      .selection-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-md);
+      }
 
-    .selection-header h3 {
-      margin: 0;
-      font-size: var(--font-size-lg);
-    }
+      .selection-header h3 {
+        margin: 0;
+        font-size: var(--font-size-lg);
+      }
 
-    .field-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-md);
-    }
+      .field-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
+      }
 
-    .field-button {
-      background: var(--color-bg-secondary);
-      border: 2px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-xs);
-    }
+      @media (min-width: 600px) {
+        .field-grid {
+          grid-template-columns: repeat(4, 1fr);
+          gap: var(--space-md);
+        }
+      }
 
-    .field-button:hover {
-      border-color: var(--color-primary);
-      transform: translateY(-2px);
-    }
+      .field-button {
+        background: var(--color-bg-secondary);
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-xs);
+      }
 
-    .field-button.active {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
-      color: white;
-    }
+      .field-button:hover {
+        border-color: var(--color-primary);
+        transform: translateY(-2px);
+      }
 
-    .field-icon-large {
-      font-size: 36px;
-    }
+      .field-button.active {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: white;
+      }
 
-    .field-name {
-      font-weight: 600;
-      font-size: var(--font-size-sm);
-    }
+      .field-icon-large {
+        font-size: 36px;
+      }
 
-    .field-level-small {
-      font-size: var(--font-size-xs);
-      color: var(--color-text-muted);
-    }
+      .field-name {
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+      }
 
-    .field-button.active .field-level-small {
-      color: rgba(255, 255, 255, 0.8);
-    }
-  `],
+      .field-level-small {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-muted);
+      }
+
+      .field-button.active .field-level-small {
+        color: rgba(255, 255, 255, 0.8);
+      }
+    `,
+  ],
 })
 export class ResearchFieldSelectorComponent {
   @Input({ required: true }) selectedField!: TechField;

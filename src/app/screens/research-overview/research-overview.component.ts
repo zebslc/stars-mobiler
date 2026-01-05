@@ -75,6 +75,7 @@ export class ResearchOverviewComponent {
 
   selectField(field: TechField) {
     this.gameState.setResearchField(field);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   showUnlockDetails(unlock: string) {
