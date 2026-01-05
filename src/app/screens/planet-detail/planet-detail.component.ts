@@ -99,11 +99,7 @@ import { Fleet } from '../../models/game.model';
                   [defenseCoverage]="defenseCoverage()"
                   [scannerRange]="scannerRange()"
                   [resourcesPerTurn]="resourcesPerTurn()"
-                  [shipyardDesign]="shipyardDesign"
-                  [shipyardLimit]="shipyardLimit"
                   (onGovernorType)="onGovernorType($event)"
-                  (onShipyardDesignChange)="onShipyardDesignChange($event)"
-                  (onShipyardLimit)="onShipyardLimit($event)"
                 ></app-planet-summary>
               </section>
             }
@@ -402,8 +398,6 @@ export class PlanetDetailComponent implements OnInit {
   });
 
   selectedDesign = signal('scout');
-  shipyardDesign = 'scout';
-  shipyardLimit = 0;
   buildAmount = signal(1);
   shipBuildAmount = signal(1);
 
@@ -485,20 +479,7 @@ export class PlanetDetailComponent implements OnInit {
     const p = this.planet();
     if (!p) return;
     const val = (event.target as HTMLSelectElement).value as any;
-    const governor =
-      val === 'shipyard'
-        ? { type: 'shipyard', shipDesignId: this.shipyardDesign, buildLimit: this.shipyardLimit }
-        : { type: val };
+    const governor = { type: val };
     this.gs.setGovernor(p.id, governor as any);
-  }
-
-  onShipyardDesignChange(event: Event) {
-    this.shipyardDesign = (event.target as HTMLSelectElement).value;
-    this.onGovernorType(new Event('change'));
-  }
-  onShipyardLimit(event: Event) {
-    const val = (event.target as HTMLInputElement).valueAsNumber;
-    this.shipyardLimit = Number.isFinite(val) ? val : this.shipyardLimit;
-    this.onGovernorType(new Event('change'));
   }
 }

@@ -19,32 +19,13 @@ import { inject } from '@angular/core';
               (change)="onGovernorTypeChange($event)"
               class="main-select"
             >
-              <option value="manual">Manual</option>
+              <option value="manual">No governor</option>
               <option value="balanced">Balanced</option>
               <option value="mining">Mining</option>
               <option value="industrial">Industrial</option>
               <option value="military">Military</option>
-              <option value="shipyard">Shipyard</option>
+              <option value="research">Labs / Research</option>
             </select>
-            @if (planet().governor?.type === 'shipyard') {
-              <div class="shipyard-controls">
-                <select [value]="shipyardDesign()" (change)="onShipyardDesignChange.emit($event)">
-                  <option value="scout">Scout</option>
-                  <option value="frigate">Frigate</option>
-                  <option value="destroyer">Destroyer</option>
-                  <option value="freighter">Freighter</option>
-                  <option value="super_freighter">S.Freighter</option>
-                  <option value="tanker">Tanker</option>
-                  <option value="settler">Colony</option>
-                </select>
-                <input
-                  type="number"
-                  [value]="shipyardLimit()"
-                  (input)="onShipyardLimit.emit($event)"
-                  placeholder="∞"
-                />
-              </div>
-            }
           </div>
         </div>
 
@@ -126,12 +107,7 @@ export class PlanetSummaryComponent {
   scannerRange = input.required<number>();
   resourcesPerTurn = input.required<number>();
 
-  shipyardDesign = input<string>();
-  shipyardLimit = input<number>();
-
   onGovernorType = output<Event>();
-  onShipyardDesignChange = output<Event>();
-  onShipyardLimit = output<Event>();
 
   onGovernorTypeChange(event: Event) {
     this.onGovernorType.emit(event);

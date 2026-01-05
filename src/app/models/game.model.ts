@@ -149,13 +149,7 @@ export interface BuildItem {
   count?: number;
 }
 
-export type GovernorType =
-  | 'balanced'
-  | 'mining'
-  | 'industrial'
-  | 'military'
-  | 'shipyard'
-  | 'manual';
+export type GovernorType = 'balanced' | 'mining' | 'industrial' | 'military' | 'research' | 'manual';
 export interface PlanetGovernor {
   type: GovernorType;
   shipDesignId?: string;
