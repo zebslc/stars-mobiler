@@ -5,7 +5,7 @@ import { ALL_HULLS } from './tech-atlas.data';
 // Export slot type enum for backwards compatibility
 export enum SlotType {
   Cargo = 'Cargo',
-  Engine = 'Engine', 
+  Engine = 'Engine',
   Shield = 'Shield',
   Armor = 'Armor',
   Scanner = 'Scanner',
@@ -15,8 +15,7 @@ export enum SlotType {
   Weapon = 'Weapon',
   Bomb = 'Bomb',
   General = 'General',
-  Stargate = 'Stargate',
-  MassDriver = 'MassDriver'
+  Orbital = 'Orbital',
 }
 
 export interface HullSlot {
@@ -64,37 +63,48 @@ const convertHullTemplate = (template: HullTemplate): Hull => {
       boranium: template.Cost.Boranium,
       germanium: template.Cost.Germanium,
     },
-    slots: template.Slots.map((slot: SlotDefinition, index: number): HullSlot => ({
-      id: slot.Code || `slot_${index}`,
-      allowedTypes: slot.Allowed.map(type => {
-        // Map string types to SlotType enum
-        switch(type.toLowerCase()) {
-          case 'engine': return SlotType.Engine;
-          case 'cargo': return SlotType.Cargo;
-          case 'shield': return SlotType.Shield;
-          case 'armor': return SlotType.Armor;
-          case 'scanner': return SlotType.Scanner;
-          case 'elect': return SlotType.Elect;
-          case 'mech': return SlotType.Mech;
-          case 'weapon': return SlotType.Weapon;
-          case 'bomb': return SlotType.Bomb;
-          case 'orbital': return SlotType.General;
-          case 'stargate': return SlotType.Stargate;
-          case 'massdrivers': return SlotType.MassDriver;
-          default: return SlotType.General;
-        }
+    slots: template.Slots.map(
+      (slot: SlotDefinition, index: number): HullSlot => ({
+        id: slot.Code || `slot_${index}`,
+        allowedTypes: slot.Allowed.map((type) => {
+          // Map string types to SlotType enum
+          switch (type.toLowerCase()) {
+            case 'engine':
+              return SlotType.Engine;
+            case 'cargo':
+              return SlotType.Cargo;
+            case 'shield':
+              return SlotType.Shield;
+            case 'armor':
+              return SlotType.Armor;
+            case 'scanner':
+              return SlotType.Scanner;
+            case 'elect':
+              return SlotType.Elect;
+            case 'mech':
+              return SlotType.Mech;
+            case 'weapon':
+              return SlotType.Weapon;
+            case 'bomb':
+              return SlotType.Bomb;
+            case 'orbital':
+              return SlotType.Orbital;
+            default:
+              return SlotType.General;
+          }
+        }),
+        max: slot.Max,
+        required: slot.Required,
+        editable: slot.Editable,
+        size: typeof slot.Size === 'number' ? slot.Size : undefined,
       }),
-      max: slot.Max,
-      required: slot.Required,
-      editable: slot.Editable,
-      size: typeof slot.Size === 'number' ? slot.Size : undefined
-    })),
+    ),
     visualGrid: template.Structure?.join('\n'),
     techRequired: {
-      construction: template.techReq?.Construction || 0
-    }
+      construction: template.techReq?.Construction || 0,
+    },
   };
-  
+
   return hull;
 };
 

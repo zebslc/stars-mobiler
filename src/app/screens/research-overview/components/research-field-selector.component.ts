@@ -31,8 +31,6 @@ import { TECH_FIELDS, TECH_FIELD_LIST, TechField } from '../../../data/tech-tree
   styles: [
     `
       .field-selection {
-        flex: 1;
-        overflow: hidden;
         display: flex;
         flex-direction: column;
       }

@@ -15,7 +15,7 @@ import { ResearchUnlockDetailsComponent } from './components/research-unlock-det
     ResearchCurrentComponent,
     ResearchFieldSelectorComponent,
     ResearchTechTreeComponent,
-    ResearchUnlockDetailsComponent
+    ResearchUnlockDetailsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -49,21 +49,29 @@ import { ResearchUnlockDetailsComponent } from './components/research-unlock-det
       }
     </main>
   `,
-  styles: [`
-    .research-container {
-      padding: var(--space-lg);
-      max-width: 1000px;
-      margin: 0 auto;
-      min-height: calc(100vh - 80px);
-      display: flex;
-      flex-direction: column;
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+        overflow-y: auto;
+      }
 
-    h1 {
-      margin: 0 0 var(--space-md) 0;
-      font-size: var(--font-size-2xl);
-    }
-  `],
+      .research-container {
+        padding: var(--space-lg);
+        max-width: 1000px;
+        margin: 0 auto;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      h1 {
+        margin: 0 0 var(--space-md) 0;
+        font-size: var(--font-size-2xl);
+      }
+    `,
+  ],
 })
 export class ResearchOverviewComponent {
   private gameState = inject(GameStateService);
@@ -71,7 +79,9 @@ export class ResearchOverviewComponent {
   showTechTree = false;
   selectedUnlock = signal<string | null>(null);
 
-  readonly selectedField = computed(() => this.gameState.player()?.selectedResearchField ?? 'Propulsion');
+  readonly selectedField = computed(
+    () => this.gameState.player()?.selectedResearchField ?? 'Propulsion',
+  );
 
   selectField(field: TechField) {
     this.gameState.setResearchField(field);

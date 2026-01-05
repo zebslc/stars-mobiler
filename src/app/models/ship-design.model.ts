@@ -246,6 +246,8 @@ function getSlotTypeForComponent(component: Component): SlotType {
       return SlotType.Mech; // Mining components go in mechanical slots
     case 'bomb':
       return SlotType.Bomb;
+    case 'orbital':
+      return SlotType.Orbital;
     default:
       return SlotType.General;
   }
