@@ -127,12 +127,16 @@ export class ShipDesignerService {
     }
 
     // Replace all components in the slot with this one
+    // Enforce max count
+    const maxCount = hullSlot.max || 1;
+    const finalCount = Math.min(count, maxCount);
+
     const newSlots = design.slots.map((slot) => {
       if (slot.slotId !== slotId) return slot;
 
       return {
         ...slot,
-        components: [{ componentId, count }],
+        components: [{ componentId, count: finalCount }],
       };
     });
 

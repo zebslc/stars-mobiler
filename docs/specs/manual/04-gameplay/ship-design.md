@@ -1,6 +1,6 @@
 # Ship and Starbase Design
 
-> Hull design, components, editing designs, and trading ship blueprints.
+Hull design, components, editing designs, and trading ship blueprints.
 
 ---
 
@@ -23,19 +23,13 @@ think you’ll want to research. Take ship design into account when you plan you
 
 ## DESIGNING A NEW HULL FROM SCRATCH
 
-### Hull schematics show the type and number of components a hull is designed
-
-to hold. The schematic is made up of component slots that only accept the type and number of components indicated by their labels. Cargo spaces only
+Hull schematics show the type and number of components a hull is designed to hold. The schematic is made up of component slots that only accept the type and number of components indicated by their labels. Cargo spaces only
 
 ### Component
 
 To design a new ship from an empty hull schematic:
 
-Tip: You can use
-
-### Copy Selected
-
-be perfect).
+Tip: You can use Copy Selected
 
 If the Copy Selected Design button is shadowed, you’ve reached the maximum of 16 concurrent ship designs. You must delete an existing
 
@@ -43,17 +37,14 @@ If the Copy Selected Design button is shadowed, you’ve reached the maximum of 
 
 Tip: Hold down the
 
-### CTRL key to drag as
+CTRL key to drag as
 
 slot can hold, or the
 
-### SHIFT key to drag
+SHIFT key to drag
 
 four parts at a time. The cost, mass, fuel capacity, shield and armor strengths, and other ship statistics are shown in the lower-right corner of the Designer. These values
 
-### Some of the values
-
-than 800x600.
 
 ### Name the design
 
@@ -61,9 +52,7 @@ than 800x600.
 
 ## EDITING AN EXISTING HULL DESIGN
 
-### Do the following if you want to change an existing design or create a new
-
-design based on the existing design. You can edit a design only if none of
+Do the following if you want to change an existing design or create a new design based on the existing design. You can edit a design only if none of
 
 
 Select an existing design.
@@ -76,9 +65,7 @@ If you wish, replace the old components with new ones from the ship component li
 
 ### Rename the design
 
-6. Save the design:
-
-SHI P AN D STAR B ASE DES IG N 9-5 - To rename the design (creating a new design), click in the name field
+To rename the design (creating a new design), click in the name field
 
 ## DELETING AN EXISTING HULL DESIGN
 
@@ -111,13 +98,11 @@ To learn the total number of designs you’ve created: 1. In the Ship and Starba
 
 To learn how many ships of a single design are in play: 3. Look at the number displayed on the plaque under the dropdown:
 
-### The first number shows how many ships of that type still
-
-exist, the second shows how many you built since creating
+The first number shows how many ships of that type still exist, the second shows how many you built since creating
 
 Tip: You can locate
 
-### REACHING THE MAXIMUM NUMBER OF DESIGNS AND all ships of one
+### REACHING THE MAXIMUM NUMBER OF DESIGNS 
 
 FLEETS Scanner pane. There are limits to the number of designs, ships and fleets you can have in the game. Develop strategies that take these limits into account.
 
@@ -127,31 +112,21 @@ FLEETS Scanner pane. There are limits to the number of designs, ships and fleets
 
 Although Stars! will let you know if you’ve reached the maximum number of designs when you try to create a new design, you’re better off keeping track of the number yourself.
 
-### The total count of
-
-you’ll have to delete an existing design first. To delete a design, use the Ship your fleets is and Starbase Designer. Develop strategies for deciding when to create new designs and when to obsolete older designs.
+The total count of you’ll have to delete an existing design first. To delete a design, use the Ship your fleets is and Starbase Designer. Develop strategies for deciding when to create new designs and when to obsolete older designs.
 
 ### ADDING SHIP-BASED SCANNERS
 
 To gather any planet details from orbit or space, or the details of Surface an opponents’ fleet from a distance, most fleets must have a ship- You learn how based scanner. Scanning a planet you don’t own will supply data about the planet’s environment and subterranean mineral gather the same information and can only detect an opponents’ship if it is at
 
-### Robber Baron
-
-scanner.
 
 ### Scanner Types
 
 There are three basic types of ship-based scanners: those that scan planets from orbit; those that scan planets from orbit and fleets from a distance; and those that scan both planets and fleets from a distance. One scanner, the
-
-### The Pick Pocket
-
 Chameleon, doubles as a cloaking device. You generally start the game with the Bat scanner, a low-tech device that
-
-### Baron scanner can
 
 detects planet details only from orbit, and has no long-range fleet-detection capability. You’ll want to browse the more advanced models. For a description of all the different scanners, take a look inside the Technology Browser.
 
-### Scanners are Cumulative choices on issues
+### Scanners are Cumulative 
 
 Multiple scanners on a single ship are cumulative. Fleets are still limited to the range of the best ship in the fleet, but a particular ship’s scanner range is a modified sum of the ranges of its scanners. The formula for calculating a ship’s scanner range is the 4th root of the sum of each scanner to the 4th power. Let’s say you have a ship design with two 100 light year scanners and one 60 light year scanner. (100^4 + 100^4 + 60^4) ^ ⁄ = 120 light years. The same calculation applies to planet penetrating scanners.
 
@@ -160,40 +135,28 @@ Multiple scanners on a single ship are cumulative. Fleets are still limited to t
 
 A cloaking device reduces the range at which your opponents’ scanners can detect your fleets. There are several different types of Inner Strength trait cloaks, each reducing opponents’ scanner range by a specific on a ship can all be the same strength or of different strengths. Cloaking is device has the shared by an entire fleet: every ship not carrying a cloak is covered until it ability to reduce the leaves the fleet. When designing a ship, you can add a cloaking device to any slot labeled Electrical or General Purpose .
 
-### Learn more about
-
-Cloaking, p 17-4
-
 ### ENGINES The Guts of
 
 There are two basic types of Engines: the standard engine, which requires the anti-matter Fuel available at all full-serve starbases; and the ramscoop engine, which can scoop its fuel from the stuff of the universe. Both engines types have an absolute maximum speed of Warp 10. Each type has advantages and disadvantages, and several require the presence or absence of certain race Browser.
 
-Standard, Fuel-hungry Engines
+### Standard, Fuel-hungry Engines
 
-### Engines that require Fuel will serve you well in the early stages of
-
-the game. If you chose the No Ramscoop Engines trait when you created your race, you’ll use standard engines during the entire game. In this case, the Interspace-10 will be available to you. You won’t be able
+Engines that require Fuel will serve you well in the early stages of the game. If you chose the No Ramscoop Engines trait when you created your race, you’ll use standard engines during the entire game. In this case, the Interspace-10 will be available to you. You won’t be able
 
 ### Ramscoop Engines to build ramscoop
 
 Ramscoops can draw their fuel from space, making them the cheapest engines to operate. The Radiating Hydro-Ram Scoop Engines. engine radiates massive quantities of radiation and shouldn’t be used for colonist transportation, unless your race is immune to
-
-### IMPORTANT! The
-
-radiation or your race’s OPTIMAL radiation level is AT LEAST 85mR. For example, a range of 80 to 90mR would work, as would a range of 70 to 100mR—as long as the midpoint is 85mR or higher. If the range is, say, 35 to
-
-### Ships with ramscoops incur greater damage when struck by mines than other
-
-ships.
+IMPORTANT! The radiation or your race’s OPTIMAL radiation level is AT LEAST 85mR. For example, a range of 80 to 90mR would work, as would a range of 70 to 100mR—as long as the midpoint is 85mR or higher. If the range is, say, 35 to
+Ships with ramscoops incur greater damage when struck by mines than other ships.
 
 
 ### Overthrusters
 
 Overthrusters give you an advantage in battle and help compensate for any movement penalties caused by hull and cargo
 
-### Mechanical section
+### Mechanical
 
-providing an additional half-square. Browser.
+providing an additional half-square. 
 
 ### Maneuvering Jets
 
@@ -205,9 +168,7 @@ A schematic of the ship displays. If you’ve encountered the ship only in passi
 
 ## TRADING SHIP DESIGNS
 
-### You can use the Transfer Fleets waypoint task to trade ship designs with other
-
-players. To receive a fleet you must have less than 16 different designs (the
+You can use the Transfer Fleets waypoint task to trade ship designs with other players. To receive a fleet you must have less than 16 different designs 
 
 
 10 MANAGING FLEETS

@@ -16,6 +16,8 @@ import { ShipDesignerStatsComponent } from './components/ship-designer-stats.com
 import { ShipDesignerSlotsComponent } from './components/ship-designer-slots.component';
 import { ShipDesignerHullSelectorComponent } from './components/ship-designer-hull-selector.component';
 import { ShipDesignerComponentSelectorComponent } from './components/ship-designer-component-selector.component';
+import { getHull } from '../../data/hulls.data';
+import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 
 @Component({
   selector: 'app-ship-designer',
@@ -111,6 +113,14 @@ export class ShipDesignerComponent implements OnInit {
     }
   }
 
+  onComponentRemoved(event: { slotId: string; componentId: string }) {
+    this.designer.removeComponent(event.slotId, event.componentId);
+  }
+
+  onComponentIncremented(event: { slotId: string; componentId: string }) {
+    this.designer.addComponent(event.slotId, event.componentId, 1);
+  }
+
   removeComponent() {
     const slotId = this.selectedSlotId();
     const componentId = this.currentComponent();
@@ -124,12 +134,47 @@ export class ShipDesignerComponent implements OnInit {
   saveDesign() {
     const design = this.designer.getCurrentDesign();
     const stats = this.stats();
+    const currentHull = this.hull();
 
-    if (!design || !stats) return;
+    if (!design || !stats || !currentHull) return;
 
     if (!stats.isValid) {
       alert('Design is invalid:\n' + stats.validationErrors.join('\n'));
       return;
+    }
+
+    // Check design limits
+    const existingDesigns = this.gameState.getPlayerShipDesigns();
+    const isUpdate = existingDesigns.some((d) => d.id === design.id);
+
+    if (!isUpdate) {
+      const isStarbase = STARBASE_HULLS.some((h) => h.Name === currentHull.name);
+
+      const starbaseDesigns = existingDesigns.filter((d) => {
+        const h = getHull(d.hullId);
+        return h && STARBASE_HULLS.some((sh) => sh.Name === h.name);
+      });
+
+      const shipDesigns = existingDesigns.filter((d) => {
+        const h = getHull(d.hullId);
+        return h && !STARBASE_HULLS.some((sh) => sh.Name === h.name);
+      });
+
+      if (isStarbase) {
+        if (starbaseDesigns.length >= 10) {
+          alert(
+            'You have reached the maximum of 10 starbase designs. You must delete an existing design before you can create a new one.',
+          );
+          return;
+        }
+      } else {
+        if (shipDesigns.length >= 16) {
+          alert(
+            'You have reached the maximum of 16 ship designs. You must delete an existing design before you can create a new one.',
+          );
+          return;
+        }
+      }
     }
 
     this.gameState.saveShipDesign(design);
