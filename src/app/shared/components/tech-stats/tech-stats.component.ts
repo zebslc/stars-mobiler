@@ -1,11 +1,12 @@
 import { Component, Input, ChangeDetectionStrategy, computed, signal, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ComponentStats } from '../../../data/tech-atlas.types';
+import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.component';
 
 @Component({
   selector: 'app-tech-stats',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FuelUsageGraphComponent],
   template: `
     <div class="tech-stats-container">
       <!-- Primary Stats Grid -->
@@ -53,7 +54,7 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
           </div>
         }
 
-        <!-- Combat: Defense -->
+        <!-- Defense: Shields/Armor -->
         @if (stats().shield) {
           <div class="stat-item highlight">
             <span class="label">Shields:</span>
@@ -64,7 +65,7 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
           </div>
         }
         @if (stats().armor) {
-          <div class="stat-item highlight">
+          <div class="stat-item">
             <span class="label">Armor:</span>
             <span class="value">{{ getTotal(stats().armor) }}</span>
             @if (countSig() > 1) {
@@ -75,7 +76,7 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
         @if (stats().defense) {
           <div class="stat-item">
             <span class="label">Defense:</span>
-            <span class="value">{{ getTotal(stats().defense) }}</span>
+            <span class="value">{{ getTotal(stats().defense) }}%</span>
           </div>
         }
 
@@ -83,13 +84,19 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
         @if (stats().cloak) {
           <div class="stat-item">
             <span class="label">Cloak:</span>
-            <span class="value">{{ getTotal(stats().cloak) }}</span>
+            <span class="value">{{ stats().cloak }}%</span>
           </div>
         }
         @if (stats().scan) {
           <div class="stat-item">
             <span class="label">Scan:</span>
             <span class="value">{{ getTotal(stats().scan) }}</span>
+          </div>
+        }
+        @if (stats().pen) {
+          <div class="stat-item">
+            <span class="label">Pen. Scan:</span>
+            <span class="value">{{ getTotal(stats().pen) }}</span>
           </div>
         }
         @if (stats().jamming) {
@@ -119,11 +126,23 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
           </div>
         }
 
-        <!-- Terraforming -->
+        <!-- Terraforming / Mining -->
         @if (stats().terraform) {
           <div class="stat-item">
             <span class="label">Terraform:</span>
-            <span class="value">±{{ getTotal(stats().terraform) }}</span>
+            <span class="value">±{{ getTotal(stats().terraform) }}%</span>
+          </div>
+        }
+        @if (stats().mining) {
+          <div class="stat-item">
+            <span class="label">Mining:</span>
+            <span class="value">{{ getTotal(stats().mining) }}</span>
+          </div>
+        }
+        @if (stats().mines) {
+          <div class="stat-item">
+            <span class="label">Minelayer:</span>
+            <span class="value">{{ getTotal(stats().mines) }}</span>
           </div>
         }
 
@@ -136,7 +155,7 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
         }
         @if (stats().struct) {
           <div class="stat-item">
-            <span class="label">Struct:</span>
+            <span class="label">Structure:</span>
             <span class="value">{{ getTotal(stats().struct) }}</span>
           </div>
         }
@@ -152,53 +171,34 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
 
       <!-- Fuel Usage Graph -->
       @if (fuelUsageInfo(); as info) {
-        <div class="fuel-graph-container">
-          <div class="graph-title">Fuel Usage vs. Warp Speed</div>
-          <svg viewBox="0 0 280 120" class="fuel-graph">
-            <!-- Grid Lines -->
-            <line x1="30" y1="20" x2="30" y2="100" stroke="#444" stroke-width="1" />
-            <line x1="30" y1="100" x2="270" y2="100" stroke="#444" stroke-width="1" />
-
-            <!-- Path -->
-            <polyline [attr.points]="graphPath()" fill="none" stroke="#4fc3f7" stroke-width="2" />
-
-            <!-- X Axis Labels -->
-            @for (warp of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track warp) {
-              <text
-                [attr.x]="30 + (warp - 1) * ((280 - 40) / 9)"
-                y="115"
-                fill="#888"
-                font-size="8"
-                text-anchor="middle"
-              >
-                {{ warp }}
-              </text>
-            }
-
-            <!-- Y Axis Labels -->
-            <text x="25" y="100" fill="#888" font-size="8" text-anchor="end">0</text>
-            <text x="25" y="25" fill="#888" font-size="8" text-anchor="end">
-              {{ info.maxUsage }}
-            </text>
-
-            <!-- Units -->
-            <text x="150" y="10" fill="#888" font-size="8" text-anchor="middle">mg/ly</text>
-          </svg>
-        </div>
+        <app-fuel-usage-graph
+          [fuelUsage]="info.fuelUsage"
+          [maxWarp]="info.maxWarp"
+        ></app-fuel-usage-graph>
       }
 
-      <!-- Cost & Mass Row -->
+      <!-- Meta Stats (Cost, Mass, etc from Input, not just internal stats) -->
       <div class="meta-stats">
-        <div class="meta-item">
+        <div class="meta-item mass">
           <span class="label">Mass:</span>
-          <span class="value">{{ getTotal(componentSig()?.mass || 0) }}kt</span>
+          <span class="value">{{ getTotal(component.mass) }}kt</span>
         </div>
-        @if (componentSig()?.cost; as cost) {
-          <div class="meta-item cost">
-            <span class="label">Cost:</span>
-            <span class="value">{{ formatCost(cost) }}</span>
-          </div>
-        }
+
+        <div class="meta-item cost">
+          <span class="label">Cost:</span>
+          <span class="value">
+            @if (component.cost.iron) {
+              {{ getTotal(component.cost.iron) }} Fe,
+            }
+            @if (component.cost.bor) {
+              {{ getTotal(component.cost.bor) }} Bo,
+            }
+            @if (component.cost.germ) {
+              {{ getTotal(component.cost.germ) }} Ge,
+            }
+            {{ getTotal(component.cost.res) }} Res
+          </span>
+        </div>
       </div>
     </div>
   `,
@@ -263,26 +263,6 @@ import { ComponentStats } from '../../../data/tech-atlas.types';
       .meta-item.cost .value {
         color: #ffd700;
       }
-
-      .fuel-graph-container {
-        margin-top: 0.5rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-        padding: 0.5rem;
-      }
-
-      .graph-title {
-        font-size: 0.8rem;
-        color: #888;
-        text-align: center;
-        margin-bottom: 0.25rem;
-      }
-
-      .fuel-graph {
-        width: 100%;
-        height: auto;
-        max-height: 120px;
-      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -300,46 +280,16 @@ export class TechStatsComponent implements OnChanges {
     const stats = this.stats();
     if (!stats.fuelUsage) return null;
 
-    const data = [];
-    let maxUsage = 0;
-
-    // Standard Warp 1-10
-    for (let i = 1; i <= 10; i++) {
-      // Map index to key
-      const key = `warp${i}` as keyof typeof stats.fuelUsage;
-      const usage = stats.fuelUsage[key] ?? 0;
-      data.push({ warp: i, usage });
-      if (usage > maxUsage) maxUsage = usage;
-    }
-
-    return { data, maxUsage };
+    // Just return the raw usage and maxWarp, the component handles the rest
+    return {
+      fuelUsage: stats.fuelUsage,
+      maxWarp: stats.maxWarp || 10,
+    };
   });
 
-  readonly graphPath = computed(() => {
-    const info = this.fuelUsageInfo();
-    if (!info || info.maxUsage === 0) return '';
+  // Removed graphPaths computed as it is now in the component
 
-    const { data, maxUsage } = info;
-    const width = 280; // viewBox width
-    const height = 120; // viewBox height
-    const paddingX = 30;
-    const paddingY = 20;
-    const graphWidth = width - paddingX - 10;
-    const graphHeight = height - paddingY * 2;
-
-    const xScale = graphWidth / 9; // 10 points = 9 intervals
-    const yScale = graphHeight / maxUsage;
-
-    return data
-      .map((d) => {
-        const x = paddingX + (d.warp - 1) * xScale;
-        const y = height - paddingY - d.usage * yScale;
-        return `${x},${y}`;
-      })
-      .join(' ');
-  });
-
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes['component']) {
       this.componentSig.set(this.component);
     }
@@ -350,24 +300,17 @@ export class TechStatsComponent implements OnChanges {
 
   getTotal(value: number | undefined): number {
     if (value === undefined) return 0;
-    // Round to 1 decimal place if needed
-    return Math.round(value * this.countSig() * 10) / 10;
+    // Handle floating point errors
+    const total = value * this.countSig();
+    return Math.round(total * 100) / 100;
   }
 
   formatCost(cost: any): string {
-    const parts: string[] = [];
-    // Multiply costs by count
-    const c = this.countSig();
-    if (cost.iron) parts.push(`${cost.iron * c} Fe`);
-    if (cost.bor) parts.push(`${cost.bor * c} B`);
-    if (cost.germ) parts.push(`${cost.germ * c} Ge`);
-    if (cost.ironium) parts.push(`${cost.ironium * c} Fe`);
-    if (cost.boranium) parts.push(`${cost.boranium * c} B`);
-    if (cost.germanium) parts.push(`${cost.germanium * c} Ge`);
-
-    // Handle resources/credits if present (legacy vs new)
-    if (cost.res) parts.push(`${cost.res * c} Res`);
-
+    const parts = [];
+    if (cost.iron) parts.push(`${this.getTotal(cost.iron)} Fe`);
+    if (cost.bor) parts.push(`${this.getTotal(cost.bor)} Bo`);
+    if (cost.germ) parts.push(`${this.getTotal(cost.germ)} Ge`);
+    if (cost.res) parts.push(`${this.getTotal(cost.res)} Res`);
     return parts.join(', ');
   }
 }
