@@ -11,9 +11,19 @@ import { GameStateService } from './services/game-state.service';
   imports: [RouterOutlet, CommonModule, NavBarComponent, ToastContainerComponent],
   template: `
     <app-nav-bar *ngIf="showNav()"></app-nav-bar>
-    <router-outlet></router-outlet>
+    <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; position: relative;">
+      <router-outlet></router-outlet>
+    </div>
     <app-toast-container></app-toast-container>
   `,
+  styles: [`
+    :host {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {

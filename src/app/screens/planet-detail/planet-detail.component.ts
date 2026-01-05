@@ -1,10 +1,23 @@
-import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  computed,
+  signal,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { HabitabilityService } from '../../services/habitability.service';
 import { ToastService } from '../../services/toast.service';
-import { getDesign, COMPILED_DESIGNS } from '../../data/ships.data';
+import { ShipyardService } from '../../services/shipyard.service';
+import { getDesign, COMPILED_DESIGNS, CompiledDesign } from '../../data/ships.data';
+import { TECH_ATLAS } from '../../data/tech-atlas.data';
+import { COMPONENTS } from '../../data/components.data';
+import { compileShipStats, CompiledShipStats } from '../../models/ship-design.model';
+import { miniaturizeComponent } from '../../utils/miniaturization.util';
+import { getHull } from '../../data/hulls.data';
 import { ShipOption } from '../../components/ship-selector.component';
 import { PlanetSummaryComponent } from './components/planet-summary.component';
 import { PlanetBuildQueueComponent } from './components/planet-build-queue.component';
@@ -97,6 +110,7 @@ import { Fleet } from '../../models/game.model';
                     [shipOptions]="shipOptions()"
                     [selectedShipOption]="selectedShipOption()"
                     [buildAmount]="buildAmount()"
+                    [shipBuildAmount]="shipBuildAmount()"
                     [shipyardDesign]="shipyardDesign"
                     [shipyardLimit]="shipyardLimit"
                     [shouldShowTerraform]="shouldShowTerraform()"
@@ -107,6 +121,7 @@ import { Fleet } from '../../models/game.model';
                     (onShipyardDesignChange)="onShipyardDesignChange($event)"
                     (onShipyardLimit)="onShipyardLimit($event)"
                     (setBuildAmount)="setBuildAmount($event)"
+                    (setShipBuildAmount)="setShipBuildAmount($event)"
                     (onShipSelected)="onShipSelected($event)"
                   ></app-planet-build-queue>
                 </section>
@@ -139,6 +154,7 @@ export class PlanetDetailComponent implements OnInit {
   readonly gs = inject(GameStateService);
   private hab = inject(HabitabilityService);
   private toast = inject(ToastService);
+  private shipyardService = inject(ShipyardService);
 
   private planetIdSignal = signal<string | null>(null);
   activeTab = signal<'status' | 'queue' | 'fleet'>('status');
@@ -283,36 +299,74 @@ export class PlanetDetailComponent implements OnInit {
   });
 
   shipOptions = computed(() => {
+    const player = this.gs.player();
     const game = this.gs.game();
-    if (!game) return [];
+    if (!player || !game) return [];
 
-    const shipDesigns = [
-      'scout',
-      'frigate',
-      'destroyer',
-      'small_freighter',
-      'super_freighter',
-      'fuel_transport',
-      'colony_ship',
-    ];
+    const userDesigns = this.shipyardService.getPlayerShipDesigns(game);
+    const techLevels = player.techLevels;
+    const miniComps = Object.values(COMPONENTS).map((comp) =>
+      miniaturizeComponent(comp, techLevels),
+    );
 
-    return shipDesigns
-      .map((designId) => {
-        const design = COMPILED_DESIGNS[designId];
-        if (!design) return null;
-
-        const cost = design.cost;
-
-        let shipType: 'attack' | 'cargo' | 'support' | 'colony';
-        if (design.colonyModule) {
-          shipType = 'colony';
-        } else if (design.cargoCapacity > 0) {
-          shipType = 'cargo';
-        } else if (design.firepower > 0) {
-          shipType = 'attack';
-        } else {
-          shipType = 'support';
+    // Calculate existing ship counts
+    const shipCounts = new Map<string, number>();
+    if (game.fleets) {
+      for (const fleet of game.fleets) {
+        for (const stack of fleet.ships) {
+          const current = shipCounts.get(stack.designId) || 0;
+          shipCounts.set(stack.designId, current + stack.count);
         }
+      }
+    }
+
+    const userOptions = userDesigns
+      .map((design) => {
+        const hull = getHull(design.hullId);
+        if (!hull) return null;
+
+        const stats = compileShipStats(hull, design.slots, miniComps);
+        const cost = this.shipyardService.getShipCost(design);
+
+        const compiled: CompiledDesign = {
+          id: design.id,
+          name: design.name,
+          hullId: design.hullId,
+          hullName: hull.Name,
+          mass: stats.mass,
+          cargoCapacity: stats.cargoCapacity,
+          fuelCapacity: stats.fuelCapacity,
+          fuelEfficiency: 100, // Not in stats?
+          warpSpeed: stats.warpSpeed,
+          idealWarp: stats.idealWarp,
+          armor: stats.armor,
+          shields: stats.shields,
+          initiative: stats.initiative,
+          firepower: stats.firepower,
+          colonistCapacity: stats.colonistCapacity,
+          cost: {
+            iron: cost.iron,
+            boranium: cost.boranium,
+            germanium: cost.germanium,
+            resources: cost.resources,
+          },
+          colonyModule: stats.hasColonyModule,
+          scannerRange: stats.scanRange,
+          components: [],
+        };
+
+        // Determine ship type for badge
+        let shipType: 'attack' | 'cargo' | 'support' | 'colony' = 'support';
+        const hullNameLower = hull.Name.toLowerCase();
+        if (hullNameLower.includes('colony')) shipType = 'colony';
+        else if (hullNameLower.includes('freighter')) shipType = 'cargo';
+        else if (
+          hullNameLower.includes('destroyer') ||
+          hullNameLower.includes('frigate') ||
+          hullNameLower.includes('battleship') ||
+          hullNameLower.includes('cruiser')
+        )
+          shipType = 'attack';
 
         const planet = this.planet();
         const canAfford = planet
@@ -323,14 +377,25 @@ export class PlanetDetailComponent implements OnInit {
           : false;
 
         return {
-          design,
+          design: compiled,
           cost,
           shipType,
           canAfford,
+          existingCount: shipCounts.get(design.id) || 0,
         } as ShipOption;
       })
       .filter((opt): opt is ShipOption => opt !== null);
+
+    if (userOptions.length > 0) {
+      return userOptions;
+    }
+
+    return [];
   });
+
+  onShipSelected(option: ShipOption) {
+    this.selectedDesign.set(option.design.id);
+  }
 
   selectedShipOption = computed(() => {
     return this.shipOptions().find((opt) => opt.design.id === this.selectedDesign()) || null;
@@ -340,9 +405,14 @@ export class PlanetDetailComponent implements OnInit {
   shipyardDesign = 'scout';
   shipyardLimit = 0;
   buildAmount = signal(1);
+  shipBuildAmount = signal(1);
 
   setBuildAmount(amount: number) {
     this.buildAmount.set(amount);
+  }
+
+  setShipBuildAmount(amount: number) {
+    this.shipBuildAmount.set(amount);
   }
 
   colonizeNow(fleetId: string) {
@@ -367,6 +437,11 @@ export class PlanetDetailComponent implements OnInit {
   queue(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship') {
     const p = this.planet();
     if (!p) return;
+
+    // Get cost from selected ship option if project is ship
+    const shipOption = this.selectedShipOption();
+    const shipCost = shipOption ? shipOption.cost : { resources: 0 };
+
     let item =
       project === 'mine'
         ? { project, cost: { resources: 5 } }
@@ -382,11 +457,12 @@ export class PlanetDetailComponent implements OnInit {
                   ? { project, cost: { resources: 50, germanium: 10, iron: 5 } }
                   : ({
                       project: 'ship',
-                      cost: COMPILED_DESIGNS[this.selectedDesign()]?.cost || { resources: 0 },
+                      cost: shipCost,
                       shipDesignId: this.selectedDesign(),
                     } as any);
 
-    item.count = project === 'scanner' ? 1 : this.buildAmount();
+    item.count =
+      project === 'scanner' ? 1 : project === 'ship' ? this.shipBuildAmount() : this.buildAmount();
 
     this.gs.addToBuildQueue(p.id, item);
   }
@@ -414,10 +490,6 @@ export class PlanetDetailComponent implements OnInit {
         ? { type: 'shipyard', shipDesignId: this.shipyardDesign, buildLimit: this.shipyardLimit }
         : { type: val };
     this.gs.setGovernor(p.id, governor as any);
-  }
-
-  onShipSelected(option: ShipOption) {
-    this.selectedDesign.set(option.design.id);
   }
 
   onShipyardDesignChange(event: Event) {

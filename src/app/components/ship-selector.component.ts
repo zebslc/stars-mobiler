@@ -1,6 +1,11 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CompiledDesign } from '../data/ships.data';
+import {
+  ShipDesignItemComponent,
+  ShipDesignDisplay,
+} from './ship-design-item/ship-design-item.component';
+import { CompiledShipStats } from '../models/ship-design.model';
 
 export interface ShipOption {
   design: CompiledDesign;
@@ -12,12 +17,13 @@ export interface ShipOption {
   };
   shipType: 'attack' | 'cargo' | 'support' | 'colony';
   canAfford: boolean;
+  existingCount?: number;
 }
 
 @Component({
   selector: 'app-ship-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ShipDesignItemComponent],
   template: `
     <div class="ship-selector">
       <button
@@ -27,9 +33,13 @@ export interface ShipOption {
         [class.open]="isOpen()"
       >
         <span *ngIf="selectedShip" class="selected-content">
-          <span class="ship-icon">{{ getIcon(selectedShip) }}</span>
-          <span class="ship-name">{{ selectedShip.design.name }}</span>
-          <span class="ship-cost text-xs">{{ selectedShip.cost.resources }}R</span>
+          <app-ship-design-item 
+              [design]="toDisplay(selectedShip.design)" 
+              [count]="selectedShip.existingCount"
+              mode="selector" 
+              class="flex-grow"
+            ></app-ship-design-item>
+          <div class="selected-cost">{{ selectedShip.cost.resources }}R</div>
         </span>
         <span *ngIf="!selectedShip" class="placeholder">Select ship design...</span>
         <span class="dropdown-arrow">▼</span>
@@ -45,118 +55,28 @@ export interface ShipOption {
             [class.cannot-afford]="!option.canAfford"
             (click)="selectShip(option)"
           >
-            <div class="option-header">
-              <div class="option-main">
-                <span class="ship-icon">{{ getIcon(option) }}</span>
-                <div class="ship-info">
-                  <div class="ship-name-row">
-                    <span class="ship-name">{{ option.design.name }}</span>
-                    <span class="ship-type-badge" [class]="'badge-' + option.shipType">
-                      {{ getTypeName(option.shipType) }}
-                    </span>
+            <div class="option-row">
+              <div class="design-wrapper">
+                <app-ship-design-item
+                  [design]="toDisplay(option.design)"
+                  [count]="option.existingCount"
+                  mode="selector"
+                ></app-ship-design-item>
+              </div>
+
+              <div class="option-meta">
+                <div class="option-cost">
+                  <div class="cost-main">{{ option.cost.resources }}R</div>
+                  <div class="cost-minerals text-xs">
+                    <span *ngIf="option.cost.iron">{{ option.cost.iron }}Fe</span>
+                    <span *ngIf="option.cost.boranium">{{ option.cost.boranium }}Bo</span>
+                    <span *ngIf="option.cost.germanium">{{ option.cost.germanium }}Ge</span>
                   </div>
                 </div>
-              </div>
-              <div class="option-cost">
-                <div class="cost-main">{{ option.cost.resources }}R</div>
-                <div class="cost-minerals text-xs">
-                  <span *ngIf="option.cost.iron">{{ option.cost.iron }}Fe</span>
-                  <span *ngIf="option.cost.boranium">{{ option.cost.boranium }}Bo</span>
-                  <span *ngIf="option.cost.germanium">{{ option.cost.germanium }}Ge</span>
+                <div *ngIf="!option.canAfford" class="cannot-afford-warning">
+                  <span class="text-xs">⚠️ Insufficient resources</span>
                 </div>
               </div>
-            </div>
-
-            <div class="option-stats">
-              <!-- Attack Ships -->
-              <div *ngIf="option.shipType === 'attack'" class="stats-grid">
-                <div class="stat">
-                  <span class="stat-icon">⚔️</span>
-                  <span class="stat-value">{{ option.design.firepower }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">🛡️</span>
-                  <span class="stat-value">{{ option.design.armor + option.design.shields }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">🚀</span>
-                  <span class="stat-value">W{{ option.design.warpSpeed }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">⛽</span>
-                  <span class="stat-value">{{ option.design.fuelCapacity }}</span>
-                </div>
-              </div>
-
-              <!-- Cargo Ships -->
-              <div *ngIf="option.shipType === 'cargo'" class="stats-grid">
-                <div class="stat">
-                  <span class="stat-icon">📦</span>
-                  <span class="stat-value">{{ option.design.cargoCapacity }}kT</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">🚀</span>
-                  <span class="stat-value">W{{ option.design.warpSpeed }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">⛽</span>
-                  <span class="stat-value">{{ option.design.fuelCapacity }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">⚖️</span>
-                  <span class="stat-value">{{ option.design.mass }}kT</span>
-                </div>
-              </div>
-
-              <!-- Support/Tanker Ships -->
-              <div *ngIf="option.shipType === 'support'" class="stats-grid">
-                <div class="stat">
-                  <span class="stat-icon">🛢️</span>
-                  <span class="stat-value">{{ option.design.fuelCapacity }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">🚀</span>
-                  <span class="stat-value">W{{ option.design.warpSpeed }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">⚡</span>
-                  <span class="stat-value">{{ option.design.fuelEfficiency }}%</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">⚖️</span>
-                  <span class="stat-value">{{ option.design.mass }}kT</span>
-                </div>
-              </div>
-
-              <!-- Colony Ships -->
-              <div *ngIf="option.shipType === 'colony'" class="stats-grid">
-                <div class="stat">
-                  <span class="stat-icon">👥</span>
-                  <span class="stat-value"
-                    >{{ (option.design.colonistCapacity || 0) / 1000 | number: '1.0-0' }}k</span
-                  >
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">📦</span>
-                  <span class="stat-value">{{ option.design.cargoCapacity }}kT</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon">🚀</span>
-                  <span class="stat-value">W{{ option.design.warpSpeed }}</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-icon" *ngIf="option.design.fuelEfficiency === 0">♾️</span>
-                  <span class="stat-icon" *ngIf="option.design.fuelEfficiency > 0">⛽</span>
-                  <span class="stat-value" *ngIf="option.design.fuelEfficiency === 0">∞</span>
-                  <span class="stat-value" *ngIf="option.design.fuelEfficiency > 0">{{
-                    option.design.fuelCapacity
-                  }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="!option.canAfford" class="cannot-afford-warning">
-              <span class="text-xs">⚠️ Insufficient resources</span>
             </div>
           </button>
         </div>
@@ -181,7 +101,7 @@ export interface ShipOption {
         align-items: center;
         justify-content: space-between;
         gap: var(--space-md);
-        padding: var(--space-md);
+        padding: var(--space-xs);
         background: var(--color-bg-primary);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-md);
@@ -206,9 +126,23 @@ export interface ShipOption {
         align-items: center;
         gap: var(--space-sm);
         flex: 1;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .flex-grow {
+        flex: 1;
+      }
+
+      .selected-cost {
+        font-weight: bold;
+        color: var(--color-text-secondary);
+        padding-right: var(--space-sm);
+        white-space: nowrap;
       }
 
       .placeholder {
+        padding: var(--space-sm);
         color: var(--color-text-muted);
       }
 
@@ -216,6 +150,7 @@ export interface ShipOption {
         font-size: var(--font-size-xs);
         color: var(--color-text-muted);
         transition: transform 0.2s;
+        margin-right: var(--space-sm);
       }
 
       .selector-trigger.open .dropdown-arrow {
@@ -245,14 +180,33 @@ export interface ShipOption {
       .ship-option {
         display: flex;
         flex-direction: column;
-        gap: var(--space-sm);
-        padding: var(--space-md);
+        padding: 0;
         background: var(--color-bg-primary);
         border: none;
         border-bottom: 1px solid var(--color-border-light);
         cursor: pointer;
         text-align: left;
         transition: background 0.2s;
+      }
+
+      .option-row {
+        display: flex;
+        align-items: stretch;
+      }
+
+      .design-wrapper {
+        flex: 1;
+      }
+
+      .option-meta {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        padding: var(--space-sm);
+        min-width: 80px;
+        border-left: 1px solid var(--color-border-light);
+        background: rgba(0, 0, 0, 0.02);
       }
 
       .ship-option:last-child {
@@ -271,123 +225,26 @@ export interface ShipOption {
         opacity: 0.6;
       }
 
-      .option-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: var(--space-md);
-      }
-
-      .option-main {
-        display: flex;
-        align-items: flex-start;
-        gap: var(--space-sm);
-        flex: 1;
-      }
-
-      .ship-icon {
-        font-size: var(--font-size-xl);
-        line-height: 1;
-      }
-
-      .ship-info {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-xs);
-      }
-
-      .ship-name-row {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        flex-wrap: wrap;
-      }
-
-      .ship-name {
-        font-weight: var(--font-weight-medium);
-        color: var(--color-text-primary);
-      }
-
-      .ship-type-badge {
-        font-size: var(--font-size-xs);
-        padding: 2px var(--space-xs);
-        border-radius: var(--radius-sm);
-        font-weight: var(--font-weight-medium);
-        text-transform: uppercase;
-      }
-
-      .badge-attack {
-        background: var(--color-danger-light);
-        color: var(--color-danger);
-      }
-
-      .badge-cargo {
-        background: var(--color-warning-light);
-        color: var(--color-warning);
-      }
-
-      .badge-support {
-        background: var(--color-primary-light);
-        color: var(--color-primary);
-      }
-
-      .badge-colony {
-        background: var(--color-success-light);
-        color: var(--color-success);
-      }
-
       .option-cost {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 2px;
+        text-align: right;
       }
 
       .cost-main {
-        font-weight: var(--font-weight-bold);
+        font-weight: bold;
         color: var(--color-text-primary);
       }
 
       .cost-minerals {
         display: flex;
-        gap: var(--space-xs);
-        color: var(--color-text-muted);
-      }
-
-      .option-stats {
-        padding-left: calc(var(--font-size-xl) + var(--space-sm));
-      }
-
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: var(--space-sm);
-      }
-
-      .stat {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: var(--font-size-sm);
-      }
-
-      .stat-icon {
-        font-size: var(--font-size-sm);
-      }
-
-      .stat-value {
-        font-weight: var(--font-weight-medium);
+        flex-direction: column;
+        font-size: var(--font-size-xs);
         color: var(--color-text-secondary);
       }
 
       .cannot-afford-warning {
-        padding-left: calc(var(--font-size-xl) + var(--space-sm));
         color: var(--color-danger);
-      }
-
-      .ship-cost {
-        margin-left: auto;
-        color: var(--color-text-muted);
+        margin-top: var(--space-xs);
+        text-align: right;
       }
 
       .no-options {
@@ -396,19 +253,9 @@ export interface ShipOption {
         color: var(--color-text-muted);
       }
 
-      /* Mobile optimizations */
       @media (max-width: 640px) {
         .dropdown-panel {
           max-height: 400px;
-        }
-
-        .stats-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-
-        .ship-name-row {
-          flex-direction: column;
-          align-items: flex-start;
         }
       }
     `,
@@ -439,33 +286,38 @@ export class ShipSelectorComponent {
     this.isOpen.set(false);
   }
 
-  getIcon(option: ShipOption): string {
-    switch (option.shipType) {
-      case 'attack':
-        return '⚔️';
-      case 'cargo':
-        return '📦';
-      case 'support':
-        return '🛢️';
-      case 'colony':
-        return '🏘️';
-      default:
-        return '🚀';
-    }
-  }
-
-  getTypeName(type: string): string {
-    switch (type) {
-      case 'attack':
-        return 'Attack';
-      case 'cargo':
-        return 'Cargo';
-      case 'support':
-        return 'Support';
-      case 'colony':
-        return 'Colony';
-      default:
-        return 'Ship';
-    }
+  toDisplay(design: CompiledDesign): ShipDesignDisplay {
+    return {
+      id: design.id,
+      name: design.name,
+      hullId: design.hullId,
+      stats: {
+        mass: design.mass,
+        armor: design.armor,
+        shields: design.shields,
+        firepower: design.firepower,
+        warpSpeed: design.warpSpeed,
+        fuelCapacity: design.fuelCapacity,
+        cargoCapacity: design.cargoCapacity,
+        colonistCapacity: design.colonistCapacity || 0,
+        scanRange: design.scannerRange,
+        cost: {
+          ironium: design.cost.iron,
+          boranium: design.cost.boranium,
+          germanium: design.cost.germanium,
+        },
+        idealWarp: design.idealWarp,
+        fuelEfficiency: design.fuelEfficiency,
+        isRamscoop: false,
+        accuracy: 100,
+        initiative: design.initiative,
+        canDetectCloaked: false,
+        hasEngine: design.warpSpeed > 0,
+        hasColonyModule: design.colonyModule,
+        isStarbase: design.warpSpeed === 0,
+        isValid: true,
+        validationErrors: [],
+      },
+    };
   }
 }

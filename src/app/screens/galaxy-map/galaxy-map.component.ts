@@ -14,9 +14,10 @@ import { GalaxyMapControlsComponent } from './components/galaxy-map-controls.com
 @Component({
   standalone: true,
   selector: 'app-galaxy-map',
+  styles: [':host { display: flex; flex-direction: column; flex: 1; overflow: hidden; }'],
   template: `
     <main
-      style="padding:var(--space-md); height: calc(100vh - 70px); display: flex; flex-direction: column; overflow: hidden;"
+      style="padding:var(--space-md); flex: 1; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;"
     >
       @if (stars().length > 0) {
         <section
@@ -244,8 +245,11 @@ export class GalaxyMapComponent {
   translateX = signal(0);
   translateY = signal(0);
   isPanning = false;
-  startX = 0;
-  startY = 0;
+  panStartClientX = 0;
+  panStartClientY = 0;
+  panStartTranslateX = 0;
+  panStartTranslateY = 0;
+  readonly MOUSE_SENSITIVITY = 3;
   lastTouchDistance = 0;
 
   // Touch state
@@ -384,16 +388,21 @@ export class GalaxyMapComponent {
       // Middle click
       event.preventDefault();
       this.isPanning = true;
-      this.startX = event.clientX - this.translateX();
-      this.startY = event.clientY - this.translateY();
+      this.panStartClientX = event.clientX;
+      this.panStartClientY = event.clientY;
+      this.panStartTranslateX = this.translateX();
+      this.panStartTranslateY = this.translateY();
     }
   }
 
   pan(event: MouseEvent) {
     if (!this.isPanning) return;
     event.preventDefault();
-    this.translateX.set(event.clientX - this.startX);
-    this.translateY.set(event.clientY - this.startY);
+    const deltaX = event.clientX - this.panStartClientX;
+    const deltaY = event.clientY - this.panStartClientY;
+
+    this.translateX.set(this.panStartTranslateX + deltaX * this.MOUSE_SENSITIVITY);
+    this.translateY.set(this.panStartTranslateY + deltaY * this.MOUSE_SENSITIVITY);
   }
 
   endPan() {

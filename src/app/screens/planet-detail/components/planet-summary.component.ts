@@ -19,7 +19,9 @@ import { inject } from '@angular/core';
 
           <div class="stat-row">
             <div class="label">Resources</div>
-            <div class="value">{{ resourcesPerTurn() }} / {{ maxResources() }}</div>
+            <div class="value">
+              {{ planet().resources | number }} ({{ resourcesPerTurn() }} / {{ maxResources() }})
+            </div>
           </div>
 
           <!-- Minerals Section -->
@@ -51,6 +53,11 @@ import { inject } from '@angular/core';
           <div class="stat-row">
             <div class="label">Factories</div>
             <div class="value">{{ planet().factories }} / {{ maxFacilities() }}</div>
+          </div>
+
+          <div class="stat-row">
+            <div class="label">Labs</div>
+            <div class="value">{{ planet().research }} / {{ maxFacilities() }}</div>
           </div>
 
           <div class="stat-row">

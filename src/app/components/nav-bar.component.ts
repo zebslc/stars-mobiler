@@ -146,8 +146,6 @@ import { GameStateService } from '../services/game-state.service';
         background: var(--color-bg-secondary);
         border-bottom: 1px solid var(--color-border);
         padding: var(--space-sm) var(--space-md);
-        position: sticky;
-        top: 0;
         z-index: 1000;
         gap: var(--space-md);
       }

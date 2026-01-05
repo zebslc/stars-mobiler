@@ -3,62 +3,30 @@
   @if (!isDesignerMode()) {
     <div class="design-list-header">
       <h1>Ship Designs</h1>
-      <button type="button" class="btn-primary" (click)="startNewDesign()">+ New Design</button>
+      <button 
+        type="button" 
+        class="btn-primary" 
+        (click)="startNewDesign()"
+        [disabled]="!canCreateNew()"
+        [title]="!canCreateNew() ? 'Maximum number of designs reached' : ''"
+      >+ New Design</button>
     </div>
 
     <div class="designs-grid">
-      <!-- Standard Designs -->
-      @for (design of shipDesigns; track design.id) {
-        <div class="design-card">
-          <div class="design-header">
-            <h3>{{ design.name }}</h3>
-            <span class="design-type">{{ formatType(design) }}</span>
-          </div>
-          <div class="design-stats">
-            <div class="stat-row">
-              <span>Mass:</span>
-              <span>{{ design.mass }}kt</span>
-            </div>
-            <div class="stat-row">
-              <span>Armor:</span>
-              <span>{{ design.armor }}dp</span>
-            </div>
-            @if (design.firepower > 0) {
-              <div class="stat-row">
-                <span>Firepower:</span>
-                <span>{{ design.firepower }}</span>
-              </div>
-            }
-            <div class="stat-row">
-              <span>Speed:</span>
-              <span>Warp {{ design.warpSpeed }}</span>
-            </div>
-            <div class="stat-row">
-              <span>Fuel:</span>
-              <span>{{ design.fuelCapacity }}mg</span>
-            </div>
-            @if (design.cargoCapacity > 0) {
-              <div class="stat-row">
-                <span>Cargo:</span>
-                <span>{{ design.cargoCapacity }}kt</span>
-              </div>
-            }
-          </div>
+      @if (designDisplays().length === 0) {
+        <div class="empty-state">
+           <p>No ship designs found. Create one to get started!</p>
         </div>
       }
-
-      <!-- Custom Designs -->
-      @for (design of customDesigns(); track design.id) {
-        <div class="design-card custom">
-          <div class="design-header">
-            <h3>{{ design.name }}</h3>
-            <span class="design-type custom">Custom</span>
-          </div>
-          <div class="design-actions">
-            <button type="button" class="btn-small">Edit</button>
-            <button type="button" class="btn-small btn-danger">Delete</button>
-          </div>
-        </div>
+      
+      @for (design of designDisplays(); track design.id) {
+        <app-ship-design-item
+           [design]="design"
+           [count]="getShipCount(design.id)"
+           (edit)="onEditDesign($event)"
+           (delete)="onDeleteDesign($event)"
+           (clone)="onCloneDesign($event)"
+        ></app-ship-design-item>
       }
     </div>
   }

@@ -1,10 +1,17 @@
-import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Planet } from '../../../models/game.model';
 import { ShipSelectorComponent, ShipOption } from '../../../components/ship-selector.component';
 import { COMPILED_DESIGNS } from '../../../data/ships.data';
 
-export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship';
+export type BuildProject =
+  | 'mine'
+  | 'factory'
+  | 'defense'
+  | 'research'
+  | 'terraform'
+  | 'scanner'
+  | 'ship';
 
 @Component({
   standalone: true,
@@ -31,10 +38,7 @@ export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraf
           </select>
           @if (planet().governor?.type === 'shipyard') {
             <div class="shipyard-controls">
-              <select
-                [value]="shipyardDesign()"
-                (change)="onShipyardDesignChange.emit($event)"
-              >
+              <select [value]="shipyardDesign()" (change)="onShipyardDesignChange.emit($event)">
                 <option value="scout">Scout</option>
                 <option value="frigate">Frigate</option>
                 <option value="destroyer">Destroyer</option>
@@ -55,158 +59,76 @@ export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraf
       </div>
 
       <!-- Build Items -->
-      <div class="build-items-grid">
-        <!-- Mine -->
-        <div class="build-item-group">
-          <button
-            (click)="queue.emit('mine')"
-            class="btn-dark"
-          >
-            Mine x{{ buildAmount() }}
-          </button>
-          <select
-            [value]="buildAmount()"
-            (change)="onQuantityChange($event)"
-          >
-            <option [value]="1">1</option>
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
-          </select>
-        </div>
+      <div class="build-controls-row">
+        <select
+          [value]="selectedProject()"
+          (change)="onProjectChange($event)"
+          class="project-select"
+        >
+          <option value="mine">Mine</option>
+          <option value="factory">Factory</option>
+          <option value="defense">Defense</option>
+          <option value="research">Labs</option>
+          @if (shouldShowTerraform()) {
+            <option value="terraform">Terraform</option>
+          }
+          @if (shouldShowScanner()) {
+            <option value="scanner">Scanner</option>
+          }
+        </select>
 
-        <!-- Factory -->
-        <div class="build-item-group">
-          <button
-            (click)="queue.emit('factory')"
-            class="btn-dark"
-          >
-            Factory x{{ buildAmount() }}
-          </button>
-          <select
-            [value]="buildAmount()"
-            (change)="onQuantityChange($event)"
-          >
-            <option [value]="1">1</option>
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
-          </select>
-        </div>
+        <select [value]="buildAmount()" (change)="onQuantityChange($event)" class="amount-select">
+          <option [value]="1">1</option>
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
 
-        <!-- Defense -->
-        <div class="build-item-group">
-          <button
-            (click)="queue.emit('defense')"
-            class="btn-dark"
-          >
-            Defense x{{ buildAmount() }}
-          </button>
-          <select
-            [value]="buildAmount()"
-            (change)="onQuantityChange($event)"
-          >
-            <option [value]="1">1</option>
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
-          </select>
-        </div>
-
-        <!-- Research -->
-        <div class="build-item-group">
-          <button
-            (click)="queue.emit('research')"
-            class="btn-dark"
-          >
-            Research x{{ buildAmount() }}
-          </button>
-          <select
-            [value]="buildAmount()"
-            (change)="onQuantityChange($event)"
-          >
-            <option [value]="1">1</option>
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
-          </select>
-        </div>
-
-        <!-- Terraform (conditional) -->
-        @if (shouldShowTerraform()) {
-          <div class="build-item-group">
-            <button
-              (click)="queue.emit('terraform')"
-              class="btn-dark"
-            >
-              Terraform x{{ buildAmount() }}
-            </button>
-            <select
-              [value]="buildAmount()"
-              (change)="onQuantityChange($event)"
-            >
-              <option [value]="1">1</option>
-              <option [value]="5">5</option>
-              <option [value]="10">10</option>
-              <option [value]="50">50</option>
-              <option [value]="100">100</option>
-            </select>
-          </div>
-        }
-
-        <!-- Scanner (conditional, no quantity) -->
-        @if (shouldShowScanner()) {
-          <button
-            (click)="queue.emit('scanner')"
-            class="btn-dark scanner-btn"
-          >
-            Scanner
-          </button>
-        }
+        <button (click)="build()" class="btn-primary build-btn">Build</button>
       </div>
 
       <div class="ship-construction-section">
-        <div class="title">
-          Ship Construction
-        </div>
+        <div class="title">Ship Construction</div>
         <div class="controls">
           <app-ship-selector
-            [options]="shipOptions()"
+            [options]="availableShipOptions()"
             [selectedShip]="selectedShipOption()"
             (shipSelected)="onShipSelected.emit($event)"
           ></app-ship-selector>
-          <button (click)="queue.emit('ship')" class="btn-primary">
-            Build Ship
-          </button>
+
+          <select
+            [value]="shipBuildAmount()"
+            (change)="onShipQuantityChange($event)"
+            class="amount-select"
+          >
+            <option [value]="1">1</option>
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+
+          <button (click)="buildShip()" class="btn-primary">Build Ship</button>
         </div>
       </div>
     </div>
     @if ((planet().buildQueue?.length ?? 0) > 0) {
       <div class="queue-list">
         @for (it of planet().buildQueue ?? []; track i; let i = $index) {
-          <div
-            class="queue-item"
-            [class.active]="i === 0"
-            [class.pending]="i !== 0"
-          >
+          <div class="queue-item" [class.active]="i === 0" [class.pending]="i !== 0">
             <div class="item-info">
               <span class="text-small text-muted index">{{ i + 1 }}</span>
               <span class="project-name">
                 {{ it.project | titlecase }}
                 @if ((it.count ?? 1) > 1) {
-                  <span class="text-medium font-bold count">
-                    x {{ it.count }}
-                  </span>
+                  <span class="text-medium font-bold count"> x {{ it.count }} </span>
                 }
               </span>
               @if (it.project === 'ship' && it.shipDesignId) {
-                <span class="text-small text-muted detail">
-                  ({{ it.shipDesignId }})
-                </span>
+                <span class="text-small text-muted detail"> ({{ it.shipDesignId }}) </span>
               }
               @if (it.isAuto) {
                 <span class="text-small text-muted detail" style="font-style: italic;">
@@ -219,12 +141,7 @@ export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraf
             </div>
             <div class="item-actions">
               <span class="text-small font-medium cost">{{ it.cost.resources }}R</span>
-              <button
-                (click)="remove.emit(i)"
-                class="btn-icon btn-small remove-btn"
-              >
-                ×
-              </button>
+              <button (click)="remove.emit(i)" class="btn-icon btn-small remove-btn">×</button>
             </div>
           </div>
         }
@@ -251,10 +168,37 @@ export class PlanetBuildQueueComponent {
   onShipyardLimit = output<Event>();
   setBuildAmount = output<number>();
   onShipSelected = output<ShipOption>();
+  setShipBuildAmount = output<number>();
+
+  selectedProject = signal<BuildProject>('mine');
+
+  availableShipOptions = computed(() => {
+    return this.shipOptions();
+  });
+
+  shipBuildAmount = input<number>(1);
+
+  onProjectChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value as BuildProject;
+    this.selectedProject.set(value);
+  }
+
+  build() {
+    this.queue.emit(this.selectedProject());
+  }
+
+  buildShip() {
+    this.queue.emit('ship');
+  }
 
   onQuantityChange(event: Event) {
     const value = +(event.target as HTMLSelectElement).value;
     this.setBuildAmount.emit(value);
+  }
+
+  onShipQuantityChange(event: Event) {
+    const value = +(event.target as HTMLSelectElement).value;
+    this.setShipBuildAmount.emit(value);
   }
 
   onGovernorTypeChange(event: Event) {
