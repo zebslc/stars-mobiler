@@ -15,6 +15,7 @@ export interface MiniaturizedComponent {
   id: string;
   name: string;
   img: string;
+  description?: string;
   mass: number;
   baseMass: number;
   cost: {
@@ -36,10 +37,7 @@ export interface MiniaturizedComponent {
  * @param requiredLevel Tech level required to build the component
  * @returns Miniaturization factor (0.2 to 1.0)
  */
-export function calculateMiniaturizationFactor(
-  playerLevel: number,
-  requiredLevel: number
-): number {
+export function calculateMiniaturizationFactor(playerLevel: number, requiredLevel: number): number {
   const levelDifference = playerLevel - requiredLevel;
 
   // No miniaturization if player level doesn't exceed requirement
@@ -63,16 +61,16 @@ export function calculateMiniaturizationFactor(
  */
 export function miniaturizeComponent(
   component: Component,
-  techLevels: PlayerTech
+  techLevels: PlayerTech,
 ): MiniaturizedComponent {
   // Map old tech field names to new ones
   const fieldMap: Record<string, keyof PlayerTech> = {
-    'energy': 'Energy',
-    'weapons': 'Kinetics',
-    'propulsion': 'Propulsion',
-    'construction': 'Construction',
-    'electronics': 'Energy', // Electronics tech is now part of Energy
-    'biotechnology': 'Construction' // Biotechnology removed, map to Construction as fallback
+    energy: 'Energy',
+    weapons: 'Kinetics',
+    propulsion: 'Propulsion',
+    construction: 'Construction',
+    electronics: 'Energy', // Electronics tech is now part of Energy
+    biotechnology: 'Construction', // Biotechnology removed, map to Construction as fallback
   };
 
   // Get player's tech level in the component's required field
@@ -108,6 +106,7 @@ export function miniaturizeComponent(
     id: component.id,
     name: component.name,
     img: component.img,
+    description: component.description,
     mass: miniaturizedMass,
     baseMass: component.mass,
     cost: miniaturizedCost,

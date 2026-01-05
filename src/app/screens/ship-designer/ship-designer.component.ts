@@ -107,7 +107,18 @@ export class ShipDesignerComponent implements OnInit {
     const slotId = this.selectedSlotId();
     if (!slotId) return;
 
-    const success = this.designer.installComponent(slotId, componentId);
+    // Get current component count in this slot to preserve it during replacement
+    const design = this.design();
+    const currentSlot = design?.slots.find((s) => s.slotId === slotId);
+    let count = 1;
+
+    if (currentSlot && currentSlot.components.length > 0) {
+      // Sum all counts (usually just one component type)
+      count = currentSlot.components.reduce((sum, c) => sum + c.count, 0);
+    }
+
+    // Use setSlotComponent to replace existing component while preserving count
+    const success = this.designer.setSlotComponent(slotId, componentId, count);
     if (success) {
       this.componentSelectOpen.set(false);
       this.selectedSlotId.set(null);

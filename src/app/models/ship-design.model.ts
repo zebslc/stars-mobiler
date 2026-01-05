@@ -120,9 +120,8 @@ export function compileShipStats(
 
         case 'weapon':
           firepower += (baseComponent.damage || 0) * count;
-          if (baseComponent.accuracy) {
-            accuracy = Math.max(accuracy, baseComponent.accuracy);
-          }
+          // Note: Weapon accuracy is intrinsic to the weapon and doesn't add to ship accuracy rating
+          // Ship accuracy rating comes from battle computers
           if (baseComponent.initiative) {
             initiative += baseComponent.initiative * count; // Initiative is additive
           }
@@ -130,6 +129,16 @@ export function compileShipStats(
 
         case 'shield':
           shields += (baseComponent.shieldStrength || 0) * count;
+          break;
+
+        case 'computer':
+        case 'electronics':
+        case 'elect':
+          // Battle computers add to ship accuracy
+          if (baseComponent.accuracy) {
+            accuracy += baseComponent.accuracy * count;
+          }
+          // Jammers and other electrical components could be handled here
           break;
 
         case 'mechanical':

@@ -103,6 +103,24 @@ interface GridSlot {
                         <div class="component-count">
                           {{ compData.count }}/{{ getSlotMaxCount(slot.id) }}
                         </div>
+                        <div class="qty-controls">
+                          <button
+                            class="qty-button remove"
+                            (click)="removeComponent($event, slot.id)"
+                            [disabled]="compData.count <= 1"
+                            title="Decrease quantity"
+                          >
+                            −
+                          </button>
+                          <button
+                            class="qty-button add"
+                            (click)="incrementComponent($event, slot.id)"
+                            [disabled]="!canIncrement(slot.id)"
+                            title="Increase quantity"
+                          >
+                            +
+                          </button>
+                        </div>
                       }
 
                       <!-- Clear Button -->
@@ -121,6 +139,10 @@ interface GridSlot {
                         {{ getSlotTypeDisplay(slot.slotDef.allowedTypes) }}
                       </div>
                     </div>
+                    <!-- Empty Slot Count Display -->
+                    @if (getSlotMaxCount(slot.id) > 1) {
+                      <div class="component-count">0/{{ getSlotMaxCount(slot.id) }}</div>
+                    }
                   }
                 </div>
               }
@@ -312,6 +334,42 @@ interface GridSlot {
         border: 1px solid rgba(79, 195, 247, 0.3);
         z-index: 2;
       }
+      .qty-controls {
+        position: absolute;
+        bottom: 4px;
+        left: 4px;
+        display: flex;
+        gap: 4px;
+        z-index: 2;
+      }
+      .qty-button {
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px; /* Override global min-height */
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-size: 12px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0; /* Override global padding */
+        box-sizing: border-box;
+      }
+      .qty-button.add {
+        border-color: #4caf50;
+      }
+      .qty-button.remove {
+        border-color: #f44336;
+      }
+      .qty-button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
 
       /* Clear Button */
       .clear-button {
@@ -320,6 +378,7 @@ interface GridSlot {
         right: 4px;
         width: 18px;
         height: 18px;
+        min-height: 18px; /* Override global min-height */
         border: none;
         border-radius: 50%;
         background: rgba(244, 67, 54, 0.9);
@@ -334,7 +393,7 @@ interface GridSlot {
         opacity: 0;
         transition: opacity 0.2s;
         z-index: 3;
-        padding: 0;
+        padding: 0; /* Override global padding */
         box-sizing: border-box;
       }
 
@@ -599,6 +658,7 @@ export class ShipDesignerSlotsComponent implements OnChanges {
       component: compData?.component,
       capacity: slot.capacity,
       editable: slot.editable,
+      count: compData?.count || 0,
       name: compData?.component?.name || (slot.editable ? 'Empty Slot' : 'Structural Component'),
     });
 

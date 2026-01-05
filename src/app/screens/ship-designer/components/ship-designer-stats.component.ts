@@ -1,101 +1,24 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { CompiledShipStats } from '../../../models/ship-design.model';
+import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-stats.component';
 
 @Component({
   selector: 'app-ship-designer-stats',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TechStatsComponent],
   template: `
-    @if (hoveredItem) {
-      <div class="component-details">
-        <h3>{{ hoveredItem.name || hoveredItem.component?.name || 'Empty Slot' }}</h3>
+    <div class="tabs">
+      <button class="tab" [class.active]="selectedTab() === 'summary'" (click)="setTab('summary')">
+        Summary
+      </button>
+      <button class="tab" [class.active]="selectedTab() === 'details'" (click)="setTab('details')">
+        Details
+      </button>
+    </div>
 
-        @if (hoveredItem.component; as comp) {
-          <div class="stat-group">
-            <h4>Stats</h4>
-            @if (comp.cost) {
-              <div class="stat-full">
-                <span class="label">Cost:</span>
-                <span class="value">{{ formatCost(comp.cost) }}</span>
-              </div>
-            }
-            @if (comp.mass) {
-              <div class="stat">
-                <span class="label">Mass:</span>
-                <span class="value">{{ comp.mass }}kt</span>
-              </div>
-            }
-            @if (comp.armor) {
-              <div class="stat">
-                <span class="label">Armor:</span>
-                <span class="value">{{ comp.armor }}</span>
-              </div>
-            }
-            @if (comp.shield) {
-              <div class="stat">
-                <span class="label">Shield:</span>
-                <span class="value">{{ comp.shield }}</span>
-              </div>
-            }
-            @if (comp.power) {
-              <div class="stat">
-                <span class="label">Power:</span>
-                <span class="value">{{ comp.power }}</span>
-              </div>
-            }
-            @if (comp.damage) {
-              <div class="stat">
-                <span class="label">Damage:</span>
-                <span class="value">{{ comp.damage }}</span>
-              </div>
-            }
-            @if (comp.accuracy) {
-              <div class="stat">
-                <span class="label">Accuracy:</span>
-                <span class="value">{{ comp.accuracy }}%</span>
-              </div>
-            }
-            @if (comp.initiative) {
-              <div class="stat">
-                <span class="label">Initiative:</span>
-                <span class="value">{{ comp.initiative }}</span>
-              </div>
-            }
-            @if (comp.range) {
-              <div class="stat">
-                <span class="label">Range:</span>
-                <span class="value">{{ comp.range }}</span>
-              </div>
-            }
-          </div>
-          <div class="description">
-            {{ comp.description }}
-          </div>
-        } @else if (hoveredItem.slotDef) {
-          <div class="stat-group">
-            <h4>Slot Info</h4>
-            <div class="stat">
-              <span class="label">Allowed:</span>
-              <span class="value">{{ hoveredItem.slotDef.allowedTypes.join(', ') }}</span>
-            </div>
-            @if (hoveredItem.capacity) {
-              <div class="stat">
-                <span class="label">Capacity:</span>
-                @if (hoveredItem.capacity === 'Unlimited') {
-                  <span class="value">Unlimited</span>
-                } @else {
-                  <span class="value">{{ hoveredItem.capacity }}kt</span>
-                }
-              </div>
-            }
-          </div>
-        }
-      </div>
-    } @else if (stats) {
+    @if (selectedTab() === 'summary' && stats) {
       <h3>Ship Statistics</h3>
-
-      <!-- Movement Stats -->
       <div class="stat-group">
         <h4>⚡ Movement</h4>
         <div class="stat">
@@ -118,7 +41,6 @@ import { CompiledShipStats } from '../../../models/ship-design.model';
         </div>
       </div>
 
-      <!-- Combat Stats -->
       <div class="stat-group">
         <h4>🔫 Combat</h4>
         <div class="stat">
@@ -143,7 +65,6 @@ import { CompiledShipStats } from '../../../models/ship-design.model';
         </div>
       </div>
 
-      <!-- Utility Stats -->
       <div class="stat-group">
         <h4>🔧 Utility</h4>
         <div class="stat">
@@ -162,7 +83,6 @@ import { CompiledShipStats } from '../../../models/ship-design.model';
         }
       </div>
 
-      <!-- Mass and Cost -->
       <div class="stat-group">
         <h4>💰 Cost</h4>
         <div class="stat">
@@ -175,7 +95,6 @@ import { CompiledShipStats } from '../../../models/ship-design.model';
         </div>
       </div>
 
-      <!-- Validation -->
       @if (!stats.isValid) {
         <div class="validation-errors">
           <h4>❌ Errors</h4>
@@ -188,21 +107,71 @@ import { CompiledShipStats } from '../../../models/ship-design.model';
           <h4>✅ Design Valid</h4>
         </div>
       }
+    } @else if (selectedTab() === 'details') {
+      <div class="component-details">
+        <h3>{{ hoveredItem?.name || hoveredItem?.component?.name || 'Hover a component' }}</h3>
+        @if (hoveredItem?.component; as comp) {
+          <app-tech-stats [component]="comp" [count]="hoveredItem?.count || 1"></app-tech-stats>
+          <div class="description">
+            {{ comp.description }}
+          </div>
+        } @else {
+          <div class="stat-group">
+            <h4>Slot Info</h4>
+            @if (hoveredItem?.slotDef) {
+              <div class="stat">
+                <span class="label">Allowed:</span>
+                <span class="value">{{ hoveredItem.slotDef.allowedTypes.join(', ') }}</span>
+              </div>
+            }
+            @if (hoveredItem?.capacity) {
+              <div class="stat">
+                <span class="label">Capacity:</span>
+                @if (hoveredItem.capacity === 'Unlimited') {
+                  <span class="value">Unlimited</span>
+                } @else {
+                  <span class="value">{{ hoveredItem.capacity }}kt</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
     }
   `,
   styles: [
     `
+      .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .tab {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.9rem;
+        border: 1px solid rgba(100, 150, 255, 0.4);
+        background: rgba(255, 255, 255, 0.06);
+        color: #e6f2ff;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .tab.active {
+        background: rgba(100, 150, 255, 0.25);
+        border-color: rgba(100, 150, 255, 0.7);
+        color: #ffffff;
+      }
       .stat-group {
         margin-bottom: 1rem;
         padding: 0.5rem;
-        background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.06);
         border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
       }
       .stat-group h4 {
         margin: 0 0 0.5rem 0;
         font-size: 0.9rem;
-        color: #34495e;
-        border-bottom: 1px solid #ddd;
+        color: #a5c7ff;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         padding-bottom: 0.25rem;
       }
       .stat {
@@ -216,40 +185,41 @@ import { CompiledShipStats } from '../../../models/ship-design.model';
         font-size: 0.9rem;
       }
       .label {
-        color: #7f8c8d;
+        color: #c0c8d8;
       }
       .value {
         font-weight: 500;
-        color: #2c3e50;
+        color: #ffffff;
       }
       .validation-errors {
         margin-top: 1rem;
         padding: 1rem;
-        background: #fee;
-        border: 1px solid #fcc;
+        background: rgba(244, 67, 54, 0.08);
+        border: 1px solid rgba(244, 67, 54, 0.35);
         border-radius: 4px;
+        color: #ff9999;
       }
       .validation-success {
         margin-top: 1rem;
         padding: 1rem;
-        background: #efe;
-        border: 1px solid #cfc;
+        background: rgba(76, 175, 80, 0.08);
+        border: 1px solid rgba(76, 175, 80, 0.35);
         border-radius: 4px;
         text-align: center;
-        color: #27ae60;
+        color: #9be59b;
       }
       .error {
-        color: #c0392b;
+        color: #ff8a80;
         font-size: 0.9rem;
         margin-bottom: 0.25rem;
       }
       .description {
         font-size: 0.9rem;
-        color: #aaa;
+        color: #cfd8dc;
         font-style: italic;
         margin-top: 1rem;
         padding: 0.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
       }
     `,
   ],
@@ -258,6 +228,7 @@ import { CompiledShipStats } from '../../../models/ship-design.model';
 export class ShipDesignerStatsComponent {
   @Input({ required: true }) stats: CompiledShipStats | null = null;
   @Input() hoveredItem: any = null;
+  selectedTab = signal<'summary' | 'details'>('summary');
 
   formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {
     const parts: string[] = [];
@@ -269,5 +240,17 @@ export class ShipDesignerStatsComponent {
 
   get hoveredComponent() {
     return this.hoveredItem?.component;
+  }
+
+  setTab(tab: 'summary' | 'details') {
+    this.selectedTab.set(tab);
+  }
+
+  multiplyCost(cost: { ironium?: number; boranium?: number; germanium?: number }, count: number) {
+    return {
+      ironium: (cost.ironium || 0) * count || undefined,
+      boranium: (cost.boranium || 0) * count || undefined,
+      germanium: (cost.germanium || 0) * count || undefined,
+    };
   }
 }
