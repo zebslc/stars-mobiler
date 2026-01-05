@@ -284,13 +284,13 @@ export class GalaxyMapComponent {
     const stars = this.stars();
     const homeStar = stars.find((s) => s.planets.some((p) => p.ownerId === this.gs.player()?.id));
     if (homeStar) {
-      this.scale.set(4);
+      this.scale.set(2);
       // Center on home star. ViewBox is 1000x1000. Center is 500,500.
       // ScreenX = TranslateX + WorldX * Scale
-      // 500 = TranslateX + homeStar.position.x * 4
-      // TranslateX = 500 - homeStar.position.x * 4
-      this.translateX.set(500 - homeStar.position.x * 4);
-      this.translateY.set(500 - homeStar.position.y * 4);
+      // 500 = TranslateX + homeStar.position.x * 2.8
+      // TranslateX = 500 - homeStar.position.x * 2.8
+      this.translateX.set(500 - homeStar.position.x * 2.8);
+      this.translateY.set(500 - homeStar.position.y * 2.8);
     }
   }
 
