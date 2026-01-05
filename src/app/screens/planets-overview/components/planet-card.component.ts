@@ -223,6 +223,17 @@ import { GameStateService } from '../../../services/game-state.service';
     .queue-cost {
       margin-left: auto;
     }
+
+    @media (max-width: 600px) {
+      .planet-card {
+        padding: var(--space-md);
+        gap: var(--space-sm);
+      }
+
+      .planet-header h3 {
+        font-size: var(--font-size-md);
+      }
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -35,6 +35,26 @@ import { TechRequirement, HullTemplate, ComponentStats } from '../../../data/tec
         </div>
       </div>
 
+      <!-- Current Unlocks -->
+      @if (currentUnlocks().length > 0) {
+        <div class="next-unlocks" style="margin-bottom: var(--space-md)">
+          <div class="unlocks-header">
+            <strong>Unlocked at Level {{ currentLevel() }}:</strong>
+          </div>
+          <div class="unlock-items">
+            @for (unlock of currentUnlocks(); track unlock) {
+              <button class="unlock-chip" (click)="onShowUnlockDetails(unlock)">
+                <span class="tech-icon tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
+                {{ unlock }}
+                @for (dep of getExternalDependenciesWithStatus(unlock); track dep.label) {
+                  <span class="dep-badge" [class]="'dep-badge-' + dep.status">{{ dep.label }}</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+
       <!-- Next Unlocks -->
       @if (nextUnlocks().length > 0) {
         <div class="next-unlocks">
@@ -43,12 +63,12 @@ import { TechRequirement, HullTemplate, ComponentStats } from '../../../data/tec
           </div>
           <div class="unlock-items">
             @for (unlock of nextUnlocks(); track unlock) {
-              <button class="unlock-chip" (click)="onShowUnlockDetails(unlock)">
+              <button
+                class="unlock-chip-compact"
+                (click)="onShowUnlockDetails(unlock)"
+                [title]="unlock"
+              >
                 <span class="tech-icon tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
-                {{ unlock }}
-                @for (dep of getExternalDependenciesWithStatus(unlock); track dep.label) {
-                  <span class="dep-badge" [class]="'dep-badge-' + dep.status">{{ dep.label }}</span>
-                }
               </button>
             }
           </div>
@@ -67,191 +87,215 @@ import { TechRequirement, HullTemplate, ComponentStats } from '../../../data/tec
       </div>
     </div>
   `,
-  styles: [`
-    .current-research {
-      background: var(--color-bg-secondary);
-      border: 2px solid var(--color-primary);
-      border-radius: var(--radius-lg);
-      padding: var(--space-lg);
-      margin-bottom: var(--space-lg);
-    }
+  styles: [
+    `
+      .current-research {
+        background: var(--color-bg-secondary);
+        border: 2px solid var(--color-primary);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        margin-bottom: var(--space-lg);
+      }
 
-    .research-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-md);
-    }
+      .research-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--space-md);
+      }
 
-    .research-title {
-      display: flex;
-      gap: var(--space-md);
-      align-items: center;
-      flex: 1;
-    }
+      .research-title {
+        display: flex;
+        gap: var(--space-md);
+        align-items: center;
+        flex: 1;
+      }
 
-    .research-icon {
-      font-size: 48px;
-    }
+      .research-icon {
+        font-size: 48px;
+      }
 
-    .research-title h2 {
-      margin: 0;
-      font-size: var(--font-size-xl);
-    }
+      .research-title h2 {
+        margin: 0;
+        font-size: var(--font-size-xl);
+      }
 
-    .research-subtitle {
-      margin: 4px 0 0 0;
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-    }
+      .research-subtitle {
+        margin: 4px 0 0 0;
+        font-size: var(--font-size-sm);
+        color: var(--color-text-muted);
+      }
 
-    .research-level {
-      text-align: center;
-    }
+      .research-level {
+        text-align: center;
+      }
 
-    .level-badge {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--font-size-2xl);
-      font-weight: 700;
-      color: white;
-      margin-bottom: 4px;
-    }
+      .level-badge {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        color: white;
+        margin-bottom: 4px;
+      }
 
-    .level-label {
-      font-size: var(--font-size-xs);
-      color: var(--color-text-muted);
-      text-transform: uppercase;
-    }
+      .level-label {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+      }
 
-    .progress-section {
-      margin-bottom: var(--space-md);
-    }
+      .progress-section {
+        margin-bottom: var(--space-md);
+      }
 
-    .progress-bar {
-      height: 16px;
-      background: var(--color-bg-tertiary);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      margin-bottom: var(--space-xs);
-    }
+      .progress-bar {
+        height: 16px;
+        background: var(--color-bg-tertiary);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        margin-bottom: var(--space-xs);
+      }
 
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
-      transition: width 0.3s ease;
-    }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+        transition: width 0.3s ease;
+      }
 
-    .progress-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-    }
+      .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--font-size-sm);
+        color: var(--color-text-muted);
+      }
 
-    .next-unlocks {
-      background: var(--color-bg-tertiary);
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
-    }
+      .next-unlocks {
+        background: var(--color-bg-tertiary);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+      }
 
-    .unlocks-header {
-      margin-bottom: var(--space-sm);
-      font-size: var(--font-size-sm);
-    }
+      .unlocks-header {
+        margin-bottom: var(--space-sm);
+        font-size: var(--font-size-sm);
+      }
 
-    .unlock-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-xs);
-    }
+      .unlock-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+      }
 
-    .unlock-chip {
-      background: var(--color-bg-primary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      padding: 6px 12px;
-      font-size: var(--font-size-sm);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-    }
+      .unlock-chip {
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 6px 12px;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+      }
 
-    .unlock-chip:hover {
-      background: var(--color-primary);
-      color: white;
-      transform: translateY(-1px);
-    }
+      .unlock-chip:hover {
+        background: var(--color-primary);
+        color: white;
+        transform: translateY(-1px);
+      }
 
-    .tech-icon-small {
-      width: 32px;
-      height: 32px;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 4px;
-      background-size: 32px 32px !important;
-      background-repeat: no-repeat !important;
-      image-rendering: pixelated;
-    }
+      .unlock-chip-compact {
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    .dep-badge {
-      display: inline-block;
-      background: var(--color-bg-tertiary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      padding: 2px 4px;
-      font-size: 10px;
-      color: var(--color-text-muted);
-      margin-left: 6px;
-      vertical-align: middle;
-    }
+      .unlock-chip-compact:hover {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        transform: translateY(-1px);
+      }
 
-    .dep-badge-met {
-      background: #2d5016;
-      border-color: #4a7c2c;
-      color: #a8e063;
-    }
+      .unlock-chip-compact .tech-icon-small {
+        margin-right: 0;
+      }
 
-    .dep-badge-close {
-      background: #5a4a1a;
-      border-color: #8a7a2a;
-      color: #ffeb3b;
-    }
+      .tech-icon-small {
+        width: 32px;
+        height: 32px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 4px;
+        background-size: 32px 32px !important;
+        background-repeat: no-repeat !important;
+        image-rendering: pixelated;
+      }
 
-    .dep-badge-far {
-      background: #5a1a1a;
-      border-color: #8a2a2a;
-      color: #ff6b6b;
-    }
-    
-    .unlock-max {
-      text-align: center;
-      font-size: var(--font-size-sm);
-      color: var(--color-warning);
-    }
-    
-    .btn-tech-tree {
-      background: var(--color-bg-secondary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: 8px 16px;
-      font-size: var(--font-size-sm);
-      cursor: pointer;
-      transition: all 0.2s;
-      width: 100%;
-    }
+      .dep-badge {
+        display: inline-block;
+        background: var(--color-bg-tertiary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 2px 4px;
+        font-size: 10px;
+        color: var(--color-text-muted);
+        margin-left: 6px;
+        vertical-align: middle;
+      }
 
-    .btn-tech-tree:hover {
-      background: var(--color-primary);
-      color: white;
-    }
-  `],
+      .dep-badge-met {
+        background: #2d5016;
+        border-color: #4a7c2c;
+        color: #a8e063;
+      }
+
+      .dep-badge-close {
+        background: #5a4a1a;
+        border-color: #8a7a2a;
+        color: #ffeb3b;
+      }
+
+      .dep-badge-far {
+        background: #5a1a1a;
+        border-color: #8a2a2a;
+        color: #ff6b6b;
+      }
+
+      .unlock-max {
+        text-align: center;
+        font-size: var(--font-size-sm);
+        color: var(--color-warning);
+      }
+
+      .btn-tech-tree {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: 8px 16px;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 100%;
+      }
+
+      .btn-tech-tree:hover {
+        background: var(--color-primary);
+        color: white;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResearchCurrentComponent {
@@ -276,6 +320,11 @@ export class ResearchCurrentComponent {
 
   currentLevel = computed(() => {
     return this.gs.player()?.techLevels[this.selectedField] ?? 0;
+  });
+
+  currentUnlocks = computed(() => {
+    const currentLevel = this.currentLevel();
+    return this.fieldInfo().levels[currentLevel]?.unlocks ?? [];
   });
 
   researchProgress = computed(() => {
@@ -334,14 +383,14 @@ export class ResearchCurrentComponent {
   }
 
   getExternalDependenciesWithStatus(
-    name: string
+    name: string,
   ): { label: string; status: 'met' | 'close' | 'far' }[] {
     const hull = this.techService.getHullByName(name);
     const comp = this.techService.getComponentByName(name);
     const details = hull || comp;
-    
+
     if (!details) return [];
-    
+
     let techReq: TechRequirement | undefined;
     if (hull) {
       techReq = hull.techReq;
@@ -350,7 +399,7 @@ export class ResearchCurrentComponent {
     }
 
     if (!techReq) return [];
-    
+
     const player = this.gs.player();
     if (!player) return [];
 
@@ -359,9 +408,9 @@ export class ResearchCurrentComponent {
       reqs.push({ field, level: Number(level) });
     });
 
-    // Filter out requirements that match the current field
+    // Filter out requirements that match the current field and have level > 0
     return reqs
-      .filter((r) => r.field !== this.selectedField)
+      .filter((r) => r.field !== this.selectedField && r.level > 0)
       .map((r) => {
         const currentLevel = player.techLevels[r.field as TechField] ?? 0;
         const requiredLevel = r.level;
@@ -369,7 +418,7 @@ export class ResearchCurrentComponent {
 
         let status: 'met' | 'close' | 'far';
         if (diff <= 0) {
-          status = 'met'; 
+          status = 'met';
         } else if (diff <= 2) {
           status = 'close';
         } else {

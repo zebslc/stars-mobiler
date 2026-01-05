@@ -11,7 +11,7 @@ import { PlanetCardComponent } from './components/planet-card.component';
   imports: [CommonModule, PlanetCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main style="padding:var(--space-lg);max-width:1400px;margin:0 auto">
+    <main class="planets-container">
       <h1 style="margin-bottom:var(--space-lg)">Planets</h1>
 
       @if (planets().length === 0) {
@@ -33,6 +33,12 @@ import { PlanetCardComponent } from './components/planet-card.component';
   `,
   styles: [
     `
+      .planets-container {
+        padding: var(--space-lg);
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
       .empty-state {
         text-align: center;
         padding: var(--space-xl);
@@ -43,6 +49,17 @@ import { PlanetCardComponent } from './components/planet-card.component';
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: var(--space-lg);
+      }
+
+      @media (max-width: 600px) {
+        .planets-container {
+          padding: var(--space-md);
+        }
+
+        .planets-grid {
+          grid-template-columns: 1fr;
+          gap: var(--space-md);
+        }
       }
     `,
   ],

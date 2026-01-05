@@ -324,7 +324,10 @@ export class ResearchUnlockDetailsComponent {
 
     if (techReq) {
       Object.entries(techReq).forEach(([field, level]) => {
-        reqs.push({ field, level: Number(level) });
+        const lvl = Number(level);
+        if (lvl > 0) {
+          reqs.push({ field, level: lvl });
+        }
       });
     }
     return reqs;

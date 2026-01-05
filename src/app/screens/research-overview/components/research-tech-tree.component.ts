@@ -352,9 +352,9 @@ export class ResearchTechTreeComponent {
       reqs.push({ field, level: Number(level) });
     });
 
-    // Filter out requirements that match the current field
+    // Filter out requirements that match the current field and have level > 0
     return reqs
-      .filter((r) => r.field !== this.selectedField)
+      .filter((r) => r.field !== this.selectedField && r.level > 0)
       .map((r) => {
         const currentLevel = player.techLevels[r.field as TechField] ?? 0;
         const requiredLevel = r.level;
