@@ -7,6 +7,9 @@ import { Star, Planet, Fleet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
+import { GalaxyStarComponent } from './components/galaxy-star.component';
+import { GalaxyFleetComponent } from './components/galaxy-fleet.component';
+import { GalaxyMapControlsComponent } from './components/galaxy-map-controls.component';
 
 @Component({
   standalone: true,
@@ -15,7 +18,7 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
     <main
       style="padding:var(--space-md); height: calc(100vh - 70px); display: flex; flex-direction: column; overflow: hidden;"
     >
-      <ng-container *ngIf="stars().length > 0; else empty">
+      @if (stars().length > 0) {
         <section
           style="border:1px solid #ccc; position: relative; flex-grow: 1; overflow: hidden;"
           (mousedown)="startPan($event)"
@@ -36,60 +39,50 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
             (contextmenu)="onMapRightClick($event, galaxySvg)"
           >
             <g [attr.transform]="transformString()">
-              <ng-container *ngIf="showTransfer && centerOwnedStar() as center; else starsOnly">
-                <circle
-                  [attr.cx]="center.position.x"
-                  [attr.cy]="center.position.y"
-                  [attr.r]="gs.playerEconomy()?.transferRange ?? 0"
-                  fill="rgba(46,134,222,0.08)"
-                  stroke="#2e86de"
-                  stroke-dasharray="4,3"
-                  style="pointer-events: none"
-                />
-              </ng-container>
-              <ng-template #starsOnly></ng-template>
+              @if (showTransfer) {
+                @if (centerOwnedStar(); as center) {
+                  <circle
+                    [attr.cx]="center.position.x"
+                    [attr.cy]="center.position.y"
+                    [attr.r]="gs.playerEconomy()?.transferRange ?? 0"
+                    fill="rgba(46,134,222,0.08)"
+                    stroke="#2e86de"
+                    stroke-dasharray="4,3"
+                    style="pointer-events: none"
+                  />
+                }
+              }
 
               <!-- Draw fleets first so stars remain clickable on top -->
-              <ng-container *ngFor="let fleet of filteredFleets()">
-                <ng-container [ngSwitch]="fleet.location.type">
-                  <ng-container *ngSwitchCase="'orbit'">
-                    <ng-container *ngIf="fleetOrbitPosition(fleet) as pos">
-                      <rect
-                        [attr.x]="pos.x - 6"
-                        [attr.y]="pos.y - 6"
-                        width="12"
-                        height="12"
-                        [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
-                        [attr.stroke]="'#000'"
-                        [attr.stroke-width]="0.8"
-                        [attr.transform]="'rotate(45 ' + pos.x + ' ' + pos.y + ')'"
-                        (click)="onFleetClick(fleet, $event)"
-                        (dblclick)="onFleetDoubleClick(fleet, $event)"
-                        (contextmenu)="onFleetRightClick($event, fleet.id)"
-                        style="cursor: pointer"
-                      />
-                    </ng-container>
-                  </ng-container>
-                  <ng-container *ngSwitchCase="'space'">
-                    <rect
-                      [attr.x]="fleet.location.x - 6"
-                      [attr.y]="fleet.location.y - 6"
-                      width="12"
-                      height="12"
-                      [attr.fill]="fleet.ownerId === gs.player()?.id ? '#2e86de' : '#d63031'"
-                      [attr.stroke]="'#000'"
-                      [attr.stroke-width]="0.8"
-                      (click)="onFleetClick(fleet, $event)"
-                      (dblclick)="onFleetDoubleClick(fleet, $event)"
-                      (contextmenu)="onFleetRightClick($event, fleet.id)"
-                      style="cursor: pointer"
-                    />
-                  </ng-container>
-                </ng-container>
-              </ng-container>
+              @for (fleet of filteredFleets(); track fleet.id) {
+                @if (fleet.location.type === 'orbit') {
+                  @if (fleetOrbitPosition(fleet); as pos) {
+                    <g
+                      app-galaxy-fleet
+                      [fleet]="fleet"
+                      [position]="pos"
+                      [isOrbit]="true"
+                      (fleetClick)="onFleetClick(fleet, $event)"
+                      (fleetDoubleClick)="onFleetDoubleClick(fleet, $event)"
+                      (fleetContext)="onFleetRightClick($event, fleet.id)"
+                    ></g>
+                  }
+                } @else {
+                  <!-- Space fleet -->
+                  <g
+                    app-galaxy-fleet
+                    [fleet]="fleet"
+                    [position]="getSpaceFleetPos(fleet)"
+                    [isOrbit]="false"
+                    (fleetClick)="onFleetClick(fleet, $event)"
+                    (fleetDoubleClick)="onFleetDoubleClick(fleet, $event)"
+                    (fleetContext)="onFleetRightClick($event, fleet.id)"
+                  ></g>
+                }
+              }
 
-              <ng-container *ngIf="selectedFleetId as fid">
-                <ng-container *ngIf="fleetRange(fid) as fr">
+              @if (selectedFleetId; as fid) {
+                @if (fleetRange(fid); as fr) {
                   <circle
                     [attr.cx]="fr.x"
                     [attr.cy]="fr.y"
@@ -110,11 +103,11 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                     [attr.stroke-width]="1"
                     style="pointer-events: none"
                   />
-                </ng-container>
-              </ng-container>
+                }
+              }
 
-              <ng-container *ngIf="selectedFleetId as fid">
-                <ng-container *ngIf="orderDest(fid) as dest">
+              @if (selectedFleetId; as fid) {
+                @if (orderDest(fid); as dest) {
                   <line
                     [attr.x1]="fleetPos(fid).x"
                     [attr.y1]="fleetPos(fid).y"
@@ -125,7 +118,7 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                     [attr.stroke-width]="1"
                     style="pointer-events:none"
                   />
-                  <ng-container *ngFor="let m of pathMarkersTo(fid, dest)">
+                  @for (m of pathMarkersTo(fid, dest); track $index) {
                     <circle
                       [attr.cx]="m.x"
                       [attr.cy]="m.y"
@@ -133,93 +126,24 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                       fill="#34495e"
                       style="pointer-events:none"
                     />
-                  </ng-container>
-                </ng-container>
-              </ng-container>
+                  }
+                }
+              }
 
               <!-- Draw stars on top for clear selection -->
-              <ng-container *ngFor="let star of stars()">
-                <circle
-                  [attr.cx]="star.position.x"
-                  [attr.cy]="star.position.y"
-                  [attr.r]="7"
-                  [attr.fill]="colorForStar(star)"
-                  [attr.stroke]="isIsolated(star) ? '#e67e22' : '#000'"
-                  [attr.stroke-width]="isIsolated(star) ? 1.2 : 0.7"
-                  (click)="onStarClick(star, $event)"
-                  (dblclick)="onStarDoubleClick(star, $event)"
-                  (contextmenu)="onStarRightClick($event, star)"
-                  style="cursor: pointer"
-                >
-                  <title>{{ star.name }}</title>
-                </circle>
+              @for (star of stars(); track star.id) {
+                <g
+                  app-galaxy-star
+                  [star]="star"
+                  [scale]="scale()"
+                  (starClick)="onStarClick(star, $event)"
+                  (starDoubleClick)="onStarDoubleClick(star, $event)"
+                  (starContext)="onStarRightClick($event, star)"
+                ></g>
+              }
 
-                <ng-container *ngIf="getPlanetDetails(star) as d">
-                  <g *ngIf="scale() > 1.5; else simpleLabel">
-                    <g
-                      [attr.transform]="
-                        'translate(' + star.position.x + ' ' + star.position.y + ')'
-                      "
-                    >
-                      <rect
-                        x="10"
-                        y="-10"
-                        width="150"
-                        height="105"
-                        fill="rgba(255, 255, 255, 0.9)"
-                        stroke="#ccc"
-                        stroke-width="0.5"
-                        rx="4"
-                        style="pointer-events: none"
-                      />
-                      <text
-                        x="15"
-                        y="5"
-                        fill="#2c3e50"
-                        style="pointer-events: none; font-family: sans-serif"
-                        font-size="10"
-                      >
-                        <tspan font-weight="bold" x="15" dy="0">{{ star.name }}</tspan>
-                        <tspan x="15" dy="12" font-size="9" fill="#2e86de">
-                          Resources: {{ d.resources }}R
-                        </tspan>
-                        <tspan x="15" dy="11" font-size="9">
-                          Conc: Fe{{ d.fe }}% Bo{{ d.bo }}% Ge{{ d.ge }}%
-                        </tspan>
-                        <tspan x="15" dy="11" font-size="9">
-                          Surface: {{ d.surfaceFe }}Fe {{ d.surfaceBo }}Bo {{ d.surfaceGe }}Ge
-                        </tspan>
-                        <tspan x="15" dy="11" font-size="9">
-                          Pop: {{ d.pop | number }} / {{ d.maxPop }}M
-                        </tspan>
-                        <tspan x="15" dy="11" font-size="9">Owner: {{ d.owner }}</tspan>
-                        <tspan
-                          x="15"
-                          dy="11"
-                          font-size="9"
-                          [attr.fill]="d.hab > 0 ? '#27ae60' : '#c0392b'"
-                        >
-                          Hab: {{ d.hab }}%
-                        </tspan>
-                      </text>
-                    </g>
-                  </g>
-                  <ng-template #simpleLabel>
-                    <text
-                      [attr.x]="star.position.x + 9"
-                      [attr.y]="star.position.y - 9"
-                      [attr.font-size]="10"
-                      fill="#2c3e50"
-                      style="pointer-events: none; text-shadow: 0px 0px 2px white;"
-                    >
-                      {{ star.name }}
-                    </text>
-                  </ng-template>
-                </ng-container>
-              </ng-container>
-
-              <ng-container *ngIf="selectedStar && selectedFleetId as fid">
-                <ng-container *ngIf="pathMarkers(fid, selectedStar) as marks">
+              @if (selectedStar && selectedFleetId; as fid) {
+                @if (pathMarkers(fid, selectedStar); as marks) {
                   <line
                     [attr.x1]="fleetPos(fid).x"
                     [attr.y1]="fleetPos(fid).y"
@@ -230,7 +154,7 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                     [attr.stroke-width]="1"
                     style="pointer-events:none"
                   />
-                  <ng-container *ngFor="let m of marks">
+                  @for (m of marks; track $index) {
                     <circle
                       [attr.cx]="m.x"
                       [attr.cy]="m.y"
@@ -238,37 +162,21 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
                       fill="#34495e"
                       style="pointer-events:none"
                     />
-                  </ng-container>
-                </ng-container>
-              </ng-container>
+                  }
+                }
+              }
             </g>
           </svg>
 
           <!-- Overlay Controls -->
-          <div
-            *ngIf="settings.showMapControls()"
-            style="position:absolute; bottom:1rem; right:1rem; display:flex; flex-direction:column; gap:0.5rem; background:rgba(255,255,255,0.8); padding:0.5rem; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.2)"
-          >
-            <div style="display:flex; gap:0.5rem; justify-content:center">
-              <button (click)="zoomIn()" style="width:30px;height:30px;font-weight:bold">+</button>
-              <button (click)="zoomOut()" style="width:30px;height:30px;font-weight:bold">-</button>
-            </div>
-            <div
-              style="display:grid; grid-template-columns: 30px 30px 30px; gap:0.25rem; justify-content:center"
-            >
-              <div></div>
-              <button (click)="panArrow(0, -50)" style="width:30px;height:30px">↑</button>
-              <div></div>
-              <button (click)="panArrow(-50, 0)" style="width:30px;height:30px">←</button>
-              <button (click)="resetView()" style="width:30px;height:30px;font-size:0.8rem">
-                R
-              </button>
-              <button (click)="panArrow(50, 0)" style="width:30px;height:30px">→</button>
-              <div></div>
-              <button (click)="panArrow(0, 50)" style="width:30px;height:30px">↓</button>
-              <div></div>
-            </div>
-          </div>
+          @if (settings.showMapControls()) {
+            <app-galaxy-map-controls
+              (zoomIn)="zoomIn()"
+              (zoomOut)="zoomOut()"
+              (pan)="panArrow($event.x, $event.y)"
+              (reset)="resetView()"
+            ></app-galaxy-map-controls>
+          }
         </section>
 
         <!-- Context Menus -->
@@ -296,8 +204,7 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
           (addWaypoint)="onContextMenuAddWaypoint($event)"
           (moveToPosition)="onContextMenuMoveToPosition($event)"
         />
-      </ng-container>
-      <ng-template #empty>
+      } @else {
         <section style="padding:var(--space-lg);display:grid;place-items:center;height:70vh">
           <div
             class="card"
@@ -308,14 +215,21 @@ import { FleetContextMenuComponent } from '../../components/fleet-context-menu.c
             <button (click)="newGame()" class="btn-primary">Start New Game</button>
           </div>
         </section>
-      </ng-template>
+      }
     </main>
   `,
-  imports: [CommonModule, PlanetContextMenuComponent, FleetContextMenuComponent],
+  imports: [
+    CommonModule,
+    PlanetContextMenuComponent,
+    FleetContextMenuComponent,
+    GalaxyStarComponent,
+    GalaxyFleetComponent,
+    GalaxyMapControlsComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GalaxyMapComponent {
-  private gs = inject(GameStateService);
+  readonly gs = inject(GameStateService);
   private router = inject(Router);
   settings = inject(SettingsService);
 
@@ -412,6 +326,13 @@ export class GalaxyMapComponent {
 
   transformString() {
     return `translate(${this.translateX()} ${this.translateY()}) scale(${this.scale()})`;
+  }
+
+  getSpaceFleetPos(fleet: Fleet): { x: number; y: number } {
+    if (fleet.location.type === 'space') {
+      return { x: fleet.location.x, y: fleet.location.y };
+    }
+    return { x: 0, y: 0 };
   }
 
   // Zoom Logic
@@ -550,15 +471,6 @@ export class GalaxyMapComponent {
       touches[0].clientX - touches[1].clientX,
       touches[0].clientY - touches[1].clientY,
     );
-  }
-
-  colorForStar(star: Star): string {
-    const owned = star.planets.some((p) => p.ownerId === this.gs.player()?.id);
-    const enemy = star.planets.some((p) => p.ownerId && p.ownerId !== this.gs.player()?.id);
-    if (owned) return '#2e86de';
-    if (enemy) return '#d63031';
-    const colonizable = star.planets.some((p) => this.gs.habitabilityFor(p.id) > 0);
-    return colonizable ? '#2ecc71' : '#bdc3c7';
   }
 
   newGame() {
@@ -840,14 +752,14 @@ export class GalaxyMapComponent {
     });
   }
 
-  onMapRightClick(event: MouseEvent, svgElement: SVGSVGElement) {
+  onMapRightClick(event: MouseEvent, svgElement: any) {
     event.preventDefault();
     event.stopPropagation();
 
     // Only show fleet context menu if a fleet is selected
     if (!this.selectedFleetId) return;
 
-    const worldPos = this.screenToWorld(event.clientX, event.clientY, svgElement);
+    const worldPos = this.screenToWorld(event.clientX, event.clientY, svgElement as SVGSVGElement);
     this.closeContextMenus();
     this.fleetContextMenu.set({
       visible: true,

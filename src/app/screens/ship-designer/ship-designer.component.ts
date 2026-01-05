@@ -1,35 +1,57 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  signal,
+  ChangeDetectionStrategy,
+  Output,
+  EventEmitter,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { GameStateService } from '../../services/game-state.service';
+import { ShipDesignerStatsComponent } from './components/ship-designer-stats.component';
+import { ShipDesignerSlotsComponent } from './components/ship-designer-slots.component';
+import { ShipDesignerHullSelectorComponent } from './components/ship-designer-hull-selector.component';
+import { ShipDesignerComponentSelectorComponent } from './components/ship-designer-component-selector.component';
 
 @Component({
   selector: 'app-ship-designer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    ShipDesignerStatsComponent,
+    ShipDesignerSlotsComponent,
+    ShipDesignerHullSelectorComponent,
+    ShipDesignerComponentSelectorComponent,
+  ],
   templateUrl: './ship-designer.component.html',
   styleUrl: './ship-designer.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerComponent implements OnInit {
-  constructor(
-    private designer: ShipDesignerService,
-    private gameState: GameStateService,
-    private router: Router
-  ) {}
+  @Output() save = new EventEmitter<void>();
+  @Output() cancel = new EventEmitter<void>();
+
+  private designer = inject(ShipDesignerService);
+  private gameState = inject(GameStateService);
+  private router = inject(Router);
 
   readonly selectedSlotId = signal<string | null>(null);
 
-  get design() { return this.designer.currentDesign; }
-  get hull() { return this.designer.currentHull; }
-  get stats() { return this.designer.compiledStats; }
+  readonly design = computed(() => this.designer.currentDesign() ?? null);
+  readonly hull = computed(() => this.designer.currentHull() ?? null);
+  readonly stats = computed(() => this.designer.compiledStats() ?? null);
+
   readonly availableHulls = computed(() => this.designer.getAvailableHulls());
 
   readonly selectedSlot = computed(() => {
     const slotId = this.selectedSlotId();
     const hull = this.hull();
     if (!slotId || !hull) return null;
-    return hull.slots.find((s) => s.id === slotId);
+    return hull.slots.find((s) => s.id === slotId) || null;
   });
 
   readonly availableComponentsForSlot = computed(() => {
@@ -111,12 +133,12 @@ export class ShipDesignerComponent implements OnInit {
     }
 
     this.gameState.saveShipDesign(design);
-    alert(`Design "${design.name}" saved!`);
+    this.save.emit();
   }
 
   cancelDesign() {
     this.designer.clearDesign();
-    this.router.navigate(['/game']);
+    this.cancel.emit();
   }
 
   updateDesignName(name: string) {
@@ -124,50 +146,5 @@ export class ShipDesignerComponent implements OnInit {
       this.designer.setDesignName(name.trim());
     }
     this.designNameEditing.set(false);
-  }
-
-  getSlotDisplayName(slotId: string): string {
-    return `Slot ${slotId.toUpperCase()}`;
-  }
-
-  getComponentInSlot(slotId: string): string | null {
-    const design = this.design();
-    if (!design) return null;
-
-    const assignment = design.slots.find((s) => s.slotId === slotId);
-    return assignment?.components?.[0]?.componentId || null;
-  }
-
-  formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {
-    const parts: string[] = [];
-    if (cost.ironium) parts.push(`${cost.ironium} Fe`);
-    if (cost.boranium) parts.push(`${cost.boranium} B`);
-    if (cost.germanium) parts.push(`${cost.germanium} Ge`);
-    return parts.join(', ');
-  }
-
-  getSlotTypeDisplay(allowedTypes: string[]): string {
-    const typeMap: Record<string, string> = {
-      engine: '⚙️',
-      weapon: '🗡️',
-      shield: '🛡️',
-      electronics: '📡',
-      general: '🛠️',
-      bomb: '💣',
-      cargo: '📦',
-    };
-    return allowedTypes.map((t) => typeMap[t] || '?').join('');
-  }
-
-  getComponentImagePath(componentId: string): string {
-    const component = this.availableComponentsForSlot().find(c => c.id === componentId);
-    if (component && (component as any).img) {
-      return `/assets/tech-icons/${(component as any).img}.png`;
-    }
-    return '/assets/tech-icons/placeholder.png';
-  }
-
-  onImageError(event: any): void {
-    event.target.src = '/assets/tech-icons/placeholder.png';
   }
 }

@@ -14,6 +14,7 @@ import { PlayerTech } from '../models/game.model';
 export interface MiniaturizedComponent {
   id: string;
   name: string;
+  img: string;
   mass: number;
   baseMass: number;
   cost: {
@@ -106,10 +107,15 @@ export function miniaturizeComponent(
   return {
     id: component.id,
     name: component.name,
+    img: component.img,
     mass: miniaturizedMass,
     baseMass: component.mass,
     cost: miniaturizedCost,
-    baseCost: component.baseCost || { ironium: component.cost.iron || 0, boranium: component.cost.bor || 0, germanium: component.cost.germ || 0 },
+    baseCost: component.baseCost || {
+      ironium: component.cost.iron || 0,
+      boranium: component.cost.bor || 0,
+      germanium: component.cost.germ || 0,
+    },
     miniaturizationLevel: Math.max(0, miniaturizationLevel),
   };
 }

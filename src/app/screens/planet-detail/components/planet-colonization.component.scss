@@ -1,0 +1,68 @@
+.section-title {
+  margin-bottom: var(--space-lg);
+}
+
+.fleet-group {
+  margin-top: var(--space-md);
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  .group-label {
+    font-size: var(--font-size-sm);
+    font-weight: bold;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-sm);
+  }
+}
+
+.fleet-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  
+  &.in-orbit {
+    background: var(--color-success-light);
+    border: 1px solid var(--color-success);
+    
+    .status {
+      color: var(--color-success);
+    }
+  }
+
+  &.en-route {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+
+    .eta {
+      color: var(--color-primary);
+      font-weight: bold;
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  &.idle {
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-light);
+  }
+
+  .info {
+    .name {
+      font-weight: bold;
+    }
+    .details {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+  }
+}
+
+.empty-state {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+}

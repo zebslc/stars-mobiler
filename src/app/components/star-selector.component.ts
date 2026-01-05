@@ -40,7 +40,7 @@ export interface StarOption {
             type="button"
             *ngFor="let option of options"
             class="star-option"
-            [class.selected]="option.star.id === selectedStar?.star.id"
+            [class.selected]="option.star.id === selectedStar?.star?.id"
             [class.out-of-range]="!option.isInRange"
             (click)="selectStar(option)"
           >

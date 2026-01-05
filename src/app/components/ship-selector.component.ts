@@ -41,7 +41,7 @@ export interface ShipOption {
             type="button"
             *ngFor="let option of options"
             class="ship-option"
-            [class.selected]="option.design.id === selectedShip?.design.id"
+            [class.selected]="option.design.id === selectedShip?.design?.id"
             [class.cannot-afford]="!option.canAfford"
             (click)="selectShip(option)"
           >
@@ -132,7 +132,9 @@ export interface ShipOption {
               <div *ngIf="option.shipType === 'colony'" class="stats-grid">
                 <div class="stat">
                   <span class="stat-icon">👥</span>
-                  <span class="stat-value">{{ (option.design.colonistCapacity / 1000) | number: '1.0-0' }}k</span>
+                  <span class="stat-value"
+                    >{{ (option.design.colonistCapacity || 0) / 1000 | number: '1.0-0' }}k</span
+                  >
                 </div>
                 <div class="stat">
                   <span class="stat-icon">📦</span>
@@ -146,7 +148,9 @@ export interface ShipOption {
                   <span class="stat-icon" *ngIf="option.design.fuelEfficiency === 0">♾️</span>
                   <span class="stat-icon" *ngIf="option.design.fuelEfficiency > 0">⛽</span>
                   <span class="stat-value" *ngIf="option.design.fuelEfficiency === 0">∞</span>
-                  <span class="stat-value" *ngIf="option.design.fuelEfficiency > 0">{{ option.design.fuelCapacity }}</span>
+                  <span class="stat-value" *ngIf="option.design.fuelEfficiency > 0">{{
+                    option.design.fuelCapacity
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -164,249 +168,251 @@ export interface ShipOption {
       </div>
     </div>
   `,
-  styles: [`
-    .ship-selector {
-      position: relative;
-      width: 100%;
-    }
-
-    .selector-trigger {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-md);
-      padding: var(--space-md);
-      background: var(--color-bg-primary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      min-height: var(--touch-target-min);
-      text-align: left;
-      transition: all 0.2s;
-    }
-
-    .selector-trigger:hover {
-      border-color: var(--color-primary);
-    }
-
-    .selector-trigger.open {
-      border-color: var(--color-primary);
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-
-    .selected-content {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      flex: 1;
-    }
-
-    .placeholder {
-      color: var(--color-text-muted);
-    }
-
-    .dropdown-arrow {
-      font-size: var(--font-size-xs);
-      color: var(--color-text-muted);
-      transition: transform 0.2s;
-    }
-
-    .selector-trigger.open .dropdown-arrow {
-      transform: rotate(180deg);
-    }
-
-    .dropdown-panel {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--color-bg-primary);
-      border: 1px solid var(--color-primary);
-      border-top: none;
-      border-radius: 0 0 var(--radius-md) var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      z-index: 1000;
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
-    .options-list {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .ship-option {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-      padding: var(--space-md);
-      background: var(--color-bg-primary);
-      border: none;
-      border-bottom: 1px solid var(--color-border-light);
-      cursor: pointer;
-      text-align: left;
-      transition: background 0.2s;
-    }
-
-    .ship-option:last-child {
-      border-bottom: none;
-    }
-
-    .ship-option:hover {
-      background: var(--color-bg-secondary);
-    }
-
-    .ship-option.selected {
-      background: var(--color-primary-light);
-    }
-
-    .ship-option.cannot-afford {
-      opacity: 0.6;
-    }
-
-    .option-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: var(--space-md);
-    }
-
-    .option-main {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-sm);
-      flex: 1;
-    }
-
-    .ship-icon {
-      font-size: var(--font-size-xl);
-      line-height: 1;
-    }
-
-    .ship-info {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-    }
-
-    .ship-name-row {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      flex-wrap: wrap;
-    }
-
-    .ship-name {
-      font-weight: var(--font-weight-medium);
-      color: var(--color-text-primary);
-    }
-
-    .ship-type-badge {
-      font-size: var(--font-size-xs);
-      padding: 2px var(--space-xs);
-      border-radius: var(--radius-sm);
-      font-weight: var(--font-weight-medium);
-      text-transform: uppercase;
-    }
-
-    .badge-attack {
-      background: var(--color-danger-light);
-      color: var(--color-danger);
-    }
-
-    .badge-cargo {
-      background: var(--color-warning-light);
-      color: var(--color-warning);
-    }
-
-    .badge-support {
-      background: var(--color-primary-light);
-      color: var(--color-primary);
-    }
-
-    .badge-colony {
-      background: var(--color-success-light);
-      color: var(--color-success);
-    }
-
-    .option-cost {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2px;
-    }
-
-    .cost-main {
-      font-weight: var(--font-weight-bold);
-      color: var(--color-text-primary);
-    }
-
-    .cost-minerals {
-      display: flex;
-      gap: var(--space-xs);
-      color: var(--color-text-muted);
-    }
-
-    .option-stats {
-      padding-left: calc(var(--font-size-xl) + var(--space-sm));
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-sm);
-    }
-
-    .stat {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: var(--font-size-sm);
-    }
-
-    .stat-icon {
-      font-size: var(--font-size-sm);
-    }
-
-    .stat-value {
-      font-weight: var(--font-weight-medium);
-      color: var(--color-text-secondary);
-    }
-
-    .cannot-afford-warning {
-      padding-left: calc(var(--font-size-xl) + var(--space-sm));
-      color: var(--color-danger);
-    }
-
-    .ship-cost {
-      margin-left: auto;
-      color: var(--color-text-muted);
-    }
-
-    .no-options {
-      padding: var(--space-xl);
-      text-align: center;
-      color: var(--color-text-muted);
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 640px) {
-      .dropdown-panel {
-        max-height: 400px;
+  styles: [
+    `
+      .ship-selector {
+        position: relative;
+        width: 100%;
       }
 
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .selector-trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-md);
+        padding: var(--space-md);
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        min-height: var(--touch-target-min);
+        text-align: left;
+        transition: all 0.2s;
+      }
+
+      .selector-trigger:hover {
+        border-color: var(--color-primary);
+      }
+
+      .selector-trigger.open {
+        border-color: var(--color-primary);
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      .selected-content {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        flex: 1;
+      }
+
+      .placeholder {
+        color: var(--color-text-muted);
+      }
+
+      .dropdown-arrow {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-muted);
+        transition: transform 0.2s;
+      }
+
+      .selector-trigger.open .dropdown-arrow {
+        transform: rotate(180deg);
+      }
+
+      .dropdown-panel {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-primary);
+        border-top: none;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .options-list {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ship-option {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+        padding: var(--space-md);
+        background: var(--color-bg-primary);
+        border: none;
+        border-bottom: 1px solid var(--color-border-light);
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.2s;
+      }
+
+      .ship-option:last-child {
+        border-bottom: none;
+      }
+
+      .ship-option:hover {
+        background: var(--color-bg-secondary);
+      }
+
+      .ship-option.selected {
+        background: var(--color-primary-light);
+      }
+
+      .ship-option.cannot-afford {
+        opacity: 0.6;
+      }
+
+      .option-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-md);
+      }
+
+      .option-main {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-sm);
+        flex: 1;
+      }
+
+      .ship-icon {
+        font-size: var(--font-size-xl);
+        line-height: 1;
+      }
+
+      .ship-info {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
       }
 
       .ship-name-row {
-        flex-direction: column;
-        align-items: flex-start;
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        flex-wrap: wrap;
       }
-    }
-  `],
+
+      .ship-name {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary);
+      }
+
+      .ship-type-badge {
+        font-size: var(--font-size-xs);
+        padding: 2px var(--space-xs);
+        border-radius: var(--radius-sm);
+        font-weight: var(--font-weight-medium);
+        text-transform: uppercase;
+      }
+
+      .badge-attack {
+        background: var(--color-danger-light);
+        color: var(--color-danger);
+      }
+
+      .badge-cargo {
+        background: var(--color-warning-light);
+        color: var(--color-warning);
+      }
+
+      .badge-support {
+        background: var(--color-primary-light);
+        color: var(--color-primary);
+      }
+
+      .badge-colony {
+        background: var(--color-success-light);
+        color: var(--color-success);
+      }
+
+      .option-cost {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+      }
+
+      .cost-main {
+        font-weight: var(--font-weight-bold);
+        color: var(--color-text-primary);
+      }
+
+      .cost-minerals {
+        display: flex;
+        gap: var(--space-xs);
+        color: var(--color-text-muted);
+      }
+
+      .option-stats {
+        padding-left: calc(var(--font-size-xl) + var(--space-sm));
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-sm);
+      }
+
+      .stat {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: var(--font-size-sm);
+      }
+
+      .stat-icon {
+        font-size: var(--font-size-sm);
+      }
+
+      .stat-value {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-secondary);
+      }
+
+      .cannot-afford-warning {
+        padding-left: calc(var(--font-size-xl) + var(--space-sm));
+        color: var(--color-danger);
+      }
+
+      .ship-cost {
+        margin-left: auto;
+        color: var(--color-text-muted);
+      }
+
+      .no-options {
+        padding: var(--space-xl);
+        text-align: center;
+        color: var(--color-text-muted);
+      }
+
+      /* Mobile optimizations */
+      @media (max-width: 640px) {
+        .dropdown-panel {
+          max-height: 400px;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .ship-name-row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipSelectorComponent {
@@ -425,7 +431,7 @@ export class ShipSelectorComponent {
   }
 
   toggleDropdown() {
-    this.isOpen.update(val => !val);
+    this.isOpen.update((val) => !val);
   }
 
   selectShip(option: ShipOption) {
@@ -435,21 +441,31 @@ export class ShipSelectorComponent {
 
   getIcon(option: ShipOption): string {
     switch (option.shipType) {
-      case 'attack': return '⚔️';
-      case 'cargo': return '📦';
-      case 'support': return '🛢️';
-      case 'colony': return '🏘️';
-      default: return '🚀';
+      case 'attack':
+        return '⚔️';
+      case 'cargo':
+        return '📦';
+      case 'support':
+        return '🛢️';
+      case 'colony':
+        return '🏘️';
+      default:
+        return '🚀';
     }
   }
 
   getTypeName(type: string): string {
     switch (type) {
-      case 'attack': return 'Attack';
-      case 'cargo': return 'Cargo';
-      case 'support': return 'Support';
-      case 'colony': return 'Colony';
-      default: return 'Ship';
+      case 'attack':
+        return 'Attack';
+      case 'cargo':
+        return 'Cargo';
+      case 'support':
+        return 'Support';
+      case 'colony':
+        return 'Colony';
+      default:
+        return 'Ship';
     }
   }
 }

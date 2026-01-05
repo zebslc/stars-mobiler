@@ -37,11 +37,11 @@ import { TechService } from '../../services/tech.service';
           <div class="text-small text-muted">Location</div>
           <div class="font-medium">
             <span *ngIf="fleet()!.location.type === 'orbit'"
-              >Orbiting planet {{ fleet()!.location.planetId }}</span
+              >Orbiting planet {{ $any(fleet()!.location).planetId }}</span
             >
             <span *ngIf="fleet()!.location.type === 'space'"
-              >In space ({{ fleet()!.location.x | number: '1.0-0' }},
-              {{ fleet()!.location.y | number: '1.0-0' }})</span
+              >In space ({{ $any(fleet()!.location).x | number: '1.0-0' }},
+              {{ $any(fleet()!.location).y | number: '1.0-0' }})</span
             >
           </div>
         </div>

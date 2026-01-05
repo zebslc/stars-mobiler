@@ -32,6 +32,7 @@ export interface HullSlot {
 export interface Hull extends HullTemplate {
   // Legacy properties expected by existing code
   id: string;
+  name: string;
   mass: number;
   cargoCapacity: number;
   fuelCapacity: number;
@@ -53,6 +54,7 @@ const convertHullTemplate = (template: HullTemplate): Hull => {
   const hull: Hull = {
     ...template,
     id: template.id || template.Name.toLowerCase().replace(/\s+/g, '_'),
+    name: template.Name,
     mass: template.Stats.Mass,
     cargoCapacity: template.Stats.Cargo || 0,
     fuelCapacity: template.Stats['Max Fuel'] || 0,
