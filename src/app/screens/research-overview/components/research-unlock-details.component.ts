@@ -5,11 +5,13 @@ import { GameStateService } from '../../../services/game-state.service';
 import { HullTemplate, ComponentStats, TechRequirement, TECH_ATLAS } from '../../../data/tech-atlas.data';
 import { TechField } from '../../../data/tech-tree.data';
 import { FuelUsageGraphComponent } from '../../../shared/components/fuel-usage-graph/fuel-usage-graph.component';
+import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull-layout.component';
+import { getHull } from '../../../data/hulls.data';
 
 @Component({
   selector: 'app-research-unlock-details',
   standalone: true,
-  imports: [CommonModule, FuelUsageGraphComponent],
+  imports: [CommonModule, FuelUsageGraphComponent, HullLayoutComponent],
   template: `
     <div class="modal-overlay" (click)="onClose()">
       <div class="modal-content modal-small" (click)="$event.stopPropagation()">
@@ -27,8 +29,15 @@ import { FuelUsageGraphComponent } from '../../../shared/components/fuel-usage-g
                 <p>{{ details.description }}</p>
               </div>
 
+              @if (hullData(); as hull) {
+                <div class="hull-preview-section">
+                  <app-hull-layout [hull]="hull" [design]="null"></app-hull-layout>
+                </div>
+              }
+
               <div class="detail-row">
                 <span class="label">Role/Type:</span>
+
                 <span class="value">{{ techType() }}</span>
               </div>
 
@@ -215,6 +224,12 @@ export class ResearchUnlockDetailsComponent {
     const hull = this.techService.getHullByName(name);
     if (hull) return hull;
     return this.techService.getComponentByName(name);
+  });
+
+  hullData = computed(() => {
+    const d = this.details();
+    if (!d || !('Slots' in d)) return null;
+    return getHull(this.unlockName);
   });
 
   iconClass = computed(() => {

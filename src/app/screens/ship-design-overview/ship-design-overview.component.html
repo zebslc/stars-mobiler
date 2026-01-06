@@ -26,6 +26,7 @@
            (edit)="onEditDesign($event)"
            (delete)="onDeleteDesign($event)"
            (clone)="onCloneDesign($event)"
+           (preview)="onPreviewDesign($event)"
         ></app-ship-design-item>
       }
     </div>
@@ -37,5 +38,14 @@
       (save)="onDesignSaved()"
       (cancel)="onDesignCanceled()"
     ></app-ship-designer>
+  }
+
+  @if (previewOpen()) {
+    <app-hull-preview-modal
+      [hull]="previewHull()"
+      [design]="null"
+      [title]="previewTitle()"
+      (close)="previewOpen.set(false)"
+    ></app-hull-preview-modal>
   }
 </main>

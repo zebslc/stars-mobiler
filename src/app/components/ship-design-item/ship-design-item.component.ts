@@ -17,20 +17,29 @@ export interface ShipDesignDisplay {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="design-card" [class.mode-list]="mode === 'list'" [class.mode-selector]="mode === 'selector'">
+    <div
+      class="design-card"
+      [class.mode-list]="mode === 'list'"
+      [class.mode-selector]="mode === 'selector'"
+    >
       <div class="design-header">
-        <div class="icon-container">
-           <img [src]="hullIcon" [alt]="design.hullId" class="hull-icon" (error)="onImageError($event)">
+        <div class="icon-container" (click)="preview.emit(design.id)" title="Preview hull template">
+          <img
+            [src]="hullIcon"
+            [alt]="design.hullId"
+            class="hull-icon"
+            (error)="onImageError($event)"
+          />
         </div>
         <div class="header-info">
           <h3>{{ design.name }}</h3>
           <span class="design-type">{{ hullName }}</span>
         </div>
-         @if (count !== undefined) {
-            <div class="ship-count" title="Ships in service">
-              <span class="count-badge">{{ count }}</span>
-            </div>
-          }
+        @if (count !== undefined) {
+          <div class="ship-count" title="Ships in service">
+            <span class="count-badge">{{ count }}</span>
+          </div>
+        }
       </div>
 
       <div class="design-stats">
@@ -58,7 +67,7 @@ export interface ShipDesignDisplay {
           <span class="stat-icon">🚀</span>
           <span>W{{ design.stats.warpSpeed }}</span>
         </div>
-         @if (design.stats.fuelCapacity > 0) {
+        @if (design.stats.fuelCapacity > 0) {
           <div class="stat-row" title="Fuel">
             <span class="stat-icon">⛽</span>
             <span>{{ design.stats.fuelCapacity }}mg</span>
@@ -70,7 +79,7 @@ export interface ShipDesignDisplay {
             <span>{{ design.stats.cargoCapacity }}kt</span>
           </div>
         }
-         @if (design.stats.colonistCapacity > 0) {
+        @if (design.stats.colonistCapacity > 0) {
           <div class="stat-row" title="Colonists">
             <span class="stat-icon">👥</span>
             <span>{{ design.stats.colonistCapacity }}</span>
@@ -80,135 +89,139 @@ export interface ShipDesignDisplay {
 
       @if (mode === 'card') {
         <div class="design-actions">
-           <button type="button" class="btn-small" (click)="edit.emit(design.id)">Edit</button>
-           <button type="button" class="btn-small" (click)="clone.emit(design.id)">Clone</button>
-           <button type="button" class="btn-small btn-danger" (click)="delete.emit(design.id)">Delete</button>
+          <button type="button" class="btn-small" (click)="edit.emit(design.id)">Edit</button>
+          <button type="button" class="btn-small" (click)="clone.emit(design.id)">Clone</button>
+          <button type="button" class="btn-small btn-danger" (click)="delete.emit(design.id)">
+            Delete
+          </button>
         </div>
       }
     </div>
   `,
-  styles: [`
-    .design-card {
-      background: var(--color-bg-secondary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-lg);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-lg);
-      box-shadow: var(--shadow-sm);
-    }
+  styles: [
+    `
+      .design-card {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-lg);
+        box-shadow: var(--shadow-sm);
+      }
 
-    .design-card.mode-selector {
-       padding: var(--space-sm);
-       gap: var(--space-sm);
-       border: none;
-       background: transparent;
-       box-shadow: none;
-    }
+      .design-card.mode-selector {
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+        border: none;
+        background: transparent;
+        box-shadow: none;
+      }
 
-    .design-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-md);
-    }
+      .design-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+      }
 
-    .icon-container {
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.05);
-      border-radius: var(--radius-md);
-    }
-    
-    .hull-icon {
+      .icon-container {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: var(--radius-md);
+      }
+
+      .hull-icon {
         max-width: 100%;
         max-height: 100%;
-    }
+      }
 
-    .header-info {
-      flex: 1;
-    }
+      .header-info {
+        flex: 1;
+      }
 
-    h3 {
-      margin: 0;
-      font-size: var(--font-size-lg);
-      color: var(--color-text-primary);
-    }
+      h3 {
+        margin: 0;
+        font-size: var(--font-size-lg);
+        color: var(--color-text-primary);
+      }
 
-    .design-type {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-secondary);
-    }
+      .design-type {
+        font-size: var(--font-size-sm);
+        color: var(--color-text-secondary);
+      }
 
-    .ship-count {
+      .ship-count {
         background: var(--color-primary-light);
         color: var(--color-primary-dark);
         border-radius: 12px;
         padding: 2px 8px;
         font-size: var(--font-size-xs);
         font-weight: bold;
-    }
+      }
 
-    .design-stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-sm);
-      font-size: var(--font-size-sm);
-      color: var(--color-text-secondary);
-    }
-    
-    .mode-selector .design-stats {
-         grid-template-columns: repeat(4, 1fr);
-    }
+      .design-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
+        font-size: var(--font-size-sm);
+        color: var(--color-text-secondary);
+      }
 
-    .stat-row {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-    }
+      .mode-selector .design-stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
 
-    .stat-icon {
+      .stat-row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+
+      .stat-icon {
         width: 1.2em;
         text-align: center;
-    }
+      }
 
-    .design-actions {
-      display: flex;
-      gap: var(--space-sm);
-      margin-top: auto;
-      padding-top: var(--space-md);
-      border-top: 1px solid var(--color-border);
-    }
+      .design-actions {
+        display: flex;
+        gap: var(--space-sm);
+        margin-top: auto;
+        padding-top: var(--space-md);
+        border-top: 1px solid var(--color-border);
+      }
 
-    .btn-small {
-      flex: 1;
-      padding: var(--space-xs) var(--space-sm);
-      background: var(--color-bg-primary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      color: var(--color-text-primary);
-      cursor: pointer;
-      font-size: var(--font-size-sm);
-    }
+      .btn-small {
+        flex: 1;
+        padding: var(--space-xs) var(--space-sm);
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        color: var(--color-text-primary);
+        cursor: pointer;
+        font-size: var(--font-size-sm);
+      }
 
-    .btn-small:hover {
-      background: var(--color-bg-secondary);
-      border-color: var(--color-primary);
-    }
+      .btn-small:hover {
+        background: var(--color-bg-secondary);
+        border-color: var(--color-primary);
+      }
 
-    .btn-danger {
-      color: var(--color-danger);
-      border-color: var(--color-danger);
-      background: transparent;
-    }
+      .btn-danger {
+        color: var(--color-danger);
+        border-color: var(--color-danger);
+        background: transparent;
+      }
 
-    .btn-danger:hover {
-      background: var(--color-danger-light);
-    }
-  `]
+      .btn-danger:hover {
+        background: var(--color-danger-light);
+      }
+    `,
+  ],
 })
 export class ShipDesignItemComponent {
   @Input({ required: true }) design!: ShipDesignDisplay;
@@ -218,39 +231,41 @@ export class ShipDesignItemComponent {
   @Output() edit = new EventEmitter<string>();
   @Output() delete = new EventEmitter<string>();
   @Output() clone = new EventEmitter<string>();
+  @Output() preview = new EventEmitter<string>();
 
   get hullName(): string {
-      const hull = getHull(this.design.hullId);
-      return hull ? hull.Name : this.design.hullId;
+    const hull = getHull(this.design.hullId);
+    return hull ? hull.Name : this.design.hullId;
   }
 
   get hullIcon(): string {
-     const hull = getHull(this.design.hullId);
-     if (hull && (hull as any).img) {
-         return `/assets/tech-icons/${(hull as any).img}.png`;
-     }
-     
-     // Fallback mapping based on known file names
-     const name = this.hullName.toLowerCase();
-     if (name.includes('scout')) return '/assets/tech-icons/hull-scout.png';
-     if (name.includes('destroyer')) return '/assets/tech-icons/hull-destroyer.png';
-     if (name.includes('cruiser') && !name.includes('battle')) return '/assets/tech-icons/hull-cruiser.png';
-     if (name.includes('battle cruiser')) return '/assets/tech-icons/hull-battle-cruiser.png';
-     if (name.includes('battleship')) return '/assets/tech-icons/hull-battleship.png';
-     if (name.includes('colony')) return '/assets/tech-icons/hull-colony.png';
-     if (name.includes('freighter')) {
-         if (name.includes('small')) return '/assets/tech-icons/hull-freight-s.png';
-         if (name.includes('medium')) return '/assets/tech-icons/hull-freight-m.png';
-         if (name.includes('large')) return '/assets/tech-icons/hull-freight-l.png';
-         if (name.includes('super')) return '/assets/tech-icons/hull-freight-super.png';
-         return '/assets/tech-icons/hull-freight-s.png';
-     }
-     if (name.includes('miner')) return '/assets/tech-icons/hull-miner.png';
-     // Fallback
-     return '/assets/tech-icons/hull-scout.png';
+    const hull = getHull(this.design.hullId);
+    if (hull && (hull as any).img) {
+      return `/assets/tech-icons/${(hull as any).img}.png`;
+    }
+
+    // Fallback mapping based on known file names
+    const name = this.hullName.toLowerCase();
+    if (name.includes('scout')) return '/assets/tech-icons/hull-scout.png';
+    if (name.includes('destroyer')) return '/assets/tech-icons/hull-destroyer.png';
+    if (name.includes('cruiser') && !name.includes('battle'))
+      return '/assets/tech-icons/hull-cruiser.png';
+    if (name.includes('battle cruiser')) return '/assets/tech-icons/hull-battle-cruiser.png';
+    if (name.includes('battleship')) return '/assets/tech-icons/hull-battleship.png';
+    if (name.includes('colony')) return '/assets/tech-icons/hull-colony.png';
+    if (name.includes('freighter')) {
+      if (name.includes('small')) return '/assets/tech-icons/hull-freight-s.png';
+      if (name.includes('medium')) return '/assets/tech-icons/hull-freight-m.png';
+      if (name.includes('large')) return '/assets/tech-icons/hull-freight-l.png';
+      if (name.includes('super')) return '/assets/tech-icons/hull-freight-super.png';
+      return '/assets/tech-icons/hull-freight-s.png';
+    }
+    if (name.includes('miner')) return '/assets/tech-icons/hull-miner.png';
+    // Fallback
+    return '/assets/tech-icons/hull-scout.png';
   }
 
   onImageError(event: any) {
-      event.target.src = '/assets/tech-icons/hull-scout.png';
+    event.target.src = '/assets/tech-icons/hull-scout.png';
   }
 }
