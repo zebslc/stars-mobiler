@@ -14,10 +14,17 @@
         />
       } @else {
         <div class="title-container">
-          <h3 (click)="designNameEditing.set(true)">{{ design()?.name || 'New Design' }}</h3>
-          <button class="btn-icon" (click)="designNameEditing.set(true)" title="Rename Design">
-            ✏️
+          <button class="btn-icon hull-btn" (click)="hullPreviewOpen.set(true)" title="Show Hull Info">
+            <img
+              [src]="'/assets/tech-icons/' + ((hull()?.img) || 'hull-scout') + '.png'"
+              [alt]="hull()?.name || 'Hull Icon'"
+              [title]="hull()?.name || 'Hull Icon'"
+              class="hull-icon"
+              (error)="onHullIconError($event)"
+            />
           </button>
+          <h3 (click)="designNameEditing.set(true)">{{ design()?.name || 'New Design' }}</h3>
+          <button class="btn-icon" (click)="designNameEditing.set(true)" title="Rename Design">✏️</button>
         </div>
       }
     </div>
@@ -55,14 +62,10 @@
       </div>
       <div class="summary-item wide">
         <span class="label">Cost</span>
-        <span class="value">{{ stats() ? formatCost(stats()!.cost) : '' }}</span>
+        @if (stats()) {
+          <app-resource-cost [cost]="stats()!.cost" [inline]="true"></app-resource-cost>
+        }
       </div>
-      @if (hull()?.description) {
-        <div class="summary-item description">
-          <span class="label">About</span>
-          <span class="value">{{ hull()!.description }}</span>
-        </div>
-      }
     </div>
   }
 
@@ -110,5 +113,12 @@
       (componentRemoved)="removeComponent()"
       (close)="componentSelectOpen.set(false)"
     ></app-ship-designer-component-selector>
+  }
+
+  @if (hullPreviewOpen()) {
+    <app-research-unlock-details
+      [unlockName]="hull()?.name || ''"
+      (close)="hullPreviewOpen.set(false)"
+    ></app-research-unlock-details>
   }
 </div>

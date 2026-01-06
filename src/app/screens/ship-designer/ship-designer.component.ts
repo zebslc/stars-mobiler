@@ -18,6 +18,8 @@ import { ShipDesignerHullSelectorComponent } from './components/ship-designer-hu
 import { ShipDesignerComponentSelectorComponent } from './components/ship-designer-component-selector.component';
 import { getHull } from '../../data/hulls.data';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
+import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
+import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
 
 @Component({
   selector: 'app-ship-designer',
@@ -28,6 +30,8 @@ import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
     ShipDesignerSlotsComponent,
     ShipDesignerHullSelectorComponent,
     ShipDesignerComponentSelectorComponent,
+    ResourceCostComponent,
+    ResearchUnlockDetailsComponent,
   ],
   templateUrl: './ship-designer.component.html',
   styleUrl: './ship-designer.component.css',
@@ -42,6 +46,7 @@ export class ShipDesignerComponent implements OnInit {
   private router = inject(Router);
 
   readonly selectedSlotId = signal<string | null>(null);
+  readonly hullPreviewOpen = signal(false);
 
   readonly design = computed(() => this.designer.currentDesign() ?? null);
   readonly hull = computed(() => this.designer.currentHull() ?? null);
@@ -75,14 +80,6 @@ export class ShipDesignerComponent implements OnInit {
   readonly componentSelectOpen = signal(false);
   readonly designNameEditing = signal(false);
   readonly hoveredItem = signal<any>(null);
-
-  formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {
-    const parts: string[] = [];
-    if (cost.ironium) parts.push(`${cost.ironium} Fe`);
-    if (cost.boranium) parts.push(`${cost.boranium} B`);
-    if (cost.germanium) parts.push(`${cost.germanium} Ge`);
-    return parts.join(', ');
-  }
 
   ngOnInit() {
     // Set player tech levels for miniaturization
@@ -212,6 +209,11 @@ export class ShipDesignerComponent implements OnInit {
   cancelDesign() {
     this.designer.clearDesign();
     this.cancel.emit();
+  }
+
+  onHullIconError(event: Event) {
+    const target = event.target as HTMLImageElement;
+    target.src = '/assets/tech-icons/hull-scout.png';
   }
 
   updateDesignName(name: string) {

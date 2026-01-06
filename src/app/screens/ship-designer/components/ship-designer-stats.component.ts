@@ -3,11 +3,12 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { CompiledShipStats } from '../../../models/ship-design.model';
 import { Hull } from '../../../data/hulls.data';
 import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-stats.component';
+import { ResourceCostComponent } from '../../../shared/components/resource-cost/resource-cost.component';
 
 @Component({
   selector: 'app-ship-designer-stats',
   standalone: true,
-  imports: [CommonModule, TechStatsComponent],
+  imports: [CommonModule, TechStatsComponent, ResourceCostComponent],
   template: `
     <div class="tabs">
       <button class="tab" [class.active]="selectedTab() === 'summary'" (click)="setTab('summary')">
@@ -115,7 +116,7 @@ import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-s
         </div>
         <div class="stat-full">
           <span class="label">Build Cost:</span>
-          <span class="value">{{ formatCost(stats.cost) }}</span>
+          <app-resource-cost [cost]="stats.cost"></app-resource-cost>
         </div>
       </div>
 
@@ -173,29 +174,29 @@ import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-s
       .tab {
         padding: 0.25rem 0.75rem;
         font-size: 0.9rem;
-        border: 1px solid rgba(100, 150, 255, 0.4);
-        background: rgba(255, 255, 255, 0.06);
-        color: #e6f2ff;
+        border: 1px solid var(--color-border, #ddd);
+        background: var(--color-bg-secondary, #f5f5f5);
+        color: var(--color-text-main, #333);
         border-radius: 4px;
         cursor: pointer;
       }
       .tab.active {
-        background: rgba(100, 150, 255, 0.25);
-        border-color: rgba(100, 150, 255, 0.7);
-        color: #ffffff;
+        background: var(--color-primary, #2196f3);
+        border-color: var(--color-primary, #2196f3);
+        color: white;
       }
       .stat-group {
         margin-bottom: 1rem;
         padding: 0.5rem;
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--color-bg-secondary, #f5f5f5);
         border-radius: 4px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid var(--color-border, #ddd);
       }
       .stat-group h4 {
         margin: 0 0 0.5rem 0;
         font-size: 0.9rem;
-        color: #a5c7ff;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--color-primary, #2196f3);
+        border-bottom: 1px solid var(--color-border, #ddd);
         padding-bottom: 0.25rem;
       }
       .stat {
@@ -207,43 +208,46 @@ import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-s
       .stat-full {
         margin-top: 0.25rem;
         font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
       .label {
-        color: #c0c8d8;
+        color: var(--color-text-muted, #666);
       }
       .value {
         font-weight: 500;
-        color: #ffffff;
+        color: var(--color-text-main, #333);
       }
       .validation-errors {
         margin-top: 1rem;
         padding: 1rem;
-        background: rgba(244, 67, 54, 0.08);
+        background: rgba(244, 67, 54, 0.1);
         border: 1px solid rgba(244, 67, 54, 0.35);
         border-radius: 4px;
-        color: #ff9999;
+        color: #d32f2f;
       }
       .validation-success {
         margin-top: 1rem;
         padding: 1rem;
-        background: rgba(76, 175, 80, 0.08);
+        background: rgba(76, 175, 80, 0.1);
         border: 1px solid rgba(76, 175, 80, 0.35);
         border-radius: 4px;
         text-align: center;
-        color: #9be59b;
+        color: #388e3c;
       }
       .error {
-        color: #ff8a80;
+        color: #d32f2f;
         font-size: 0.9rem;
         margin-bottom: 0.25rem;
       }
       .description {
         font-size: 0.9rem;
-        color: #cfd8dc;
+        color: var(--color-text-muted, #666);
         font-style: italic;
         margin-top: 1rem;
         padding: 0.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        border-top: 1px solid var(--color-border, #ddd);
       }
     `,
   ],
@@ -254,14 +258,6 @@ export class ShipDesignerStatsComponent {
   @Input() hoveredItem: any = null;
   @Input() hull: Hull | null = null;
   selectedTab = signal<'summary' | 'details'>('summary');
-
-  formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {
-    const parts: string[] = [];
-    if (cost.ironium) parts.push(`${cost.ironium} Fe`);
-    if (cost.boranium) parts.push(`${cost.boranium} B`);
-    if (cost.germanium) parts.push(`${cost.germanium} Ge`);
-    return parts.join(', ');
-  }
 
   get hoveredComponent() {
     return this.hoveredItem?.component;

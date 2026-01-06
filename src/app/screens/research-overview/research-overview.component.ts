@@ -5,7 +5,7 @@ import { TechField } from '../../data/tech-tree.data';
 import { ResearchCurrentComponent } from './components/research-current.component';
 import { ResearchFieldSelectorComponent } from './components/research-field-selector.component';
 import { ResearchTechTreeComponent } from './components/research-tech-tree.component';
-import { ResearchUnlockDetailsComponent } from './components/research-unlock-details.component';
+import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
 
 @Component({
   standalone: true,

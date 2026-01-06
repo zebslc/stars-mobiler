@@ -31,9 +31,23 @@ interface GridSlot {
   imports: [CommonModule],
   template: `
     @if (hull) {
-      <div class="slots-container">
+      <div
+        class="slots-container interactive-canvas"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp($event)"
+        (pointercancel)="onPointerUp($event)"
+        (touchmove)="onTouchMove($event)"
+        (wheel)="onWheel($event)"
+      >
         @if (gridDimensions(); as dims) {
-          <div class="slots-grid" [style.--rows]="dims.rows" [style.--cols]="dims.cols">
+          <div
+            class="slots-grid"
+            [style.--rows]="dims.rows"
+            [style.--cols]="dims.cols"
+            [style.transform]="transform()"
+            [style.transformOrigin]="'center center'"
+          >
             @for (slot of positionedSlots(); track slot.id) {
               <div
                 class="slot"
@@ -41,7 +55,9 @@ interface GridSlot {
                 [class.selected]="selectedSlotId === slot.id"
                 [class.show-clear]="showClearButton() === slot.id"
                 [class.non-editable]="!editable || !slot.editable"
-                [style.grid-area]="slot.row + ' / ' + slot.col + ' / span ' + slot.height + ' / span ' + slot.width"
+                [style.grid-area]="
+                  slot.row + ' / ' + slot.col + ' / span ' + slot.height + ' / span ' + slot.width
+                "
                 (click)="editable && slot.editable && onSlotClick(slot.id)"
                 (mouseenter)="editable && slot.editable && onSlotHover(slot.id)"
                 (mouseleave)="editable && slot.editable && onSlotLeave()"
@@ -67,26 +83,30 @@ interface GridSlot {
                       [title]="compData.component.name"
                     ></div>
                     @if (getSlotMaxCount(slot.id) > 1) {
-                      <div class="component-count">
-                        {{ compData.count }}/{{ getSlotMaxCount(slot.id) }}
-                      </div>
-                      <div class="qty-controls">
-                        <button
-                          class="qty-button remove"
-                          (click)="removeComponent($event, slot.id)"
-                          [disabled]="compData.count <= 1"
-                          title="Decrease quantity"
-                        >
-                          −
-                        </button>
-                        <button
-                          class="qty-button add"
-                          (click)="incrementComponent($event, slot.id)"
-                          [disabled]="!canIncrement(slot.id)"
-                          title="Increase quantity"
-                        >
-                          +
-                        </button>
+                      <div class="slot-controls-overlay">
+                        @if (zoom() >= 1) {
+                          <div class="qty-controls">
+                            <button
+                              class="qty-button remove"
+                              (click)="removeComponent($event, slot.id)"
+                              [disabled]="compData.count <= 1"
+                              title="Decrease quantity"
+                            >
+                              −
+                            </button>
+                            <button
+                              class="qty-button add"
+                              (click)="incrementComponent($event, slot.id)"
+                              [disabled]="!canIncrement(slot.id)"
+                              title="Increase quantity"
+                            >
+                              +
+                            </button>
+                          </div>
+                        }
+                        <div class="component-count">
+                          {{ compData.count }}/{{ getSlotMaxCount(slot.id) }}
+                        </div>
                       </div>
                     }
                     @if (editable) {
@@ -124,6 +144,12 @@ interface GridSlot {
 
       .slots-container {
         width: 100%;
+        overflow: hidden;
+      }
+
+      .interactive-canvas {
+        touch-action: none;
+        user-select: none;
       }
 
       .slots-grid {
@@ -138,8 +164,8 @@ interface GridSlot {
       }
 
       .slot {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.6);
         border-radius: 4px;
         position: relative;
         cursor: pointer;
@@ -150,11 +176,12 @@ interface GridSlot {
         transition: all 0.2s;
         min-height: clamp(40px, 8vw, 72px);
         min-width: clamp(40px, 8vw, 72px);
+        container-type: size;
       }
 
       .slot:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(0, 0, 0, 0.1);
+        border-color: rgba(0, 0, 0, 0.8);
       }
 
       .slot.selected {
@@ -188,12 +215,16 @@ interface GridSlot {
 
       .capacity-display {
         font-weight: bold;
-        color: #aaa;
-        font-size: 0.9rem;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-        background: rgba(0, 0, 0, 0.5);
-        padding: 2px 6px;
+        color: #333;
+        font-size: 15cqmin;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 2cqmin 4cqmin;
         border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+        max-width: 95%;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .empty-slot-content {
@@ -201,11 +232,26 @@ interface GridSlot {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        opacity: 0.5;
+        opacity: 1;
+        width: 100%;
+        height: 100%;
       }
 
       .slot-type-icon {
-        font-size: 1.5rem;
+        font-size: 40cqmin;
+        color: rgba(0, 0, 0, 0.9);
+        line-height: 1;
+      }
+
+      .slot.empty .component-count {
+        position: absolute;
+        bottom: 2cqmin;
+        right: 2cqmin;
+        font-size: 12cqmin;
+        padding: 1cqmin 3cqmin;
+        background: rgba(0, 0, 0, 0.6);
+        border: none;
+        color: rgba(255, 255, 255, 0.9);
       }
 
       .installed-component {
@@ -218,15 +264,12 @@ interface GridSlot {
       }
 
       .tech-icon-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        width: 100%;
+        height: 100%;
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
-        opacity: 0.8;
+        opacity: 1;
       }
 
       .tech-icon-bg.tech-icon {
@@ -236,44 +279,61 @@ interface GridSlot {
         background-size: contain !important;
       }
 
-      .component-count {
+      .slot-controls-overlay {
         position: absolute;
-        bottom: 4px;
-        right: 4px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 1cqmin;
+        pointer-events: none;
+        z-index: 2;
+        height: auto;
+      }
+      .component-count {
+        pointer-events: auto;
         background: rgba(0, 0, 0, 0.8);
         color: #4fc3f7;
-        font-size: 0.75rem;
+        font-size: 12cqmin;
         font-weight: bold;
-        padding: 2px 6px;
+        padding: 1cqmin 3cqmin;
         border-radius: 4px;
         border: 1px solid rgba(79, 195, 247, 0.3);
-        z-index: 2;
+        text-align: right;
+        flex-shrink: 0;
+        line-height: normal;
       }
       .qty-controls {
-        position: absolute;
-        bottom: 4px;
-        left: 4px;
+        pointer-events: auto;
         display: flex;
-        gap: 4px;
-        z-index: 2;
+        gap: 1cqmin;
+        align-items: flex-end;
+        height: auto;
       }
       .qty-button {
-        width: 18px;
-        height: 18px;
-        min-width: 18px;
-        min-height: 18px;
+        width: 22cqmin !important;
+        height: 22cqmin !important;
+        min-width: 22cqmin !important;
+        min-height: 22cqmin !important;
+        max-width: 22cqmin !important;
+        max-height: 22cqmin !important;
+        flex: 0 0 22cqmin !important;
         border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 4px;
         background: rgba(0, 0, 0, 0.6);
         color: #fff;
-        font-size: 12px;
+        font-size: 14cqmin;
         line-height: 1;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         padding: 0;
+        margin: 0;
         box-sizing: border-box;
+        appearance: none;
       }
       .qty-button.add {
         border-color: #4caf50;
@@ -288,18 +348,21 @@ interface GridSlot {
 
       .clear-button {
         position: absolute;
-        top: 4px;
-        right: 4px;
-        width: 18px;
-        height: 18px;
-        min-height: 18px;
+        top: 2cqmin;
+        right: 2cqmin;
+        width: 22cqmin !important;
+        height: 22cqmin !important;
+        min-width: 22cqmin !important;
+        min-height: 22cqmin !important;
+        max-width: 22cqmin !important;
+        max-height: 22cqmin !important;
         border: none;
         border-radius: 50%;
         background: rgba(244, 67, 54, 0.9);
         color: white;
-        font-size: 12px;
+        font-size: 14cqmin;
         font-weight: 600;
-        line-height: 18px;
+        line-height: 1;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -308,31 +371,18 @@ interface GridSlot {
         transition: opacity 0.2s;
         z-index: 3;
         padding: 0;
+        margin: 0;
         box-sizing: border-box;
+        appearance: none;
       }
       .clear-button:hover {
         background: #f44336;
-        transform: scale(1.1);
       }
       .slot:hover .clear-button {
         opacity: 1;
       }
       .slot.show-clear .clear-button {
         opacity: 1;
-      }
-
-      @media (max-width: 480px) {
-        .component-count {
-          font-size: 0.7rem;
-          padding: 1px 4px;
-        }
-        .qty-button {
-          width: 16px;
-          height: 16px;
-          min-width: 16px;
-          min-height: 16px;
-          font-size: 11px;
-        }
       }
     `,
   ],
@@ -356,6 +406,16 @@ export class HullLayoutComponent implements OnChanges {
   imageErrors = signal<Set<string>>(new Set());
   showClearButton = signal<string | null>(null);
   longPressTimer: any;
+  private isPanning = signal(false);
+  private panButton = 1; // middle mouse
+  private lastPointerX = 0;
+  private lastPointerY = 0;
+  private activePointers = new Map<number, { x: number; y: number }>();
+  private initialPinchDistance = 0;
+  private initialScale = 1;
+  zoom = signal(1);
+  offsetX = signal(0);
+  offsetY = signal(0);
 
   readonly positionedSlots = computed(() => {
     const hull = this._hull();
@@ -374,9 +434,86 @@ export class HullLayoutComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['hull']) {
       this._hull.set(this.hull);
+      // Reset zoom and pan when hull changes
+      this.zoom.set(1);
+      this.offsetX.set(0);
+      this.offsetY.set(0);
     }
     if (changes['design']) {
       this._design.set(this.design);
+    }
+  }
+
+  transform() {
+    return `translate(${this.offsetX()}px, ${this.offsetY()}px) scale(${this.zoom()})`;
+  }
+
+  onPointerDown(event: PointerEvent) {
+    (event.target as Element).setPointerCapture?.(event.pointerId);
+    this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (event.pointerType === 'mouse' && event.button === this.panButton) {
+      this.isPanning.set(true);
+      this.lastPointerX = event.clientX;
+      this.lastPointerY = event.clientY;
+      event.preventDefault();
+    }
+    if (this.activePointers.size === 2) {
+      const pts = Array.from(this.activePointers.values());
+      const dx = pts[0].x - pts[1].x;
+      const dy = pts[0].y - pts[1].y;
+      this.initialPinchDistance = Math.hypot(dx, dy);
+      this.initialScale = this.zoom();
+    }
+  }
+
+  onPointerMove(event: PointerEvent) {
+    this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (this.activePointers.size === 2) {
+      const pts = Array.from(this.activePointers.values());
+      const dx = pts[0].x - pts[1].x;
+      const dy = pts[0].y - pts[1].y;
+      const dist = Math.hypot(dx, dy);
+      if (this.initialPinchDistance > 0) {
+        const scale = this.initialScale * (dist / this.initialPinchDistance);
+        this.zoom.set(Math.min(3, Math.max(0.5, scale)));
+        event.preventDefault();
+      }
+      return;
+    }
+    if (this.isPanning()) {
+      const dx = event.clientX - this.lastPointerX;
+      const dy = event.clientY - this.lastPointerY;
+      this.lastPointerX = event.clientX;
+      this.lastPointerY = event.clientY;
+      this.offsetX.set(this.offsetX() + dx);
+      this.offsetY.set(this.offsetY() + dy);
+      event.preventDefault();
+    }
+  }
+
+  onPointerUp(event: PointerEvent) {
+    this.activePointers.delete(event.pointerId);
+    if (this.activePointers.size < 2) {
+      this.initialPinchDistance = 0;
+    }
+    if (event.pointerType === 'mouse' && event.button === this.panButton) {
+      this.isPanning.set(false);
+      event.preventDefault();
+    }
+  }
+
+  onWheel(event: WheelEvent) {
+    event.preventDefault();
+    const delta = -event.deltaY;
+    const zoomFactor = delta > 0 ? 1.1 : 0.9;
+    const currentZoom = this.zoom();
+    const newZoom = Math.min(3, Math.max(0.5, currentZoom * zoomFactor));
+    this.zoom.set(newZoom);
+  }
+
+  onTouchMove(_event: TouchEvent) {
+    if (_event.touches.length >= 2) {
+      _event.preventDefault();
     }
   }
 
@@ -545,14 +682,14 @@ export class HullLayoutComponent implements OnChanges {
     this.showClearButton.set(null);
   }
 
-  onTouchStart(event: TouchEvent, slotId: string): void {
+  onTouchStart(_event: TouchEvent, slotId: string): void {
     if (!this.editable || !this.getComponentInSlot(slotId)) return;
     this.longPressTimer = setTimeout(() => {
       this.showClearButton.set(slotId);
     }, 500);
   }
 
-  onTouchEnd(event: TouchEvent): void {
+  onTouchEnd(_event: TouchEvent): void {
     if (this.longPressTimer) {
       clearTimeout(this.longPressTimer);
       this.longPressTimer = null;

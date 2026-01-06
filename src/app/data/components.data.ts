@@ -15,6 +15,7 @@ export interface Component extends ComponentStats {
   scanRange?: number;
   canDetectCloaked?: boolean;
   cargoCapacity?: number;
+  fuelCapacity?: number;
   colonistCapacity?: number;
   techRequired: {
     field: string;
@@ -41,7 +42,9 @@ const convertComponentStats = (stats: ComponentStats): Component => {
     shieldStrength: stats.stats.shield,
     scanRange: stats.stats.scan,
     canDetectCloaked: stats.stats.scan ? stats.stats.scan > 100 : false, // Assume advanced scanners can detect cloaked
-    cargoCapacity: stats.stats.cap, // Use cap for cargo capacity
+    cargoCapacity: stats.type === 'Cargo' ? stats.stats.cap : undefined, // Only Cargo components add cargo capacity
+    fuelCapacity:
+      stats.id.includes('fuel_tank') || stats.name.includes('Fuel') ? stats.stats.cap : undefined, // Fuel tanks add fuel capacity
     colonistCapacity: stats.stats.cap ? stats.stats.cap * 1000 : undefined, // Convert kT to colonists
     techRequired: {
       field: Object.keys(stats.tech)[0] || 'Construction',
@@ -53,7 +56,7 @@ const convertComponentStats = (stats: ComponentStats): Component => {
       germanium: stats.cost.germ,
     },
   };
-  
+
   return component;
 };
 

@@ -71,6 +71,7 @@ export function compileShipStats(
   let accuracy = 0;
   let initiative = hull.Stats.Initiative || 0; // Start with hull base initiative
   let cargoCapacity = hull.cargoCapacity || 0;
+  let fuelCapacity = hull.fuelCapacity || 0;
   let colonistCapacity = 0;
   let scanRange = 0;
   let canDetectCloaked = false;
@@ -154,6 +155,9 @@ export function compileShipStats(
           if (baseComponent.cargoCapacity) {
             cargoCapacity += baseComponent.cargoCapacity * count;
           }
+          if (baseComponent.fuelCapacity) {
+            fuelCapacity += baseComponent.fuelCapacity * count;
+          }
           break;
 
         case 'scanner':
@@ -181,7 +185,7 @@ export function compileShipStats(
 
   return {
     warpSpeed,
-    fuelCapacity: hull.fuelCapacity,
+    fuelCapacity,
     fuelEfficiency,
     idealWarp,
     isRamscoop,

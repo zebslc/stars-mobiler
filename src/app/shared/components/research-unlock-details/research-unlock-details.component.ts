@@ -4,14 +4,18 @@ import { TechService } from '../../../services/tech.service';
 import { GameStateService } from '../../../services/game-state.service';
 import { HullTemplate, ComponentStats, TechRequirement, TECH_ATLAS } from '../../../data/tech-atlas.data';
 import { TechField } from '../../../data/tech-tree.data';
-import { FuelUsageGraphComponent } from '../../../shared/components/fuel-usage-graph/fuel-usage-graph.component';
-import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull-layout.component';
+import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.component';
+import { HullLayoutComponent } from '../hull-layout/hull-layout.component';
+import {
+  ResourceCostComponent,
+  Cost,
+} from '../resource-cost/resource-cost.component';
 import { getHull } from '../../../data/hulls.data';
 
 @Component({
   selector: 'app-research-unlock-details',
   standalone: true,
-  imports: [CommonModule, FuelUsageGraphComponent, HullLayoutComponent],
+  imports: [CommonModule, FuelUsageGraphComponent, HullLayoutComponent, ResourceCostComponent],
   template: `
     <div class="modal-overlay" (click)="onClose()">
       <div class="modal-content modal-small" (click)="$event.stopPropagation()">
@@ -43,7 +47,11 @@ import { getHull } from '../../../data/hulls.data';
 
               <div class="detail-row">
                 <span class="label">Cost:</span>
-                <span class="value">{{ techCost() }}</span>
+                @if (costData(); as cost) {
+                  <app-resource-cost [cost]="cost" [inline]="true"></app-resource-cost>
+                } @else {
+                  <span class="value">Free</span>
+                }
               </div>
 
               @if (techMass(); as mass) {
@@ -182,6 +190,12 @@ import { getHull } from '../../../data/hulls.data';
         font-style: italic;
         color: var(--color-text-muted);
         border-bottom: 1px solid var(--color-border);
+        white-space: normal;
+        overflow-wrap: break-word;
+      }
+
+      .description-row p {
+        margin: 0;
       }
 
       .detail-row {
@@ -251,29 +265,29 @@ export class ResearchUnlockDetailsComponent {
     return category ? `${category.category} Component` : 'Component';
   });
 
-  techCost = computed(() => {
+  costData = computed<Cost | null>(() => {
     const d = this.details();
-    if (!d) return '';
+    if (!d) return null;
 
-    const parts: string[] = [];
     if ('Cost' in d) {
-      // Hull uses PascalCase
       const hull = d as HullTemplate;
       const c = hull.Cost;
-      if (c.Resources) parts.push(`${c.Resources} Res`);
-      if (c.Ironium) parts.push(`${c.Ironium} Fe`);
-      if (c.Boranium) parts.push(`${c.Boranium} Bo`);
-      if (c.Germanium) parts.push(`${c.Germanium} Ge`);
+      return {
+        ironium: c.Ironium,
+        boranium: c.Boranium,
+        germanium: c.Germanium,
+        resources: c.Resources,
+      };
     } else {
-      // Component uses lowercase
       const comp = d as ComponentStats;
       const c = comp.cost;
-      if (c.res) parts.push(`${c.res} Res`);
-      if (c.iron) parts.push(`${c.iron} Fe`);
-      if (c.bor) parts.push(`${c.bor} Bo`);
-      if (c.germ) parts.push(`${c.germ} Ge`);
+      return {
+        ironium: c.iron,
+        boranium: c.bor,
+        germanium: c.germ,
+        resources: c.res,
+      };
     }
-    return parts.length > 0 ? parts.join(', ') : 'Free';
   });
 
   techMass = computed(() => {
