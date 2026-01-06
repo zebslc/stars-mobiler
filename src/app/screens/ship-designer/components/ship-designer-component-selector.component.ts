@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { MiniaturizedComponent } from '../../../utils/miniaturization.util';
 import { HullSlot } from '../../../data/hulls.data';
 import { getComponent } from '../../../data/components.data';
+import { ResourceCostComponent } from '../../../shared/components/resource-cost/resource-cost.component';
 
 @Component({
   selector: 'app-ship-designer-component-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ResourceCostComponent],
   template: `
     <div class="modal-overlay" (click)="onClose()">
       <div class="modal-content" (click)="$event.stopPropagation()">
@@ -34,6 +35,7 @@ import { getComponent } from '../../../data/components.data';
                   [src]="getComponentImagePath(component)"
                   [alt]="component.name"
                   (error)="onImageError($event)"
+                  (click)="$event.stopPropagation(); onPreview(component)"
                 />
               </div>
               <div class="component-details">
@@ -81,7 +83,7 @@ import { getComponent } from '../../../data/components.data';
         border-radius: 8px;
         padding: 1.5rem;
         width: 90%;
-        max-width: 600px;
+        max-width: 800px;
         max-height: 80vh;
         overflow-y: auto;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -119,22 +121,26 @@ import { getComponent } from '../../../data/components.data';
       }
 
       .component-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 0.75rem;
         margin: 1rem 0;
       }
 
       .component-option {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        gap: 1rem;
+        text-align: left;
+        gap: 0.75rem;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 4px;
-        padding: 0.75rem;
+        padding: 0.5rem;
         cursor: pointer;
         transition: all 0.2s;
+        box-sizing: border-box;
+        overflow: hidden;
       }
 
       .component-option:hover {
@@ -148,31 +154,46 @@ import { getComponent } from '../../../data/components.data';
       }
 
       .component-icon {
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
         background: rgba(0, 0, 0, 0.3);
         border-radius: 4px;
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
       }
 
       .component-icon img {
         max-width: 100%;
         max-height: 100%;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+
+      .component-icon img:hover {
+        opacity: 0.8;
       }
 
       .component-details {
         flex: 1;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        min-width: 0; /* Prevents text overflow issues in flex items */
       }
 
       .component-name {
         font-weight: bold;
         color: #fff;
+        font-size: 0.95rem;
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 0.5rem;
+        margin-bottom: 0.15rem;
       }
 
       .ramscoop-badge {
@@ -186,20 +207,20 @@ import { getComponent } from '../../../data/components.data';
       }
 
       .component-description {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #888;
         font-style: italic;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.15rem;
       }
 
       .component-mass,
       .component-cost {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #aaa;
       }
 
       .component-stats {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #4fc3f7;
         margin-top: 2px;
       }
@@ -230,10 +251,15 @@ export class ShipDesignerComponentSelectorComponent {
 
   @Output() componentSelected = new EventEmitter<string>();
   @Output() componentRemoved = new EventEmitter<void>();
+  @Output() previewComponent = new EventEmitter<MiniaturizedComponent>();
   @Output() close = new EventEmitter<void>();
 
   onSelect(componentId: string) {
     this.componentSelected.emit(componentId);
+  }
+
+  onPreview(component: MiniaturizedComponent) {
+    this.previewComponent.emit(component);
   }
 
   onRemove() {

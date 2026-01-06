@@ -14,7 +14,7 @@
         />
       } @else {
         <div class="title-container">
-          <button class="btn-icon hull-btn" (click)="hullPreviewOpen.set(true)" title="Show Hull Info">
+          <button class="btn-icon hull-btn" (click)="previewHullName.set(hull()?.name || null)" title="Show Hull Info">
             <img
               [src]="'/assets/tech-icons/' + ((hull()?.img) || 'hull-scout') + '.png'"
               [alt]="hull()?.name || 'Hull Icon'"
@@ -98,6 +98,7 @@
     <app-ship-designer-hull-selector
       [hulls]="availableHulls()"
       (hullSelected)="selectHull($event)"
+      (previewHull)="previewHullName.set($event)"
       (close)="hullSelectOpen.set(false)"
     ></app-ship-designer-hull-selector>
   }
@@ -111,14 +112,22 @@
       [currentComponentId]="currentComponent()"
       (componentSelected)="installComponent($event)"
       (componentRemoved)="removeComponent()"
+      (previewComponent)="previewComponentName.set($event.name)"
       (close)="componentSelectOpen.set(false)"
     ></app-ship-designer-component-selector>
   }
 
-  @if (hullPreviewOpen()) {
+  @if (previewHullName()) {
     <app-research-unlock-details
-      [unlockName]="hull()?.name || ''"
-      (close)="hullPreviewOpen.set(false)"
+      [unlockName]="previewHullName()!"
+      (close)="previewHullName.set(null)"
+    ></app-research-unlock-details>
+  }
+
+  @if (previewComponentName()) {
+    <app-research-unlock-details
+      [unlockName]="previewComponentName()!"
+      (close)="previewComponentName.set(null)"
     ></app-research-unlock-details>
   }
 </div>

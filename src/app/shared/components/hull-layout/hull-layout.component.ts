@@ -66,6 +66,9 @@ interface GridSlot {
               >
                 @if (!slot.editable || !editable) {
                   <div class="non-editable-content">
+                    <div class="slot-type-icon">
+                      {{ getSlotTypeDisplay(slot.slotDef.allowedTypes) }}
+                    </div>
                     @if (slot.capacity) {
                       @if (slot.capacity === 'Unlimited') {
                         <div class="capacity-display">Unlimited</div>
@@ -207,10 +210,16 @@ interface GridSlot {
 
       .non-editable-content {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         width: 100%;
         height: 100%;
+        gap: 2cqmin;
+      }
+
+      .slot.non-editable .slot-type-icon {
+        color: rgba(255, 255, 255, 0.7);
       }
 
       .capacity-display {

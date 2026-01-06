@@ -46,7 +46,8 @@ export class ShipDesignerComponent implements OnInit {
   private router = inject(Router);
 
   readonly selectedSlotId = signal<string | null>(null);
-  readonly hullPreviewOpen = signal(false);
+  readonly previewHullName = signal<string | null>(null);
+  readonly previewComponentName = signal<string | null>(null);
 
   readonly design = computed(() => this.designer.currentDesign() ?? null);
   readonly hull = computed(() => this.designer.currentHull() ?? null);
