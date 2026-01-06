@@ -46,7 +46,7 @@ import { inject } from '@angular/core';
           <div class="stat-row">
             <div class="label">Surface</div>
             <div class="value minerals-inline">
-              <span class="min-val iron">{{ planet().surfaceMinerals.iron }}Fe</span>
+              <span class="min-val ironium">{{ planet().surfaceMinerals.ironium }}Fe</span>
               <span class="min-val boranium">{{ planet().surfaceMinerals.boranium }}Bo</span>
               <span class="min-val germanium">{{ planet().surfaceMinerals.germanium }}Ge</span>
             </div>
@@ -55,7 +55,7 @@ import { inject } from '@angular/core';
           <div class="stat-row">
             <div class="label">Concentration</div>
             <div class="value minerals-inline">
-              <span class="min-val iron">{{ planet().mineralConcentrations.iron }}Fe</span>
+              <span class="min-val ironium">{{ planet().mineralConcentrations.ironium }}Fe</span>
               <span class="min-val boranium">{{ planet().mineralConcentrations.boranium }}Bo</span>
               <span class="min-val germanium"
                 >{{ planet().mineralConcentrations.germanium }}Ge</span

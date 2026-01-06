@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CompiledShipStats } from '../../models/ship-design.model';
-import { ShipDesign } from '../../models/game.model';
+import { CompiledShipStats, ShipDesign } from '../../models/game.model';
 import { getHull } from '../../data/hulls.data';
 
 export interface ShipDesignDisplay {

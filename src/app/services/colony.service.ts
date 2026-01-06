@@ -65,6 +65,44 @@ export class ColonyService {
                 break;
               case 'ship': {
                 const designId = item.shipDesignId ?? 'scout';
+                const shipDesign = game.shipDesigns.find((d) => d.id === designId);
+                const isStarbase = shipDesign?.spec?.isStarbase;
+
+                // Check for existing starbase to replace/upgrade
+                if (isStarbase) {
+                  const orbitFleets = game.fleets.filter(
+                    (f) =>
+                      f.ownerId === game.humanPlayer.id &&
+                      f.location.type === 'orbit' &&
+                      f.location.planetId === planet.id,
+                  );
+
+                  for (const f of orbitFleets) {
+                    const starbaseIndex = f.ships.findIndex((s) => {
+                      const d = game.shipDesigns.find((sd) => sd.id === s.designId);
+                      return d?.spec?.isStarbase;
+                    });
+
+                    if (starbaseIndex >= 0) {
+                      // Found existing starbase - recover resources
+                      const oldStack = f.ships[starbaseIndex];
+                      const oldDesign = game.shipDesigns.find((d) => d.id === oldStack.designId);
+
+                      if (oldDesign?.spec?.cost) {
+                        // Recover minerals (using 100% recovery as implied by "full credit" for upgrades)
+                        planet.surfaceMinerals.ironium += oldDesign.spec.cost.ironium || 0;
+                        planet.surfaceMinerals.boranium += oldDesign.spec.cost.boranium || 0;
+                        planet.surfaceMinerals.germanium += oldDesign.spec.cost.germanium || 0;
+                      }
+
+                      // Remove old starbase
+                      f.ships.splice(starbaseIndex, 1);
+                      // Only one starbase per planet allowed
+                      break;
+                    }
+                  }
+                }
+
                 const orbitFleets = game.fleets.filter(
                   (f) =>
                     f.ownerId === game.humanPlayer.id &&
@@ -104,7 +142,7 @@ export class ColonyService {
                     fuel: 0,
                     cargo: {
                       resources: 0,
-                      minerals: { iron: 0, boranium: 0, germanium: 0 },
+                      minerals: { ironium: 0, boranium: 0, germanium: 0 },
                       colonists: 0,
                     },
                     orders: [],
@@ -115,11 +153,17 @@ export class ColonyService {
                 if (stack) stack.count += 1;
                 else fleet.ships.push({ designId, count: 1, damage: 0 });
                 // Add starting fuel based on design
-                fleet.fuel += getDesign(designId).fuelCapacity;
+                const fuelCap = shipDesign?.spec?.fuelCapacity ?? getDesign(designId).fuelCapacity;
+                fleet.fuel += fuelCap;
+                
                 // If colony ship, preload colonists based on design capacity
-                const design = getDesign(designId);
-                if (design.colonyModule && design.colonistCapacity) {
-                  fleet.cargo.colonists += design.colonistCapacity;
+                const hasColony =
+                  shipDesign?.spec?.hasColonyModule ?? getDesign(designId).colonyModule;
+                const colCap =
+                  shipDesign?.spec?.colonistCapacity ?? getDesign(designId).colonistCapacity;
+
+                if (hasColony && colCap) {
+                  fleet.cargo.colonists += colCap;
                 }
                 break;
               }
@@ -178,7 +222,7 @@ export class ColonyService {
           } else {
             this.addToBuildQueue(game, planet.id, {
               project: 'defense',
-              cost: { resources: 15, iron: 2, boranium: 2 },
+              cost: { resources: 15, ironium: 2, boranium: 2 },
               isAuto: true,
             });
           }
@@ -201,7 +245,7 @@ export class ColonyService {
         case 'military':
           this.addToBuildQueue(game, planet.id, {
             project: 'defense',
-            cost: { resources: 15, iron: 2, boranium: 2 },
+            cost: { resources: 15, ironium: 2, boranium: 2 },
             isAuto: true,
           });
           break;

@@ -15,7 +15,7 @@ import { ShipyardService } from '../../services/shipyard.service';
 import { getDesign, COMPILED_DESIGNS, CompiledDesign } from '../../data/ships.data';
 import { TECH_ATLAS } from '../../data/tech-atlas.data';
 import { COMPONENTS } from '../../data/components.data';
-import { compileShipStats, CompiledShipStats } from '../../models/ship-design.model';
+import { compileShipStats } from '../../models/ship-design.model';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { getHull } from '../../data/hulls.data';
 import { ShipOption } from '../../components/ship-selector.component';
@@ -341,7 +341,7 @@ export class PlanetDetailComponent implements OnInit {
           firepower: stats.firepower,
           colonistCapacity: stats.colonistCapacity,
           cost: {
-            iron: cost.iron,
+            ironium: cost.ironium,
             boranium: cost.boranium,
             germanium: cost.germanium,
             resources: cost.resources,
@@ -367,7 +367,7 @@ export class PlanetDetailComponent implements OnInit {
         const planet = this.planet();
         const canAfford = planet
           ? planet.resources >= cost.resources &&
-            planet.surfaceMinerals.iron >= (cost.iron ?? 0) &&
+            planet.surfaceMinerals.ironium >= (cost.ironium ?? 0) &&
             planet.surfaceMinerals.boranium >= (cost.boranium ?? 0) &&
             planet.surfaceMinerals.germanium >= (cost.germanium ?? 0)
           : false;
@@ -442,13 +442,13 @@ export class PlanetDetailComponent implements OnInit {
         : project === 'factory'
           ? { project, cost: { resources: 10, germanium: 4 } }
           : project === 'defense'
-            ? { project, cost: { resources: 15, iron: 2, boranium: 2 } }
+            ? { project, cost: { resources: 15, ironium: 2, boranium: 2 } }
             : project === 'research'
               ? { project, cost: { resources: 10 } }
               : project === 'terraform'
                 ? { project, cost: { resources: 25, germanium: 5 } }
                 : project === 'scanner'
-                  ? { project, cost: { resources: 50, germanium: 10, iron: 5 } }
+                  ? { project, cost: { resources: 50, germanium: 10, ironium: 5 } }
                   : ({
                       project: 'ship',
                       cost: shipCost,

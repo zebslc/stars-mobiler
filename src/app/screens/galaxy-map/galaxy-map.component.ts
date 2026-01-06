@@ -300,12 +300,12 @@ export class GalaxyMapComponent {
 
   getPlanetDetails(star: Star): {
     resources: number;
-    fe: number;
-    bo: number;
-    ge: number;
-    surfaceFe: number;
-    surfaceBo: number;
-    surfaceGe: number;
+    ironium: number;
+    boranium: number;
+    germanium: number;
+    surfaceIronium: number;
+    surfaceBoronium: number;
+    surfaceGermanium: number;
     maxPop: string;
     pop: number;
     owner: string;
@@ -315,12 +315,12 @@ export class GalaxyMapComponent {
     if (!p) return null;
     return {
       resources: p.resources,
-      fe: p.mineralConcentrations.iron,
-      bo: p.mineralConcentrations.boranium,
-      ge: p.mineralConcentrations.germanium,
-      surfaceFe: p.surfaceMinerals.iron,
-      surfaceBo: p.surfaceMinerals.boranium,
-      surfaceGe: p.surfaceMinerals.germanium,
+      ironium: p.mineralConcentrations.ironium,
+      boranium: p.mineralConcentrations.boranium,
+      germanium: p.mineralConcentrations.germanium,
+      surfaceIronium: p.surfaceMinerals.ironium,
+      surfaceBoronium: p.surfaceMinerals.boranium,
+      surfaceGermanium: p.surfaceMinerals.germanium,
       maxPop: (p.maxPopulation / 1_000_000).toFixed(1),
       pop: p.population,
       owner: p.ownerId === this.gs.player()?.id ? 'You' : p.ownerId ? 'Enemy' : 'Unowned',
@@ -628,7 +628,7 @@ export class GalaxyMapComponent {
     totalMass = Math.max(1, totalMass);
     // Cargo mass: minerals + colonists (1 kT per 1000)
     totalMass +=
-      fleet.cargo.minerals.iron +
+      fleet.cargo.minerals.ironium +
       fleet.cargo.minerals.boranium +
       fleet.cargo.minerals.germanium +
       fleet.cargo.colonists;

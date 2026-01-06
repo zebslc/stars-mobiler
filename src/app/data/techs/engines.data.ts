@@ -7,7 +7,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 2,
-    cost: { iron: 1, bor: 0, germ: 1, res: 2 },
+    cost: { ironium: 1, boranium: 0, germanium: 1, resources: 2 },
     stats: {
       maxWarp: 6,
       fuelUsage: {
@@ -32,7 +32,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 4,
-    cost: { iron: 3, bor: 0, germ: 1, res: 3 },
+    cost: { ironium: 3, boranium: 0, germanium: 1, resources: 3 },
     stats: {
       maxWarp: 5,
       fuelUsage: {
@@ -57,7 +57,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 2, Construction: 0 },
     mass: 6,
-    cost: { iron: 8, bor: 0, germ: 0, res: 11 },
+    cost: { ironium: 8, boranium: 0, germanium: 0, resources: 11 },
     stats: {
       maxWarp: 8,
       fuelUsage: {
@@ -82,7 +82,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 3, Construction: 0 },
     mass: 9,
-    cost: { iron: 5, bor: 0, germ: 1, res: 6 },
+    cost: { ironium: 5, boranium: 0, germanium: 1, resources: 6 },
     stats: {
       maxWarp: 6,
       fuelUsage: {
@@ -107,7 +107,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 5, Construction: 0 },
     mass: 13,
-    cost: { iron: 11, bor: 0, germ: 3, res: 12 },
+    cost: { ironium: 11, boranium: 0, germanium: 3, resources: 12 },
     stats: {
       maxWarp: 7,
       fuelUsage: {
@@ -132,7 +132,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 7, Construction: 0 },
     mass: 17,
-    cost: { iron: 16, bor: 0, germ: 3, res: 28 },
+    cost: { ironium: 16, boranium: 0, germanium: 3, resources: 28 },
     stats: {
       maxWarp: 8,
       fuelUsage: {
@@ -157,7 +157,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 9, Construction: 0 },
     mass: 25,
-    cost: { iron: 20, bor: 20, germ: 9, res: 50 },
+    cost: { ironium: 20, boranium: 20, germanium: 9, resources: 50 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -182,7 +182,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 11, Construction: 0 },
     mass: 25,
-    cost: { iron: 18, bor: 25, germ: 10, res: 60 },
+    cost: { ironium: 18, boranium: 25, germanium: 10, resources: 60 },
     stats: {
       maxWarp: 10,
       fuelUsage: {
@@ -207,7 +207,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 23, Construction: 0 },
     mass: 5,
-    cost: { iron: 3, bor: 0, germ: 3, res: 10 },
+    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 10 },
     stats: {
       maxWarp: 10,
       fuelUsage: {
@@ -232,7 +232,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 2, Kinetics: 0, Propulsion: 6, Construction: 0 },
     mass: 10,
-    cost: { iron: 3, bor: 2, germ: 9, res: 8 },
+    cost: { ironium: 3, boranium: 2, germanium: 9, resources: 8 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -258,7 +258,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 2, Kinetics: 0, Propulsion: 8, Construction: 0 },
     mass: 20,
-    cost: { iron: 4, bor: 4, germ: 7, res: 12 },
+    cost: { ironium: 4, boranium: 4, germanium: 7, resources: 12 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -284,7 +284,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 3, Kinetics: 0, Propulsion: 9, Construction: 0 },
     mass: 19,
-    cost: { iron: 5, bor: 4, germ: 12, res: 18 },
+    cost: { ironium: 5, boranium: 4, germanium: 12, resources: 18 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -310,7 +310,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 4, Kinetics: 0, Propulsion: 12, Construction: 0 },
     mass: 18,
-    cost: { iron: 6, bor: 4, germ: 16, res: 24 },
+    cost: { ironium: 6, boranium: 4, germanium: 16, resources: 24 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -336,7 +336,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 4, Kinetics: 0, Propulsion: 16, Construction: 0 },
     mass: 11,
-    cost: { iron: 5, bor: 2, germ: 13, res: 20 },
+    cost: { ironium: 5, boranium: 2, germanium: 13, resources: 20 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -362,7 +362,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     type: 'Engine',
     tech: { Energy: 5, Kinetics: 0, Propulsion: 20, Construction: 0 },
     mass: 8,
-    cost: { iron: 4, bor: 2, germ: 9, res: 12 },
+    cost: { ironium: 4, boranium: 2, germanium: 9, resources: 12 },
     stats: {
       maxWarp: 10,
       fuelUsage: {

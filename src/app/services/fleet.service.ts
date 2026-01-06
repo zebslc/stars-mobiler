@@ -61,17 +61,17 @@ export class FleetService {
 
     const addedColonists = Math.max(0, fleet.cargo.colonists);
     planet.population = addedColonists;
-    planet.surfaceMinerals.iron += fleet.cargo.minerals.iron;
+    planet.surfaceMinerals.ironium += fleet.cargo.minerals.ironium;
     planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
     planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
     // Broken-down ship parts contribute minerals based on its build cost
     const cost = this.shipyard.getShipCost(design);
     planet.resources += cost.resources;
-    planet.surfaceMinerals.iron += cost.iron ?? 0;
+    planet.surfaceMinerals.ironium += cost.ironium ?? 0;
     planet.surfaceMinerals.boranium += cost.boranium ?? 0;
     planet.surfaceMinerals.germanium += cost.germanium ?? 0;
     // Clear cargo after colonization
-    fleet.cargo.minerals = { iron: 0, boranium: 0, germanium: 0 };
+    fleet.cargo.minerals = { ironium: 0, boranium: 0, germanium: 0 };
     fleet.cargo.colonists = 0;
     fleet.orders = [];
     // Remove empty fleets
@@ -91,7 +91,7 @@ export class FleetService {
   private fleetCargoUsed(fleet: Fleet): number {
     const resourcesUsed = fleet.cargo.resources;
     const mineralsUsed =
-      fleet.cargo.minerals.iron + fleet.cargo.minerals.boranium + fleet.cargo.minerals.germanium;
+      fleet.cargo.minerals.ironium + fleet.cargo.minerals.boranium + fleet.cargo.minerals.germanium;
     const colonistUsed = Math.floor(fleet.cargo.colonists / 1000); // 1 kT per 1000 colonists
     return resourcesUsed + mineralsUsed + colonistUsed;
   }
@@ -101,7 +101,7 @@ export class FleetService {
     planetId: string,
     manifest: {
       resources?: number | 'all' | 'fill';
-      iron?: number | 'all' | 'fill';
+      ironium?: number | 'all' | 'fill';
       boranium?: number | 'all' | 'fill';
       germanium?: number | 'all' | 'fill';
       colonists?: number | 'all' | 'fill';
@@ -113,7 +113,7 @@ export class FleetService {
     const capacity = this.fleetCargoCapacity(fleet);
     let used = this.fleetCargoUsed(fleet);
     const free = Math.max(0, capacity - used);
-    const takeMineral = (key: 'iron' | 'boranium' | 'germanium', req?: number | 'all' | 'fill') => {
+    const takeMineral = (key: 'ironium' | 'boranium' | 'germanium', req?: number | 'all' | 'fill') => {
       if (!req) return;
       const available = planet.surfaceMinerals[key];
       const room = Math.max(0, free - (this.fleetCargoUsed(fleet) - used));
@@ -124,7 +124,7 @@ export class FleetService {
       fleet.cargo.minerals[key] += take;
       used += take;
     };
-    takeMineral('iron', manifest.iron);
+    takeMineral('ironium', manifest.ironium);
     takeMineral('boranium', manifest.boranium);
     takeMineral('germanium', manifest.germanium);
     if (manifest.resources) {
@@ -163,7 +163,7 @@ export class FleetService {
     planetId: string,
     manifest: {
       resources?: number | 'all';
-      iron?: number | 'all';
+      ironium?: number | 'all';
       boranium?: number | 'all';
       germanium?: number | 'all';
       colonists?: number | 'all';
@@ -172,7 +172,7 @@ export class FleetService {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
     if (!fleet || !planet) return game;
-    const giveMineral = (key: 'iron' | 'boranium' | 'germanium', req?: number | 'all') => {
+    const giveMineral = (key: 'ironium' | 'boranium' | 'germanium', req?: number | 'all') => {
       if (!req) return;
       const available = fleet.cargo.minerals[key];
       const wanted = req === 'all' ? available : Math.max(0, Math.floor(req));
@@ -180,7 +180,7 @@ export class FleetService {
       fleet.cargo.minerals[key] -= give;
       planet.surfaceMinerals[key] += give;
     };
-    giveMineral('iron', manifest.iron);
+    giveMineral('ironium', manifest.ironium);
     giveMineral('boranium', manifest.boranium);
     giveMineral('germanium', manifest.germanium);
     if (manifest.resources) {
@@ -305,17 +305,17 @@ export class FleetService {
           const addedColonists = Math.max(0, fleet.cargo.colonists);
           planet.population = addedColonists;
           // Cargo minerals
-          planet.surfaceMinerals.iron += fleet.cargo.minerals.iron;
+          planet.surfaceMinerals.ironium += fleet.cargo.minerals.ironium;
           planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
           planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
           // Ship breakdown minerals
           const cost = this.shipyard.getShipCost(design);
           planet.resources += cost.resources;
-          planet.surfaceMinerals.iron += cost.iron ?? 0;
+          planet.surfaceMinerals.ironium += cost.ironium ?? 0;
           planet.surfaceMinerals.boranium += cost.boranium ?? 0;
           planet.surfaceMinerals.germanium += cost.germanium ?? 0;
           // Clear cargo after colonization
-          fleet.cargo.minerals = { iron: 0, boranium: 0, germanium: 0 };
+          fleet.cargo.minerals = { ironium: 0, boranium: 0, germanium: 0 };
           fleet.cargo.colonists = 0;
           fleet.orders = [];
           if (fleet.ships.length === 0) {
@@ -347,7 +347,7 @@ export class FleetService {
     }
     // Cargo mass: minerals (kT) + colonists (1 kT per 1000 colonists)
     totalMass +=
-      fleet.cargo.minerals.iron +
+      fleet.cargo.minerals.ironium +
       fleet.cargo.minerals.boranium +
       fleet.cargo.minerals.germanium +
       Math.floor(fleet.cargo.colonists / 1000);

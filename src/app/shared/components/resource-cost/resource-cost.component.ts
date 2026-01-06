@@ -61,10 +61,10 @@ export interface Cost {
     }
 
     /* Resource Colors - matching system theme */
-    .ironium { color: #a4b0be; } /* Iron-ish gray */
-    .boranium { color: #f1c40f; } /* Gold/Yellow */
-    .germanium { color: #2ecc71; } /* Green */
-    .resources { color: #3498db; } /* Blue */
+    .ironium { color: var(--color-ironium); } /* Ironium-ish gray */
+    .boranium { color: var(--color-boranium); } /* Gold/Yellow */
+    .germanium { color: var(--color-germanium); } /* Green */
+    .resources { color: var(--color-resources); } /* Blue */
     
     /* Dark mode adjustments if parent context is dark, 
        but we want to use these colors as they pop on both usually, 

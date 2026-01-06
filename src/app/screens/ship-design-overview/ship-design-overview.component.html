@@ -43,7 +43,8 @@
   @if (previewOpen()) {
     <app-hull-preview-modal
       [hull]="previewHull()"
-      [design]="null"
+      [design]="previewDesign()"
+      [stats]="previewStats()"
       [title]="previewTitle()"
       (close)="previewOpen.set(false)"
     ></app-hull-preview-modal>

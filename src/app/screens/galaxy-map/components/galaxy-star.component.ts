@@ -49,10 +49,10 @@ import { GameStateService } from '../../../services/game-state.service';
               Resources: {{ d.resources }}R
             </tspan>
             <tspan x="15" dy="11" font-size="9">
-              Conc: Fe{{ d.fe }}% Bo{{ d.bo }}% Ge{{ d.ge }}%
+              Conc: Fe{{ d.ironium }}% Bo{{ d.boranium }}% Ge{{ d.germanium }}%
             </tspan>
             <tspan x="15" dy="11" font-size="9">
-              Surface: {{ d.surfaceFe }}Fe {{ d.surfaceBo }}Bo {{ d.surfaceGe }}Ge
+              Surface: {{ d.surfaceIronium }}Fe {{ d.surfaceBoranium }}Bo {{ d.surfaceGermanium }}Ge
             </tspan>
             <tspan x="15" dy="11" font-size="9">
               Pop: {{ d.pop | number }} / {{ d.maxPop }}M
@@ -98,12 +98,12 @@ export class GalaxyStarComponent {
     if (!p) return null;
     return {
       resources: p.resources,
-      fe: p.mineralConcentrations.iron,
-      bo: p.mineralConcentrations.boranium,
-      ge: p.mineralConcentrations.germanium,
-      surfaceFe: p.surfaceMinerals.iron,
-      surfaceBo: p.surfaceMinerals.boranium,
-      surfaceGe: p.surfaceMinerals.germanium,
+      ironium: p.mineralConcentrations.ironium,
+      boranium: p.mineralConcentrations.boranium,
+      germanium: p.mineralConcentrations.germanium,
+      surfaceIronium: p.surfaceMinerals.ironium,
+      surfaceBoranium: p.surfaceMinerals.boranium,
+      surfaceGermanium: p.surfaceMinerals.germanium,
       maxPop: (p.maxPopulation / 1_000_000).toFixed(1),
       pop: p.population,
       owner: p.ownerId === this.gs.player()?.id ? 'You' : p.ownerId ? 'Enemy' : 'Unowned',

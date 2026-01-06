@@ -16,6 +16,7 @@ export enum SlotType {
   Bomb = 'Bomb',
   General = 'General',
   Orbital = 'Orbital',
+  Mining = "Mining",
 }
 
 export interface HullSlot {
@@ -40,6 +41,7 @@ export interface Hull extends HullTemplate {
     ironium: number;
     boranium: number;
     germanium: number;
+    resources: number;
   };
   slots: HullSlot[];
   visualGrid?: string;
@@ -62,6 +64,7 @@ const convertHullTemplate = (template: HullTemplate): Hull => {
       ironium: template.Cost.Ironium,
       boranium: template.Cost.Boranium,
       germanium: template.Cost.Germanium,
+      resources: template.Cost.Resources || 0,
     },
     slots: template.Slots.map(
       (slot: SlotDefinition, index: number): HullSlot => ({
@@ -89,6 +92,8 @@ const convertHullTemplate = (template: HullTemplate): Hull => {
               return SlotType.Bomb;
             case 'orbital':
               return SlotType.Orbital;
+            case 'mining':
+              return SlotType.Mining;
             default:
               return SlotType.General;
           }

@@ -72,6 +72,8 @@ export class ShipDesignOverviewComponent {
   readonly previewOpen = signal(false);
   readonly previewTitle = signal<string>('');
   readonly previewHull = signal<any>(null);
+  readonly previewStats = signal<any>(null);
+  readonly previewDesign = signal<ShipDesign | null>(null);
 
   startNewDesign(hullId?: string) {
     if (!this.canCreateNew()) return;
@@ -143,9 +145,13 @@ export class ShipDesignOverviewComponent {
 
   onPreviewDesign(designId: string) {
     const design = this.designDisplays().find((d) => d.id === designId);
+    const rawDesign = this.gameState.game()?.shipDesigns.find((d) => d.id === designId);
+
     if (design) {
       const hull = getHull(design.hullId);
       this.previewHull.set(hull || null);
+      this.previewStats.set(design.stats);
+      this.previewDesign.set(rawDesign || null);
       this.previewTitle.set(`${design.name} — ${hull?.name || design.hullId}`);
       this.previewOpen.set(true);
     }

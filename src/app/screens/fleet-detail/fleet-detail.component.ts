@@ -118,8 +118,8 @@ import { TechService } from '../../services/tech.service';
               <div class="font-medium">{{ fleet()!.cargo.resources }} R</div>
             </div>
             <div>
-              <div class="text-small text-muted">Iron</div>
-              <div class="font-medium">{{ fleet()!.cargo.minerals.iron }} kT</div>
+              <div class="text-small text-muted">Ironium</div>
+              <div class="font-medium">{{ fleet()!.cargo.minerals.ironium }} kT</div>
             </div>
             <div>
               <div class="text-small text-muted">Boranium</div>
@@ -147,7 +147,7 @@ import { TechService } from '../../services/tech.service';
                 <input type="number" min="0" placeholder="0" #res />
               </div>
               <div>
-                <label>Iron (kT)</label>
+                <label>Ironium (kT)</label>
                 <input type="number" min="0" placeholder="0" #fe />
               </div>
               <div>
@@ -227,7 +227,7 @@ export class FleetDetailComponent implements OnInit {
       worstEfficiency = Math.max(worstEfficiency, d.fuelEfficiency);
     }
     totalMass +=
-      f.cargo.minerals.iron +
+      f.cargo.minerals.ironium +
       f.cargo.minerals.boranium +
       f.cargo.minerals.germanium +
       f.cargo.colonists;
@@ -423,7 +423,7 @@ export class FleetDetailComponent implements OnInit {
     if (!f) return 0;
     const resourcesUsed = f.cargo.resources;
     const m = f.cargo.minerals;
-    const mineralsUsed = m.iron + m.boranium + m.germanium;
+    const mineralsUsed = m.ironium + m.boranium + m.germanium;
     const colonistUsed = Math.floor(f.cargo.colonists / 1000);
     return resourcesUsed + mineralsUsed + colonistUsed;
   }
@@ -433,7 +433,7 @@ export class FleetDetailComponent implements OnInit {
     const pid = f.location.planetId;
     this.gs.loadCargo(f.id, pid, {
       resources: res ? Number(res) : undefined,
-      iron: fe ? Number(fe) : undefined,
+      ironium: fe ? Number(fe) : undefined,
       boranium: bo ? Number(bo) : undefined,
       germanium: ge ? Number(ge) : undefined,
       colonists: col ? Number(col) : undefined,
@@ -445,7 +445,7 @@ export class FleetDetailComponent implements OnInit {
     const pid = f.location.planetId;
     this.gs.unloadCargo(f.id, pid, {
       resources: res ? Number(res) : undefined,
-      iron: fe ? Number(fe) : undefined,
+      ironium: fe ? Number(fe) : undefined,
       boranium: bo ? Number(bo) : undefined,
       germanium: ge ? Number(ge) : undefined,
       colonists: col ? Number(col) : undefined,
@@ -457,7 +457,7 @@ export class FleetDetailComponent implements OnInit {
     const pid = f.location.planetId;
     this.gs.loadCargo(f.id, pid, {
       resources: 'fill',
-      iron: 'fill',
+      ironium: 'fill',
       boranium: 'fill',
       germanium: 'fill',
       colonists: 'fill',
@@ -469,7 +469,7 @@ export class FleetDetailComponent implements OnInit {
     const pid = f.location.planetId;
     this.gs.unloadCargo(f.id, pid, {
       resources: 'all',
-      iron: 'all',
+      ironium: 'all',
       boranium: 'all',
       germanium: 'all',
       colonists: 'all',

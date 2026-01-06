@@ -7,7 +7,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 2 },
     mass: 40,
-    cost: { iron: 1, bor: 20, germ: 0, res: 5 },
+    cost: { ironium: 1, boranium: 20, germanium: 0, resources: 5 },
     stats: { kill: 0.6, struct: 2 },
     img: 'weap-bomb-lady',
     description: 'Basic orbital bomb.'
@@ -18,7 +18,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 5 },
     mass: 45,
-    cost: { iron: 1, bor: 22, germ: 0, res: 7 },
+    cost: { ironium: 1, boranium: 22, germanium: 0, resources: 7 },
     stats: { kill: 0.9, struct: 4 },
     img: 'weap-bomb-black-cat',
     description: 'Improved explosive charge.'
@@ -29,7 +29,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 8 },
     mass: 50,
-    cost: { iron: 1, bor: 24, germ: 0, res: 9 },
+    cost: { ironium: 1, boranium: 24, germanium: 0, resources: 9 },
     stats: { kill: 1.2, struct: 6 },
     img: 'weap-bomb-m70',
     description: 'Military grade munition.'
@@ -40,7 +40,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 11 },
     mass: 55,
-    cost: { iron: 1, bor: 25, germ: 0, res: 12 },
+    cost: { ironium: 1, boranium: 25, germanium: 0, resources: 12 },
     stats: { kill: 1.7, struct: 7 },
     img: 'weap-bomb-m80',
     description: 'High-yield conventional warhead.'
@@ -51,7 +51,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 14 },
     mass: 52,
-    cost: { iron: 1, bor: 25, germ: 0, res: 11 },
+    cost: { ironium: 1, boranium: 25, germanium: 0, resources: 11 },
     stats: { kill: 2.5, struct: 10 },
     img: 'weap-bomb-cherry',
     description: 'High yield nuke. Destroys everything.'
@@ -62,7 +62,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 5, Energy: 8 },
     mass: 30,
-    cost: { iron: 1, bor: 15, germ: 15, res: 7 },
+    cost: { ironium: 1, boranium: 15, germanium: 15, resources: 7 },
     stats: { kill: 0.2, struct: 16 },
     img: 'weap-bomb-lbu17',
     description: 'Structure-focused demolition device.'
@@ -73,7 +73,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 10, Energy: 10 },
     mass: 35,
-    cost: { iron: 1, bor: 24, germ: 15, res: 10 },
+    cost: { ironium: 1, boranium: 24, germanium: 15, resources: 10 },
     stats: { kill: 0.3, struct: 28 },
     img: 'weap-bomb-lbu32',
     description: 'Enhanced bunker buster.'
@@ -84,7 +84,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 15, Energy: 12 },
     mass: 45,
-    cost: { iron: 1, bor: 33, germ: 12, res: 14 },
+    cost: { ironium: 1, boranium: 33, germanium: 12, resources: 14 },
     stats: { kill: 0.4, struct: 4.5 },
     img: 'weap-bomb-lbu74',
     description: 'Ultimate installation destroyer.'
@@ -95,7 +95,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 10, Energy: 12 },
     mass: 45,
-    cost: { iron: 15, bor: 15, germ: 10, res: 50 },
+    cost: { ironium: 15, boranium: 15, germanium: 10, resources: 50 },
     stats: { kill: 0.0, struct: 0.0 },
     img: 'weap-bomb-retro',
     description: 'Terraforming weapon. Reduces planet habitability.'
@@ -106,7 +106,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 5, Energy: 7 },
     mass: 50,
-    cost: { iron: 1, bor: 22, germ: 0, res: 27 },
+    cost: { ironium: 1, boranium: 22, germanium: 0, resources: 27 },
     stats: { kill: 1.3, struct: 0 },
     img: 'weap-bomb-smart',
     description: 'Anti-personnel weapon. Saves factories.'
@@ -117,7 +117,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 10, Energy: 10 },
     mass: 57,
-    cost: { iron: 1, bor: 30, germ: 0, res: 30 },
+    cost: { ironium: 1, boranium: 30, germanium: 0, resources: 30 },
     stats: { kill: 2.2, struct: 0 },
     img: 'weap-bomb-neutron',
     description: 'Enhanced radiation weapon.'
@@ -128,7 +128,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 15, Energy: 12 },
     mass: 64,
-    cost: { iron: 1, bor: 36, germ: 0, res: 25 },
+    cost: { ironium: 1, boranium: 36, germanium: 0, resources: 25 },
     stats: { kill: 3.5, struct: 0 },
     img: 'weap-bomb-enriched-neutron',
     description: 'Enhanced neutron radiation device.'
@@ -139,7 +139,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 22, Energy: 15 },
     mass: 55,
-    cost: { iron: 1, bor: 33, germ: 0, res: 32 },
+    cost: { ironium: 1, boranium: 33, germanium: 0, resources: 32 },
     stats: { kill: 5.0, struct: 0 },
     img: 'weap-bomb-peerless',
     description: 'Superior anti-population weapon.'
@@ -150,7 +150,7 @@ export const BOMB_COMPONENTS: ComponentStats[] = [
     type: 'Bomb',
     tech: { Kinetics: 26, Energy: 17 },
     mass: 50,
-    cost: { iron: 1, bor: 30, germ: 0, res: 28 },
+    cost: { ironium: 1, boranium: 30, germanium: 0, resources: 28 },
     stats: { kill: 7.0, struct: 0 },
     img: 'weap-bomb-annihilator',
     description: 'The ultimate population killer.'

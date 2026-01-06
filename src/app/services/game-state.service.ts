@@ -109,7 +109,7 @@ export class GameStateService {
     if (humanHome) {
       humanHome.ownerId = human.id;
       humanHome.resources = 100;
-      humanHome.surfaceMinerals.iron += 200;
+      humanHome.surfaceMinerals.ironium += 200;
       humanHome.surfaceMinerals.boranium += 150;
       humanHome.surfaceMinerals.germanium += 100;
       humanHome.buildQueue = [];
@@ -210,7 +210,7 @@ export class GameStateService {
     planetId: string,
     manifest: {
       resources?: number | 'all' | 'fill';
-      iron?: number | 'all' | 'fill';
+      ironium?: number | 'all' | 'fill';
       boranium?: number | 'all' | 'fill';
       germanium?: number | 'all' | 'fill';
       colonists?: number | 'all' | 'fill';
@@ -227,7 +227,7 @@ export class GameStateService {
     planetId: string,
     manifest: {
       resources?: number | 'all';
-      iron?: number | 'all';
+      ironium?: number | 'all';
       boranium?: number | 'all';
       germanium?: number | 'all';
       colonists?: number | 'all';

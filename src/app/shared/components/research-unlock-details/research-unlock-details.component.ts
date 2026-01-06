@@ -282,10 +282,10 @@ export class ResearchUnlockDetailsComponent {
       const comp = d as ComponentStats;
       const c = comp.cost;
       return {
-        ironium: c.iron,
-        boranium: c.bor,
-        germanium: c.germ,
-        resources: c.res,
+        ironium: c.ironium,
+        boranium: c.boranium,
+        germanium: c.germanium,
+        resources: c.resources,
       };
     }
   });

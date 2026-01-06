@@ -38,7 +38,7 @@ import { GameStateService } from '../../../services/game-state.service';
         <div class="stat-row">
           <span class="stat-label">Minerals:</span>
           <span class="stat-value">
-            {{ planet.surfaceMinerals.iron }}Fe {{ planet.surfaceMinerals.boranium }}Bo
+            {{ planet.surfaceMinerals.ironium }}Fe {{ planet.surfaceMinerals.boranium }}Bo
             {{ planet.surfaceMinerals.germanium }}Ge
           </span>
         </div>

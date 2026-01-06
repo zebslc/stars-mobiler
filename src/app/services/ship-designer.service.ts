@@ -1,14 +1,10 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HULLS, Hull, getHull } from '../data/hulls.data';
 import { COMPONENTS, Component, getComponent } from '../data/components.data';
-import { PlayerTech, ShipDesign, SlotAssignment } from '../models/game.model';
-import {
-  miniaturizeComponent,
-  MiniaturizedComponent,
-} from '../utils/miniaturization.util';
+import { PlayerTech, ShipDesign, SlotAssignment, CompiledShipStats } from '../models/game.model';
+import { miniaturizeComponent, MiniaturizedComponent } from '../utils/miniaturization.util';
 import {
   compileShipStats,
-  CompiledShipStats,
   canInstallComponent,
   createEmptyDesign,
 } from '../models/ship-design.model';
@@ -325,6 +321,14 @@ export class ShipDesignerService {
    * Get the current design (for saving)
    */
   getCurrentDesign(): ShipDesign | null {
-    return this._currentDesign();
+    const design = this._currentDesign();
+    const stats = this.compiledStats();
+
+    if (!design || !stats) return null;
+
+    return {
+      ...design,
+      spec: stats,
+    };
   }
 }

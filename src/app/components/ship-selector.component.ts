@@ -5,13 +5,13 @@ import {
   ShipDesignItemComponent,
   ShipDesignDisplay,
 } from './ship-design-item/ship-design-item.component';
-import { CompiledShipStats } from '../models/ship-design.model';
+import { CompiledShipStats } from '../models/game.model';
 
 export interface ShipOption {
   design: CompiledDesign;
   cost: {
     resources: number;
-    iron?: number;
+    ironium?: number;
     boranium?: number;
     germanium?: number;
   };
@@ -68,7 +68,7 @@ export interface ShipOption {
                 <div class="option-cost">
                   <div class="cost-main">{{ option.cost.resources }}R</div>
                   <div class="cost-minerals text-xs">
-                    <span *ngIf="option.cost.iron">{{ option.cost.iron }}Fe</span>
+                    <span *ngIf="option.cost.ironium">{{ option.cost.ironium }}Fe</span>
                     <span *ngIf="option.cost.boranium">{{ option.cost.boranium }}Bo</span>
                     <span *ngIf="option.cost.germanium">{{ option.cost.germanium }}Ge</span>
                   </div>
@@ -306,7 +306,7 @@ export class ShipSelectorComponent {
         colonistCapacity: design.colonistCapacity || 0,
         scanRange: design.scannerRange,
         cost: {
-          ironium: design.cost.iron,
+          ironium: design.cost.ironium,
           boranium: design.cost.boranium,
           germanium: design.cost.germanium,
         },
@@ -316,11 +316,16 @@ export class ShipSelectorComponent {
         accuracy: 100,
         initiative: design.initiative,
         canDetectCloaked: false,
+        miningRate: 0,
+        terraformRate: 0,
+        bombing: { kill: 0, destroy: 0 },
+        massDriver: { speed: 0, catch: 0 },
         hasEngine: design.warpSpeed > 0,
         hasColonyModule: design.colonyModule,
         isStarbase: design.warpSpeed === 0,
         isValid: true,
         validationErrors: [],
+        components: design.components,
       },
     };
   }

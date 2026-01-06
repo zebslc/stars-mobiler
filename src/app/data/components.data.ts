@@ -51,9 +51,9 @@ const convertComponentStats = (stats: ComponentStats): Component => {
       level: Object.values(stats.tech)[0] || 0,
     },
     baseCost: {
-      ironium: stats.cost.iron,
-      boranium: stats.cost.bor,
-      germanium: stats.cost.germ,
+      ironium: stats.cost.ironium,
+      boranium: stats.cost.boranium,
+      germanium: stats.cost.germanium,
     },
   };
 

@@ -7,7 +7,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 50 },
     img: 'planet-viewer-50',
     description: 'Basic planetary scanner.'
@@ -18,7 +18,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 1, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 90 },
     img: 'planet-viewer-90',
     description: 'Improved planetary scanner.'
@@ -29,7 +29,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 3, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 150 },
     img: 'planet-scoper-150',
     description: 'Long-range planetary scanner.'
@@ -40,7 +40,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 6, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 220 },
     img: 'planet-scoper-220',
     description: 'Advanced planetary scanner.'
@@ -51,7 +51,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 8, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 280 },
     img: 'planet-scoper-280',
     description: 'High-resolution planetary scanner.'
@@ -62,7 +62,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 3 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 320 },
     img: 'planet-snooper-320x',
     description: 'Enhanced penetration scanner.'
@@ -73,7 +73,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 13, Kinetics: 0, Propulsion: 0, Construction: 6 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 400 },
     img: 'planet-snooper-400x',
     description: 'Deep penetration scanner.'
@@ -84,7 +84,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 16, Kinetics: 0, Propulsion: 0, Construction: 7 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 500 },
     img: 'planet-snooper-500x',
     description: 'Ultra-deep planetary scanner.'
@@ -95,7 +95,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 23, Kinetics: 0, Propulsion: 0, Construction: 9 },
     mass: 0,
-    cost: { iron: 10, bor: 10, germ: 70, res: 100 },
+    cost: { ironium: 10, boranium: 10, germanium: 70, resources: 100 },
     stats: { scan: 620 },
     img: 'planet-snooper-620x',
     description: 'Maximum range planetary scanner.'
@@ -109,7 +109,7 @@ export const PLANETARY_DEFENSE_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 5, bor: 5, germ: 5, res: 15 },
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 15 },
     stats: { defense: 10 },
     img: 'planet-sdi',
     description: 'Strategic Defense Initiative.'
@@ -120,7 +120,7 @@ export const PLANETARY_DEFENSE_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 5, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 5, bor: 5, germ: 5, res: 15 },
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 15 },
     stats: { defense: 20 },
     img: 'planet-missile-battery',
     description: 'Surface-to-space missile system.'
@@ -131,7 +131,7 @@ export const PLANETARY_DEFENSE_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 5, bor: 5, germ: 5, res: 15 },
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 15 },
     stats: { defense: 24 },
     img: 'planet-laser-battery',
     description: 'High-energy beam defense.'
@@ -142,7 +142,7 @@ export const PLANETARY_DEFENSE_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 16, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 5, bor: 5, germ: 5, res: 15 },
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 15 },
     stats: { defense: 30 },
     img: 'planet-shield',
     description: 'Planetary energy barrier.'
@@ -153,7 +153,7 @@ export const PLANETARY_DEFENSE_COMPONENTS: ComponentStats[] = [
     type: 'Planetary',
     tech: { Energy: 23, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 0,
-    cost: { iron: 5, bor: 5, germ: 5, res: 15 },
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 15 },
     stats: { defense: 38 },
     img: 'planet-neutron-shield',
     description: 'Ultimate planetary defense.'

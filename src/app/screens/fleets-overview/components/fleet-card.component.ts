@@ -14,6 +14,9 @@ import { GameStateService } from '../../../services/game-state.service';
 import { TechService } from '../../../services/tech.service';
 import { getDesign } from '../../../data/ships.data';
 import { Hull, getHull } from '../../../data/hulls.data';
+import { COMPONENTS } from '../../../data/components.data';
+import { compileShipStats } from '../../../models/ship-design.model';
+import { miniaturizeComponent } from '../../../utils/miniaturization.util';
 import { HullPreviewModalComponent } from '../../../shared/components/hull-preview-modal.component';
 
 @Component({
@@ -112,6 +115,7 @@ import { HullPreviewModalComponent } from '../../../shared/components/hull-previ
         [hull]="previewHull()"
         [design]="previewDesign()"
         [title]="previewTitle()"
+        [stats]="previewStats()"
         (close)="previewOpen.set(false)"
       ></app-hull-preview-modal>
     }
@@ -297,6 +301,7 @@ export class FleetCardComponent {
   previewHull = signal<Hull | null>(null);
   previewDesign = signal<ShipDesign | null>(null);
   previewTitle = signal<string>('');
+  previewStats = signal<any>(null);
 
   orders = computed(() => this.fleet.orders || []);
 
@@ -345,7 +350,7 @@ export class FleetCardComponent {
   cargo = computed(() => {
     const r = this.fleet.cargo.resources;
     const m = this.fleet.cargo.minerals;
-    const minerals = m.iron + m.boranium + m.germanium;
+    const minerals = m.ironium + m.boranium + m.germanium;
     const colonists = Math.floor(this.fleet.cargo.colonists / 1000);
     return r + minerals + colonists;
   });
@@ -397,6 +402,24 @@ export class FleetCardComponent {
     this.previewHull.set(hull || null);
     this.previewDesign.set(realDesign || null);
     this.previewTitle.set(compiled.name);
+
+    if (realDesign && hull) {
+      const player = this.gs.player();
+      const techLevels = player?.techLevels || {
+        Energy: 0,
+        Kinetics: 0,
+        Propulsion: 0,
+        Construction: 0,
+      };
+      const miniaturizedComponents = Object.values(COMPONENTS).map((comp) =>
+        miniaturizeComponent(comp, techLevels),
+      );
+      const stats = compileShipStats(hull, realDesign.slots, miniaturizedComponents);
+      this.previewStats.set(stats);
+    } else {
+      this.previewStats.set(compiled || null);
+    }
+
     this.previewOpen.set(true);
   }
 

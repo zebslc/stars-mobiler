@@ -3,7 +3,7 @@ import { Planet } from '../models/game.model';
 
 export interface ProductionResult {
   resources: number;
-  extraction: { iron: number; boranium: number; germanium: number };
+  extraction: { ironium: number; boranium: number; germanium: number };
   operableFactories: number;
   operableMines: number;
 }
@@ -15,20 +15,20 @@ export class EconomyService {
     const resources = operableFactories;
     const operableMines = Math.min(planet.mines, Math.floor(planet.population / 10));
     const extraction = {
-      iron: operableMines * (planet.mineralConcentrations.iron / 100),
+      ironium: operableMines * (planet.mineralConcentrations.ironium / 100),
       boranium: operableMines * (planet.mineralConcentrations.boranium / 100),
       germanium: operableMines * (planet.mineralConcentrations.germanium / 100)
     };
     return { resources, extraction, operableFactories, operableMines };
   }
 
-  applyMiningDepletion(planet: Planet, extraction: { iron: number; boranium: number; germanium: number }) {
-    planet.surfaceMinerals.iron += Math.floor(extraction.iron);
+  applyMiningDepletion(planet: Planet, extraction: { ironium: number; boranium: number; germanium: number }) {
+    planet.surfaceMinerals.ironium += Math.floor(extraction.ironium);
     planet.surfaceMinerals.boranium += Math.floor(extraction.boranium);
     planet.surfaceMinerals.germanium += Math.floor(extraction.germanium);
-    planet.mineralConcentrations.iron = Math.max(
+    planet.mineralConcentrations.ironium = Math.max(
       0,
-      Math.round(planet.mineralConcentrations.iron - extraction.iron * 0.01)
+      Math.round(planet.mineralConcentrations.ironium - extraction.ironium * 0.01)
     );
     planet.mineralConcentrations.boranium = Math.max(
       0,
@@ -45,20 +45,20 @@ export class EconomyService {
     return Math.max(0, Math.floor(growth));
   }
 
-  spend(planet: Planet, cost: { resources: number; iron?: number; boranium?: number; germanium?: number }): boolean {
-    const iron = cost.iron ?? 0;
+  spend(planet: Planet, cost: { resources: number; ironium?: number; boranium?: number; germanium?: number }): boolean {
+    const ironium = cost.ironium ?? 0;
     const bo = cost.boranium ?? 0;
     const ge = cost.germanium ?? 0;
     if (
       planet.resources < cost.resources ||
-      planet.surfaceMinerals.iron < iron ||
+      planet.surfaceMinerals.ironium < ironium ||
       planet.surfaceMinerals.boranium < bo ||
       planet.surfaceMinerals.germanium < ge
     ) {
       return false;
     }
     planet.resources -= cost.resources;
-    planet.surfaceMinerals.iron -= iron;
+    planet.surfaceMinerals.ironium -= ironium;
     planet.surfaceMinerals.boranium -= bo;
     planet.surfaceMinerals.germanium -= ge;
     return true;

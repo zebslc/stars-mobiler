@@ -7,7 +7,7 @@ export const CARGO_COMPONENTS: ComponentStats[] = [
     type: 'Cargo',
     tech: { Construction: 0 },
     mass: 0,
-    cost: { iron: 0, bor: 0, germ: 0, res: 0 },
+    cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
     stats: { cap: 70 },
     img: 'icon-cargo-small',
     description: 'Standard cargo hold.'
@@ -18,7 +18,7 @@ export const CARGO_COMPONENTS: ComponentStats[] = [
     type: 'Cargo',
     tech: { Construction: 0 },
     mass: 0,
-    cost: { iron: 0, bor: 0, germ: 0, res: 0 },
+    cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
     stats: { cap: 200 },
     img: 'icon-cargo-med',
     description: 'Standard cargo hold.'
@@ -29,7 +29,7 @@ export const CARGO_COMPONENTS: ComponentStats[] = [
     type: 'Cargo',
     tech: { Construction: 0 },
     mass: 0,
-    cost: { iron: 0, bor: 0, germ: 0, res: 0 },
+    cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
     stats: { cap: 1200 },
     img: 'icon-cargo-large',
     description: 'Massive cargo hold.'

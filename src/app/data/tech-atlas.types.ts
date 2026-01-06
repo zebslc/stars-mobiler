@@ -64,10 +64,10 @@ export interface TechRequirement {
 }
 
 export interface ComponentCost {
-  iron: number;
-  bor: number;
-  germ: number;
-  res: number;
+  ironium: number;
+  boranium: number;
+  germanium: number;
+  resources: number;
 }
 
 export type SlotType =
@@ -77,6 +77,7 @@ export type SlotType =
   | 'Armor'
   | 'Weapon'
   | 'Bomb'
+  | 'Mine'
   | 'Mining'
   | 'Mechanical'
   | 'Electrical'

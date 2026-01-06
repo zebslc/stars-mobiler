@@ -80,9 +80,12 @@ interface GridSlot {
                 } @else if (getComponentData(slot.id); as compData) {
                   <div class="installed-component">
                     <div
-                      class="tech-icon-bg tech-icon {{
-                        compData.component.img || getTechIconClass(compData.component.id)
-                      }}"
+                      class="tech-icon-bg tech-icon"
+                      [style.background-image]="
+                        'url(/assets/tech-icons/' +
+                        (compData.component.img || 'placeholder') +
+                        '.png)'
+                      "
                       [title]="compData.component.name"
                     ></div>
                     @if (getSlotMaxCount(slot.id) > 1) {

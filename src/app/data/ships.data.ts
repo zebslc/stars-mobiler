@@ -21,7 +21,7 @@ export interface CompiledDesign {
   firepower: number;
   colonistCapacity?: number;
   cost: {
-    iron: number;
+    ironium: number;
     boranium: number;
     germanium: number;
     resources: number;
@@ -60,7 +60,7 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
       firepower: 0,
       colonistCapacity: hull.Name.toLowerCase().includes('colony') ? 25000 : undefined, // 25kT = 25,000 colonists
       cost: {
-        iron: hull.Cost.Ironium,
+        ironium: hull.Cost.Ironium,
         boranium: hull.Cost.Boranium,
         germanium: hull.Cost.Germanium,
         resources: hull.Cost.Resources
@@ -98,7 +98,7 @@ export function getDesign(designId: string): CompiledDesign {
       shields: 0,
       initiative: 0,
       firepower: 0,
-      cost: { iron: 10, boranium: 0, germanium: 10, resources: 25 },
+      cost: { ironium: 10, boranium: 0, germanium: 10, resources: 25 },
       colonyModule: false,
       scannerRange: 0,
       components: []

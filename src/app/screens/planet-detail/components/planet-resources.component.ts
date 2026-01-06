@@ -12,8 +12,8 @@ import { Planet } from '../../../models/game.model';
 
       <div class="minerals-grid">
         <div class="mineral-item">
-          <div class="label iron">Ironium</div>
-          <div class="value">{{ planet().surfaceMinerals.iron }} kT</div>
+          <div class="label ironium">Ironium</div>
+          <div class="value">{{ planet().surfaceMinerals.ironium }} kT</div>
         </div>
         <div class="mineral-item">
           <div class="label boranium">Boranium</div>

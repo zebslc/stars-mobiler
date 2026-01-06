@@ -32,9 +32,10 @@
   --color-border-light: #eee;
 
   /* Mineral Colors */
-  --color-iron: #2c3e50;
+  --color-ironium: #a51616;
   --color-boranium: #27ae60;
   --color-germanium: #f39c12;
+  --color-resources: #3e0ad8;
 
   /* Typography Scale */
   --font-size-xs: 0.75rem;

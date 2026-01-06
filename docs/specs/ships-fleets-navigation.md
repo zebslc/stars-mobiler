@@ -58,7 +58,7 @@ interface ShipDesign {
 interface CompiledDesignStats {
   // Cost to build
   resourceCost: number;
-  mineralCost: { iron: number; boranium: number; germanium: number };
+  mineralCost: { ironium: number; boranium: number; germanium: number };
   
   // Movement
   warpSpeed: number;           // Maximum warp (1-10)
@@ -266,7 +266,7 @@ interface CargoHold {
   capacity: number;  // kT available
   
   contents: {
-    iron: number;
+    ironium: number;
     boranium: number;
     germanium: number;
     colonists: number;  // In thousands (so 25 = 25,000 people)

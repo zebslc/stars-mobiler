@@ -201,11 +201,11 @@ export class PlanetBuildQueueComponent {
     if (index === 0) return 'inherit';
     const planet = this.planet();
     const neededR = item.cost?.resources ?? 0;
-    const neededFe = item.cost?.iron ?? 0;
+    const neededFe = item.cost?.ironium ?? 0;
     const neededBo = item.cost?.boranium ?? 0;
     const neededGe = item.cost?.germanium ?? 0;
     const haveR = planet.resources;
-    const haveFe = planet.surfaceMinerals.iron;
+    const haveFe = planet.surfaceMinerals.ironium;
     const haveBo = planet.surfaceMinerals.boranium;
     const haveGe = planet.surfaceMinerals.germanium;
     const cannot = haveR < neededR || haveFe < neededFe || haveBo < neededBo || haveGe < neededGe;

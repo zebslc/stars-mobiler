@@ -102,14 +102,14 @@ export function miniaturizeComponent(
     germanium?: number;
   } = {};
 
-  if (component.cost.iron) {
-    miniaturizedCost.ironium = Math.ceil(component.cost.iron * factor);
+  if (component.cost.ironium) {
+    miniaturizedCost.ironium = Math.ceil(component.cost.ironium * factor);
   }
-  if (component.cost.bor) {
-    miniaturizedCost.boranium = Math.ceil(component.cost.bor * factor);
+  if (component.cost.boranium) {
+    miniaturizedCost.boranium = Math.ceil(component.cost.boranium * factor);
   }
-  if (component.cost.germ) {
-    miniaturizedCost.germanium = Math.ceil(component.cost.germ * factor);
+  if (component.cost.germanium) {
+    miniaturizedCost.germanium = Math.ceil(component.cost.germanium * factor);
   }
 
   return {
@@ -122,9 +122,9 @@ export function miniaturizeComponent(
     baseMass: component.mass,
     cost: miniaturizedCost,
     baseCost: component.baseCost || {
-      ironium: component.cost.iron || 0,
-      boranium: component.cost.bor || 0,
-      germanium: component.cost.germ || 0,
+      ironium: component.cost.ironium || 0,
+      boranium: component.cost.boranium || 0,
+      germanium: component.cost.germanium || 0,
     },
     miniaturizationLevel: Math.max(0, miniaturizationLevel),
   };

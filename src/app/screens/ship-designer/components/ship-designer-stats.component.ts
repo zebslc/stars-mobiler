@@ -1,6 +1,6 @@
 import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { CompiledShipStats } from '../../../models/ship-design.model';
+import { CompiledShipStats } from '../../../models/game.model';
 import { Hull } from '../../../data/hulls.data';
 import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-stats.component';
 import { ResourceCostComponent } from '../../../shared/components/resource-cost/resource-cost.component';

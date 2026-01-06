@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { MiniaturizedComponent } from '../../../utils/miniaturization.util';
 import { HullSlot } from '../../../data/hulls.data';
 import { getComponent } from '../../../data/components.data';
-import { ResourceCostComponent } from '../../../shared/components/resource-cost/resource-cost.component';
 
 @Component({
   selector: 'app-ship-designer-component-selector',
   standalone: true,
-  imports: [CommonModule, ResourceCostComponent],
+  imports: [CommonModule],
   template: `
     <div class="modal-overlay" (click)="onClose()">
       <div class="modal-content" (click)="$event.stopPropagation()">

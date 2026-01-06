@@ -7,7 +7,7 @@ export const STARGATE_COMPONENTS: ComponentStats[] = [
     type: 'Stargate',
     tech: { Construction: 5, Propulsion: 5 },
     mass: 50,
-    cost: { iron: 100, bor: 50, germ: 50, res: 500 },
+    cost: { ironium: 100, boranium: 50, germanium: 50, resources: 500 },
     stats: { gateRange: 250, gateMass: 100 },
     img: 'gate-std',
     description: 'Standard jump gate. Safe for light ships.'
@@ -18,9 +18,9 @@ export const STARGATE_COMPONENTS: ComponentStats[] = [
     type: 'Stargate',
     tech: { Construction: 5, Propulsion: 5 },
     mass: 50,
-    cost: { iron: 100, bor: 50, germ: 50, res: 500 },
+    cost: { ironium: 100, boranium: 50, germanium: 50, resources: 500 },
     stats: { gateRange: 300, gateMass: 9999 },
-    img: 'gate-std',
+    img: 'gate-weight',
     description: 'Standard jump gate. Safe for light ships.'
   },
   {
@@ -29,7 +29,7 @@ export const STARGATE_COMPONENTS: ComponentStats[] = [
     type: 'Stargate',
     tech: { Construction: 12, Propulsion: 9 },
     mass: 100,
-    cost: { iron: 200, bor: 100, germ: 100, res: 1000 },
+    cost: { ironium: 200, boranium: 100, germanium: 100, resources: 1000 },
     stats: { gateRange: 9999, gateMass: 100 },
     img: 'gate-jump',
     description: 'Extended range gate network.'
@@ -40,7 +40,7 @@ export const STARGATE_COMPONENTS: ComponentStats[] = [
     type: 'Stargate',
     tech: { Construction: 22, Propulsion: 18 },
     mass: 500,
-    cost: { iron: 500, bor: 500, germ: 500, res: 5000 },
+    cost: { ironium: 500, boranium: 500, germanium: 500, resources: 5000 },
     stats: { gateRange: 9999, gateMass: 9999 },
     img: 'gate-any',
     description: 'Wormhole generator. Unlimited range and mass.'

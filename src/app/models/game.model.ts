@@ -26,6 +26,65 @@ export interface ShipDesign {
   slots: SlotAssignment[];
   createdTurn: number;
   playerId: string;
+  spec?: CompiledShipStats;
+}
+
+export interface CompiledShipStats {
+  // Movement
+  warpSpeed: number;
+  fuelCapacity: number;
+  fuelEfficiency?: number;
+  idealWarp: number;
+  isRamscoop: boolean;
+
+  // Combat
+  firepower: number;
+  armor: number;
+  shields: number;
+  accuracy: number;
+  initiative: number;
+
+  // Utility
+  cargoCapacity: number;
+  colonistCapacity: number;
+  scanRange: number;
+  canDetectCloaked: boolean;
+  miningRate: number;
+  terraformRate: number;
+
+  // Special Abilities
+  bombing: {
+    kill: number;
+    destroy: number;
+  };
+  massDriver: {
+    speed: number;
+    catch: number;
+  };
+
+  // Mass and cost
+  mass: number;
+  cost: {
+    ironium: number;
+    boranium: number;
+    germanium: number;
+  };
+
+  // Flags
+  hasEngine: boolean;
+  hasColonyModule: boolean;
+  isStarbase: boolean; // warpSpeed === 0
+
+  // Validation
+  isValid: boolean;
+  validationErrors: string[];
+
+  // Installed Components Summary
+  components: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+  }>;
 }
 
 export interface SlotAssignment {
@@ -76,8 +135,8 @@ export interface Planet {
   starId: string;
   temperature: number;
   atmosphere: number;
-  mineralConcentrations: { iron: number; boranium: number; germanium: number };
-  surfaceMinerals: { iron: number; boranium: number; germanium: number };
+  mineralConcentrations: { ironium: number; boranium: number; germanium: number };
+  surfaceMinerals: { ironium: number; boranium: number; germanium: number };
   ownerId: string | null;
   population: number;
   maxPopulation: number;
@@ -128,7 +187,7 @@ export type Fleet = {
   fuel: number;
   cargo: {
     resources: number;
-    minerals: { iron: number; boranium: number; germanium: number };
+    minerals: { ironium: number; boranium: number; germanium: number };
     colonists: number;
   };
   orders: FleetOrder[];
@@ -143,7 +202,7 @@ export interface PlayerEconomy {
 export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship';
 export interface BuildItem {
   project: BuildProject;
-  cost: { resources: number; iron?: number; boranium?: number; germanium?: number };
+  cost: { resources: number; ironium?: number; boranium?: number; germanium?: number };
   shipDesignId?: string;
   isAuto?: boolean;
   count?: number;

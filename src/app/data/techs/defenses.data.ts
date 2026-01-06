@@ -7,7 +7,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 1, bor: 0, germ: 1, res: 4 },
+    cost: { ironium: 1, boranium: 0, germanium: 1, resources: 4 },
     stats: { shield: 25 },
     img: 'def-shield-mole',
     description: 'Basic energy barrier.'
@@ -18,7 +18,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 3, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 2, bor: 0, germ: 2, res: 5 },
+    cost: { ironium: 2, boranium: 0, germanium: 2, resources: 5 },
     stats: { shield: 40 },
     img: 'def-shield-cow',
     description: 'Improved magnetic containment.'
@@ -29,7 +29,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 6, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 3, bor: 0, germ: 3, res: 6 },
+    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 6 },
     stats: { shield: 60 },
     img: 'def-shield-wolf',
     description: 'Diffuse shield technology.'
@@ -40,7 +40,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 7, Kinetics: 0, Propulsion: 0, Construction: 4 },
     mass: 10,
-    cost: { iron: 7, bor: 0, germ: 4, res: 15 },
+    cost: { ironium: 7, boranium: 0, germanium: 4, resources: 15 },
     stats: { shield: 60 },
     img: 'def-shield-croby',
     description: 'Shield-armor hybrid. Heavy but effective.'
@@ -51,7 +51,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 7, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 2,
-    cost: { iron: 3, bor: 0, germ: 3, res: 7 },
+    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 7 },
     stats: { shield: 75 },
     img: 'def-shield-shadow',
     description: 'Cloaking-enhanced shield matrix.'
@@ -62,7 +62,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 4, bor: 0, germ: 4, res: 8 },
+    cost: { ironium: 4, boranium: 0, germanium: 4, resources: 8 },
     stats: { shield: 100 },
     img: 'def-shield-bear',
     description: 'Neutrino particle barrier.'
@@ -73,7 +73,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 14, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 5, bor: 0, germ: 6, res: 11 },
+    cost: { ironium: 5, boranium: 0, germanium: 6, resources: 11 },
     stats: { shield: 175 },
     img: 'def-shield-gorilla',
     description: 'Heavy-duty deflector array.'
@@ -84,7 +84,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 7, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 2,
-    cost: { iron: 3, bor: 0, germ: 3, res: 7 },
+    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 7 },
     stats: { shield: 75 },
     img: 'def-shield-shadow',
     description: 'Stealth-enhanced shielding.'
@@ -93,9 +93,9 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     id: 'def_bear',
     name: 'Bear Neutrino Barrier',
     type: 'Shield',
-    tech: { Energy: 10 },
+    tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 4, bor: 0, germ: 4, res: 8 },
+    cost: { ironium: 4, boranium: 0, germanium: 4, resources: 8 },
     stats: { shield: 100 },
     img: 'def-shield-bear',
     description: 'Particle deflection field.'
@@ -104,9 +104,9 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     id: 'def_gorilla',
     name: 'Gorilla Delagator',
     type: 'Shield',
-    tech: { Energy: 14 },
+    tech: { Energy: 14, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 5, bor: 0, germ: 6, res: 11 },
+    cost: { ironium: 5, boranium: 0, germanium: 6, resources: 11 },
     stats: { shield: 175 },
     img: 'def-shield-gorilla',
     description: 'Advanced energy distribution.'
@@ -117,7 +117,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 18, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 8, bor: 0, germ: 10, res: 15 },
+    cost: { ironium: 8, boranium: 0, germanium: 10, resources: 15 },
     stats: { shield: 300 },
     img: 'def-shield-elephant',
     description: 'Fortress-grade protection.'
@@ -128,7 +128,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 22, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { iron: 12, bor: 0, germ: 15, res: 20 },
+    cost: { ironium: 12, boranium: 0, germanium: 15, resources: 20 },
     stats: { shield: 500 },
     img: 'def-shield-phase',
     description: 'Complete phased energy barrier.'
@@ -142,7 +142,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 60,
-    cost: { iron: 5, bor: 0, germ: 0, res: 10 },
+    cost: { ironium: 5, boranium: 0, germanium: 0, resources: 10 },
     stats: { armor: 50 },
     img: 'def-armor-tri',
     description: 'Standard composite plating.'
@@ -153,7 +153,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
     mass: 56,
-    cost: { iron: 6, bor: 0, germ: 0, res: 13 },
+    cost: { ironium: 6, boranium: 0, germanium: 0, resources: 13 },
     stats: { armor: 75 },
     img: 'def-armor-crob',
     description: 'Crystalline lattice armor.'
@@ -164,7 +164,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
     mass: 25,
-    cost: { iron: 0, bor: 0, germ: 5, res: 15 },
+    cost: { ironium: 0, boranium: 0, germanium: 5, resources: 15 },
     stats: { armor: 100 },
     img: 'def-armor-carbonic',
     description: 'Bio-engineered carbon fiber armor.'
@@ -175,7 +175,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 6 },
     mass: 54,
-    cost: { iron: 8, bor: 0, germ: 0, res: 18 },
+    cost: { ironium: 8, boranium: 0, germanium: 0, resources: 18 },
     stats: { armor: 120 },
     img: 'def-armor-strobnium',
     description: 'Advanced metallic compound.'
@@ -186,7 +186,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
     mass: 15,
-    cost: { iron: 0, bor: 0, germ: 6, res: 20 },
+    cost: { ironium: 0, boranium: 0, germanium: 6, resources: 20 },
     stats: { armor: 175 },
     img: 'def-armor-organic',
     description: 'Living armor that adapts to damage.'
@@ -197,7 +197,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
     mass: 50,
-    cost: { iron: 9, bor: 1, germ: 0, res: 25 },
+    cost: { ironium: 9, boranium: 1, germanium: 0, resources: 25 },
     stats: { armor: 180 },
     img: 'def-armor-kelarium',
     description: 'Dense crystalline armor plating.'
@@ -208,7 +208,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 4, Kinetics: 0, Propulsion: 0, Construction: 10 },
     mass: 50,
-    cost: { iron: 10, bor: 0, germ: 2, res: 28 },
+    cost: { ironium: 10, boranium: 0, germanium: 2, resources: 28 },
     stats: { armor: 175 },
     img: 'def-armor-fielded-kelarium',
     description: 'Energy-reinforced kelarium.'
@@ -219,7 +219,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 3, Kinetics: 0, Propulsion: 0, Construction: 10 },
     mass: 50,
-    cost: { iron: 10, bor: 0, germ: 2, res: 28 },
+    cost: { ironium: 10, boranium: 0, germanium: 2, resources: 28 },
     stats: { armor: 200 },
     img: 'def-armor-neu',
     description: 'Processed neutron star matter.'
@@ -230,7 +230,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 12 },
     mass: 45,
-    cost: { iron: 11, bor: 2, germ: 1, res: 30 },
+    cost: { ironium: 11, boranium: 2, germanium: 1, resources: 30 },
     stats: { armor: 275 },
     img: 'def-armor-neu',
     description: 'Collapsed matter plating. Very heavy.'
@@ -241,7 +241,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 16 },
     mass: 40,
-    cost: { iron: 15, bor: 0, germ: 0, res: 50 },
+    cost: { ironium: 15, boranium: 0, germanium: 0, resources: 50 },
     stats: { armor: 500 },
     img: 'def-armor-val',
     description: 'Ultimate material science.'
@@ -252,7 +252,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 24 },
     mass: 30,
-    cost: { iron: 25, bor: 0, germ: 0, res: 100 },
+    cost: { ironium: 25, boranium: 0, germanium: 0, resources: 100 },
     stats: { armor: 1500 },
     img: 'def-armor-superlatanium',
     description: 'The ultimate armor technology.'

@@ -187,16 +187,16 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
         <div class="meta-item cost">
           <span class="label">Cost:</span>
           <span class="value">
-            @if (component.cost.iron) {
-              {{ getTotal(component.cost.iron) }} Fe,
+            @if (component.cost.ironium) {
+              {{ getTotal(component.cost.ironium) }} Fe,
             }
-            @if (component.cost.bor) {
-              {{ getTotal(component.cost.bor) }} Bo,
+            @if (component.cost.boranium) {
+              {{ getTotal(component.cost.boranium) }} Bo,
             }
-            @if (component.cost.germ) {
-              {{ getTotal(component.cost.germ) }} Ge,
+            @if (component.cost.germanium) {
+              {{ getTotal(component.cost.germanium) }} Ge,
             }
-            {{ getTotal(component.cost.res) }} Res
+            {{ getTotal(component.cost.resources) }} Res
           </span>
         </div>
       </div>
@@ -307,10 +307,10 @@ export class TechStatsComponent implements OnChanges {
 
   formatCost(cost: any): string {
     const parts = [];
-    if (cost.iron) parts.push(`${this.getTotal(cost.iron)} Fe`);
-    if (cost.bor) parts.push(`${this.getTotal(cost.bor)} Bo`);
-    if (cost.germ) parts.push(`${this.getTotal(cost.germ)} Ge`);
-    if (cost.res) parts.push(`${this.getTotal(cost.res)} Res`);
+    if (cost.ironium) parts.push(`${this.getTotal(cost.ironium)} Fe`);
+    if (cost.boranium) parts.push(`${this.getTotal(cost.boranium)} Bo`);
+    if (cost.germanium) parts.push(`${this.getTotal(cost.germanium)} Ge`);
+    if (cost.resources) parts.push(`${this.getTotal(cost.resources)} Res`);
     return parts.join(', ');
   }
 }

@@ -45,14 +45,14 @@ export class ShipyardService {
 
   getShipCost(design: ShipDesign): {
     resources: number;
-    iron: number;
+    ironium: number;
     boranium: number;
     germanium: number;
   } {
     const hull = TECH_ATLAS.hulls.find((h) => h.Name === design.hullId);
     let totalCost = {
       resources: hull?.Cost.Resources ?? 0,
-      iron: hull?.Cost.Ironium ?? 0,
+      ironium: hull?.Cost.Ironium ?? 0,
       boranium: hull?.Cost.Boranium ?? 0,
       germanium: hull?.Cost.Germanium ?? 0,
     };
@@ -63,10 +63,10 @@ export class ShipyardService {
         const componentData = allComponents.find((item) => item.name === component.componentId);
 
         if (componentData) {
-          totalCost.resources += (componentData.cost.res ?? 0) * component.count;
-          totalCost.iron += (componentData.cost.iron ?? 0) * component.count;
-          totalCost.boranium += (componentData.cost.bor ?? 0) * component.count;
-          totalCost.germanium += (componentData.cost.germ ?? 0) * component.count;
+          totalCost.resources += (componentData.cost.resources ?? 0) * component.count;
+          totalCost.ironium += (componentData.cost.ironium ?? 0) * component.count;
+          totalCost.boranium += (componentData.cost.boranium ?? 0) * component.count;
+          totalCost.germanium += (componentData.cost.germanium ?? 0) * component.count;
         }
       }
     }

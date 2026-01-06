@@ -1,7 +1,7 @@
 import { Hull, HullSlot, SlotType } from '../data/hulls.data';
 import { Component, COMPONENTS } from '../data/components.data';
 import { MiniaturizedComponent } from '../utils/miniaturization.util';
-import { SlotAssignment, ComponentAssignment } from '../models/game.model';
+import { SlotAssignment, ComponentAssignment, CompiledShipStats } from '../models/game.model';
 
 /**
  * Ship Design Models
@@ -9,45 +9,6 @@ import { SlotAssignment, ComponentAssignment } from '../models/game.model';
  * Represents a custom ship design with a hull and installed components
  * Based on Stars! modular ship design system
  */
-
-export interface CompiledShipStats {
-  // Movement
-  warpSpeed: number;
-  fuelCapacity: number;
-  fuelEfficiency?: number;
-  idealWarp: number;
-  isRamscoop: boolean;
-
-  // Combat
-  firepower: number;
-  armor: number;
-  shields: number;
-  accuracy: number;
-  initiative: number;
-
-  // Utility
-  cargoCapacity: number;
-  colonistCapacity: number;
-  scanRange: number;
-  canDetectCloaked: boolean;
-
-  // Mass and cost
-  mass: number;
-  cost: {
-    ironium: number;
-    boranium: number;
-    germanium: number;
-  };
-
-  // Flags
-  hasEngine: boolean;
-  hasColonyModule: boolean;
-  isStarbase: boolean; // warpSpeed === 0
-
-  // Validation
-  isValid: boolean;
-  validationErrors: string[];
-}
 
 /**
  * Compile ship stats from hull and installed components
@@ -77,12 +38,19 @@ export function compileShipStats(
   let canDetectCloaked = false;
   let hasEngine = false;
   let hasColonyModule = false;
+  let miningRate = 0;
+  let terraformRate = 0;
+  let bombing = { kill: 0, destroy: 0 };
+  let massDriver = { speed: 0, catch: 0 };
 
   const cost = {
+    resources: hull.baseCost.resources,
     ironium: hull.baseCost.ironium,
     boranium: hull.baseCost.boranium,
     germanium: hull.baseCost.germanium,
   };
+
+  const components: Array<{ id: string; name: string; quantity: number }> = [];
 
   // Build component lookups
   const miniComponentMap = new Map<string, MiniaturizedComponent>();
@@ -103,6 +71,18 @@ export function compileShipStats(
 
       const count = compAssignment.count;
 
+      // Track component quantity for summary
+      const existingComp = components.find((c) => c.id === compAssignment.componentId);
+      if (existingComp) {
+        existingComp.quantity += count;
+      } else {
+        components.push({
+          id: compAssignment.componentId,
+          name: baseComponent.name,
+          quantity: count,
+        });
+      }
+
       // Add miniaturized mass and cost (multiplied by count)
       totalMass += miniComponent.mass * count;
       if (miniComponent.cost.ironium) cost.ironium += miniComponent.cost.ironium * count;
@@ -110,6 +90,41 @@ export function compileShipStats(
       if (miniComponent.cost.germanium) cost.germanium += miniComponent.cost.germanium * count;
 
       // Apply component effects based on type (using base stats, multiplied by count)
+      if (baseComponent.stats) {
+        if (baseComponent.stats.mining) {
+          miningRate += baseComponent.stats.mining * count;
+        }
+        if (baseComponent.stats.terraform) {
+          terraformRate += baseComponent.stats.terraform * count;
+        }
+
+        // Bombing
+        if (baseComponent.type.toLowerCase() === 'bomb') {
+          if (baseComponent.stats.kill) {
+            bombing.kill += baseComponent.stats.kill * count;
+          }
+          if (baseComponent.stats.struct) {
+            bombing.destroy += baseComponent.stats.struct * count;
+          }
+        }
+
+        // Mass Driver
+        if (baseComponent.type.toLowerCase() === 'massdriver') {
+          if (baseComponent.stats.driverSpeed) {
+            massDriver.speed = Math.max(massDriver.speed, baseComponent.stats.driverSpeed);
+          }
+          if (baseComponent.stats.driverCatch) {
+            massDriver.catch += baseComponent.stats.driverCatch * count;
+          }
+        }
+      }
+
+      // Colonist Capacity
+      if (baseComponent.colonistCapacity) {
+        colonistCapacity += baseComponent.colonistCapacity * count;
+        hasColonyModule = true;
+      }
+
       switch (baseComponent.type.toLowerCase()) {
         case 'engine':
           hasEngine = true;
@@ -198,6 +213,10 @@ export function compileShipStats(
     colonistCapacity,
     scanRange,
     canDetectCloaked,
+    miningRate,
+    terraformRate,
+    bombing,
+    massDriver,
     mass: Math.round(totalMass * 10) / 10,
     cost,
     hasEngine,
@@ -205,6 +224,7 @@ export function compileShipStats(
     isStarbase,
     isValid,
     validationErrors: errors,
+    components,
   };
 }
 
