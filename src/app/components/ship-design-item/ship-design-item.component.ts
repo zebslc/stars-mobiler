@@ -88,7 +88,9 @@ export interface ShipDesignDisplay {
 
       @if (mode === 'card') {
         <div class="design-actions">
-          <button type="button" class="btn-small" (click)="edit.emit(design.id)">Edit</button>
+          @if (!count) {
+            <button type="button" class="btn-small" (click)="edit.emit(design.id)">Edit</button>
+          }
           <button type="button" class="btn-small" (click)="clone.emit(design.id)">Clone</button>
           <button type="button" class="btn-small btn-danger" (click)="delete.emit(design.id)">
             Delete
