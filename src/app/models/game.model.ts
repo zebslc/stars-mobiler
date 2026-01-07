@@ -194,7 +194,6 @@ export type Fleet = {
 };
 
 export interface PlayerEconomy {
-  transferRange: number;
   freighterCapacity: number;
   research: number;
 }

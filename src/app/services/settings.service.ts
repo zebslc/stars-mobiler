@@ -5,7 +5,7 @@ import { GovernorType } from '../models/game.model';
   providedIn: 'root',
 })
 export class SettingsService {
-  readonly showMapControls = signal<boolean>(true);
+  readonly showMapControls = signal<boolean>(false);
   readonly showScannerRanges = signal<boolean>(false);
   readonly showCloakedRanges = signal<boolean>(false);
   readonly scannerRangePct = signal<number>(100);

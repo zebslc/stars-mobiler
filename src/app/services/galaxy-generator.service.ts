@@ -12,9 +12,7 @@ export class GalaxyGeneratorService {
     while (positions.length < starCount && attempts < starCount * 2000) {
       attempts++;
       const candidate = { x: randInt(rng, 20, 980), y: randInt(rng, 20, 980) };
-      if (
-        positions.every((p) => this.distance(p, candidate) >= minDistance)
-      ) {
+      if (positions.every((p) => this.distance(p, candidate) >= minDistance)) {
         positions.push(candidate);
       }
     }
@@ -38,17 +36,13 @@ export class GalaxyGeneratorService {
     aiId: string,
     playerSpecies: Species,
     aiSpecies: Species,
-    seed: number
+    seed: number,
   ) {
     const sorted = [...stars].sort((a, b) => a.position.x - b.position.x);
     const homeHuman = sorted[0];
     const homeAI = sorted[sorted.length - 1];
-    homeHuman.planets = [
-      this.createHomeworld(homeHuman.id, playerSpecies, seed, 'Home')
-    ];
-    homeAI.planets = [
-      this.createHomeworld(homeAI.id, aiSpecies, seed + 1, 'Enemy Home')
-    ];
+    homeHuman.planets = [this.createHomeworld(homeHuman.id, playerSpecies, seed, 'Home')];
+    homeAI.planets = [this.createHomeworld(homeAI.id, aiSpecies, seed + 1, 'Enemy Home')];
   }
 
   private generatePlanets(count: number, rng: () => number): Planet[] {
@@ -86,7 +80,7 @@ export class GalaxyGeneratorService {
     starId: string,
     species: Species,
     seed: number,
-    nameLabel: string
+    nameLabel: string,
   ): Planet {
     return {
       id: `planet-home-${seed}`,
@@ -105,7 +99,7 @@ export class GalaxyGeneratorService {
       terraformOffset: { temperature: 0, atmosphere: 0 },
       resources: 0,
       research: 0,
-      scanner: 0,
+      scanner: 0, // No scanner initially
     };
   }
 

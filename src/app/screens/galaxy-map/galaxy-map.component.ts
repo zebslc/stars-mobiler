@@ -48,20 +48,6 @@ import { GalaxyMapSettingsComponent } from './components/galaxy-map-settings.com
             (contextmenu)="onMapRightClick($event, galaxySvg)"
           >
             <g [attr.transform]="transformString()">
-              @if (showTransfer) {
-                @if (centerOwnedStar(); as center) {
-                  <circle
-                    [attr.cx]="center.position.x"
-                    [attr.cy]="center.position.y"
-                    [attr.r]="gs.playerEconomy()?.transferRange ?? 0"
-                    fill="rgba(46,134,222,0.08)"
-                    stroke="#2e86de"
-                    stroke-dasharray="4,3"
-                    style="pointer-events: none"
-                  />
-                }
-              }
-
               <!-- Scanner Ranges -->
               @if (settings.showScannerRanges()) {
                 @for (range of scannerRanges(); track $index) {
@@ -176,6 +162,7 @@ import { GalaxyMapSettingsComponent } from './components/galaxy-map-settings.com
                   app-galaxy-star
                   [star]="star"
                   [scale]="scale()"
+                  [isVisible]="visibleStars().has(star.id)"
                   (starClick)="onStarClick(star, $event)"
                   (starDoubleClick)="onStarDoubleClick(star, $event)"
                   (starContext)="onStarRightClick($event, star)"
@@ -279,9 +266,70 @@ export class GalaxyMapComponent implements OnInit {
 
   readonly stars = this.gs.stars;
   readonly turn = this.gs.turn;
-  showTransfer = true;
   selectedStar: Star | null = null;
   selectedFleetId: string | null = null;
+
+  // Visibility Logic
+  visibleStars = computed(() => {
+    const stars = this.stars();
+    const player = this.gs.player();
+    if (!player) return new Set<string>();
+
+    const visibleIds = new Set<string>();
+    const game = this.gs.game();
+
+    // 1. All stars with owned planets are visible
+    for (const star of stars) {
+      if (star.planets.some((p) => p.ownerId === player.id)) {
+        visibleIds.add(star.id);
+      }
+    }
+
+    // 2. Calculate scanner sources
+    const scanners: { x: number; y: number; r: number }[] = [];
+
+    // Planet Scanners
+    for (const star of stars) {
+      for (const p of star.planets) {
+        if (p.ownerId === player.id && p.scanner > 0) {
+          scanners.push({
+            x: star.position.x,
+            y: star.position.y,
+            r: p.scanner, // Range is now stored directly in p.scanner
+          });
+        }
+      }
+    }
+
+    // Fleet Scanners
+    if (game) {
+      for (const f of game.fleets) {
+        if (f.ownerId === player.id) {
+          const caps = this.getFleetScanCapabilities(f);
+          if (caps.scanRange > 0) {
+            const pos = this.getFleetPosition(f);
+            if (pos) {
+              scanners.push({ ...pos, r: caps.scanRange });
+            }
+          }
+        }
+      }
+    }
+
+    // 3. Check visibility for all stars
+    for (const star of stars) {
+      if (visibleIds.has(star.id)) continue; // Already visible
+
+      for (const scanner of scanners) {
+        if (this.getDistance(star.position, scanner) <= scanner.r) {
+          visibleIds.add(star.id);
+          break;
+        }
+      }
+    }
+
+    return visibleIds;
+  });
 
   // Scanner Range Visualization
   scannerRanges = computed(() => {
@@ -300,7 +348,7 @@ export class GalaxyMapComponent implements OnInit {
           ranges.push({
             x: star.position.x,
             y: star.position.y,
-            r: p.scanner * 50 * rangePct,
+            r: p.scanner * rangePct,
             type: 'planet',
           });
         }
@@ -312,34 +360,14 @@ export class GalaxyMapComponent implements OnInit {
     if (game) {
       for (const f of game.fleets) {
         if (f.ownerId === player.id) {
-          let x = 0;
-          let y = 0;
-
-          if (f.location.type === 'space') {
-            x = f.location.x;
-            y = f.location.y;
-          } else {
-            // Orbiting
-            const star = this.stars().find((s) =>
-              s.planets.some((p) => p.id === (f.location as any).planetId),
-            );
-            if (star) {
-              x = star.position.x;
-              y = star.position.y;
-            } else {
-              continue;
-            }
-          }
-
-          const designId = f.ships[0]?.designId;
-          if (designId) {
-            const design = getDesign(designId);
-            // CompiledDesign has scannerRange directly
-            if (design && design.scannerRange > 0) {
+          const caps = this.getFleetScanCapabilities(f);
+          if (caps.scanRange > 0) {
+            const pos = this.getFleetPosition(f);
+            if (pos) {
               ranges.push({
-                x,
-                y,
-                r: design.scannerRange * rangePct,
+                x: pos.x,
+                y: pos.y,
+                r: caps.scanRange * rangePct,
                 type: 'fleet',
               });
             }
@@ -359,57 +387,33 @@ export class GalaxyMapComponent implements OnInit {
 
     const rangePct = this.settings.scannerRangePct() / 100;
 
-    // Planets - 15% of normal range for anti-cloak (simulated based on typical 0 pen logic)
+    // Planets
     for (const star of this.stars()) {
       for (const p of star.planets) {
         if (p.ownerId === player.id && p.scanner > 0) {
           ranges.push({
             x: star.position.x,
             y: star.position.y,
-            r: p.scanner * 50 * 0.15 * rangePct,
+            r: p.scanner * rangePct,
             type: 'planet',
           });
         }
       }
     }
 
-    // Fleets - 50% of scan range if can detect cloaked (simulated)
-    // Since we don't have canDetectCloaked in CompiledDesign, we'll assume 0 for now or check components if possible.
-    // getDesign returns CompiledDesign which has components array.
-    // We can check if any component name contains "Anti-Cloak" or similar, or just assume standard scanners have some anti-cloak.
-    // For now, let's use 0 if we can't be sure, OR use a fraction of scanner range.
-    // User requested "anti-cloak ranges".
-    // Let's assume 25% of scanner range for now as a placeholder.
+    // Fleets
     const game = this.gs.game();
-    if (game) {
+    if (game && game.fleets) {
       for (const f of game.fleets) {
         if (f.ownerId === player.id) {
-          let x = 0;
-          let y = 0;
-          if (f.location.type === 'space') {
-            x = f.location.x;
-            y = f.location.y;
-          } else {
-            const star = this.stars().find((s) =>
-              s.planets.some((p) => p.id === (f.location as any).planetId),
-            );
-            if (star) {
-              x = star.position.x;
-              y = star.position.y;
-            } else {
-              continue;
-            }
-          }
-
-          const designId = f.ships[0]?.designId;
-          if (designId) {
-            const design = getDesign(designId);
-            if (design && design.scannerRange > 0) {
-              // Simulate anti-cloak range
+          const caps = this.getFleetScanCapabilities(f);
+          if (caps.cloakedRange > 0) {
+            const pos = this.getFleetPosition(f);
+            if (pos) {
               ranges.push({
-                x,
-                y,
-                r: design.scannerRange * 0.25 * rangePct,
+                x: pos.x,
+                y: pos.y,
+                r: caps.cloakedRange * rangePct,
                 type: 'fleet',
               });
             }
@@ -419,6 +423,45 @@ export class GalaxyMapComponent implements OnInit {
     }
     return ranges;
   });
+
+  getFleetScanCapabilities(fleet: Fleet): { scanRange: number; cloakedRange: number } {
+    const designId = fleet.ships[0]?.designId;
+    if (!designId) return { scanRange: 0, cloakedRange: 0 };
+
+    // Check custom designs first
+    const customDesign = this.gs.game()?.shipDesigns.find((d) => d.id === designId);
+    if (customDesign && customDesign.spec) {
+      return {
+        scanRange: customDesign.spec.scanRange,
+        cloakedRange: customDesign.spec.canDetectCloaked ? customDesign.spec.scanRange : 0,
+      };
+    }
+
+    // Fallback to legacy/compiled designs
+    const design = getDesign(designId);
+    if (design) {
+      return {
+        scanRange: design.scannerRange,
+        cloakedRange: design.cloakedRange || 0,
+      };
+    }
+
+    return { scanRange: 0, cloakedRange: 0 };
+  }
+
+  getFleetPosition(fleet: Fleet): { x: number; y: number } | null {
+    if (fleet.location.type === 'space') {
+      return { x: fleet.location.x, y: fleet.location.y };
+    }
+    const star = this.stars().find((s) =>
+      s.planets.some((p) => p.id === (fleet.location as any).planetId),
+    );
+    return star ? { x: star.position.x, y: star.position.y } : null;
+  }
+
+  getDistance(p1: { x: number; y: number }, p2: { x: number; y: number }) {
+    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+  }
 
   // Zoom & Pan state
   scale = signal(1);
@@ -698,31 +741,8 @@ export class GalaxyMapComponent implements OnInit {
     this.gs.endTurn();
   }
 
-  toggleTransfer(event: Event) {
-    this.showTransfer = (event.target as HTMLInputElement).checked;
-  }
-
-  centerOwnedStar(): Star | null {
-    const ownedStars = this.stars().filter((s) =>
-      s.planets.some((p) => p.ownerId === this.gs.player()?.id),
-    );
-    return ownedStars.length ? ownedStars[0] : null;
-  }
-
   isIsolated(star: Star): boolean {
-    const econ = this.gs.playerEconomy();
-    if (!econ) return false;
-    const ownedStars = this.stars().filter((s) =>
-      s.planets.some((p) => p.ownerId === this.gs.player()?.id),
-    );
-    if (ownedStars.length === 0) return false;
-    const withinRange = ownedStars.some((os) => {
-      const dx = os.position.x - star.position.x;
-      const dy = os.position.y - star.position.y;
-      const dist = Math.hypot(dx, dy);
-      return dist <= econ.transferRange;
-    });
-    return !withinRange;
+    return false;
   }
 
   openFleet(id: string) {

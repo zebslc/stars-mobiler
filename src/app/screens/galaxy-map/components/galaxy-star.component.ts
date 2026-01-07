@@ -1,4 +1,13 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, computed } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  Input,
+  Output,
+  EventEmitter,
+  inject,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game-state.service';
@@ -14,8 +23,8 @@ import { GameStateService } from '../../../services/game-state.service';
       [attr.cy]="star.position.y"
       [attr.r]="7"
       [attr.fill]="colorForStar()"
-      [attr.stroke]="isIsolated() ? '#e67e22' : '#000'"
-      [attr.stroke-width]="isIsolated() ? 1.2 : 0.7"
+      [attr.stroke]="isVisible && isIsolated() ? '#e67e22' : '#000'"
+      [attr.stroke-width]="isVisible && isIsolated() ? 1.2 : 0.7"
       (click)="starClick.emit($event)"
       (dblclick)="starDoubleClick.emit($event)"
       (contextmenu)="starContext.emit($event)"
@@ -25,7 +34,7 @@ import { GameStateService } from '../../../services/game-state.service';
     </svg:circle>
 
     <!-- Habitability Heatmap Overlay -->
-    @if (viewMode === 'habitability' && planetDetails(); as d) {
+    @if (isVisible && viewMode === 'habitability' && planetDetails(); as d) {
       <svg:circle
         [attr.cx]="star.position.x"
         [attr.cy]="star.position.y"
@@ -40,8 +49,8 @@ import { GameStateService } from '../../../services/game-state.service';
 
     <!-- Info Labels & Details -->
     @if (showLabels || scale > 1.5) {
-      @if (planetDetails(); as d) {
-        <svg:g [attr.transform]="'translate(' + star.position.x + ' ' + star.position.y + ')'">
+      <svg:g [attr.transform]="'translate(' + star.position.x + ' ' + star.position.y + ')'">
+        @if (planetDetails(); as d) {
           <!-- Detailed View Box -->
           @if (scale > 1.5) {
             <svg:rect
@@ -168,8 +177,19 @@ import { GameStateService } from '../../../services/game-state.service';
               {{ star.name }}
             </svg:text>
           }
-        </svg:g>
-      }
+        } @else {
+          <!-- Not Visible (Unexplored) - Just Name -->
+          <svg:text
+            [attr.x]="9"
+            [attr.y]="-9"
+            [attr.font-size]="10"
+            fill="#7f8c8d"
+            style="pointer-events: none; text-shadow: 0px 0px 2px white;"
+          >
+            {{ star.name }}
+          </svg:text>
+        }
+      </svg:g>
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -179,6 +199,14 @@ export class GalaxyStarComponent {
   @Input({ required: true }) scale!: number;
   @Input() viewMode: 'normal' | 'minerals' | 'value' | 'habitability' = 'normal';
   @Input() showLabels = false;
+
+  private _isVisible = signal(true);
+  @Input() set isVisible(val: boolean) {
+    this._isVisible.set(val);
+  }
+  get isVisible() {
+    return this._isVisible();
+  }
 
   @Output() starClick = new EventEmitter<MouseEvent>();
   @Output() starDoubleClick = new EventEmitter<MouseEvent>();
@@ -194,6 +222,7 @@ export class GalaxyStarComponent {
   }
 
   planetDetails = computed(() => {
+    if (!this._isVisible()) return null;
     const p = this.star.planets[0];
     if (!p) return null;
     return {
@@ -212,6 +241,7 @@ export class GalaxyStarComponent {
   });
 
   colorForStar = computed(() => {
+    if (!this._isVisible()) return '#bdc3c7';
     const owned = this.star.planets.some((p) => p.ownerId === this.gs.player()?.id);
     const enemy = this.star.planets.some((p) => p.ownerId && p.ownerId !== this.gs.player()?.id);
     if (owned) return '#2e86de';
@@ -221,23 +251,6 @@ export class GalaxyStarComponent {
   });
 
   isIsolated = computed(() => {
-    const econ = this.gs.playerEconomy();
-    if (!econ) return false;
-
-    // Check if player owns any planets on this star
-    if (this.star.planets.some((p) => p.ownerId === this.gs.player()?.id)) return false;
-
-    const stars = this.gs.stars();
-    const ownedStars = stars.filter((s) =>
-      s.planets.some((p) => p.ownerId === this.gs.player()?.id),
-    );
-    if (ownedStars.length === 0) return false;
-    const withinRange = ownedStars.some((os) => {
-      const dx = os.position.x - this.star.position.x;
-      const dy = os.position.y - this.star.position.y;
-      const dist = Math.hypot(dx, dy);
-      return dist <= econ.transferRange;
-    });
-    return !withinRange;
+    return false;
   });
 }

@@ -282,7 +282,7 @@ export class PlanetDetailComponent implements OnInit {
   scannerRange = computed(() => {
     const p = this.planet();
     if (!p || !p.scanner) return 0;
-    return p.scanner * 50;
+    return p.scanner;
   });
 
   fleetsInOrbit = computed(() => {
@@ -349,6 +349,7 @@ export class PlanetDetailComponent implements OnInit {
           },
           colonyModule: stats.hasColonyModule,
           scannerRange: stats.scanRange,
+          cloakedRange: stats.canDetectCloaked ? stats.scanRange : 0,
           components: [],
         };
 

@@ -75,8 +75,8 @@ import { SettingsService } from '../../../services/settings.service';
                 min="10"
                 max="100"
                 step="10"
-                [ngModel]="settings.scannerRangePct()"
-                (ngModelChange)="settings.setScannerRangePct($event)"
+                [value]="settings.scannerRangePct()"
+                (input)="settings.setScannerRangePct($any($event.target).valueAsNumber)"
               />
               <div class="range-visual" [style.width.%]="settings.scannerRangePct()"></div>
             </div>

@@ -7,6 +7,7 @@ import {
   Planet,
   BuildItem,
   ShipDesign,
+  Fleet,
   FleetOrder,
 } from '../models/game.model';
 import { GalaxyGeneratorService } from './galaxy-generator.service';
@@ -116,6 +117,61 @@ export class GameStateService {
       humanHome.governor = { type: 'balanced' };
       human.ownedPlanetIds.push(humanHome.id);
     }
+
+    // Initial Space Station
+    const ssDesignId = `design-${settings.seed}-init`;
+    const ssFleetId = `fleet-${settings.seed}-init`;
+    const ssDesign: ShipDesign = {
+      id: ssDesignId,
+      name: 'Space Station',
+      hullId: 'space_station',
+      playerId: human.id,
+      createdTurn: 1,
+      slots: [],
+      spec: {
+        warpSpeed: 0,
+        fuelCapacity: 0,
+        idealWarp: 0,
+        isRamscoop: false,
+        firepower: 0,
+        armor: 500,
+        shields: 0,
+        accuracy: 1,
+        initiative: 1,
+        cargoCapacity: 0,
+        colonistCapacity: 0,
+        scanRange: 0,
+        canDetectCloaked: false,
+        miningRate: 0,
+        terraformRate: 0,
+        bombing: { kill: 0, destroy: 0 },
+        massDriver: { speed: 0, catch: 0 },
+        mass: 0,
+        cost: { ironium: 0, boranium: 0, germanium: 0 },
+        hasEngine: false,
+        hasColonyModule: false,
+        isStarbase: true,
+        isValid: true,
+        validationErrors: [],
+        components: [],
+      },
+    };
+
+    const ssFleet: Fleet = {
+      id: ssFleetId,
+      name: 'Space Station',
+      ownerId: human.id,
+      location: { type: 'orbit', planetId: humanHome ? humanHome.id : '' },
+      ships: [{ designId: ssDesignId, count: 1, damage: 0 }],
+      fuel: 0,
+      cargo: {
+        resources: 0,
+        minerals: { ironium: 0, boranium: 0, germanium: 0 },
+        colonists: 0,
+      },
+      orders: [],
+    };
+
     if (aiHome) {
       aiHome.ownerId = ai.id;
       ai.ownedPlanetIds.push(aiHome.id);
@@ -129,13 +185,12 @@ export class GameStateService {
       stars,
       humanPlayer: human,
       aiPlayers: [ai],
-      fleets: [],
+      fleets: [ssFleet],
       playerEconomy: {
-        transferRange: 300,
         freighterCapacity: 100,
         research: 0,
       },
-      shipDesigns: [],
+      shipDesigns: [ssDesign],
     };
     this._game.set(state);
   }

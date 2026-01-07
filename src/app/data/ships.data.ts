@@ -28,6 +28,7 @@ export interface CompiledDesign {
   };
   colonyModule: boolean;
   scannerRange: number;
+  cloakedRange: number;
   components: Array<{
     id: string;
     name: string;
@@ -39,10 +40,10 @@ export interface CompiledDesign {
 // For now, creating basic designs from hulls for compatibility
 const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
   const designs: { [key: string]: CompiledDesign } = {};
-  
+
   ALL_HULLS.forEach((hull, index) => {
     const designId = hull.id || hull.Name.toLowerCase().replace(/\s+/g, '_');
-    
+
     designs[designId] = {
       id: designId,
       name: hull.Name,
@@ -63,11 +64,13 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
         ironium: hull.Cost.Ironium,
         boranium: hull.Cost.Boranium,
         germanium: hull.Cost.Germanium,
-        resources: hull.Cost.Resources
+        resources: hull.Cost.Resources,
       },
-      colonyModule: hull.Name.toLowerCase().includes('colony') || hull.Name.toLowerCase().includes('settler'),
+      colonyModule:
+        hull.Name.toLowerCase().includes('colony') || hull.Name.toLowerCase().includes('settler'),
       scannerRange: 0,
-      components: []
+      cloakedRange: 0,
+      components: [],
     };
   });
 
@@ -108,7 +111,8 @@ export function getDesign(designId: string): CompiledDesign {
       cost: { ironium: 10, boranium: 0, germanium: 10, resources: 25 },
       colonyModule: false,
       scannerRange: 0,
-      components: []
+      cloakedRange: 0,
+      components: [],
     };
   }
   return design;

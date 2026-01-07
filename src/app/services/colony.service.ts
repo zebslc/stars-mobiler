@@ -3,6 +3,7 @@ import { BuildItem, GameState, Planet } from '../models/game.model';
 import { EconomyService } from './economy.service';
 import { getDesign } from '../data/ships.data';
 import { ShipyardService } from './shipyard.service';
+import { PLANETARY_SCANNER_COMPONENTS } from '../data/techs/planetary.data';
 
 @Injectable({ providedIn: 'root' })
 export class ColonyService {
@@ -54,9 +55,25 @@ export class ColonyService {
               case 'research':
                 planet.research = (planet.research || 0) + 1;
                 break;
-              case 'scanner':
-                planet.scanner = 1;
+              case 'scanner': {
+                // Find best available scanner
+                const techLevels = game.humanPlayer.techLevels;
+                let bestRange = 0;
+                for (const s of PLANETARY_SCANNER_COMPONENTS) {
+                  if (
+                    s.tech &&
+                    techLevels.Energy >= (s.tech.Energy || 0) &&
+                    techLevels.Kinetics >= (s.tech.Kinetics || 0) &&
+                    techLevels.Propulsion >= (s.tech.Propulsion || 0) &&
+                    techLevels.Construction >= (s.tech.Construction || 0)
+                  ) {
+                    const scan = s.stats?.scan || 0;
+                    if (scan > bestRange) bestRange = scan;
+                  }
+                }
+                planet.scanner = bestRange > 0 ? bestRange : 50; // Fallback to basic if logic fails
                 break;
+              }
               case 'terraform':
                 planet.temperature +=
                   planet.temperature < game.humanPlayer.species.habitat.idealTemperature ? 1 : -1;
@@ -155,7 +172,7 @@ export class ColonyService {
                 // Add starting fuel based on design
                 const fuelCap = shipDesign?.spec?.fuelCapacity ?? getDesign(designId).fuelCapacity;
                 fleet.fuel += fuelCap;
-                
+
                 // If colony ship, preload colonists based on design capacity
                 const hasColony =
                   shipDesign?.spec?.hasColonyModule ?? getDesign(designId).colonyModule;
