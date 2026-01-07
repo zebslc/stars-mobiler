@@ -167,17 +167,6 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     description: 'Multi-spectrum surveillance platform.',
   },
   {
-    id: 'scan_robber_baron',
-    name: 'Robber Baron Scanner',
-    type: 'Scanner',
-    tech: { Energy: 15, Kinetics: 0, Propulsion: 0, Construction: 10 },
-    mass: 20,
-    cost: { ironium: 10, boranium: 10, germanium: 10, resources: 90 },
-    stats: { scan: 220, pen: 0 },
-    img: 'scan-robber-baron',
-    description: 'Multi-spectrum surveillance platform.',
-  },
-  {
     id: 'scan_peerless',
     name: 'Peerless Scanner',
     type: 'Scanner',

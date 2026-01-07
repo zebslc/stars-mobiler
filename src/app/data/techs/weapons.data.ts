@@ -4,6 +4,35 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
   // ========================================================================
   // BEAM WEAPONS
   // ========================================================================
+
+/*
+# Beam Weapons
+| Name                     | Energy | Weapons | Propulsion | Construction | Electronics | Bio-Tech | Mass | Resources | Ironium | Boranium | Germanium | Range | DP | Initiative |
+|--------------------------|--------|---------|------------|--------------|-------------|----------|------|-----------|---------|----------|-----------|-------|----|------------|
+| Laser                    | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 5 | 0 | 6 | 0 | 1 | 10 | 9 |
+| X-Ray Laser              | 0 | 3 | 0 | 0 | 0 | 0 | 1 | 6 | 0 | 6 | 0 | 1 | 16 | 9 |
+| Mini Gun                 | 0 | 5 | 0 | 0 | 0 | 0 | 3 | 10 | 0 | 16 | 0 | 2 | 13 | 12 |
+| Yakimora Light Phaser    | 0 | 6 | 0 | 0 | 0 | 0 | 1 | 7 | 0 | 8 | 0 | 1 | 26 | 9 |
+| Blackjack                | 0 | 7 | 0 | 0 | 0 | 10 | 7 | 0 | 16 | 0 | 0 | 90 | 10 |
+| Phaser Bazooka           | 0 | 8 | 0 | 0 | 0 | 2 | 11 | 0 | 8 | 0 | 2 | 26 | 7 |
+| Pulsed Sapper            | 5 | 9 | 0 | 0 | 0 | 1 | 12 | 0 | 0 | 4 | 3 | 82 | 14 |
+| Colloidal Phaser         | 0 | 10 | 0 | 0 | 0 | 2 | 18 | 0 | 14 | 0 | 3 | 26 | 5 |
+| Gatling Gun              | 0 | 11 | 0 | 0 | 0 | 3 | 13 | 0 | 20 | 0 | 2 | 31 | 12 |
+| Mini Blaster             | 0 | 12 | 0 | 0 | 0 | 1 | 9 | 0 | 10 | 0 | 1 | 66 | 9 |
+| Bludgeon                 | 0 | 13 | 0 | 0 | 0 | 10 | 9 | 0 | 22 | 0 | 0 | 231 | 10 |
+| Mark IV Blaster          | 0 | 14 | 0 | 0 | 0 | 2 | 15 | 0 | 12 | 0 | 2 | 66 | 7 |
+| Phased Sapper            | 8 | 15 | 0 | 0 | 0 | 1 | 16 | 0 | 0 | 6 | 3 | 211 | 14 |
+| Heavy Blaster            | 0 | 16 | 0 | 0 | 0 | 2 | 25 | 0 | 20 | 0 | 3 | 66 | 5 |
+| Gatling Neutrino Cannon  | 0 | 17 | 0 | 0 | 0 | 3 | 17 | 0 | 28 | 0 | 2 | 80 | 13 |
+| Myopic Disruptor         | 0 | 18 | 0 | 0 | 0 | 1 | 12 | 0 | 14 | 0 | 1 | 169 | 9 |
+| Blunderbuss              | 0 | 19 | 0 | 0 | 0 | 10 | 13 | 0 | 30 | 0 | 0 | 592 | 11 |
+| Disruptor                | 0 | 20 | 0 | 0 | 0 | 2 | 20 | 0 | 16 | 0 | 2 | 169 | 8 |
+| Syncro Sapper            | 11 | 21 | 0 | 0 | 0 | 1 | 21 | 0 | 0 | 8 | 3 | 541 | 14 |
+| Mega Disruptor           | 0 | 22 | 0 | 0 | 0 | 2 | 33 | 0 | 30 | 0 | 3 | 169 | 6 |
+| Big Mutha Cannon         | 0 | 23 | 0 | 0 | 0 | 3 | 23 | 0 | 36 | 0 | 2 | 204 | 13 |
+| Streaming Pulverizer     | 0 | 24 | 0 | 0 | 0 | 1 | 16 | 0 | 20 | 0 | 1 | 433 | 9 |
+| Anti-Matter Pulverizer   | 0 | 26 | 0 | 0 | 0 | 2 | 27 | 0 | 22 | 0 | 2 | 433 | 8 |
+*/
   {
     id: 'weap_laser',
     name: 'Laser',
@@ -49,6 +78,17 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     description: 'Compact phaser.'
   },
   {
+    id: 'weap_blackjack',
+    name: 'Blackjack',
+    type: 'Weapon',
+    tech: { Energy: 6, Construction: 4 },
+    mass: 7,
+    cost: { ironium: 40, boranium: 16, germanium: 0, resources: 30 },
+    stats: { power: 90, range: 0, initiative: 0 },
+    img: 'weap-blackjack',
+    description: 'Rapid-fire blaster.'
+  },
+  {
     id: 'weap_disruptor',
     name: 'Disruptor',
     type: 'Weapon',
@@ -61,15 +101,37 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'weap_phasor',
-    name: 'Phasor',
+    name: 'Phasor Bazooka',
     type: 'Weapon',
-    tech: { Energy: 12 },
+    tech: { Energy: 10, Construction: 6 },
     mass: 2,
     cost: { ironium: 0, boranium: 20, germanium: 0, resources: 25 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-phasor',
     description: 'Long range sniper beam.'
   },
+  {
+    id: 'weap_pulsed_sapper',
+    name: 'Pulsed Sapper',
+    type: 'Weapon',
+    tech: { Energy: 12 },
+    mass: 12,
+    cost: { ironium: 0, boranium: 4, germanium: 3, resources: 80 },
+    stats: { power: 82, range: 3, initiative: 14 },
+    img: 'weap-pulsed-sapper',
+    description: 'Highly accurate, but slow.'
+  },  
+  {
+    id: 'weap_colloidal_phaser',
+    name: 'Colloidal Phaser',
+    type: 'Weapon',
+    tech: { Energy: 13 },
+    mass: 18,
+    cost: { ironium: 14, boranium: 0, germanium: 3, resources: 120 },
+    stats: { power: 26, range: 1, initiative: 2 },
+    img: 'weap-colloidal-phaser',
+    description: 'Compact phaser.'
+  },  
   {
     id: 'weap_gatling',
     name: 'Gatling Gun',
@@ -82,15 +144,15 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     description: 'The gold standard for sweeping mines.'
   },
   {
-    id: 'weap_bigmutha',
-    name: 'Big Mutha Cannon',
+    id: 'weap_mini_blaster',
+    name: 'Mini Blaster',
     type: 'Weapon',
-    tech: { Energy: 22 },
-    mass: 6,
-    cost: { ironium: 0, boranium: 80, germanium: 20, resources: 150 },
-    stats: { power: 204, range: 2, initiative: 9 },
-    img: 'weap-big-mutha',
-    description: 'Massive rapid-fire energy cannon.'
+    tech: { Energy: 12 },
+    mass: 9,
+    cost: { ironium: 10, boranium: 0, germanium: 1, resources: 20 },
+    stats: { power: 66, range: 1, initiative: 9 },
+    img: 'weap-mini-blaster',
+    description: 'Compact blaster.'
   },
   {
     id: 'weap_bludgeon',
@@ -103,10 +165,140 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     img: 'weap-bludgeon',
     description: 'Ramming weapon. Devastating at point blank.'
   },
+  {
+    id: 'weap_mark_iv_blaster',
+    name: 'Mark IV Blaster',
+    type: 'Weapon',
+    tech: { Energy: 13 },
+    mass: 15,
+    cost: { ironium: 20, boranium: 0, germanium: 2, resources: 40 },
+    stats: { power: 66, range: 1, initiative: 7 },
+    img: 'weap-mark-iv-blaster',
+    description: 'Powerful blaster.'
+  },
+  {
+    id: 'weap_phased_sapper',
+    name: 'Phased Sapper',
+    type: 'Weapon',
+    tech: { Energy: 14 },
+    mass: 16,
+    cost: { ironium: 0, boranium: 6, germanium: 3, resources: 100 },
+    stats: { power: 211, range: 3, initiative: 14 },
+    img: 'weap-phased-sapper',
+    description: 'Highly accurate, but slow.'
+  },
+  {
+    id: 'weap_heavy_blaster',
+    name: 'Heavy Blaster',
+    type: 'Weapon',
+    tech: { Energy: 15 },
+    mass: 25,
+    cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
+    stats: { power: 66, range: 1, initiative: 5 },
+    img: 'weap-heavy-blaster',
+    description: 'Powerful blaster.'
+  },
+  {
+    id: 'weap_gatling_neutrino',
+    name: 'Gatling Neutrino Cannon',
+    type: 'Weapon',
+    tech: { Energy: 16 },
+    mass: 17,
+    cost: { ironium: 28, boranium: 0, germanium: 2, resources: 100 },
+    stats: { power: 80, range: 2, initiative: 13 },
+    img: 'weap-gatling-neutrino',
+    description: 'Powerful neutrino cannon.'
+  },
+  {
+    id: 'weap_myopic_disrupter',
+    name: 'Myopic Disrupter',
+    type: 'Weapon',
+    tech: { Energy: 17 },
+    mass: 20,
+    cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
+    stats: { power: 120, range: 3, initiative: 7 },
+    img: 'weap-myopic-disrupter',
+    description: 'Highly accurate, but slow.'
+  },
+  {
+    id: 'weap_blunderbuss',
+    name: 'Blunderbuss',
+    type: 'Weapon',
+    tech: { Energy: 18 },
+    mass: 20,
+    cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
+    stats: { power: 120, range: 3, initiative: 7 },
+    img: 'weap-blunderbuss',
+    description: 'Highly accurate, but slow.'
+  },
+  {
+    id: 'weap_disruptor',
+    name: 'Disruptor',
+    type: 'Weapon',
+    tech: { Energy: 19 },
+    mass: 2,
+    cost: { ironium: 0, boranium: 20, germanium: 0, resources: 25 },
+    stats: { power: 35, range: 2, initiative: 4 },
+    img: 'weap-disruptor',
+    description: 'Destabilized ion bolt.'
+  },
+  {
+    id: 'weap_syncro_sapper',
+    name: 'Syncro Sapper',
+    type: 'Weapon',
+    tech: { Energy: 20 },
+    mass: 36,
+    cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
+    stats: { power: 120, range: 3, initiative: 7 },
+    img: 'weap-syncro-sapper',
+    description: 'Highly accurate, but slow.'
+  },
+  {
+    id: 'weap_mega_disrupter',
+    name: 'Mega Disrupter',
+    type: 'Weapon',
+    tech: { Energy: 21 },
+    mass: 24,
+    cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
+    stats: { power: 120, range: 3, initiative: 7 },
+    img: 'weap-mega-disrupter',
+    description: 'Highly accurate, but slow.'
+  },
+  {
+    id: 'weap_bigmutha',
+    name: 'Big Mutha Cannon',
+    type: 'Weapon',
+    tech: { Energy: 22 },
+    mass: 6,
+    cost: { ironium: 0, boranium: 80, germanium: 20, resources: 150 },
+    stats: { power: 204, range: 2, initiative: 9 },
+    img: 'weap-big-mutha',
+    description: 'Massive rapid-fire energy cannon.'
+  },
 
-// TODO THIS IS MISSING THESE WEAPONS
-//  "weap-blackjack", "weap-pulsed-sapper", "weap-colloidal-phaser", "weap-mini-blaster", "weap-mark-iv-blaster", "weap-phased-sapper", "weap-heavy-blaster", "weap-gatling-neutrino", "weap-myopic-disrupter", "weap-mega-disrupter", "weap-streaming-pulverizer", "weap-anti-matter-pulverizer", "weap-syncro-sapper"
 
+  {
+    id: 'weap_streaming_pulverizer',
+    name: 'Streaming Pulverizer',
+    type: 'Weapon',
+    tech: { Energy: 23 },
+    mass: 28,
+    cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
+    stats: { power: 120, range: 3, initiative: 7 },
+    img: 'weap-streaming-pulverizer',
+    description: 'Highly accurate, but slow.'
+  },
+  {
+    id: 'weap_anti_matter_pulverizer',
+    name: 'Anti-Matter Pulverizer',
+    type: 'Weapon',
+    tech: { Energy: 24 },
+    mass: 32,
+    cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
+    stats: { power: 120, range: 3, initiative: 7 },
+    img: 'weap-anti-matter-pulverizer',
+    description: 'Highly accurate, but slow.'
+  },
 
 
 

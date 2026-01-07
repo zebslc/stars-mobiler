@@ -332,10 +332,58 @@ export class FleetCardComponent {
     return `Space (${location.x.toFixed(0)}, ${location.y.toFixed(0)})`;
   });
 
+  // Helper to get design from GameState first, then static data
+  private getDesignDetails(designId: string) {
+    // 1. Try to find in player designs (dynamic)
+    const playerDesigns = this.gs.game()?.shipDesigns || [];
+    const dynamicDesign = playerDesigns.find((d) => d.id === designId);
+
+    if (dynamicDesign) {
+      // Return a partial compiled object or map it
+      const hull = getHull(dynamicDesign.hullId);
+      // We need to compile stats on the fly if not cached, or use what's available
+      // For basic display (name, hull image), we just need name and hullId
+
+      // Calculate stats for capacity/fuel if needed
+      // For now, let's try to compile it to match CompiledDesign interface approximately
+      // or at least return what's needed.
+
+      const player = this.gs.player();
+      const techLevels = player?.techLevels || {
+        Energy: 0,
+        Kinetics: 0,
+        Propulsion: 0,
+        Construction: 0,
+      };
+      const miniaturizedComponents = Object.values(COMPONENTS).map((comp) =>
+        miniaturizeComponent(comp, techLevels),
+      );
+
+      // Safety check if hull exists
+      if (hull) {
+        const stats = compileShipStats(hull, dynamicDesign.slots, miniaturizedComponents);
+        return {
+          id: dynamicDesign.id,
+          name: dynamicDesign.name,
+          hullId: dynamicDesign.hullId,
+          hullName: hull.Name,
+          // Map stats to CompiledDesign properties
+          cargoCapacity: stats.cargoCapacity,
+          fuelCapacity: stats.fuelCapacity,
+          mass: stats.mass,
+          // Add other props as needed by the template
+        };
+      }
+    }
+
+    // 2. Fallback to static compiled designs
+    return getDesign(designId);
+  }
+
   maxFuel = computed(() => {
     return this.fleet.ships.reduce((sum, s) => {
-      const design = getDesign(s.designId);
-      return sum + design.fuelCapacity * s.count;
+      const design = this.getDesignDetails(s.designId);
+      return sum + (design.fuelCapacity || 0) * s.count;
     }, 0);
   });
 
@@ -357,21 +405,25 @@ export class FleetCardComponent {
 
   cargoCapacity = computed(() => {
     return this.fleet.ships.reduce((sum, s) => {
-      const design = getDesign(s.designId);
-      return sum + design.cargoCapacity * s.count;
+      const design = this.getDesignDetails(s.designId);
+      return sum + (design.cargoCapacity || 0) * s.count;
     }, 0);
   });
 
   getDesignName(designId: string): string {
-    const design = getDesign(designId);
+    const design = this.getDesignDetails(designId);
     return design.name || designId;
   }
 
   getHullNameFromDesign(designId: string): string {
-    const design = getDesign(designId);
+    const design = this.getDesignDetails(designId);
+
+    // If it's a dynamic design, we have the hull name directly or via hullId
+    if (design.hullName) return design.hullName;
+
     const name = design.name;
 
-    // Map compiled design names to hull names
+    // Map compiled design names to hull names (Legacy/Static fallback)
     const nameMap: Record<string, string> = {
       Scout: 'Scout',
       Frigate: 'Frigate',
@@ -392,8 +444,8 @@ export class FleetCardComponent {
   }
 
   openPreview(designId: string): void {
-    const compiled = getDesign(designId);
-    const hull = getHull(compiled.hullId);
+    const designDetails = this.getDesignDetails(designId);
+    const hull = getHull(designDetails.hullId);
 
     // Try to find the actual ship design for slot layout
     const playerDesigns = this.gs.getPlayerShipDesigns();
@@ -401,8 +453,7 @@ export class FleetCardComponent {
 
     this.previewHull.set(hull || null);
     this.previewDesign.set(realDesign || null);
-    this.previewTitle.set(compiled.name);
-
+    this.previewTitle.set(designDetails.name);
     if (realDesign && hull) {
       const player = this.gs.player();
       const techLevels = player?.techLevels || {
@@ -417,7 +468,7 @@ export class FleetCardComponent {
       const stats = compileShipStats(hull, realDesign.slots, miniaturizedComponents);
       this.previewStats.set(stats);
     } else {
-      this.previewStats.set(compiled || null);
+      this.previewStats.set(designDetails || null);
     }
 
     this.previewOpen.set(true);

@@ -148,15 +148,15 @@ import { TechService } from '../../services/tech.service';
               </div>
               <div>
                 <label>Ironium (kT)</label>
-                <input type="number" min="0" placeholder="0" #fe />
+                <input type="number" min="0" placeholder="0" #ironium />
               </div>
               <div>
                 <label>Boranium (kT)</label>
-                <input type="number" min="0" placeholder="0" #bo />
+                <input type="number" min="0" placeholder="0" #boranium />
               </div>
               <div>
                 <label>Germanium (kT)</label>
-                <input type="number" min="0" placeholder="0" #ge />
+                <input type="number" min="0" placeholder="0" #germanium />
               </div>
               <div>
                 <label>Colonists</label>
@@ -167,13 +167,15 @@ import { TechService } from '../../services/tech.service';
               style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--space-md)"
             >
               <button
-                (click)="load(res.value, fe.value, bo.value, ge.value, col.value)"
+                (click)="load(res.value, ironium.value, boranium.value, germanium.value, col.value)"
                 class="btn-primary"
               >
                 Load
               </button>
               <button
-                (click)="unload(res.value, fe.value, bo.value, ge.value, col.value)"
+                (click)="
+                  unload(res.value, ironium.value, boranium.value, germanium.value, col.value)
+                "
                 class="btn-primary"
               >
                 Unload
@@ -427,27 +429,27 @@ export class FleetDetailComponent implements OnInit {
     const colonistUsed = Math.floor(f.cargo.colonists / 1000);
     return resourcesUsed + mineralsUsed + colonistUsed;
   }
-  load(res: string, fe: string, bo: string, ge: string, col: string) {
+  load(res: string, ironium: string, boranium: string, germanium: string, col: string) {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return;
     const pid = f.location.planetId;
     this.gs.loadCargo(f.id, pid, {
       resources: res ? Number(res) : undefined,
-      ironium: fe ? Number(fe) : undefined,
-      boranium: bo ? Number(bo) : undefined,
-      germanium: ge ? Number(ge) : undefined,
+      ironium: ironium ? Number(ironium) : undefined,
+      boranium: boranium ? Number(boranium) : undefined,
+      germanium: germanium ? Number(germanium) : undefined,
       colonists: col ? Number(col) : undefined,
     });
   }
-  unload(res: string, fe: string, bo: string, ge: string, col: string) {
+  unload(res: string, ironium: string, boranium: string, germanium: string, col: string) {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return;
     const pid = f.location.planetId;
     this.gs.unloadCargo(f.id, pid, {
       resources: res ? Number(res) : undefined,
-      ironium: fe ? Number(fe) : undefined,
-      boranium: bo ? Number(bo) : undefined,
-      germanium: ge ? Number(ge) : undefined,
+      ironium: ironium ? Number(ironium) : undefined,
+      boranium: boranium ? Number(boranium) : undefined,
+      germanium: germanium ? Number(germanium) : undefined,
       colonists: col ? Number(col) : undefined,
     });
   }

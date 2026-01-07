@@ -79,7 +79,14 @@ export const COMPILED_DESIGNS = createBasicDesigns();
 
 // Utility function to get design by ID
 export function getDesign(designId: string): CompiledDesign {
-  const design = COMPILED_DESIGNS[designId];
+  let design = COMPILED_DESIGNS[designId];
+
+  if (!design) {
+    // Try normalizing the ID to handle cases where name is passed as ID
+    const normalizedId = designId.toLowerCase().replace(/\s+/g, '_');
+    design = COMPILED_DESIGNS[normalizedId];
+  }
+
   if (!design) {
     console.warn(`Design not found: ${designId}`);
     // Return a default design to prevent crashes

@@ -370,3 +370,77 @@ Set-Content -Path $outputCSS -Value $css -Encoding UTF8
 Remove-Item $tempDir -Recurse -Force
 
 Write-Host "Done! Created $outputImage and $outputCSS" -ForegroundColor Green
+
+
+# ### Scanners (scanners.data.ts)
+# - scan-bat
+# - scan-dna
+# - scan-pick-pocket
+# - scan-chameleon
+# - scan-ferret
+# - scan-dolphin
+# - scan-gazelle
+# - scan-rna
+# - scan-cheetah
+# - scan-elephant
+# - scan-eagle-eye
+# - scan-robber-baron (appears twice)
+# ### Planetary (planetary.data.ts)
+# - planet-viewer-50
+# - planet-viewer-90
+# - planet-scoper-150
+# - planet-scoper-220
+# - planet-scoper-280
+# - planet-snooper-320x
+# - planet-snooper-400x
+# - planet-snooper-500x
+# - planet-snooper-620x
+# - planet-sdi
+# - planet-missile-battery
+# - planet-laser-battery
+# - planet-shield
+# - planet-neutron-shield
+# ### Electronics (electronics.data.ts)
+# - elec-transport-cloak
+# - elec-stealth-cloak
+# - elec-super-stealth-cloak
+# - elec-ultra-stealth-cloak
+# - elec-battle-computer
+# - elec-battle-super-computer
+# - elec-battle-nexus
+# - elec-jammer-30
+# - elec-energy-capacitor
+# - elec-flux-capacitor
+# - elec-energy-dampener
+# - elec-tachyon-detector
+# - elec-antimatter-generator
+# ### Mines (mines.data.ts)
+# - mine-dispenser-40
+# - mine-dispenser-50
+# - mine-dispenser-80
+# - mine-dispenser-130
+# - heavy-dispenser-50
+# - heavy-dispenser-110
+# - heavy-dispenser-200
+# - speed-trap-20
+# - speed-trap-30
+# - speed-trap-50
+# ### Terraforming (terraforming.data.ts)
+# - terraform-3 through terraform-30 (8 items)
+# ### Defenses (defenses.data.ts)
+# - def-armor-carbonic
+# - def-armor-strobnium
+# - def-armor-organic
+# - def-armor-kelarium
+# - def-armor-fielded-kelarium
+# - def-armor-superlatanium
+# ### Engines (engines.data.ts)
+# - eng-jump-hub-6
+# - eng-sub-galactic-scoop
+# - eng-galaxy-scoop
+# ### Weapons (weapons.data.ts)
+# - weap-phasor
+# - weap-blunderbuss
+# ### Stargates (stargates.data.ts)
+# - gate-jump
+# These items have an img key assigned in their data file, but that key is missing from src/app/shared/components/tech-atlas.css , meaning no image will display for them in the UI.
