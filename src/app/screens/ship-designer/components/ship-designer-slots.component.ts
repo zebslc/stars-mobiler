@@ -3,7 +3,6 @@ import {
   EventEmitter,
   Input,
   Output,
-  ChangeDetectionStrategy,
   computed,
   signal,
   OnChanges,
@@ -58,7 +57,6 @@ import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull
       }
     `,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerSlotsComponent implements OnChanges {
   @Input({ required: true }) hull: Hull | null = null;

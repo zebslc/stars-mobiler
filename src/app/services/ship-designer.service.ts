@@ -117,8 +117,11 @@ export class ShipDesignerService {
     }
 
     // Check if component can be installed
-    if (!canInstallComponent(component, hullSlot)) {
-      console.error(`Component ${component.name} cannot be installed in slot ${slotId}`);
+    const canInstall = canInstallComponent(component, hullSlot);
+    if (!canInstall) {
+      console.error(
+        `Component ${component.name} (${component.type}) cannot be installed in slot ${slotId} (Allowed: ${hullSlot.allowedTypes})`,
+      );
       return false;
     }
 
@@ -126,6 +129,8 @@ export class ShipDesignerService {
     // Enforce max count
     const maxCount = hullSlot.max || 1;
     const finalCount = Math.min(count, maxCount);
+
+    console.log(`Setting slot ${slotId} to component ${component.name} (count: ${finalCount})`);
 
     const newSlots = design.slots.map((slot) => {
       if (slot.slotId !== slotId) return slot;
@@ -135,6 +140,8 @@ export class ShipDesignerService {
         components: [{ componentId, count: finalCount }],
       };
     });
+
+    console.log('New slots:', JSON.stringify(newSlots));
 
     this._currentDesign.set({
       ...design,

@@ -24,6 +24,7 @@ import { SHIELD_COMPONENTS, ARMOR_COMPONENTS } from './techs/defenses.data';
 import { STARGATE_COMPONENTS } from './techs/stargates.data';
 import { MASS_DRIVER_COMPONENTS } from './techs/mass-drivers.data';
 import { ORBITAL_COMPONENTS } from './techs/orbitals.data';
+import { MINE_COMPONENTS } from './techs/mines.data';
 
 import { HullTemplate, ComponentCategory } from './tech-atlas.types';
 
@@ -35,7 +36,7 @@ export const ALL_HULLS: HullTemplate[] = [
   ...FREIGHTER_HULLS,
   ...WARSHIP_HULLS,
   ...UTILITY_HULLS,
-  ...STARBASE_HULLS
+  ...STARBASE_HULLS,
 ];
 
 export const ALL_COMPONENTS: ComponentCategory[] = [
@@ -52,7 +53,8 @@ export const ALL_COMPONENTS: ComponentCategory[] = [
   { category: 'Armor', items: ARMOR_COMPONENTS },
   { category: 'Stargates', items: STARGATE_COMPONENTS },
   { category: 'Mass Drivers', items: MASS_DRIVER_COMPONENTS },
-  { category: 'Orbital', items: ORBITAL_COMPONENTS }
+  { category: 'Orbital', items: ORBITAL_COMPONENTS },
+  { category: 'Mines', items: MINE_COMPONENTS },
 ];
 
 // ==========================================

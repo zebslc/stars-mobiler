@@ -8,27 +8,19 @@ import {
   computed,
   OnChanges,
   SimpleChanges,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Hull, HullSlot } from '../../../data/hulls.data';
 import { ShipDesign } from '../../../models/game.model';
 import { getComponent } from '../../../data/components.data';
-
-interface GridSlot {
-  id: string;
-  row: number;
-  col: number;
-  width: number;
-  height: number;
-  slotDef: HullSlot;
-  editable: boolean;
-  capacity?: number | 'Unlimited';
-}
+import { GridSlot } from './hull-layout.types';
+import { HullSlotComponent } from './hull-slot/hull-slot.component';
 
 @Component({
   selector: 'app-hull-layout',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HullSlotComponent],
   template: `
     @if (hull) {
       <div
@@ -49,93 +41,26 @@ interface GridSlot {
             [style.transformOrigin]="'center center'"
           >
             @for (slot of positionedSlots(); track slot.id) {
-              <div
-                class="slot"
-                [class.empty]="!getComponentInSlot(slot.id)"
-                [class.selected]="selectedSlotId === slot.id"
-                [class.show-clear]="showClearButton() === slot.id"
-                [class.non-editable]="!editable || !slot.editable"
+              <app-hull-slot
+                [slot]="slot"
                 [style.grid-area]="
                   slot.row + ' / ' + slot.col + ' / span ' + slot.height + ' / span ' + slot.width
                 "
-                (click)="editable && slot.editable && onSlotClick(slot.id)"
-                (mouseenter)="editable && slot.editable && onSlotHover(slot.id)"
-                (mouseleave)="editable && slot.editable && onSlotLeave()"
-                (touchstart)="editable && slot.editable && onTouchStart($event, slot.id)"
-                (touchend)="editable && slot.editable && onTouchEnd($event)"
-              >
-                @if (!slot.editable || !editable) {
-                  <div class="non-editable-content">
-                    <div class="slot-type-icon">
-                      {{ getSlotTypeDisplay(slot.slotDef.allowedTypes) }}
-                    </div>
-                    @if (slot.capacity) {
-                      @if (slot.capacity === 'Unlimited') {
-                        <div class="capacity-display">Unlimited</div>
-                      } @else {
-                        <div class="capacity-display">{{ slot.capacity }}kt</div>
-                      }
-                    }
-                  </div>
-                } @else if (getComponentData(slot.id); as compData) {
-                  <div class="installed-component">
-                    <div
-                      class="tech-icon-bg tech-icon"
-                      [style.background-image]="
-                        'url(/assets/tech-icons/' +
-                        (compData.component.img || 'placeholder') +
-                        '.png)'
-                      "
-                      [title]="compData.component.name"
-                    ></div>
-                    @if (getSlotMaxCount(slot.id) > 1) {
-                      <div class="slot-controls-overlay">
-                        @if (zoom() >= 1) {
-                          <div class="qty-controls">
-                            <button
-                              class="qty-button remove"
-                              (click)="removeComponent($event, slot.id)"
-                              [disabled]="compData.count <= 1"
-                              title="Decrease quantity"
-                            >
-                              −
-                            </button>
-                            <button
-                              class="qty-button add"
-                              (click)="incrementComponent($event, slot.id)"
-                              [disabled]="!canIncrement(slot.id)"
-                              title="Increase quantity"
-                            >
-                              +
-                            </button>
-                          </div>
-                        }
-                        <div class="component-count">
-                          {{ compData.count }}/{{ getSlotMaxCount(slot.id) }}
-                        </div>
-                      </div>
-                    }
-                    @if (editable) {
-                      <button
-                        class="clear-button"
-                        (click)="clearSlot($event, slot.id)"
-                        [title]="'Clear ' + compData.component.name"
-                      >
-                        ×
-                      </button>
-                    }
-                  </div>
-                } @else {
-                  <div class="empty-slot-content">
-                    <div class="slot-type-icon">
-                      {{ getSlotTypeDisplay(slot.slotDef.allowedTypes) }}
-                    </div>
-                  </div>
-                  @if (getSlotMaxCount(slot.id) > 1) {
-                    <div class="component-count">0/{{ getSlotMaxCount(slot.id) }}</div>
-                  }
-                }
-              </div>
+                [componentData]="slotComponents().get(slot.id)"
+                [maxCount]="getSlotMaxCount(slot.id)"
+                [editable]="editable"
+                [selected]="selectedSlotId === slot.id"
+                [showClear]="showClearButton() === slot.id"
+                [zoom]="zoom()"
+                (slotClick)="onSlotClick(slot.id)"
+                (slotHover)="onSlotHover(slot.id)"
+                (slotLeave)="onSlotLeave()"
+                (componentRemove)="removeComponent($event, slot.id)"
+                (componentIncrement)="incrementComponent($event, slot.id)"
+                (slotClear)="clearSlot($event, slot.id)"
+                (slotTouchStart)="onTouchStart($event, slot.id)"
+                (slotTouchEnd)="onTouchEnd($event)"
+              ></app-hull-slot>
             }
           </div>
         } @else {
@@ -167,238 +92,33 @@ interface GridSlot {
         aspect-ratio: var(--cols) / var(--rows);
         max-width: 100%;
         margin: 0 auto;
-      }
-
-      .slot {
-        background: rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(0, 0, 0, 0.6);
+        background-color: #f5f5f5;
+        background-image:
+          linear-gradient(
+            45deg,
+            #e0e0e0 25%,
+            transparent 25%,
+            transparent 75%,
+            #e0e0e0 75%,
+            #e0e0e0
+          ),
+          linear-gradient(
+            45deg,
+            #e0e0e0 25%,
+            transparent 25%,
+            transparent 75%,
+            #e0e0e0 75%,
+            #e0e0e0
+          );
+        background-size: 20px 20px;
+        background-position:
+          0 0,
+          10px 10px;
         border-radius: 4px;
-        position: relative;
-        cursor: pointer;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        min-height: clamp(40px, 8vw, 72px);
-        min-width: clamp(40px, 8vw, 72px);
-        container-type: size;
-      }
-
-      .slot:hover {
-        background: rgba(0, 0, 0, 0.1);
-        border-color: rgba(0, 0, 0, 0.8);
-      }
-
-      .slot.selected {
-        background: rgba(79, 195, 247, 0.1);
-        border-color: #4fc3f7;
-        box-shadow: 0 0 10px rgba(79, 195, 247, 0.2);
-      }
-
-      .slot.empty {
-        opacity: 0.7;
-      }
-
-      .slot.non-editable {
-        background: repeating-linear-gradient(45deg, #333, #333 10px, #444 10px, #444 20px);
-        cursor: default;
-        border-color: #555;
-      }
-
-      .slot.non-editable:hover {
-        background: repeating-linear-gradient(45deg, #333, #333 10px, #444 10px, #444 20px);
-        border-color: #555;
-      }
-
-      .non-editable-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        gap: 2cqmin;
-      }
-
-      .slot.non-editable .slot-type-icon {
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .capacity-display {
-        font-weight: bold;
-        color: #333;
-        font-size: 15cqmin;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 2cqmin 4cqmin;
-        border-radius: 4px;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        white-space: nowrap;
-        max-width: 95%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .empty-slot-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        opacity: 1;
-        width: 100%;
-        height: 100%;
-      }
-
-      .slot-type-icon {
-        font-size: 40cqmin;
-        color: rgba(0, 0, 0, 0.9);
-        line-height: 1;
-      }
-
-      .slot.empty .component-count {
-        position: absolute;
-        bottom: 2cqmin;
-        right: 2cqmin;
-        font-size: 12cqmin;
-        padding: 1cqmin 3cqmin;
-        background: rgba(0, 0, 0, 0.6);
-        border: none;
-        color: rgba(255, 255, 255, 0.9);
-      }
-
-      .installed-component {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
-
-      .tech-icon-bg {
-        width: 100%;
-        height: 100%;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        opacity: 1;
-      }
-
-      .tech-icon-bg.tech-icon {
-        width: 100% !important;
-        height: 100% !important;
-        display: block !important;
-        background-size: contain !important;
-      }
-
-      .slot-controls-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        padding: 1cqmin;
-        pointer-events: none;
-        z-index: 2;
-        height: auto;
-      }
-      .component-count {
-        pointer-events: auto;
-        background: rgba(0, 0, 0, 0.8);
-        color: #4fc3f7;
-        font-size: 12cqmin;
-        font-weight: bold;
-        padding: 1cqmin 3cqmin;
-        border-radius: 4px;
-        border: 1px solid rgba(79, 195, 247, 0.3);
-        text-align: right;
-        flex-shrink: 0;
-        line-height: normal;
-      }
-      .qty-controls {
-        pointer-events: auto;
-        display: flex;
-        gap: 1cqmin;
-        align-items: flex-end;
-        height: auto;
-      }
-      .qty-button {
-        width: 22cqmin !important;
-        height: 22cqmin !important;
-        min-width: 22cqmin !important;
-        min-height: 22cqmin !important;
-        max-width: 22cqmin !important;
-        max-height: 22cqmin !important;
-        flex: 0 0 22cqmin !important;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 4px;
-        background: rgba(0, 0, 0, 0.6);
-        color: #fff;
-        font-size: 14cqmin;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-        appearance: none;
-      }
-      .qty-button.add {
-        border-color: #4caf50;
-      }
-      .qty-button.remove {
-        border-color: #f44336;
-      }
-      .qty-button:disabled {
-        opacity: 0.5;
-        cursor: default;
-      }
-
-      .clear-button {
-        position: absolute;
-        top: 2cqmin;
-        right: 2cqmin;
-        width: 22cqmin !important;
-        height: 22cqmin !important;
-        min-width: 22cqmin !important;
-        min-height: 22cqmin !important;
-        max-width: 22cqmin !important;
-        max-height: 22cqmin !important;
-        border: none;
-        border-radius: 50%;
-        background: rgba(244, 67, 54, 0.9);
-        color: white;
-        font-size: 14cqmin;
-        font-weight: 600;
-        line-height: 1;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.2s;
-        z-index: 3;
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-        appearance: none;
-      }
-      .clear-button:hover {
-        background: #f44336;
-      }
-      .slot:hover .clear-button {
-        opacity: 1;
-      }
-      .slot.show-clear .clear-button {
-        opacity: 1;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
       }
     `,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HullLayoutComponent implements OnChanges {
   @Input({ required: true }) hull: Hull | null = null;
@@ -429,10 +149,40 @@ export class HullLayoutComponent implements OnChanges {
   offsetX = signal(0);
   offsetY = signal(0);
 
+  constructor(private cdr: ChangeDetectorRef) {}
+
+  readonly slotComponents = computed(() => {
+    const design = this._design();
+    if (!design) return new Map<string, { component: any; count: number }>();
+
+    const map = new Map<string, { component: any; count: number }>();
+
+    console.log(`HullLayout: design has ${design.slots.length} slots`);
+
+    for (const slot of design.slots) {
+      if (slot.components && slot.components.length > 0) {
+        const c = slot.components[0];
+        const comp = getComponent(c.componentId);
+        if (comp) {
+          map.set(slot.slotId, { component: comp, count: c.count });
+        } else {
+          console.error(`HullLayout: Component ${c.componentId} not found!`);
+        }
+      }
+    }
+    console.log('Computed slotComponents keys:', Array.from(map.keys()));
+    return map;
+  });
+
   readonly positionedSlots = computed(() => {
     const hull = this._hull();
     if (!hull || !hull.Structure) return [];
-    return this.parseStructure(hull.Structure, hull.slots, hull);
+    const slots = this.parseStructure(hull.Structure, hull.slots, hull);
+    console.log(
+      'Positioned slots IDs:',
+      slots.map((s) => s.id),
+    );
+    return slots;
   });
 
   readonly gridDimensions = computed(() => {
@@ -452,7 +202,9 @@ export class HullLayoutComponent implements OnChanges {
       this.offsetY.set(0);
     }
     if (changes['design']) {
+      // console.log('HullLayout: design input changed', this.design?.id);
       this._design.set(this.design);
+      this.cdr.markForCheck();
     }
   }
 
@@ -616,54 +368,20 @@ export class HullLayoutComponent implements OnChanges {
   }
 
   getComponentInSlot(slotId: string): string | null {
-    const design = this._design();
-    if (!design) return null;
-    const assignment = design.slots.find((s) => s.slotId === slotId);
-    return assignment?.components?.[0]?.componentId || null;
+    const data = this.slotComponents().get(slotId);
+    return data ? data.component.id : null;
   }
 
   getComponentData(slotId: string) {
-    const design = this._design();
-    if (!design) return null;
-    const assignment = design.slots.find((s) => s.slotId === slotId);
-    if (!assignment || !assignment.components || assignment.components.length === 0) return null;
-
-    const compId = assignment.components[0].componentId;
-    const component = getComponent(compId);
-    return component ? { component, count: assignment.components[0].count } : null;
+    return this.slotComponents().get(slotId) || null;
   }
 
   canIncrement(slotId: string): boolean {
     const hull = this._hull();
     const slot = hull?.slots.find((s) => s.id === slotId);
     if (!slot || !slot.max) return false;
-    const currentCount = this.getComponentData(slotId)?.count || 0;
+    const currentCount = this.slotComponents().get(slotId)?.count || 0;
     return currentCount < slot.max;
-  }
-
-  getSlotTypeDisplay(allowedTypes: string[]): string {
-    const typeMap: Record<string, string> = {
-      engine: '⚙️',
-      weapon: '🗡️',
-      shield: '🛡️',
-      armor: '🛡️',
-      electronics: '📡',
-      general: '🛠️',
-      bomb: '💣',
-      cargo: '📦',
-      dock: '⚓',
-      orb: '🛰️',
-    };
-    for (const t of allowedTypes) {
-      const key = t.toLowerCase();
-      if (key.includes('orbital')) return typeMap['orb'];
-      if (typeMap[key]) return typeMap[key];
-    }
-    return '⚡';
-  }
-
-  getTechIconClass(componentId: string): string {
-    return componentId.replace(/_/g, '-');
   }
 
   getSlotMaxCount(slotId: string): number {

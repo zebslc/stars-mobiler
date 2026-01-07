@@ -231,12 +231,13 @@ export function compileShipStats(
 /**
  * Check if a component can be installed in a specific slot
  */
-export function canInstallComponent(
-  component: Component,
-  slot: HullSlot
-): boolean {
+export function canInstallComponent(component: Component, slot: HullSlot): boolean {
   // Map component types to slot types
   const componentSlotType = getSlotTypeForComponent(component);
+
+  console.log(
+    `Checking install: ${component.name} (${componentSlotType}) into ${slot.id} (Allowed: ${slot.allowedTypes})`,
+  );
 
   // Check if slot allows this component type
   return slot.allowedTypes.includes(componentSlotType);
@@ -272,6 +273,10 @@ function getSlotTypeForComponent(component: Component): SlotType {
       return SlotType.Bomb;
     case 'orbital':
       return SlotType.Orbital;
+    case 'mine':
+      return SlotType.Mine;
+    case 'dock':
+      return SlotType.Dock;
     default:
       return SlotType.General;
   }

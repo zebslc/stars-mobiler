@@ -16,7 +16,9 @@ export enum SlotType {
   Bomb = 'Bomb',
   General = 'General',
   Orbital = 'Orbital',
-  Mining = "Mining",
+  Mining = 'Mining',
+  Mine = 'Mine',
+  Dock = 'Dock',
 }
 
 export interface HullSlot {
@@ -94,6 +96,10 @@ const convertHullTemplate = (template: HullTemplate): Hull => {
               return SlotType.Orbital;
             case 'mining':
               return SlotType.Mining;
+            case 'mine':
+              return SlotType.Mine;
+            case 'dock':
+              return SlotType.Dock;
             default:
               return SlotType.General;
           }

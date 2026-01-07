@@ -178,7 +178,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 3rem;
   flex: 1;
     overflow-y: auto;
     /* Independent scroll region */
