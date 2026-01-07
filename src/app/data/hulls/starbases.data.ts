@@ -9,20 +9,21 @@ export const STARBASE_HULLS: HullTemplate[] = [
       'SA1,SA1,OE1,OE1,SA2,SA2',
       'SA1,SA1,OE1,OE1,SA2,SA2',
       '.,.,W2,W2,.,.',
-      '.,.,W2,W2,.,.'
+      '.,.,W2,W2,.,.',
     ],
     Slots: [
       { Code: 'OE1', Allowed: ['Orbital', 'Elect'], Max: 1, Required: true },
       { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 12 },
       { Code: 'SA2', Allowed: ['Shield', 'Armor'], Max: 12 },
       { Code: 'W1', Allowed: ['Weapon'], Max: 12 },
-      { Code: 'W2', Allowed: ['Weapon'], Max: 12 }
+      { Code: 'W2', Allowed: ['Weapon'], Max: 12 },
     ],
     Cost: { Ironium: 24, Boranium: 0, Germanium: 34, Resources: 80 },
     Stats: { Mass: 0, 'Max Fuel': 0, Armor: 100, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     img: 'hull-orbital-fort',
-    description: 'Basic orbital defense platform.'
+    description: 'Basic orbital defense platform.',
+    isStarbase: true,
   },
   {
     Name: 'Space Dock',
@@ -34,7 +35,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       'SA1,SA1,.,SD1,SD1,.,W2,W2',
       '.,W3,W3,.,.,EL2,EL2,.',
       '.,W3,W3,S1,S1,EL2,EL2,.',
-      '.,.,.,S1,S1,.,.,.'
+      '.,.,.,S1,S1,.,.,.',
     ],
     Slots: [
       { Code: 'OE1', Allowed: ['Orbital', 'Elect'], Max: 1 },
@@ -45,7 +46,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       { Code: 'W1', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W2', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
-      { Code: 'SD1', Allowed: ['Dock'], Size: 200, Editable: false }
+      { Code: 'SD1', Allowed: ['Dock'], Size: 200, Editable: false },
     ],
     Cost: { Ironium: 40, Boranium: 10, Germanium: 50, Resources: 200 },
     Stats: {
@@ -55,11 +56,12 @@ export const STARBASE_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 12,
       DockCapacity: 200,
-      CanBuildShips: true
+      CanBuildShips: true,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
     img: 'hull-space-dock',
-    description: 'Repair and construction facility.'
+    description: 'Repair and construction facility.',
+    isStarbase: true,
   },
   {
     Name: 'Space Station',
@@ -73,7 +75,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       'SA2,SA2,.,.,EL2,EL2,.,.,W3,W3',
       '.,.,.,.,EL2,EL2,.,.,.,.',
       '.,.,.,W4,W4,S2,S2,.,.,.',
-      '.,.,.,W4,W4,S2,S2,.,.,.'
+      '.,.,.,W4,W4,S2,S2,.,.,.',
     ],
     Slots: [
       { Code: 'SD1', Allowed: ['Dock'], Size: 'Unlimited', Editable: false },
@@ -88,7 +90,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       { Code: 'W1', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W2', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
-      { Code: 'W4', Allowed: ['Weapon'], Max: 16 }
+      { Code: 'W4', Allowed: ['Weapon'], Max: 16 },
     ],
     Cost: { Ironium: 240, Boranium: 160, Germanium: 500, Resources: 1200 },
     Stats: {
@@ -98,11 +100,12 @@ export const STARBASE_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 14,
       DockCapacity: 'Unlimited',
-      CanBuildShips: true
+      CanBuildShips: true,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     img: 'hull-space-station',
-    description: 'Massive orbital complex with unlimited docking.'
+    description: 'Massive orbital complex with unlimited docking.',
+    isStarbase: true,
   },
   {
     Name: 'Ultra Station',
@@ -116,7 +119,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       'W4,W4,S2,S2,OE2,OE2,SA2,SA2,W5,W5',
       '.,.,S2,S2,OE2,OE2,SA2,SA2,.,.',
       '.,.,.,EL4,EL4,W6,W6,.,.,.',
-      '.,.,.,EL4,EL4,W6,W6,.,.,.'
+      '.,.,.,EL4,EL4,W6,W6,.,.,.',
     ],
     Slots: [
       { Code: 'SD1', Allowed: ['Dock'], Size: 'Unlimited', Editable: false },
@@ -135,7 +138,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W4', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W5', Allowed: ['Weapon'], Max: 16 },
-      { Code: 'W6', Allowed: ['Weapon'], Max: 16 }
+      { Code: 'W6', Allowed: ['Weapon'], Max: 16 },
     ],
     Cost: { Ironium: 240, Boranium: 160, Germanium: 600, Resources: 1200 },
     Stats: {
@@ -145,11 +148,11 @@ export const STARBASE_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 16,
       DockCapacity: 'Unlimited',
-      CanBuildShips: true
+      CanBuildShips: true,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 12 },
     img: 'hull-ultra-station',
-    description: 'Advanced orbital fortress.'
+    description: 'Advanced orbital fortress.',
   },
   {
     Name: 'Death Star',
@@ -163,7 +166,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       'W3,W3,S2,S2,.,.,SA2,SA2,EL5,EL5',
       'W3,W3,S2,S2,OE2,OE2,SA2,SA2,EL5,EL5',
       '.,.,EL6,EL6,OE2,OE2,W4,W4,.,.',
-      '.,.,EL6,EL6,.,.,W4,W4,.,.'
+      '.,.,EL6,EL6,.,.,W4,W4,.,.',
     ],
     Slots: [
       { Code: 'SD1', Allowed: ['Dock'], Size: 'Unlimited', Editable: false },
@@ -182,7 +185,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
       { Code: 'W1', Allowed: ['Weapon'], Max: 32 },
       { Code: 'W2', Allowed: ['Weapon'], Max: 32 },
       { Code: 'W3', Allowed: ['Weapon'], Max: 32 },
-      { Code: 'W4', Allowed: ['Weapon'], Max: 32 }
+      { Code: 'W4', Allowed: ['Weapon'], Max: 32 },
     ],
     Cost: { Ironium: 240, Boranium: 160, Germanium: 700, Resources: 1500 },
     Stats: {
@@ -192,10 +195,10 @@ export const STARBASE_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 18,
       DockCapacity: 'Unlimited',
-      CanBuildShips: true
+      CanBuildShips: true,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 17 },
     img: 'hull-death-star',
-    description: 'Ultimate battle station.'
-  }
+    description: 'Ultimate battle station.',
+  },
 ];

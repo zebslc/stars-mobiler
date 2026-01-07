@@ -199,6 +199,7 @@ export class GalaxyStarComponent {
   @Input({ required: true }) scale!: number;
   @Input() viewMode: 'normal' | 'minerals' | 'value' | 'habitability' = 'normal';
   @Input() showLabels = false;
+  @Input() stationName?: string;
 
   private _isVisible = signal(true);
   @Input() set isVisible(val: boolean) {

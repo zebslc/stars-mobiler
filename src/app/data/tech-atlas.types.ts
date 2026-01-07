@@ -47,6 +47,7 @@ export interface HullTemplate {
   img?: string;
   description?: string;
   note?: string;
+  isStarbase?: boolean;
 }
 
 // Compatibility alias for legacy code

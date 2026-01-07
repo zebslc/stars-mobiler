@@ -3,12 +3,21 @@ import { HullTemplate, ComponentStats } from './tech-atlas.types';
 import { ALL_HULLS } from './tech-atlas.data';
 import { COMPONENTS } from './components.data';
 
+export const STATION_HULLS = [
+  'Orbital Fort',
+  'Space Dock',
+  'Space Station',
+  'Ultra Station',
+  'Death Star',
+];
+
 // CompiledDesign interface - represents a fully compiled ship design with calculated stats
 export interface CompiledDesign {
   id: string;
   name: string;
   hullId: string;
   hullName: string;
+  isStarbase?: boolean;
   mass: number;
   cargoCapacity: number;
   fuelCapacity: number;
