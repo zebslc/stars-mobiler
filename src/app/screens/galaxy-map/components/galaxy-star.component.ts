@@ -38,17 +38,71 @@ import { GameStateService } from '../../../services/game-state.service';
       <svg:circle
         [attr.cx]="star.position.x"
         [attr.cy]="star.position.y"
-        [attr.r]="10"
+        [attr.r]="habRadius(d.hab)"
         fill="none"
-        [attr.stroke]="getHabColor(d.hab)"
-        stroke-width="3"
-        opacity="0.6"
+        [attr.stroke]="habColor(d.hab)"
+        stroke-width="2"
+        opacity="0.8"
         style="pointer-events: none"
       />
     }
 
+    <!-- Minerals Bar Chart Overlay -->
+    @if (isVisible && viewMode === 'minerals' && planetDetails(); as d) {
+      <svg:g
+        [attr.transform]="'translate(' + (star.position.x - 7) + ' ' + (star.position.y - 30) + ')'"
+        style="pointer-events: none"
+      >
+        <!-- Background -->
+        <svg:rect x="-1" y="-1" width="17" height="22" fill="rgba(0, 0, 0, 0.6)" rx="2" />
+
+        <!-- Ironium (Red) -->
+        <svg:rect
+          x="1"
+          [attr.y]="20 - d.ironium * 0.2"
+          width="4"
+          [attr.height]="d.ironium * 0.2"
+          fill="#e74c3c"
+        />
+
+        <!-- Boranium (Yellow) -->
+        <svg:rect
+          x="6"
+          [attr.y]="20 - d.boranium * 0.2"
+          width="4"
+          [attr.height]="d.boranium * 0.2"
+          fill="#f1c40f"
+        />
+
+        <!-- Germanium (Green) -->
+        <svg:rect
+          x="11"
+          [attr.y]="20 - d.germanium * 0.2"
+          width="4"
+          [attr.height]="d.germanium * 0.2"
+          fill="#2ecc71"
+        />
+      </svg:g>
+    }
+
+    <!-- Value Overlay -->
+    @if (isVisible && viewMode === 'value' && planetDetails(); as d) {
+      <svg:text
+        [attr.x]="star.position.x"
+        [attr.y]="star.position.y - 12"
+        text-anchor="middle"
+        font-size="10"
+        fill="#f1c40f"
+        stroke="#000"
+        stroke-width="0.5"
+        style="pointer-events: none; font-weight: bold;"
+      >
+        {{ d.resources }}R
+      </svg:text>
+    }
+
     <!-- Info Labels & Details -->
-    @if (showLabels || scale > 1.5) {
+    @if (showLabels) {
       <svg:g [attr.transform]="'translate(' + star.position.x + ' ' + star.position.y + ')'">
         @if (planetDetails(); as d) {
           <!-- Detailed View Box -->
@@ -220,6 +274,32 @@ export class GalaxyStarComponent {
     if (hab >= 50) return '#f1c40f';
     if (hab > 0) return '#e67e22';
     return '#c0392b';
+  }
+
+  habColor(hab: number): string {
+    if (hab > 0) return '#2ecc71'; // Green
+    if (hab >= -50) return '#f1c40f'; // Yellow
+    return '#e74c3c'; // Red
+  }
+
+  habRadius(hab: number): number {
+    const minR = 8;
+    const maxAdd = 8;
+
+    if (hab > 0) {
+      // 0 to 100 -> minR to minR + maxAdd
+      return minR + (Math.min(hab, 100) / 100) * maxAdd;
+    }
+
+    if (hab >= -50) {
+      // -50 to 0 -> minR to minR + maxAdd (closer to 0 is bigger)
+      return minR + ((50 + hab) / 50) * maxAdd;
+    }
+
+    // < -50
+    // -50 to -100 (or less) -> minR to minR + maxAdd (more negative is bigger)
+    const harshness = Math.abs(hab) - 50;
+    return minR + (Math.min(harshness, 50) / 50) * maxAdd;
   }
 
   planetDetails = computed(() => {

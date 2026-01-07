@@ -165,6 +165,7 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
                   [star]="star"
                   [scale]="state.scale()"
                   [isVisible]="visibility.visibleStars().has(star.id)"
+                  [viewMode]="settings.viewMode()"
                   [showLabels]="settings.showLabels()"
                   [stationName]="fleetService.stationByStarId().get(star.id)"
                   (starClick)="onStarClick(star, $event)"
