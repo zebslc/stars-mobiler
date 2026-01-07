@@ -12,8 +12,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Planet } from '../../../models/game.model';
 import { ShipSelectorComponent, ShipOption } from '../../../components/ship-selector.component';
-import { COMPILED_DESIGNS, getDesign } from '../../../data/ships.data';
+import { getDesign } from '../../../data/ships.data';
 import { GameStateService } from '../../../services/game-state.service';
+import { BUILD_COSTS, Cost } from '../../../data/costs.data';
 
 export type BuildProject =
   | 'mine'
@@ -37,15 +38,15 @@ export type BuildProject =
           (change)="onProjectChange($event)"
           class="project-select"
         >
-          <option value="mine">Mine</option>
-          <option value="factory">Factory</option>
-          <option value="defense">Defense</option>
-          <option value="research">Labs</option>
+          <option value="mine">Mine{{ getProjectCostLabel('mine') }}</option>
+          <option value="factory">Factory{{ getProjectCostLabel('factory') }}</option>
+          <option value="defense">Defense{{ getProjectCostLabel('defense') }}</option>
+          <option value="research">Labs{{ getProjectCostLabel('research') }}</option>
           @if (shouldShowTerraform()) {
-            <option value="terraform">Terraform</option>
+            <option value="terraform">Terraform{{ getProjectCostLabel('terraform') }}</option>
           }
           @if (shouldShowScanner()) {
-            <option value="scanner">Scanner</option>
+            <option value="scanner">Scanner{{ getProjectCostLabel('scanner') }}</option>
           }
         </select>
 
@@ -99,29 +100,33 @@ export type BuildProject =
         @for (it of planet().buildQueue ?? []; track i; let i = $index) {
           <div class="queue-item" [class.active]="i === 0" [class.pending]="i !== 0">
             <div class="item-info">
-              <span class="text-small text-muted index">{{ i + 1 }}</span>
-              <span class="project-name">
-                {{ it.project | titlecase }}
-                @if ((it.count ?? 1) > 1) {
-                  <span class="text-medium font-bold count"> x {{ it.count }} </span>
+              <div class="info-top">
+                <span class="text-small text-muted index">{{ i + 1 }}</span>
+                <span class="project-name">
+                  {{ it.project | titlecase }}
+                  @if ((it.count ?? 1) > 1) {
+                    <span class="text-medium font-bold count"> x {{ it.count }} </span>
+                  }
+                </span>
+                @if (it.project === 'ship' && it.shipDesignId) {
+                  <span class="text-small text-muted detail">
+                    ({{ getDesignName(it.shipDesignId) }})
+                  </span>
                 }
-              </span>
-              @if (it.project === 'ship' && it.shipDesignId) {
-                <span class="text-small text-muted detail">
-                  ({{ getDesignName(it.shipDesignId) }})
-                </span>
-              }
-              @if (it.isAuto) {
-                <span class="text-small text-muted detail" style="font-style: italic;">
-                  (Auto)
-                </span>
-              }
-              @if (queueColor(it, i) === 'var(--color-danger)') {
-                <span class="text-xs warning">⚠ Cannot afford</span>
-              }
+                @if (it.isAuto) {
+                  <span class="text-small text-muted detail" style="font-style: italic;">
+                    (Auto)
+                  </span>
+                }
+                @if (queueColor(it, i) === 'var(--color-danger)') {
+                  <span class="text-xs warning">⚠ Cannot afford</span>
+                }
+              </div>
+              <div class="info-bottom">
+                <span class="text-small font-medium cost">{{ formatCost(it.cost) }}</span>
+              </div>
             </div>
             <div class="item-actions">
-              <span class="text-small font-medium cost">{{ it.cost.resources }}R</span>
               <button (click)="remove.emit(i)" class="btn-icon btn-small remove-btn">×</button>
             </div>
           </div>
@@ -195,6 +200,21 @@ export class PlanetBuildQueueComponent {
     // Fallback to compiled designs (built-in)
     const design = getDesign(id);
     return design?.name || id;
+  }
+
+  formatCost(cost: Cost): string {
+    const parts = [];
+    if (cost.resources) parts.push(`${cost.resources}R`);
+    if (cost.ironium) parts.push(`${cost.ironium}Fe`);
+    if (cost.boranium) parts.push(`${cost.boranium}Bo`);
+    if (cost.germanium) parts.push(`${cost.germanium}Ge`);
+    return parts.join(' ');
+  }
+
+  getProjectCostLabel(project: string): string {
+    const cost = BUILD_COSTS[project];
+    if (!cost) return '';
+    return ` (${this.formatCost(cost)})`;
   }
 
   queueColor(item: any, index: number): string {

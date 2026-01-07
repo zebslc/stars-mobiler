@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { SettingsService } from '../../services/settings.service';
 import { Star, Planet, Fleet } from '../../models/game.model';
@@ -229,9 +229,10 @@ import { GalaxyMapControlsComponent } from './components/galaxy-map-controls.com
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GalaxyMapComponent {
+export class GalaxyMapComponent implements OnInit {
   readonly gs = inject(GameStateService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   settings = inject(SettingsService);
 
   readonly stars = this.gs.stars;
@@ -285,17 +286,35 @@ export class GalaxyMapComponent {
   touchHoldStartPos: { x: number; y: number } | null = null;
 
   ngOnInit() {
-    const stars = this.stars();
-    const homeStar = stars.find((s) => s.planets.some((p) => p.ownerId === this.gs.player()?.id));
-    if (homeStar) {
-      this.scale.set(2);
-      // Center on home star. ViewBox is 1000x1000. Center is 500,500.
-      // ScreenX = TranslateX + WorldX * Scale
-      // 500 = TranslateX + homeStar.position.x * 2.8
-      // TranslateX = 500 - homeStar.position.x * 2.8
-      this.translateX.set(500 - homeStar.position.x * 2.8);
-      this.translateY.set(500 - homeStar.position.y * 2.8);
-    }
+    // Check for query params to center on a specific planet
+    this.route.queryParams.subscribe((params) => {
+      const planetId = params['planetId'];
+      if (planetId) {
+        const star = this.stars().find((s) => s.planets.some((p) => p.id === planetId));
+        if (star) {
+          this.centerOnStar(star);
+          this.selectedStar = star;
+          return;
+        }
+      }
+
+      // Default behavior: center on home star if no specific planet requested
+      const stars = this.stars();
+      const homeStar = stars.find((s) => s.planets.some((p) => p.ownerId === this.gs.player()?.id));
+      if (homeStar) {
+        this.centerOnStar(homeStar);
+      }
+    });
+  }
+
+  private centerOnStar(star: Star) {
+    this.scale.set(2);
+    // Center on star. ViewBox is 1000x1000. Center is 500,500.
+    // ScreenX = TranslateX + WorldX * Scale
+    // 500 = TranslateX + star.position.x * Scale
+    // TranslateX = 500 - star.position.x * Scale
+    this.translateX.set(500 - star.position.x * 2); // Scale is 2
+    this.translateY.set(500 - star.position.y * 2);
   }
 
   getPlanetDetails(star: Star): {

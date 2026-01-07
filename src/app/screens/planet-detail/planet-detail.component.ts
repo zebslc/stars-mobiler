@@ -23,6 +23,7 @@ import { PlanetSummaryComponent } from './components/planet-summary.component';
 import { PlanetBuildQueueComponent } from './components/planet-build-queue.component';
 import { PlanetFleetListComponent } from './components/planet-fleet-list.component';
 import { Fleet } from '../../models/game.model';
+import { BUILD_COSTS } from '../../data/costs.data';
 
 @Component({
   standalone: true,

@@ -23,9 +23,11 @@ import { PlanetCardComponent } from './components/planet-card.component';
 
       <div class="planets-grid">
         @for (planet of planets(); track planet.id) {
-          <app-planet-card 
-            [planet]="planet" 
-            (jumpToPlanet)="jumpToPlanet(planet)">
+          <app-planet-card
+            [planet]="planet"
+            (viewPlanet)="onViewPlanet(planet)"
+            (viewOnMap)="onViewOnMap(planet)"
+          >
           </app-planet-card>
         }
       </div>
@@ -74,8 +76,12 @@ export class PlanetsOverviewComponent {
     return stars.flatMap((s) => s.planets).filter((p) => p.ownerId === playerId);
   });
 
-  jumpToPlanet(planet: Planet) {
+  onViewPlanet(planet: Planet) {
     this.router.navigate(['/planet', planet.id]);
+  }
+
+  onViewOnMap(planet: Planet) {
+    this.router.navigate(['/map'], { queryParams: { planetId: planet.id } });
   }
 }
 
