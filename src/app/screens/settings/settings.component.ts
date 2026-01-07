@@ -11,9 +11,18 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-settings',
   template: `
     <main style="padding:var(--space-lg)">
-      <header class="card-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xl);gap:var(--space-lg);flex-wrap:wrap">
+      <header
+        class="card-header"
+        style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xl);gap:var(--space-lg);flex-wrap:wrap"
+      >
         <h2>Settings</h2>
-        <button (click)="back()" class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;border:none">← Back</button>
+        <button
+          (click)="back()"
+          class="btn-small"
+          style="background:rgba(255,255,255,0.2);color:#fff;border:none"
+        >
+          ← Back
+        </button>
       </header>
 
       <section style="display:flex;flex-direction:column;gap:var(--space-xl);max-width:600px">
@@ -25,10 +34,13 @@ import { FormsModule } from '@angular/forms';
               [ngModel]="settings.showMapControls()"
               (ngModelChange)="settings.toggleMapControls($event)"
             />
-            <span class="font-medium">Show Map Overlay Controls (Zoom/Pan)</span>
+            <span class="font-medium">Show Map Overlay Controls (Zoom/Pan/Scanners)</span>
           </label>
-          <p class="text-small text-muted" style="margin-top:var(--space-sm);margin-left:calc(var(--touch-target-min) + var(--space-md))">
-            Display zoom and pan controls on the galaxy map
+          <p
+            class="text-small text-muted"
+            style="margin-top:var(--space-sm);margin-left:calc(var(--touch-target-min) + var(--space-md))"
+          >
+            Display zoom, pan, and scanner controls on the galaxy map
           </p>
         </div>
 

@@ -5,11 +5,63 @@ import { GovernorType } from '../models/game.model';
   providedIn: 'root',
 })
 export class SettingsService {
-  readonly showMapControls = signal<boolean>(false);
+  readonly showMapControls = signal<boolean>(true);
+  readonly showScannerRanges = signal<boolean>(false);
+  readonly showCloakedRanges = signal<boolean>(false);
+  readonly scannerRangePct = signal<number>(100);
+  readonly viewMode = signal<'normal' | 'minerals' | 'value' | 'habitability'>('normal');
+  readonly showLabels = signal<boolean>(true);
+  readonly fleetFilter = signal<'all' | 'warship' | 'freighter' | 'scout' | 'colonizer' | 'miner'>(
+    'all',
+  );
+  readonly showEnemyFleets = signal<boolean>(false);
+  readonly showFleetCounts = signal<boolean>(false);
+  readonly showMinefields = signal<boolean>(false);
+  readonly showRemoteMining = signal<boolean>(false);
   readonly defaultGovernor = signal<GovernorType>('balanced');
 
   toggleMapControls(show: boolean) {
     this.showMapControls.set(show);
+  }
+
+  toggleScannerRanges(show: boolean) {
+    this.showScannerRanges.set(show);
+  }
+
+  toggleCloakedRanges(show: boolean) {
+    this.showCloakedRanges.set(show);
+  }
+
+  setScannerRangePct(pct: number) {
+    this.scannerRangePct.set(pct);
+  }
+
+  setViewMode(mode: 'normal' | 'minerals' | 'value' | 'habitability') {
+    this.viewMode.set(mode);
+  }
+
+  toggleLabels(show: boolean) {
+    this.showLabels.set(show);
+  }
+
+  setFleetFilter(filter: 'all' | 'warship' | 'freighter' | 'scout' | 'colonizer' | 'miner') {
+    this.fleetFilter.set(filter);
+  }
+
+  toggleEnemyFleets(show: boolean) {
+    this.showEnemyFleets.set(show);
+  }
+
+  toggleFleetCounts(show: boolean) {
+    this.showFleetCounts.set(show);
+  }
+
+  toggleMinefields(show: boolean) {
+    this.showMinefields.set(show);
+  }
+
+  toggleRemoteMining(show: boolean) {
+    this.showRemoteMining.set(show);
   }
 
   setDefaultGovernor(type: GovernorType) {
