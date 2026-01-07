@@ -78,7 +78,42 @@ export class ShipDesignerService {
    * Load an existing design for editing
    */
   loadDesign(design: ShipDesign): void {
-    this._currentDesign.set({ ...design });
+    const hull = getHull(design.hullId);
+    let slots: SlotAssignment[];
+
+    if (hull) {
+      // Create slots based on hull to ensure all are present and in sync with hull definition
+      slots = hull.slots.map((hullSlot) => {
+        const existingSlot = design.slots.find((s) => s.slotId === hullSlot.id);
+        if (existingSlot) {
+          // Deep copy existing slot components
+          return {
+            ...existingSlot,
+            components: existingSlot.components
+              ? existingSlot.components.map((c) => ({ ...c }))
+              : [],
+          };
+        } else {
+          // Create empty slot if missing in design
+          return {
+            slotId: hullSlot.id,
+            components: [],
+          };
+        }
+      });
+    } else {
+      // Fallback if hull not found (shouldn't happen)
+      console.warn(`Hull ${design.hullId} not found during loadDesign`);
+      slots = design.slots.map((slot) => ({
+        ...slot,
+        components: slot.components ? slot.components.map((c) => ({ ...c })) : [],
+      }));
+    }
+
+    this._currentDesign.set({
+      ...design,
+      slots,
+    });
   }
 
   /**

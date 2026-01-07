@@ -21,6 +21,8 @@ import { ResearchService } from './research.service';
 import { ColonyService } from './colony.service';
 import { FleetService } from './fleet.service';
 import { ShipyardService } from './shipyard.service';
+import { getHull } from '../data/hulls.data';
+import { createEmptyDesign } from '../models/ship-design.model';
 
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
@@ -121,14 +123,17 @@ export class GameStateService {
     // Initial Space Station
     const ssDesignId = `design-${settings.seed}-init`;
     const ssFleetId = `fleet-${settings.seed}-init`;
-    const ssDesign: ShipDesign = {
-      id: ssDesignId,
-      name: 'Space Station',
-      hullId: 'space_station',
-      playerId: human.id,
-      createdTurn: 1,
-      slots: [],
-      spec: {
+
+    // Use createEmptyDesign to ensure slots are properly initialized from the hull definition
+    const ssHull = getHull('Space Station');
+    let ssDesign: ShipDesign;
+
+    if (ssHull) {
+      ssDesign = createEmptyDesign(ssHull, human.id, 1);
+      ssDesign.id = ssDesignId;
+      ssDesign.name = 'Space Station';
+      // Manually set spec for initial station (it has no components but is valid)
+      ssDesign.spec = {
         warpSpeed: 0,
         fuelCapacity: 0,
         idealWarp: 0,
@@ -154,8 +159,45 @@ export class GameStateService {
         isValid: true,
         validationErrors: [],
         components: [],
-      },
-    };
+      };
+    } else {
+      console.warn('Space Station hull not found, creating legacy fallback design');
+      ssDesign = {
+        id: ssDesignId,
+        name: 'Space Station',
+        hullId: 'space_station',
+        playerId: human.id,
+        createdTurn: 1,
+        slots: [],
+        spec: {
+          warpSpeed: 0,
+          fuelCapacity: 0,
+          idealWarp: 0,
+          isRamscoop: false,
+          firepower: 0,
+          armor: 500,
+          shields: 0,
+          accuracy: 1,
+          initiative: 1,
+          cargoCapacity: 0,
+          colonistCapacity: 0,
+          scanRange: 0,
+          canDetectCloaked: false,
+          miningRate: 0,
+          terraformRate: 0,
+          bombing: { kill: 0, destroy: 0 },
+          massDriver: { speed: 0, catch: 0 },
+          mass: 0,
+          cost: { ironium: 0, boranium: 0, germanium: 0 },
+          hasEngine: false,
+          hasColonyModule: false,
+          isStarbase: true,
+          isValid: true,
+          validationErrors: [],
+          components: [],
+        },
+      };
+    }
 
     const ssFleet: Fleet = {
       id: ssFleetId,

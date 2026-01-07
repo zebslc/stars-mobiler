@@ -138,6 +138,10 @@ export class ShipDesignOverviewComponent {
         ...design,
         id: `design-${Date.now()}`,
         name: `${design.name} Copy`,
+        slots: design.slots.map((slot) => ({
+          ...slot,
+          components: slot.components ? slot.components.map((c) => ({ ...c })) : [],
+        })),
       };
       this.gameState.saveShipDesign(newDesign);
     }
