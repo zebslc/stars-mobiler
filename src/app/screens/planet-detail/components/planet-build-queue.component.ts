@@ -41,7 +41,7 @@ export type BuildProject =
           <option value="mine">Mine{{ getProjectCostLabel('mine') }}</option>
           <option value="factory">Factory{{ getProjectCostLabel('factory') }}</option>
           <option value="defense">Defense{{ getProjectCostLabel('defense') }}</option>
-          <option value="research">Labs{{ getProjectCostLabel('research') }}</option>
+          <option value="research">Labs / Research{{ getProjectCostLabel('research') }}</option>
           @if (shouldShowTerraform()) {
             <option value="terraform">Terraform{{ getProjectCostLabel('terraform') }}</option>
           }

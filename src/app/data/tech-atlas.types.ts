@@ -48,6 +48,7 @@ export interface HullTemplate {
   description?: string;
   note?: string;
   isStarbase?: boolean;
+  type?: 'warship' | 'freighter' | 'scout' | 'colonizer' | 'miner' | 'starbase' | 'utility' | 'bomber' | 'mine-layer';
 }
 
 // Compatibility alias for legacy code

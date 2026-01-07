@@ -97,6 +97,13 @@ import { GameStateService } from '../../../services/game-state.service';
         </div>
       </div>
 
+      @if (starbase) {
+        <div class="starbase-display">
+          <span class="ship-icon tech-icon" [ngClass]="starbase.imageClass"></span>
+          <span class="starbase-name">{{ starbase.name }}</span>
+        </div>
+      }
+
       @if (buildQueue().length > 0) {
         <div class="build-queue">
           <div class="queue-header">Build Queue:</div>
@@ -201,6 +208,30 @@ import { GameStateService } from '../../../services/game-state.service';
         color: var(--color-germanium);
       }
 
+      .starbase-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: var(--space-sm) var(--space-md);
+        background: var(--color-bg-tertiary);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border);
+        margin-top: var(--space-xs);
+      }
+
+      .starbase-name {
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+      }
+
+      .ship-icon {
+        width: 24px;
+        height: 24px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
       .planet-production {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -266,6 +297,7 @@ import { GameStateService } from '../../../services/game-state.service';
 })
 export class PlanetCardComponent {
   @Input({ required: true }) planet!: Planet;
+  @Input() starbase: { name: string; imageClass: string } | null = null;
   @Output() viewPlanet = new EventEmitter<void>();
   @Output() viewOnMap = new EventEmitter<void>();
 

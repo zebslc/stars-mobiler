@@ -12,6 +12,7 @@ import { GameStateService } from '../../services/game-state.service';
 import { HabitabilityService } from '../../services/habitability.service';
 import { ToastService } from '../../services/toast.service';
 import { ShipyardService } from '../../services/shipyard.service';
+import { TechService } from '../../services/tech.service';
 import { getDesign, COMPILED_DESIGNS, CompiledDesign } from '../../data/ships.data';
 import { TECH_ATLAS } from '../../data/tech-atlas.data';
 import { COMPONENTS } from '../../data/components.data';
@@ -23,7 +24,6 @@ import { PlanetSummaryComponent } from './components/planet-summary.component';
 import { PlanetBuildQueueComponent } from './components/planet-build-queue.component';
 import { PlanetFleetListComponent } from './components/planet-fleet-list.component';
 import { Fleet } from '../../models/game.model';
-import { BUILD_COSTS } from '../../data/costs.data';
 
 @Component({
   standalone: true,
@@ -100,7 +100,9 @@ import { BUILD_COSTS } from '../../data/costs.data';
                   [defenseCoverage]="defenseCoverage()"
                   [scannerRange]="scannerRange()"
                   [resourcesPerTurn]="resourcesPerTurn()"
+                  [starbase]="starbase()"
                   (onGovernorType)="onGovernorType($event)"
+                  (viewStarbase)="onViewStarbase($event)"
                 ></app-planet-summary>
               </section>
             }
@@ -152,6 +154,7 @@ export class PlanetDetailComponent implements OnInit {
   private hab = inject(HabitabilityService);
   private toast = inject(ToastService);
   private shipyardService = inject(ShipyardService);
+  private techService = inject(TechService);
 
   private planetIdSignal = signal<string | null>(null);
   activeTab = signal<'status' | 'queue' | 'fleet'>('status');
@@ -285,15 +288,80 @@ export class PlanetDetailComponent implements OnInit {
     return p.scanner;
   });
 
+  private getDesignDetails(designId: string) {
+    const playerDesigns = this.gs.game()?.shipDesigns || [];
+    const dynamicDesign = playerDesigns.find((d) => d.id === designId);
+
+    if (dynamicDesign) {
+      const hull = getHull(dynamicDesign.hullId);
+      return {
+        id: dynamicDesign.id,
+        name: dynamicDesign.name,
+        hullId: dynamicDesign.hullId,
+        hullName: hull?.Name || '',
+        isStarbase:
+          hull?.isStarbase ||
+          ['Orbital Fort', 'Space Dock', 'Space Station', 'Ultra Station', 'Death Star'].includes(
+            hull?.Name || '',
+          ),
+      };
+    }
+
+    return getDesign(designId);
+  }
+
+  starbaseFleet = computed(() => {
+    const game = this.gs.game();
+    const p = this.planet();
+    if (!game || !p) return null;
+
+    const orbitingFleets = game.fleets.filter(
+      (f) => f.location.type === 'orbit' && (f.location as any).planetId === p.id,
+    );
+
+    return orbitingFleets.find((f) => {
+      return f.ships.some((s) => {
+        const design = this.getDesignDetails(s.designId);
+        return design.isStarbase;
+      });
+    });
+  });
+
+  starbase = computed(() => {
+    const fleet = this.starbaseFleet();
+    if (!fleet) return null;
+
+    const ship = fleet.ships[0];
+    const design = this.getDesignDetails(ship.designId);
+    // Use hullName if available, otherwise try to map from name (legacy/fallback)
+    const hullName = design.hullName || design.name;
+    const imageClass = this.techService.getHullImageClass(hullName);
+
+    return {
+      name: design.name,
+      fleetId: fleet.id,
+      imageClass: imageClass,
+    };
+  });
+
   fleetsInOrbit = computed(() => {
     const game = this.gs.game();
     const p = this.planet();
     if (!game || !p) return [];
 
+    const sbFleet = this.starbaseFleet();
+
     return game.fleets.filter(
-      (f) => f.location.type === 'orbit' && (f.location as any).planetId === p.id,
+      (f) =>
+        f.location.type === 'orbit' &&
+        (f.location as any).planetId === p.id &&
+        (!sbFleet || f.id !== sbFleet.id),
     ) as Fleet[];
   });
+
+  onViewStarbase(fleetId: string) {
+    this.router.navigate(['/map'], { queryParams: { fleetId: fleetId } });
+  }
 
   shipOptions = computed(() => {
     const player = this.gs.player();

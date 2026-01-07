@@ -106,8 +106,10 @@ export class PlanetSummaryComponent {
   defenseCoverage = input.required<number>();
   scannerRange = input.required<number>();
   resourcesPerTurn = input.required<number>();
+  starbase = input<{ name: string; fleetId: string; imageClass: string } | null>(null);
 
   onGovernorType = output<Event>();
+  viewStarbase = output<string>();
 
   onGovernorTypeChange(event: Event) {
     this.onGovernorType.emit(event);

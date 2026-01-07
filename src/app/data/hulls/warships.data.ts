@@ -3,36 +3,32 @@ import { HullTemplate } from '../tech-atlas.types';
 export const WARSHIP_HULLS: HullTemplate[] = [
   {
     Name: 'Scout',
-    Structure: [
-      'E1,E1,GP1,GP1,SC1,SC1',
-      'E1,E1,GP1,GP1,SC1,SC1'
-    ],
+    Structure: ['E1,E1,GP1,GP1,SC1,SC1', 'E1,E1,GP1,GP1,SC1,SC1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
       { Code: 'GP1', Allowed: ['General Purpose'], Max: 1 },
-      { Code: 'SC1', Allowed: ['Scanner'], Max: 1 }
+      { Code: 'SC1', Allowed: ['Scanner'], Max: 1 },
     ],
     Cost: { Ironium: 4, Boranium: 2, Germanium: 4, Resources: 10 },
     Stats: { Mass: 8, 'Max Fuel': 50, Armor: 20, Cargo: 0, Initiative: 1 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-scout'
+    img: 'hull-scout',
+    type: 'scout',
   },
   {
     Name: 'Frigate',
-    Structure: [
-      'E1,E1,SA1,SA1,GP1,GP1,SC1,SC1',
-      'E1,E1,SA1,SA1,GP1,GP1,SC1,SC1'
-    ],
+    Structure: ['E1,E1,SA1,SA1,GP1,GP1,SC1,SC1', 'E1,E1,SA1,SA1,GP1,GP1,SC1,SC1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
       { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 2 },
       { Code: 'GP1', Allowed: ['General Purpose'], Max: 3 },
-      { Code: 'SC1', Allowed: ['Scanner'], Max: 2 }
+      { Code: 'SC1', Allowed: ['Scanner'], Max: 2 },
     ],
     Cost: { Ironium: 4, Boranium: 2, Germanium: 4, Resources: 12 },
     Stats: { Mass: 8, 'Max Fuel': 125, Armor: 45, Cargo: 0, Initiative: 4 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-frigate'
+    img: 'hull-frigate',
+    type: 'warship',
   },
   {
     Name: 'Destroyer',
@@ -44,7 +40,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       'E1,E1,A1,A1,GP1,GP1',
       '.,EL1,EL1,.,.,.',
       '.,EL1,EL1,W2,W2,.',
-      '.,.,.,W2,W2,.'
+      '.,.,.,W2,W2,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
@@ -53,12 +49,13 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'M1', Allowed: ['Mech'], Max: 1 },
       { Code: 'EL1', Allowed: ['Elect'], Max: 1 },
       { Code: 'W1', Allowed: ['Weapon'], Max: 1 },
-      { Code: 'W2', Allowed: ['Weapon'], Max: 1 }
+      { Code: 'W2', Allowed: ['Weapon'], Max: 1 },
     ],
     Cost: { Ironium: 15, Boranium: 3, Germanium: 5, Resources: 35 },
     Stats: { Mass: 30, 'Max Fuel': 280, Armor: 200, Cargo: 0, Initiative: 3 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
-    img: 'hull-destroyer'
+    img: 'hull-destroyer',
+    type: 'warship',
   },
   {
     Name: 'Cruiser',
@@ -68,7 +65,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       'E1,E1,SHEM1,SHEM1,SA1,SA1,GP1,GP1',
       'E1,E1,SHEM2,SHEM2,SA1,SA1,GP1,GP1',
       '.,.,SHEM2,SHEM2,W2,W2,.,.',
-      '.,.,.,.,W2,W2,.,.'
+      '.,.,.,.,W2,W2,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
@@ -77,12 +74,13 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 2 },
       { Code: 'GP1', Allowed: ['General Purpose'], Max: 2 },
       { Code: 'W1', Allowed: ['Weapon'], Max: 2 },
-      { Code: 'W2', Allowed: ['Weapon'], Max: 2 }
+      { Code: 'W2', Allowed: ['Weapon'], Max: 2 },
     ],
     Cost: { Ironium: 40, Boranium: 5, Germanium: 8, Resources: 85 },
     Stats: { Mass: 90, 'Max Fuel': 600, Armor: 700, Cargo: 0, Initiative: 5 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-cruiser'
+    img: 'hull-cruiser',
+    type: 'warship',
   },
   {
     Name: 'Battle Cruiser',
@@ -92,7 +90,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       'E1,E1,SHEM1,SHEM1,SA1,SA1,GP1,GP1',
       'E1,E1,SHEM2,SHEM2,SA1,SA1,GP1,GP1',
       '.,.,SHEM2,SHEM2,W2,W2,.,.',
-      '.,.,.,.,W2,W2,.,.'
+      '.,.,.,.,W2,W2,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
@@ -101,12 +99,13 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 4 },
       { Code: 'GP1', Allowed: ['General Purpose'], Max: 3 },
       { Code: 'W1', Allowed: ['Weapon'], Max: 3 },
-      { Code: 'W2', Allowed: ['Weapon'], Max: 3 }
+      { Code: 'W2', Allowed: ['Weapon'], Max: 3 },
     ],
     Cost: { Ironium: 55, Boranium: 8, Germanium: 12, Resources: 120 },
     Stats: { Mass: 120, 'Max Fuel': 1400, Armor: 1000, Cargo: 0, Initiative: 5 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
-    img: 'hull-battle-cruiser'
+    img: 'hull-battle-cruiser',
+    type: 'warship'
   },
   {
     Name: 'Battleship',
@@ -118,7 +117,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       'E1,E1,EL2,EL2,A1,A1,W3,W3,SCEM1,SCEM1',
       '.,.,EL2,EL2,W4,W4,W3,W3,.,.',
       '.,.,W5,W5,W4,W4,.,.,.,.',
-      '.,.,W5,W5,.,.,.,.,.,.'
+      '.,.,W5,W5,.,.,.,.,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 4, Required: true },
@@ -131,12 +130,12 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'W2', Allowed: ['Weapon'], Max: 6 },
       { Code: 'W3', Allowed: ['Weapon'], Max: 4 },
       { Code: 'W4', Allowed: ['Weapon'], Max: 6 },
-      { Code: 'W5', Allowed: ['Weapon'], Max: 2 }
+      { Code: 'W5', Allowed: ['Weapon'], Max: 2 },
     ],
     Cost: { Ironium: 120, Boranium: 25, Germanium: 20, Resources: 225 },
     Stats: { Mass: 222, 'Max Fuel': 2800, Armor: 2000, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 10 },
-    img: 'hull-battleship'
+    img: 'hull-battleship',
   },
   {
     Name: 'Dreadnought',
@@ -148,7 +147,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       'E1,E1,EL2,EL2,A1,A1,WS2,WS2,GP1,GP1',
       'SA2,SA2,EL2,EL2,W3,W3,WS2,WS2,.,.',
       'SA2,SA2,W4,W4,W3,W3,.,.,.,.',
-      '.,.,W4,W4,.,.,.,.,.,.'
+      '.,.,W4,W4,.,.,.,.,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 5, Required: true },
@@ -163,11 +162,11 @@ export const WARSHIP_HULLS: HullTemplate[] = [
       { Code: 'W3', Allowed: ['Weapon'], Max: 8 },
       { Code: 'W4', Allowed: ['Weapon'], Max: 6 },
       { Code: 'WS1', Allowed: ['Weapon', 'Shield'], Max: 5 },
-      { Code: 'WS2', Allowed: ['Weapon', 'Shield'], Max: 5 }
+      { Code: 'WS2', Allowed: ['Weapon', 'Shield'], Max: 5 },
     ],
     Cost: { Ironium: 140, Boranium: 30, Germanium: 25, Resources: 275 },
     Stats: { Mass: 250, 'Max Fuel': 4500, Armor: 4500, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 13 },
-    img: 'hull-dreadnought'
-  }
+    img: 'hull-dreadnought',
+  },
 ];

@@ -14,6 +14,7 @@ export const FREIGHTER_HULLS: HullTemplate[] = [
     Stats: { Mass: 25, 'Max Fuel': 130, Armor: 25, Cargo: 70, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     img: 'hull-freight-s',
+    type: 'freighter',
   },
   {
     Name: 'Medium Freighter',
@@ -28,6 +29,7 @@ export const FREIGHTER_HULLS: HullTemplate[] = [
     Stats: { Mass: 60, 'Max Fuel': 450, Armor: 50, Cargo: 210, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
     img: 'hull-freight-m',
+    type: 'freighter'
   },
   {
     Name: 'Large Freighter',
@@ -69,5 +71,6 @@ export const FREIGHTER_HULLS: HullTemplate[] = [
     Stats: { Mass: 175, 'Max Fuel': 8000, Armor: 400, Cargo: 3000, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
     img: 'hull-freight-super',
+    type: 'freighter'
   },
 ];

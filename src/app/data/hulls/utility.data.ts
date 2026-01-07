@@ -10,7 +10,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       'E1,E1,C1,C1,C1,C1,SA1,SA1',
       'E1,E1,C1,C1,C1,C1,SCEM1,SCEM1',
       '.,.,.,.,GP2,GP2,SCEM1,SCEM1',
-      '.,.,.,.,GP2,GP2,.,.'
+      '.,.,.,.,GP2,GP2,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
@@ -18,12 +18,13 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'GP1', Allowed: ['General Purpose'], Max: 1 },
       { Code: 'GP2', Allowed: ['General Purpose'], Max: 1 },
       { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 2 },
-      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
+      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 },
     ],
     Cost: { Ironium: 50, Boranium: 3, Germanium: 2, Resources: 50 },
     Stats: { Mass: 65, 'Max Fuel': 650, Armor: 150, Cargo: 250, Initiative: 3 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-privateer'
+    img: 'hull-privateer',
+    type: 'utility',
   },
   {
     Name: 'Rogue',
@@ -35,7 +36,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       'E1,E1,C1,C1,C1,SA1,SA1,SC1,SC1',
       '.,.,.,C1,C1,C1,MIEM2,MIEM2,.,.',
       '.,EL2,EL2,GP2,GP2,MIEM2,MIEM2,.,.',
-      '.,EL2,EL2,GP2,GP2,.,.,.,.'
+      '.,EL2,EL2,GP2,GP2,.,.,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
@@ -47,12 +48,13 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'MIEM1', Allowed: ['Mine', 'Elect', 'Mech'], Max: 2 },
       { Code: 'MIEM2', Allowed: ['Mine', 'Elect', 'Mech'], Max: 2 },
       { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 3 },
-      { Code: 'SC1', Allowed: ['Scanner'], Max: 1 }
+      { Code: 'SC1', Allowed: ['Scanner'], Max: 1 },
     ],
     Cost: { Ironium: 80, Boranium: 5, Germanium: 5, Resources: 60 },
     Stats: { Mass: 75, 'Max Fuel': 2250, Armor: 450, Cargo: 500, Initiative: 4 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
-    img: 'hull-rogue'
+    img: 'hull-rogue',
+    type: 'utility',
   },
   {
     Name: 'Galleon',
@@ -64,7 +66,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       'E1,E1,C1,C1,C1,C1,EM1,EM1,SC1,SC1',
       '.,.,C1,C1,C1,C1,EM1,EM1,.,.',
       '.,.,.,SA2,SA2,GP2,GP2,.,.,.',
-      '.,.,.,SA2,SA2,GP2,GP2,.,.,.'
+      '.,.,.,SA2,SA2,GP2,GP2,.,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 4, Required: true },
@@ -75,12 +77,13 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'GP2', Allowed: ['General Purpose'], Max: 3 },
       { Code: 'MIEM1', Allowed: ['Mine', 'Elect', 'Mech'], Max: 2 },
       { Code: 'EM1', Allowed: ['Elect', 'Mech'], Max: 2 },
-      { Code: 'SC1', Allowed: ['Scanner'], Max: 2 }
+      { Code: 'SC1', Allowed: ['Scanner'], Max: 2 },
     ],
     Cost: { Ironium: 70, Boranium: 5, Germanium: 5, Resources: 105 },
     Stats: { Mass: 125, 'Max Fuel': 2500, Armor: 900, Cargo: 1000, Initiative: 4 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-galleon'
+    img: 'hull-galleon',
+    type: 'utility',
   },
   {
     Name: 'Nubian',
@@ -92,7 +95,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       'E1,E1,GP8,GP8,GP6,GP6,GP9,GP9,GP7,GP7',
       'GP10,GP10,GP8,GP8,GP11,GP11,GP9,GP9,.,.',
       'GP10,GP10,GP12,GP12,GP11,GP11,.,.,.,.',
-      '.,.,GP12,GP12,.,.,.,.,.,.'
+      '.,.,GP12,GP12,.,.,.,.,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 3, Required: true },
@@ -107,12 +110,13 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'GP9', Allowed: ['General Purpose'], Max: 3 },
       { Code: 'GP10', Allowed: ['General Purpose'], Max: 3 },
       { Code: 'GP11', Allowed: ['General Purpose'], Max: 3 },
-      { Code: 'GP12', Allowed: ['General Purpose'], Max: 3 }
+      { Code: 'GP12', Allowed: ['General Purpose'], Max: 3 },
     ],
     Cost: { Ironium: 75, Boranium: 12, Germanium: 12, Resources: 150 },
     Stats: { Mass: 100, 'Max Fuel': 5000, Armor: 5000, Cargo: 0, Initiative: 2 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
-    img: 'hull-nubian'
+    img: 'hull-nubian',
+    type: 'utility',
   },
   {
     Name: 'Meta Morph',
@@ -122,7 +126,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       'E1,E1,GP3,GP3,C1,C1,GP2,GP2,GP4,GP4',
       'E1,E1,GP3,GP3,C1,C1,GP5,GP5,GP4,GP4',
       '.,.,GP6,GP6,C1,C1,GP5,GP5,.,.',
-      '.,.,GP6,GP6,.,.,.,.,.,.'
+      '.,.,GP6,GP6,.,.,.,.,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 3, Required: true },
@@ -132,80 +136,73 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'GP3', Allowed: ['General Purpose'], Max: 8 },
       { Code: 'GP4', Allowed: ['General Purpose'], Max: 1 },
       { Code: 'GP5', Allowed: ['General Purpose'], Max: 2 },
-      { Code: 'GP6', Allowed: ['General Purpose'], Max: 2 }
+      { Code: 'GP6', Allowed: ['General Purpose'], Max: 2 },
     ],
     Cost: { Ironium: 50, Boranium: 12, Germanium: 12, Resources: 120 },
     Stats: { Mass: 85, 'Max Fuel': 700, Armor: 500, Cargo: 300, Initiative: 2 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
-    img: 'hull-meta-morph'
+    img: 'hull-meta-morph',
+    type: 'utility'
   },
 
   // Colony Ships
   {
     Name: 'Mini-Colony Ship',
-    Structure: [
-      'E1,E1,C1,C1,M1,M1',
-      'E1,E1,C1,C1,M1,M1'
-    ],
+    Structure: ['E1,E1,C1,C1,M1,M1', 'E1,E1,C1,C1,M1,M1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
       { Code: 'C1', Allowed: ['Cargo'], Size: 10, Editable: false },
-      { Code: 'M1', Allowed: ['Mech'], Max: 1 }
+      { Code: 'M1', Allowed: ['Mech'], Max: 1 },
     ],
     Cost: { Ironium: 2, Boranium: 0, Germanium: 2, Resources: 3 },
     Stats: { Mass: 8, 'Max Fuel': 150, Armor: 10, Cargo: 10, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-mini-colony'
+    img: 'hull-mini-colony',
+    type: 'colonizer'
   },
   {
     Name: 'Colony Ship',
-    Structure: [
-      'E1,E1,C1,C1,M1,M1',
-      'E1,E1,C1,C1,M1,M1'
-    ],
+    Structure: ['E1,E1,C1,C1,M1,M1', 'E1,E1,C1,C1,M1,M1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
       { Code: 'C1', Allowed: ['Cargo'], Size: 25, Editable: false },
-      { Code: 'M1', Allowed: ['Mech'], Max: 1 }
+      { Code: 'M1', Allowed: ['Mech'], Max: 1 },
     ],
     Cost: { Ironium: 10, Boranium: 0, Germanium: 15, Resources: 20 },
     Stats: { Mass: 20, 'Max Fuel': 200, Armor: 20, Cargo: 25, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-colony'
+    img: 'hull-colony',
+    type: 'colonizer'
   },
 
   // Bombers
   {
     Name: 'Mini Bomber',
-    Structure: [
-      'E1,E1,B1,B1',
-      'E1,E1,B1,B1'
-    ],
+    Structure: ['E1,E1,B1,B1', 'E1,E1,B1,B1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
-      { Code: 'B1', Allowed: ['Bomb'], Max: 2 }
+      { Code: 'B1', Allowed: ['Bomb'], Max: 2 },
     ],
     Cost: { Ironium: 20, Boranium: 5, Germanium: 10, Resources: 35 },
     Stats: { Mass: 28, 'Max Fuel': 120, Armor: 50, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-mini-bomber'
+    img: 'hull-mini-bomber',
+    type: 'bomber'
   },
   {
     Name: 'B-17 Bomber',
-    Structure: [
-      'E1,E1,B1,B1,B2,B2,SCEM1,SCEM1',
-      'E1,E1,B1,B1,B2,B2,SCEM1,SCEM1'
-    ],
+    Structure: ['E1,E1,B1,B1,B2,B2,SCEM1,SCEM1', 'E1,E1,B1,B1,B2,B2,SCEM1,SCEM1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
       { Code: 'B1', Allowed: ['Bomb'], Max: 4 },
       { Code: 'B2', Allowed: ['Bomb'], Max: 4 },
-      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
+      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 },
     ],
     Cost: { Ironium: 55, Boranium: 10, Germanium: 10, Resources: 150 },
     Stats: { Mass: 69, 'Max Fuel': 400, Armor: 175, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-b17'
+    img: 'hull-b17',
+    type: 'bomber'
   },
   {
     Name: 'Stealth Bomber',
@@ -213,19 +210,19 @@ export const UTILITY_HULLS: HullTemplate[] = [
       '.,.,B1,B1,SCEM1,SCEM1',
       'E1,E1,B1,B1,SCEM1,SCEM1',
       'E1,E1,B2,B2,EL1,EL1',
-      '.,.,B2,B2,EL1,EL1'
+      '.,.,B2,B2,EL1,EL1',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
       { Code: 'B1', Allowed: ['Bomb'], Max: 4 },
       { Code: 'B2', Allowed: ['Bomb'], Max: 4 },
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 },
-      { Code: 'EL1', Allowed: ['Elect'], Max: 3 }
+      { Code: 'EL1', Allowed: ['Elect'], Max: 3 },
     ],
     Cost: { Ironium: 55, Boranium: 10, Germanium: 15, Resources: 175 },
     Stats: { Mass: 70, 'Max Fuel': 750, Armor: 225, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
-    img: 'hull-stealth-bomber'
+    img: 'hull-stealth-bomber',
   },
   {
     Name: 'B-52 Bomber',
@@ -235,7 +232,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       'E1,E1,S1,S1,B2,B2,SCEM1,SCEM1',
       'E1,E1,S1,S1,B3,B3,SCEM1,SCEM1',
       '.,.,B4,B4,B3,B3,.,.',
-      '.,.,B4,B4,.,.,.,.'
+      '.,.,B4,B4,.,.,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 3, Required: true },
@@ -244,29 +241,28 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'B3', Allowed: ['Bomb'], Max: 4 },
       { Code: 'B4', Allowed: ['Bomb'], Max: 4 },
       { Code: 'S1', Allowed: ['Shield'], Max: 2 },
-      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 2 }
+      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 2 },
     ],
     Cost: { Ironium: 90, Boranium: 15, Germanium: 10, Resources: 280 },
     Stats: { Mass: 110, 'Max Fuel': 750, Armor: 450, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
-    img: 'hull-b52'
+    img: 'hull-b52',
+    type: 'bomber'
   },
 
   // Miners
   {
     Name: 'Midget Miner',
-    Structure: [
-      'E1,E1,M1,M1',
-      'E1,E1,M1,M1'
-    ],
+    Structure: ['E1,E1,M1,M1', 'E1,E1,M1,M1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
-      { Code: 'M1', Allowed: ['Mining'], Max: 2 }
+      { Code: 'M1', Allowed: ['Mining'], Max: 2 },
     ],
     Cost: { Ironium: 10, Boranium: 0, Germanium: 3, Resources: 20 },
     Stats: { Mass: 10, 'Max Fuel': 210, Armor: 100, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-midget-miner'
+    img: 'hull-midget-miner',
+    type: 'miner'
   },
   {
     Name: 'Mini-Miner',
@@ -274,18 +270,19 @@ export const UTILITY_HULLS: HullTemplate[] = [
       '.,.,M1,M1,.,.',
       'E1,E1,M1,M1,SCEM1,SCEM1',
       'E1,E1,M2,M2,SCEM1,SCEM1',
-      '.,.,M2,M2,.,.'
+      '.,.,M2,M2,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
       { Code: 'M1', Allowed: ['Mining'], Max: 1 },
       { Code: 'M2', Allowed: ['Mining'], Max: 1 },
-      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
+      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 },
     ],
     Cost: { Ironium: 25, Boranium: 0, Germanium: 6, Resources: 50 },
     Stats: { Mass: 80, 'Max Fuel': 210, Armor: 130, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-mini-miner'
+    img: 'hull-mini-miner',
+    type: 'miner'
   },
   {
     Name: 'Miner',
@@ -293,7 +290,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       '.,.,M1,M1,M2,M2,.,.',
       'E1,E1,M1,M1,M2,M2,SCEM1,SCEM1',
       'E1,E1,M3,M3,M4,M4,SCEM1,SCEM1',
-      '.,.,M3,M3,M4,M4,.,.'
+      '.,.,M3,M3,M4,M4,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
@@ -301,12 +298,13 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'M2', Allowed: ['Mining'], Max: 1 },
       { Code: 'M3', Allowed: ['Mining'], Max: 2 },
       { Code: 'M4', Allowed: ['Mining'], Max: 1 },
-      { Code: 'SCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 2 }
+      { Code: 'SCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 2 },
     ],
     Cost: { Ironium: 32, Boranium: 0, Germanium: 6, Resources: 110 },
     Stats: { Mass: 110, 'Max Fuel': 500, Armor: 475, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
-    img: 'hull-miner'
+    img: 'hull-miner',
+    type: 'miner'
   },
   {
     Name: 'Maxi-Miner',
@@ -314,7 +312,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       '.,.,M1,M1,M2,M2,.,.',
       'E1,E1,M1,M1,M2,M2,ASCEM1,ASCEM1',
       'E1,E1,M3,M3,M4,M4,ASCEM1,ASCEM1',
-      '.,.,M3,M3,M4,M4,.,.'
+      '.,.,M3,M3,M4,M4,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 3, Required: true },
@@ -322,12 +320,13 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'M2', Allowed: ['Mining'], Max: 1 },
       { Code: 'M3', Allowed: ['Mining'], Max: 4 },
       { Code: 'M4', Allowed: ['Mining'], Max: 1 },
-      { Code: 'ASCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 2 }
+      { Code: 'ASCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 2 },
     ],
     Cost: { Ironium: 32, Boranium: 0, Germanium: 6, Resources: 140 },
     Stats: { Mass: 110, 'Max Fuel': 850, Armor: 1400, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 6 },
-    img: 'hull-maxi-miner'
+    img: 'hull-maxi-miner',
+    type: 'miner'
   },
   {
     Name: 'Ultra-Miner',
@@ -335,7 +334,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       '.,.,M1,M1,M2,M2,.,.',
       'E1,E1,M1,M1,M2,M2,ASCEM1,ASCEM1',
       'E1,E1,M3,M3,M4,M4,ASCEM1,ASCEM1',
-      '.,.,M3,M3,M4,M4,.,.'
+      '.,.,M3,M3,M4,M4,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
@@ -343,24 +342,22 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'M2', Allowed: ['Mining'], Max: 2 },
       { Code: 'M3', Allowed: ['Mining'], Max: 4 },
       { Code: 'M4', Allowed: ['Mining'], Max: 2 },
-      { Code: 'ASCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 3 }
+      { Code: 'ASCEM1', Allowed: ['Armor', 'Scanner', 'Elect', 'Mech'], Max: 3 },
     ],
     Cost: { Ironium: 30, Boranium: 0, Germanium: 6, Resources: 130 },
     Stats: { Mass: 100, 'Max Fuel': 1300, Armor: 1500, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 8 },
-    img: 'hull-ultra-miner'
+    img: 'hull-ultra-miner',
+    type: 'miner'
   },
 
   // Support Ships
   {
     Name: 'Fuel Transport',
-    Structure: [
-      'E1,E1,S1,S1',
-      'E1,E1,S1,S1'
-    ],
+    Structure: ['E1,E1,S1,S1', 'E1,E1,S1,S1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
-      { Code: 'S1', Allowed: ['Shield'], Max: 1 }
+      { Code: 'S1', Allowed: ['Shield'], Max: 1 },
     ],
     Cost: { Ironium: 10, Boranium: 0, Germanium: 5, Resources: 50 },
     Stats: {
@@ -370,21 +367,19 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 0,
       GenFuel: 200,
-      Heal: 5
+      Heal: 5,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-fuel-transport'
+    img: 'hull-fuel-transport',
+    type: 'utility'
   },
   {
     Name: 'Super-Fuel Export',
-    Structure: [
-      'E1,E1,SH1,SH1,SC1,SC1',
-      'E1,E1,SH1,SH1,SC1,SC1'
-    ],
+    Structure: ['E1,E1,SH1,SH1,SC1,SC1', 'E1,E1,SH1,SH1,SC1,SC1'],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 2, Required: true },
       { Code: 'SH1', Allowed: ['Shield'], Max: 2 },
-      { Code: 'SC1', Allowed: ['Scanner'], Max: 1 }
+      { Code: 'SC1', Allowed: ['Scanner'], Max: 1 },
     ],
     Cost: { Ironium: 20, Boranium: 0, Germanium: 8, Resources: 70 },
     Stats: {
@@ -394,10 +389,11 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Cargo: 0,
       Initiative: 0,
       GenFuel: 200,
-      Heal: 10
+      Heal: 10,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
-    img: 'hull-super-fuel-export'
+    img: 'hull-super-fuel-xport',
+    type: 'utility'
   },
   {
     Name: 'Mini-Mine Layer',
@@ -405,13 +401,13 @@ export const UTILITY_HULLS: HullTemplate[] = [
       '.,.,MI1,MI1,.,.',
       'E1,E1,MI1,MI1,SCEM1,SCEM1',
       'E1,E1,MI2,MI2,SCEM1,SCEM1',
-      '.,.,MI2,MI2,.,.'
+      '.,.,MI2,MI2,.,.',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 1, Required: true },
       { Code: 'MI1', Allowed: ['Mine'], Max: 2 },
       { Code: 'MI2', Allowed: ['Mine'], Max: 2 },
-      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 }
+      { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 1 },
     ],
     Cost: { Ironium: 8, Boranium: 2, Germanium: 5, Resources: 20 },
     Stats: {
@@ -420,10 +416,11 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Armor: 60,
       Cargo: 0,
       Initiative: 0,
-      MineEfficiency: 2
+      MineEfficiency: 2,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-mini-mine-layer'
+    img: 'hull-mini-mine-layer',
+    type: 'mine-layer'
   },
   {
     Name: 'Super-Mine Layer',
@@ -431,7 +428,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       '.,.,MI1,MI1,.,.,SCEM1,SCEM1',
       'E1,E1,MI1,MI1,SA1,SA1,SCEM1,SCEM1',
       'E1,E1,MI2,MI2,SA1,SA1,MIEM1,MIEM1',
-      '.,.,MI2,MI2,.,.,MIEM1,MIEM1'
+      '.,.,MI2,MI2,.,.,MIEM1,MIEM1',
     ],
     Slots: [
       { Code: 'E1', Allowed: ['Engine'], Max: 3, Required: true },
@@ -439,7 +436,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       { Code: 'MI2', Allowed: ['Mine'], Max: 8 },
       { Code: 'SA1', Allowed: ['Shield', 'Armor'], Max: 3 },
       { Code: 'SCEM1', Allowed: ['Scanner', 'Elect', 'Mech'], Max: 3 },
-      { Code: 'MIEM1', Allowed: ['Mine', 'Elect', 'Mech'], Max: 3 }
+      { Code: 'MIEM1', Allowed: ['Mine', 'Elect', 'Mech'], Max: 3 },
     ],
     Cost: { Ironium: 20, Boranium: 3, Germanium: 9, Resources: 30 },
     Stats: {
@@ -448,9 +445,10 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Armor: 1200,
       Cargo: 0,
       Initiative: 0,
-      MineEfficiency: 2
+      MineEfficiency: 2,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-super-mine-layer'
-  }
+    img: 'hull-super-mine-layer',
+    type: 'mine-layer'
+  },
 ];

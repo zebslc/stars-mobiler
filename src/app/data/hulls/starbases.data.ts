@@ -24,6 +24,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
     img: 'hull-orbital-fort',
     description: 'Basic orbital defense platform.',
     isStarbase: true,
+    type: 'starbase',
   },
   {
     Name: 'Space Dock',
@@ -62,6 +63,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
     img: 'hull-space-dock',
     description: 'Repair and construction facility.',
     isStarbase: true,
+    type: 'starbase',
   },
   {
     Name: 'Space Station',
@@ -106,6 +108,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
     img: 'hull-space-station',
     description: 'Massive orbital complex with unlimited docking.',
     isStarbase: true,
+    type: 'starbase',
   },
   {
     Name: 'Ultra Station',
@@ -153,6 +156,7 @@ export const STARBASE_HULLS: HullTemplate[] = [
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 12 },
     img: 'hull-ultra-station',
     description: 'Advanced orbital fortress.',
+    type: 'starbase',
   },
   {
     Name: 'Death Star',
@@ -199,6 +203,8 @@ export const STARBASE_HULLS: HullTemplate[] = [
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 17 },
     img: 'hull-death-star',
-    description: 'Ultimate battle station.',
+    description: 'Ultimate power in the universe.',
+    isStarbase: true,
+    type: 'starbase',
   },
 ];

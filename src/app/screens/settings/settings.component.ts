@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
 import { GameStateService } from '../../services/game-state.service';
-import { GovernorType } from '../../models/game.model';
 import { FormsModule } from '@angular/forms';
 
 @Component({

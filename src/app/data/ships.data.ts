@@ -1,15 +1,5 @@
 // Legacy ships.data.ts - Compatibility layer for compiled ship designs
-import { HullTemplate, ComponentStats } from './tech-atlas.types';
 import { ALL_HULLS } from './tech-atlas.data';
-import { COMPONENTS } from './components.data';
-
-export const STATION_HULLS = [
-  'Orbital Fort',
-  'Space Dock',
-  'Space Station',
-  'Ultra Station',
-  'Death Star',
-];
 
 // CompiledDesign interface - represents a fully compiled ship design with calculated stats
 export interface CompiledDesign {
@@ -18,6 +8,7 @@ export interface CompiledDesign {
   hullId: string;
   hullName: string;
   isStarbase?: boolean;
+  type?: string;
   mass: number;
   cargoCapacity: number;
   fuelCapacity: number;
@@ -58,6 +49,8 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
       name: hull.Name,
       hullId: designId,
       hullName: hull.Name,
+      isStarbase: hull.isStarbase,
+      type: hull.type,
       mass: hull.Stats.Mass,
       cargoCapacity: hull.Stats.Cargo || 0,
       fuelCapacity: hull.Stats['Max Fuel'] || 0,
