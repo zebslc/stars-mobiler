@@ -6,7 +6,7 @@ import { GovernorType } from '../models/game.model';
 })
 export class SettingsService {
   readonly showMapControls = signal<boolean>(false);
-  readonly showScannerRanges = signal<boolean>(false);
+  readonly showScannerRanges = signal<boolean>(true);
   readonly showCloakedRanges = signal<boolean>(false);
   readonly scannerRangePct = signal<number>(100);
   readonly viewMode = signal<'normal' | 'minerals' | 'value' | 'habitability'>('normal');

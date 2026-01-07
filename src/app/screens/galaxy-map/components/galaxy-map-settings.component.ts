@@ -41,7 +41,7 @@ import { SettingsService } from '../../../services/settings.service';
             title="Planet Settings"
           >
             <!-- Planet (Globe) -->
-            <span style="font-size: 20px;">🌎</span>
+            <span style="font-size: 20px;">🌍</span>
           </button>
         </div>
 
@@ -58,7 +58,7 @@ import { SettingsService } from '../../../services/settings.service';
                 Show Ranges
               </label>
             </div>
-            <div class="control-row" *ngIf="settings.showScannerRanges()">
+            <div class="control-row">
               <label>
                 <input
                   type="checkbox"
@@ -68,7 +68,7 @@ import { SettingsService } from '../../../services/settings.service';
                 Show Cloaked
               </label>
             </div>
-            <div class="control-row range-slider" *ngIf="settings.showScannerRanges()">
+            <div class="control-row range-slider">
               <label>Range: {{ settings.scannerRangePct() }}%</label>
               <input
                 type="range"
