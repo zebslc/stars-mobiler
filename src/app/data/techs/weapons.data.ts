@@ -5,7 +5,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
   // BEAM WEAPONS
   // ========================================================================
 
-/*
+  /*
 # Beam Weapons
 | Name                     | Energy | Weapons | Propulsion | Construction | Electronics | Bio-Tech | Mass | Resources | Ironium | Boranium | Germanium | Range | DP | Initiative |
 |--------------------------|--------|---------|------------|--------------|-------------|----------|------|-----------|---------|----------|-----------|-------|----|------------|
@@ -41,8 +41,11 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 0, boranium: 6, germanium: 0, resources: 5 },
     stats: { power: 10, range: 1, initiative: 1 },
+    traits: [
+      { type: 'damage_dealer', isMajor: true, properties: { damage: 10, range: 1, initiative: 1 } },
+    ],
     img: 'weap-laser',
-    description: 'Standard beam weapon.'
+    description: 'Standard beam weapon.',
   },
   {
     id: 'weap_xray',
@@ -52,8 +55,11 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 0, boranium: 6, germanium: 0, resources: 6 },
     stats: { power: 16, range: 1, initiative: 1 },
+    traits: [
+      { type: 'damage_dealer', isMajor: true, properties: { damage: 16, range: 1, initiative: 1 } },
+    ],
     img: 'weap-xray',
-    description: 'Higher frequency, better penetration.'
+    description: 'Higher frequency, better penetration.',
   },
   {
     id: 'weap_minigun',
@@ -64,7 +70,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 2, boranium: 10, germanium: 0, resources: 10 },
     stats: { power: 16, range: 1, initiative: 10 },
     img: 'weap-minigun',
-    description: 'Rapid fire gatling laser.'
+    description: 'Rapid fire gatling laser.',
   },
   {
     id: 'weap_yakimora',
@@ -75,7 +81,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 8, germanium: 0, resources: 12 },
     stats: { power: 26, range: 1, initiative: 2 },
     img: 'weap-yakimora',
-    description: 'Compact phaser.'
+    description: 'Compact phaser.',
   },
   {
     id: 'weap_blackjack',
@@ -86,7 +92,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 40, boranium: 16, germanium: 0, resources: 30 },
     stats: { power: 90, range: 0, initiative: 0 },
     img: 'weap-blackjack',
-    description: 'Rapid-fire blaster.'
+    description: 'Rapid-fire blaster.',
   },
   {
     id: 'weap_disruptor',
@@ -97,7 +103,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 16, germanium: 0, resources: 20 },
     stats: { power: 35, range: 2, initiative: 4 },
     img: 'weap-disruptor',
-    description: 'Destabilized ion bolt.'
+    description: 'Destabilized ion bolt.',
   },
   {
     id: 'weap_phasor',
@@ -108,7 +114,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 20, germanium: 0, resources: 25 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-phasor',
-    description: 'Long range sniper beam.'
+    description: 'Long range sniper beam.',
   },
   {
     id: 'weap_pulsed_sapper',
@@ -119,8 +125,8 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 4, germanium: 3, resources: 80 },
     stats: { power: 82, range: 3, initiative: 14 },
     img: 'weap-pulsed-sapper',
-    description: 'Highly accurate, but slow.'
-  },  
+    description: 'Highly accurate, but slow.',
+  },
   {
     id: 'weap_colloidal_phaser',
     name: 'Colloidal Phaser',
@@ -130,8 +136,8 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 14, boranium: 0, germanium: 3, resources: 120 },
     stats: { power: 26, range: 1, initiative: 2 },
     img: 'weap-colloidal-phaser',
-    description: 'Compact phaser.'
-  },  
+    description: 'Compact phaser.',
+  },
   {
     id: 'weap_gatling',
     name: 'Gatling Gun',
@@ -141,7 +147,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 10, boranium: 30, germanium: 0, resources: 40 },
     stats: { power: 31, range: 2, initiative: 12 },
     img: 'weap-gatling',
-    description: 'The gold standard for sweeping mines.'
+    description: 'The gold standard for sweeping mines.',
   },
   {
     id: 'weap_mini_blaster',
@@ -152,7 +158,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 10, boranium: 0, germanium: 1, resources: 20 },
     stats: { power: 66, range: 1, initiative: 9 },
     img: 'weap-mini-blaster',
-    description: 'Compact blaster.'
+    description: 'Compact blaster.',
   },
   {
     id: 'weap_bludgeon',
@@ -163,7 +169,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 40, boranium: 10, germanium: 0, resources: 30 },
     stats: { power: 231, range: 0, initiative: 0 },
     img: 'weap-bludgeon',
-    description: 'Ramming weapon. Devastating at point blank.'
+    description: 'Ramming weapon. Devastating at point blank.',
   },
   {
     id: 'weap_mark_iv_blaster',
@@ -174,7 +180,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 20, boranium: 0, germanium: 2, resources: 40 },
     stats: { power: 66, range: 1, initiative: 7 },
     img: 'weap-mark-iv-blaster',
-    description: 'Powerful blaster.'
+    description: 'Powerful blaster.',
   },
   {
     id: 'weap_phased_sapper',
@@ -185,7 +191,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 6, germanium: 3, resources: 100 },
     stats: { power: 211, range: 3, initiative: 14 },
     img: 'weap-phased-sapper',
-    description: 'Highly accurate, but slow.'
+    description: 'Highly accurate, but slow.',
   },
   {
     id: 'weap_heavy_blaster',
@@ -196,7 +202,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
     stats: { power: 66, range: 1, initiative: 5 },
     img: 'weap-heavy-blaster',
-    description: 'Powerful blaster.'
+    description: 'Powerful blaster.',
   },
   {
     id: 'weap_gatling_neutrino',
@@ -207,7 +213,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 28, boranium: 0, germanium: 2, resources: 100 },
     stats: { power: 80, range: 2, initiative: 13 },
     img: 'weap-gatling-neutrino',
-    description: 'Powerful neutrino cannon.'
+    description: 'Powerful neutrino cannon.',
   },
   {
     id: 'weap_myopic_disrupter',
@@ -218,7 +224,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-myopic-disrupter',
-    description: 'Highly accurate, but slow.'
+    description: 'Highly accurate, but slow.',
   },
   {
     id: 'weap_blunderbuss',
@@ -229,7 +235,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-blunderbuss',
-    description: 'Highly accurate, but slow.'
+    description: 'Highly accurate, but slow.',
   },
   {
     id: 'weap_disruptor',
@@ -240,7 +246,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 20, germanium: 0, resources: 25 },
     stats: { power: 35, range: 2, initiative: 4 },
     img: 'weap-disruptor',
-    description: 'Destabilized ion bolt.'
+    description: 'Destabilized ion bolt.',
   },
   {
     id: 'weap_syncro_sapper',
@@ -251,7 +257,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-syncro-sapper',
-    description: 'Highly accurate, but slow.'
+    description: 'Highly accurate, but slow.',
   },
   {
     id: 'weap_mega_disrupter',
@@ -262,7 +268,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-mega-disrupter',
-    description: 'Highly accurate, but slow.'
+    description: 'Highly accurate, but slow.',
   },
   {
     id: 'weap_bigmutha',
@@ -273,9 +279,8 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 80, germanium: 20, resources: 150 },
     stats: { power: 204, range: 2, initiative: 9 },
     img: 'weap-big-mutha',
-    description: 'Massive rapid-fire energy cannon.'
+    description: 'Massive rapid-fire energy cannon.',
   },
-
 
   {
     id: 'weap_streaming_pulverizer',
@@ -286,7 +291,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-streaming-pulverizer',
-    description: 'Highly accurate, but slow.'
+    description: 'Highly accurate, but slow.',
   },
   {
     id: 'weap_anti_matter_pulverizer',
@@ -297,12 +302,8 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 0, boranium: 40, germanium: 0, resources: 150 },
     stats: { power: 120, range: 3, initiative: 7 },
     img: 'weap-anti-matter-pulverizer',
-    description: 'Highly accurate, but slow.'
+    description: 'Highly accurate, but slow.',
   },
-
-
-
-
 
   // ========================================================================
   // TORPEDOES
@@ -316,7 +317,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 9, boranium: 3, germanium: 3, resources: 5 },
     stats: { power: 5, accuracy: 35, range: 4, initiative: 0 },
     img: 'weap-torp-alpha',
-    description: 'Basic guided missile.'
+    description: 'Basic guided missile.',
   },
   {
     id: 'weap_beta',
@@ -327,7 +328,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 18, boranium: 6, germanium: 4, resources: 6 },
     stats: { power: 12, accuracy: 45, range: 4, initiative: 1 },
     img: 'weap-torp-beta',
-    description: 'Improved guidance system.'
+    description: 'Improved guidance system.',
   },
   {
     id: 'weap_delta',
@@ -338,7 +339,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 22, boranium: 8, germanium: 5, resources: 8 },
     stats: { power: 26, accuracy: 60, range: 4, initiative: 1 },
     img: 'weap-torp-delta',
-    description: 'Enhanced propulsion and warhead.'
+    description: 'Enhanced propulsion and warhead.',
   },
   {
     id: 'weap_epsilon',
@@ -349,7 +350,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 30, boranium: 10, germanium: 6, resources: 10 },
     stats: { power: 48, accuracy: 65, range: 5, initiative: 2 },
     img: 'weap-torp-epsilon',
-    description: 'Long-range tactical missile.'
+    description: 'Long-range tactical missile.',
   },
   {
     id: 'weap_rho',
@@ -360,7 +361,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 34, boranium: 12, germanium: 8, resources: 12 },
     stats: { power: 90, accuracy: 75, range: 5, initiative: 2 },
     img: 'weap-torp-rho',
-    description: 'Standard fleet torpedo.'
+    description: 'Standard fleet torpedo.',
   },
   {
     id: 'weap_upsilon',
@@ -371,7 +372,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 40, boranium: 14, germanium: 9, resources: 15 },
     stats: { power: 169, accuracy: 75, range: 5, initiative: 3 },
     img: 'weap-torp-upsilon',
-    description: 'Heavy strike missile.'
+    description: 'Heavy strike missile.',
   },
   {
     id: 'weap_omega',
@@ -382,7 +383,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 52, boranium: 18, germanium: 12, resources: 18 },
     stats: { power: 316, accuracy: 80, range: 5, initiative: 4 },
     img: 'weap-torp-omega',
-    description: 'The ultimate ballistic weapon.'
+    description: 'The ultimate ballistic weapon.',
   },
   {
     id: 'weap_anti',
@@ -393,7 +394,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 3, boranium: 8, germanium: 1, resources: 50 },
     stats: { power: 60, accuracy: 85, range: 6, initiative: 0 },
     img: 'weap-torp-anti',
-    description: 'Exotic matter warhead.'
+    description: 'Exotic matter warhead.',
   },
   {
     id: 'weap_jihad',
@@ -404,7 +405,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 37, boranium: 13, germanium: 9, resources: 13 },
     stats: { power: 85, accuracy: 20, range: 5, initiative: 0 },
     img: 'weap-missile-jihad',
-    description: 'Dumb-fire heavy missile.'
+    description: 'Dumb-fire heavy missile.',
   },
   {
     id: 'weap_juggernaut',
@@ -415,7 +416,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 48, boranium: 16, germanium: 11, resources: 16 },
     stats: { power: 150, accuracy: 20, range: 5, initiative: 1 },
     img: 'weap-missile-juggernaut',
-    description: 'Massive unguided rocket.'
+    description: 'Massive unguided rocket.',
   },
   {
     id: 'weap_doomsday',
@@ -426,7 +427,7 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 60, boranium: 20, germanium: 13, resources: 20 },
     stats: { power: 280, accuracy: 25, range: 6, initiative: 2 },
     img: 'weap-missile-doomsday',
-    description: 'Devastating firepower, poor accuracy.'
+    description: 'Devastating firepower, poor accuracy.',
   },
   {
     id: 'weap_armageddon',
@@ -437,6 +438,6 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     cost: { ironium: 67, boranium: 23, germanium: 16, resources: 24 },
     stats: { power: 525, accuracy: 30, range: 6, initiative: 3 },
     img: 'weap-missile-armageddon',
-    description: 'Ultimate barrage weapon.'
-  }
+    description: 'Ultimate barrage weapon.',
+  },
 ];

@@ -94,6 +94,37 @@ export type SlotType =
   | 'Starbase'
   | 'General';
 
+export type TraitType =
+  | 'damage_dealer'
+  | 'propulsion'
+  | 'storage'
+  | 'sensor'
+  | 'cloak'
+  | 'mining'
+  | 'terraform'
+  | 'repair'
+  | 'bomb'
+  | 'minesweeping'
+  | 'settler';
+
+export interface ComponentTrait {
+  type: TraitType;
+  properties: Record<string, number | string | boolean>;
+  isMajor: boolean;
+}
+
+export type ValidationRuleType =
+  | 'max_per_hull'
+  | 'exclusive_to_hull_type'
+  | 'requires_trait'
+  | 'mutually_exclusive';
+
+export interface ValidationRule {
+  type: ValidationRuleType;
+  params: unknown;
+  errorMessage: string;
+}
+
 export interface ComponentStats {
   id: string;
   name: string;
@@ -149,9 +180,21 @@ export interface ComponentStats {
   img: string;
   description: string;
   isRamscoop?: boolean;
+  categoryId?: string;
+  traits?: ComponentTrait[];
+  constraints?: ValidationRule[];
+  metadata?: {
+    icon: string;
+    color?: string;
+    description: string;
+  };
 }
 
 export interface ComponentCategory {
+  id?: string;
+  name?: string;
+  allowedSlots?: string[];
+  displayOrder?: number;
   category: string;
   items: ComponentStats[];
 }

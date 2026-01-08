@@ -92,6 +92,25 @@ export function getDesign(designId: string): CompiledDesign {
     // Try normalizing the ID to handle cases where name is passed as ID
     const normalizedId = designId.toLowerCase().replace(/[\s-]+/g, '_');
     design = COMPILED_DESIGNS[normalizedId];
+
+    // Fallback for legacy starbase IDs (starbase1, starbase2, etc.)
+    if (!design && normalizedId.startsWith('starbase')) {
+      const match = normalizedId.match(/starbase_?(\d+)/);
+      if (match) {
+        const level = parseInt(match[1], 10);
+        const starbaseMap: { [key: number]: string } = {
+          1: 'orbital_fort',
+          2: 'space_dock',
+          3: 'space_station',
+          4: 'ultra_station',
+          5: 'death_star',
+        };
+        const mappedId = starbaseMap[level];
+        if (mappedId) {
+          design = COMPILED_DESIGNS[mappedId];
+        }
+      }
+    }
   }
 
   if (!design) {

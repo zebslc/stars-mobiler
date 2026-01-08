@@ -1,4 +1,12 @@
-import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  computed,
+  signal,
+  OnInit,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +14,10 @@ import { GameStateService } from '../../services/game-state.service';
 import { ToastService } from '../../services/toast.service';
 import { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
+import { getHull } from '../../data/hulls.data';
+import { COMPONENTS } from '../../data/components.data';
+import { compileShipStats } from '../../models/ship-design.model';
+import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { StarSelectorComponent, StarOption } from '../../components/star-selector.component';
 import { TechService } from '../../services/tech.service';
 import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
@@ -285,30 +297,30 @@ import { DesignPreviewButtonComponent } from '../../shared/components/design-pre
         <div style="display:grid;gap:var(--space-md)">
           <div>
             <div class="text-small text-muted">Capacity</div>
-            <div class="font-medium">{{ cargoUsed() }} / {{ cargoCapacity() }} kT</div>
+            <div class="font-medium">{{ projectedCargoUsed() }} / {{ cargoCapacity() }} kT</div>
           </div>
           <div
             style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--space-md)"
           >
             <div>
               <div class="text-small text-muted">Resources</div>
-              <div class="font-medium">{{ fleet()!.cargo.resources }} R</div>
+              <div class="font-medium">{{ orbitTransferState.resources }} R</div>
             </div>
             <div>
               <div class="text-small text-muted">Ironium</div>
-              <div class="font-medium">{{ fleet()!.cargo.minerals.ironium }} kT</div>
+              <div class="font-medium">{{ orbitTransferState.ironium }} kT</div>
             </div>
             <div>
               <div class="text-small text-muted">Boranium</div>
-              <div class="font-medium">{{ fleet()!.cargo.minerals.boranium }} kT</div>
+              <div class="font-medium">{{ orbitTransferState.boranium }} kT</div>
             </div>
             <div>
               <div class="text-small text-muted">Germanium</div>
-              <div class="font-medium">{{ fleet()!.cargo.minerals.germanium }} kT</div>
+              <div class="font-medium">{{ orbitTransferState.germanium }} kT</div>
             </div>
             <div>
               <div class="text-small text-muted">Colonists</div>
-              <div class="font-medium">{{ fleet()!.cargo.colonists | number }}</div>
+              <div class="font-medium">{{ orbitTransferState.colonists | number }}</div>
             </div>
           </div>
           <div
@@ -316,46 +328,112 @@ import { DesignPreviewButtonComponent } from '../../shared/components/design-pre
             style="background:var(--color-bg-secondary);padding:var(--space-lg);border-radius:var(--radius-md);margin-top:var(--space-md)"
           >
             <div class="font-bold" style="margin-bottom:var(--space-md)">Transfer Cargo</div>
-            <div
-              style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--space-md);margin-bottom:var(--space-md)"
-            >
-              <div>
-                <label>Resources (R)</label>
-                <input type="number" min="0" placeholder="0" #res />
+            <div style="display:grid; gap:var(--space-md); margin-bottom:var(--space-md)">
+              <!-- Resources -->
+              <div class="transfer-slider-row">
+                <div class="slider-header">
+                  <span class="label">Resources</span>
+                </div>
+                <div class="slider-container">
+                  <span class="text-xs text-muted"
+                    >Surf: {{ getProjectedSurface('resources') }}</span
+                  >
+                  <input
+                    type="range"
+                    [(ngModel)]="orbitTransferState.resources"
+                    min="0"
+                    [max]="getMaxFleet('resources')"
+                    style="accent-color: var(--color-warning); flex: 1"
+                  />
+                  <span class="text-xs text-muted">Fleet: {{ orbitTransferState.resources }}</span>
+                </div>
               </div>
-              <div>
-                <label>Ironium (kT)</label>
-                <input type="number" min="0" placeholder="0" #ironium />
+
+              <!-- Ironium -->
+              <div class="transfer-slider-row">
+                <div class="slider-header">
+                  <span class="label">Ironium</span>
+                </div>
+                <div class="slider-container">
+                  <span class="text-xs text-muted">Surf: {{ getProjectedSurface('ironium') }}</span>
+                  <input
+                    type="range"
+                    [(ngModel)]="orbitTransferState.ironium"
+                    min="0"
+                    [max]="getMaxFleet('ironium')"
+                    style="accent-color: var(--color-ironium); flex: 1"
+                  />
+                  <span class="text-xs text-muted">Fleet: {{ orbitTransferState.ironium }}</span>
+                </div>
               </div>
-              <div>
-                <label>Boranium (kT)</label>
-                <input type="number" min="0" placeholder="0" #boranium />
+
+              <!-- Boranium -->
+              <div class="transfer-slider-row">
+                <div class="slider-header">
+                  <span class="label">Boranium</span>
+                </div>
+                <div class="slider-container">
+                  <span class="text-xs text-muted"
+                    >Surf: {{ getProjectedSurface('boranium') }}</span
+                  >
+                  <input
+                    type="range"
+                    [(ngModel)]="orbitTransferState.boranium"
+                    min="0"
+                    [max]="getMaxFleet('boranium')"
+                    style="accent-color: var(--color-boranium); flex: 1"
+                  />
+                  <span class="text-xs text-muted">Fleet: {{ orbitTransferState.boranium }}</span>
+                </div>
               </div>
-              <div>
-                <label>Germanium (kT)</label>
-                <input type="number" min="0" placeholder="0" #germanium />
+
+              <!-- Germanium -->
+              <div class="transfer-slider-row">
+                <div class="slider-header">
+                  <span class="label">Germanium</span>
+                </div>
+                <div class="slider-container">
+                  <span class="text-xs text-muted"
+                    >Surf: {{ getProjectedSurface('germanium') }}</span
+                  >
+                  <input
+                    type="range"
+                    [(ngModel)]="orbitTransferState.germanium"
+                    min="0"
+                    [max]="getMaxFleet('germanium')"
+                    style="accent-color: var(--color-germanium); flex: 1"
+                  />
+                  <span class="text-xs text-muted">Fleet: {{ orbitTransferState.germanium }}</span>
+                </div>
               </div>
-              <div>
-                <label>Colonists</label>
-                <input type="number" min="0" placeholder="0" #col />
+
+              <!-- Colonists -->
+              <div class="transfer-slider-row">
+                <div class="slider-header">
+                  <span class="label">Colonists</span>
+                </div>
+                <div class="slider-container">
+                  <span class="text-xs text-muted"
+                    >Surf: {{ getProjectedSurface('colonists') | number }}</span
+                  >
+                  <input
+                    type="range"
+                    [(ngModel)]="orbitTransferState.colonists"
+                    min="0"
+                    [max]="getMaxFleet('colonists')"
+                    style="flex: 1"
+                  />
+                  <span class="text-xs text-muted"
+                    >Fleet: {{ orbitTransferState.colonists | number }}</span
+                  >
+                </div>
               </div>
             </div>
             <div
               style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--space-md)"
             >
-              <button
-                (click)="load(res.value, ironium.value, boranium.value, germanium.value, col.value)"
-                class="btn-primary"
-              >
-                Load
-              </button>
-              <button
-                (click)="
-                  unload(res.value, ironium.value, boranium.value, germanium.value, col.value)
-                "
-                class="btn-primary"
-              >
-                Unload
+              <button (click)="commitTransfer()" class="btn-primary" style="grid-column: 1 / -1">
+                Transfer Cargo
               </button>
               <button (click)="loadFill()" class="btn-success">Load to Fill</button>
               <button (click)="unloadAll()" class="btn-danger">Unload All</button>
@@ -478,6 +556,31 @@ import { DesignPreviewButtonComponent } from '../../shared/components/design-pre
         font-size: var(--font-size-xs);
         flex-shrink: 0;
       }
+      .transfer-slider-row {
+        background: rgba(255, 255, 255, 0.03);
+        padding: var(--space-sm);
+        border-radius: var(--radius-sm);
+        min-width: 0;
+        overflow: hidden;
+      }
+      .slider-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-xs);
+      }
+      .slider-container {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        min-width: 0;
+      }
+      .qty-input-small {
+        width: 60px;
+        padding: 2px 4px;
+        font-size: var(--font-size-sm);
+        text-align: right;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -503,8 +606,27 @@ export class FleetDetailComponent implements OnInit {
     if (!f || !game) return [];
 
     return game.fleets.filter(
-      (other) => other.id !== f.id && other.ownerId === f.ownerId && this.isSameLocation(f, other),
+      (other) =>
+        other.id !== f.id &&
+        other.ownerId === f.ownerId &&
+        this.isSameLocation(f, other) &&
+        !this.isFleetStarbase(other),
     );
+  });
+
+  isFleetStarbase(f: Fleet): boolean {
+    return f.ships.some((s) => {
+      const d = this.getShipDesign(s.designId);
+      return !!d.isStarbase;
+    });
+  }
+
+  planetOnSurface = computed(() => {
+    const f = this.fleet();
+    const game = this.gs.game();
+    if (!f || !game || f.location.type !== 'orbit') return null;
+    const planetId = (f.location as any).planetId;
+    return game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId) || null;
   });
 
   // Transfer State
@@ -520,6 +642,114 @@ export class FleetDetailComponent implements OnInit {
     germanium: 0,
     colonists: 0,
   };
+
+  // Orbit Transfer State
+  orbitTransferState = {
+    resources: 0,
+    ironium: 0,
+    boranium: 0,
+    germanium: 0,
+    colonists: 0,
+  };
+
+  getTotalAvailable(
+    type: 'resources' | 'ironium' | 'boranium' | 'germanium' | 'colonists',
+  ): number {
+    const f = this.fleet();
+    const p = this.planetOnSurface();
+    if (!f) return 0;
+
+    const fleetVal =
+      type === 'colonists'
+        ? f.cargo.colonists
+        : type === 'resources'
+          ? f.cargo.resources
+          : f.cargo.minerals[type];
+    const surfVal =
+      type === 'colonists'
+        ? p?.population || 0
+        : type === 'resources'
+          ? p?.resources || 0
+          : p?.surfaceMinerals[type] || 0;
+
+    return fleetVal + surfVal;
+  }
+
+  getProjectedSurface(
+    type: 'resources' | 'ironium' | 'boranium' | 'germanium' | 'colonists',
+  ): number {
+    return this.getTotalAvailable(type) - this.orbitTransferState[type];
+  }
+
+  projectedCargoUsed(): number {
+    const f = this.fleet();
+    if (!f) return 0;
+    const state = this.orbitTransferState;
+    const resources = state.resources;
+    const minerals = state.ironium + state.boranium + state.germanium;
+    const colonists = Math.floor(state.colonists / 1000);
+    return resources + minerals + colonists;
+  }
+
+  getMaxFleet(type: 'resources' | 'ironium' | 'boranium' | 'germanium' | 'colonists'): number {
+    const totalAvail = this.getTotalAvailable(type);
+    const capacity = this.cargoCapacity();
+    const currentUsed = this.projectedCargoUsed();
+
+    const currentTypeSpace =
+      type === 'colonists'
+        ? Math.floor(this.orbitTransferState[type] / 1000)
+        : this.orbitTransferState[type];
+    const freeSpace = capacity - (currentUsed - currentTypeSpace);
+
+    let maxCapacityAllowed = 0;
+    if (type === 'colonists') {
+      const otherStuff = currentUsed - Math.floor(this.orbitTransferState.colonists / 1000);
+      maxCapacityAllowed = Math.max(0, (capacity - otherStuff) * 1000 + 999);
+    } else {
+      maxCapacityAllowed = Math.max(0, freeSpace);
+    }
+
+    return Math.min(totalAvail, maxCapacityAllowed);
+  }
+
+  commitTransfer() {
+    const f = this.fleet();
+    if (!f || f.location.type !== 'orbit') return;
+    const pid = f.location.planetId;
+
+    const loadPayload: any = { resources: undefined };
+    const unloadPayload: any = { resources: undefined };
+    let hasLoad = false;
+    let hasUnload = false;
+
+    const types = ['resources', 'ironium', 'boranium', 'germanium', 'colonists'] as const;
+    types.forEach((t) => {
+      const current =
+        t === 'colonists'
+          ? f.cargo.colonists
+          : t === 'resources'
+            ? f.cargo.resources
+            : f.cargo.minerals[t];
+      const target = this.orbitTransferState[t];
+      const delta = target - current;
+
+      if (delta > 0) {
+        loadPayload[t] = delta;
+        hasLoad = true;
+      } else if (delta < 0) {
+        unloadPayload[t] = -delta;
+        hasUnload = true;
+      }
+    });
+
+    if (hasLoad) this.gs.loadCargo(f.id, pid, loadPayload);
+    if (hasUnload) this.gs.unloadCargo(f.id, pid, unloadPayload);
+
+    if (hasLoad || hasUnload) {
+      this.toast.success('Cargo transferred');
+    }
+  }
 
   isSameLocation(f1: Fleet, f2: Fleet): boolean {
     if (f1.location.type !== f2.location.type) return false;
@@ -546,12 +776,40 @@ export class FleetDetailComponent implements OnInit {
   private getShipDesign(designId: string): any {
     const game = this.gs.game();
     const dynamicDesign = game?.shipDesigns.find((d) => d.id === designId);
-    if (dynamicDesign?.spec) {
-      return {
-        ...dynamicDesign.spec,
-        colonyModule: dynamicDesign.spec.hasColonyModule,
-        fuelEfficiency: dynamicDesign.spec.fuelEfficiency ?? 100,
-      };
+
+    if (dynamicDesign) {
+      if (dynamicDesign.spec) {
+        return {
+          ...dynamicDesign.spec,
+          name: dynamicDesign.name,
+          colonyModule: dynamicDesign.spec.hasColonyModule,
+          fuelEfficiency: dynamicDesign.spec.fuelEfficiency ?? 100,
+        };
+      }
+
+      // Fallback: Compile stats on the fly
+      const hull = getHull(dynamicDesign.hullId);
+      if (hull) {
+        const player = this.gs.player();
+        const techLevels = player?.techLevels || {
+          Energy: 0,
+          Kinetics: 0,
+          Propulsion: 0,
+          Construction: 0,
+          Electronics: 0,
+          Biotechnology: 0,
+        };
+        const miniaturizedComponents = Object.values(COMPONENTS).map((comp) =>
+          miniaturizeComponent(comp, techLevels),
+        );
+        const stats = compileShipStats(hull, dynamicDesign.slots, miniaturizedComponents);
+        return {
+          ...stats,
+          name: dynamicDesign.name,
+          colonyModule: stats.hasColonyModule,
+          fuelEfficiency: stats.fuelEfficiency ?? 100,
+        };
+      }
     }
     return getDesign(designId);
   }
@@ -699,6 +957,19 @@ export class FleetDetailComponent implements OnInit {
 
   constructor() {
     if (this.gs.stars().length) this.selectedStarId.set(this.gs.stars()[0].id);
+
+    effect(() => {
+      const f = this.fleet();
+      if (f) {
+        this.orbitTransferState = {
+          resources: f.cargo.resources,
+          ironium: f.cargo.minerals.ironium,
+          boranium: f.cargo.minerals.boranium,
+          germanium: f.cargo.minerals.germanium,
+          colonists: f.cargo.colonists,
+        };
+      }
+    });
   }
 
   ngOnInit() {
@@ -854,36 +1125,12 @@ export class FleetDetailComponent implements OnInit {
     const colonistUsed = Math.floor(f.cargo.colonists / 1000);
     return resourcesUsed + mineralsUsed + colonistUsed;
   }
-  load(res: string, ironium: string, boranium: string, germanium: string, col: string) {
-    const f = this.fleet();
-    if (!f || f.location.type !== 'orbit') return;
-    const pid = f.location.planetId;
-    this.gs.loadCargo(f.id, pid, {
-      resources: res ? Number(res) : undefined,
-      ironium: ironium ? Number(ironium) : undefined,
-      boranium: boranium ? Number(boranium) : undefined,
-      germanium: germanium ? Number(germanium) : undefined,
-      colonists: col ? Number(col) : undefined,
-    });
-  }
-  unload(res: string, ironium: string, boranium: string, germanium: string, col: string) {
-    const f = this.fleet();
-    if (!f || f.location.type !== 'orbit') return;
-    const pid = f.location.planetId;
-    this.gs.unloadCargo(f.id, pid, {
-      resources: res ? Number(res) : undefined,
-      ironium: ironium ? Number(ironium) : undefined,
-      boranium: boranium ? Number(boranium) : undefined,
-      germanium: germanium ? Number(germanium) : undefined,
-      colonists: col ? Number(col) : undefined,
-    });
-  }
   loadFill() {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return;
     const pid = f.location.planetId;
     this.gs.loadCargo(f.id, pid, {
-      resources: 'fill',
+      resources: undefined,
       ironium: 'fill',
       boranium: 'fill',
       germanium: 'fill',
@@ -895,7 +1142,7 @@ export class FleetDetailComponent implements OnInit {
     if (!f || f.location.type !== 'orbit') return;
     const pid = f.location.planetId;
     this.gs.unloadCargo(f.id, pid, {
-      resources: 'all',
+      resources: undefined,
       ironium: 'all',
       boranium: 'all',
       germanium: 'all',

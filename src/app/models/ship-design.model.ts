@@ -2,6 +2,7 @@ import { Hull, HullSlot, SlotType } from '../data/hulls.data';
 import { Component, COMPONENTS } from '../data/components.data';
 import { MiniaturizedComponent } from '../utils/miniaturization.util';
 import { SlotAssignment, ComponentAssignment, CompiledShipStats } from '../models/game.model';
+import { validateShipDesign } from '../services/validation.service';
 
 /**
  * Ship Design Models
@@ -205,10 +206,8 @@ export function compileShipStats(
   }
 
   // Validation
-  const isStarbase = warpSpeed === 0;
-  if (!isStarbase && !hasEngine) {
-    errors.push('Ship requires at least one engine');
-  }
+  const isStarbase = !!hull.isStarbase;
+  errors.push(...validateShipDesign(hull, assignments, COMPONENTS));
 
   const isValid = errors.length === 0;
 
@@ -250,10 +249,6 @@ export function compileShipStats(
 export function canInstallComponent(component: Component, slot: HullSlot): boolean {
   // Map component types to slot types
   const componentSlotType = getSlotTypeForComponent(component);
-
-  console.log(
-    `Checking install: ${component.name} (${componentSlotType}) into ${slot.id} (Allowed: ${slot.allowedTypes})`,
-  );
 
   // Check if slot allows this component type
   return slot.allowedTypes.includes(componentSlotType);

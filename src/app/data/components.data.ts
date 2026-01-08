@@ -1,5 +1,5 @@
 // Legacy components.data.ts - Compatibility layer for the new tech atlas structure
-import { ComponentStats, TechRequirement, ComponentCost } from './tech-atlas.types';
+import { ComponentStats, ComponentTrait } from './tech-atlas.types';
 import { ALL_COMPONENTS } from './tech-atlas.data';
 
 // Extended Component interface that includes both old and new properties
@@ -28,10 +28,122 @@ export interface Component extends ComponentStats {
   };
 }
 
+const deriveTraits = (stats: ComponentStats): ComponentTrait[] | undefined => {
+  const traits: ComponentTrait[] = [];
+
+  const addTrait = (trait: ComponentTrait) => {
+    traits.push(trait);
+  };
+
+  switch (stats.type) {
+    case 'Engine': {
+      const warpSpeed = stats.stats.maxWarp;
+      const fuelEfficiency = stats.stats.fuelEff;
+      if (warpSpeed || fuelEfficiency) {
+        addTrait({
+          type: 'propulsion',
+          isMajor: true,
+          properties: {
+            warpSpeed: warpSpeed ?? 0,
+            fuelEfficiency: fuelEfficiency ?? 0,
+            idealWarp: stats.stats.maxWarp ?? 0,
+            isRamscoop: !!stats.isRamscoop,
+          },
+        });
+      }
+      break;
+    }
+    case 'Weapon': {
+      addTrait({
+        type: 'damage_dealer',
+        isMajor: true,
+        properties: {
+          damage: stats.stats.power ?? 0,
+          range: stats.stats.range ?? 0,
+          accuracy: stats.stats.accuracy ?? 0,
+          initiative: stats.stats.initiative ?? 0,
+        },
+      });
+      break;
+    }
+    case 'Bomb': {
+      addTrait({
+        type: 'bomb',
+        isMajor: true,
+        properties: {
+          kill: stats.stats.kill ?? 0,
+          destroy: stats.stats.struct ?? 0,
+        },
+      });
+      break;
+    }
+    case 'Cargo': {
+      if (typeof stats.stats.cap === 'number') {
+        addTrait({
+          type: 'storage',
+          isMajor: true,
+          properties: { cargoCapacity: stats.stats.cap },
+        });
+      }
+      break;
+    }
+    case 'Scanner': {
+      if (typeof stats.stats.scan === 'number' || typeof stats.stats.pen === 'number') {
+        addTrait({
+          type: 'sensor',
+          isMajor: true,
+          properties: {
+            scanRange: stats.stats.scan ?? 0,
+            penScanRange: stats.stats.pen ?? 0,
+            canDetectCloaked: (stats.stats.detection ?? 0) > 0,
+          },
+        });
+      }
+      break;
+    }
+    case 'Cloak': {
+      const cloakStrength = stats.stats.cloak ?? stats.stats.cloaking;
+      if (typeof cloakStrength === 'number') {
+        addTrait({
+          type: 'cloak',
+          isMajor: true,
+          properties: { cloak: cloakStrength },
+        });
+      }
+      break;
+    }
+    case 'Mining': {
+      if (typeof stats.stats.mining === 'number') {
+        addTrait({
+          type: 'mining',
+          isMajor: true,
+          properties: { miningRate: stats.stats.mining },
+        });
+      }
+      break;
+    }
+    case 'Terraforming': {
+      if (typeof stats.stats.terraform === 'number') {
+        addTrait({
+          type: 'terraform',
+          isMajor: true,
+          properties: { terraformRate: stats.stats.terraform },
+        });
+      }
+      break;
+    }
+  }
+
+  return traits.length ? traits : undefined;
+};
+
 // Convert ComponentStats to Component format
-const convertComponentStats = (stats: ComponentStats): Component => {
+const convertComponentStats = (stats: ComponentStats, categoryId?: string): Component => {
   const component: Component = {
     ...stats,
+    categoryId: stats.categoryId ?? categoryId,
+    traits: stats.traits ?? deriveTraits(stats),
+    metadata: stats.metadata ?? { icon: stats.img, description: stats.description },
     // Map stats properties to legacy property names
     warpSpeed: stats.stats.maxWarp,
     fuelEfficiency: stats.stats.fuelEff,
@@ -61,12 +173,16 @@ const convertComponentStats = (stats: ComponentStats): Component => {
 };
 
 // Flatten all components into a single array and create a lookup object
-const allComponentsList = ALL_COMPONENTS.flatMap(category => category.items);
-const convertedComponents = allComponentsList.map(convertComponentStats);
+const allComponentsList = ALL_COMPONENTS.flatMap((category) =>
+  category.items.map((item) => ({ item, categoryId: category.id })),
+);
+const convertedComponents = allComponentsList.map(({ item, categoryId }) =>
+  convertComponentStats(item, categoryId),
+);
 
 // Export all components as COMPONENTS constant (as an object for easy lookup)
 export const COMPONENTS: { [key: string]: Component } = {};
-convertedComponents.forEach(component => {
+convertedComponents.forEach((component) => {
   COMPONENTS[component.id] = component;
 });
 
