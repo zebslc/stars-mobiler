@@ -139,6 +139,7 @@ export class HullLayoutComponent implements OnChanges {
   showClearButton = signal<string | null>(null);
   longPressTimer: any;
   private isPanning = signal(false);
+  private hasPanned = false;
   private panButton = 1; // middle mouse
   private lastPointerX = 0;
   private lastPointerY = 0;
@@ -215,12 +216,19 @@ export class HullLayoutComponent implements OnChanges {
   onPointerDown(event: PointerEvent) {
     (event.target as Element).setPointerCapture?.(event.pointerId);
     this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (event.pointerType === 'mouse' && event.button === this.panButton) {
+
+    const isPanStart =
+      (event.pointerType === 'mouse' && (event.button === 0 || event.button === this.panButton)) ||
+      event.pointerType === 'touch' ||
+      event.pointerType === 'pen';
+
+    if (isPanStart) {
       this.isPanning.set(true);
+      this.hasPanned = false;
       this.lastPointerX = event.clientX;
       this.lastPointerY = event.clientY;
-      event.preventDefault();
     }
+
     if (this.activePointers.size === 2) {
       const pts = Array.from(this.activePointers.values());
       const dx = pts[0].x - pts[1].x;
@@ -247,6 +255,11 @@ export class HullLayoutComponent implements OnChanges {
     if (this.isPanning()) {
       const dx = event.clientX - this.lastPointerX;
       const dy = event.clientY - this.lastPointerY;
+
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+        this.hasPanned = true;
+      }
+
       this.lastPointerX = event.clientX;
       this.lastPointerY = event.clientY;
       this.offsetX.set(this.offsetX() + dx);
@@ -260,9 +273,21 @@ export class HullLayoutComponent implements OnChanges {
     if (this.activePointers.size < 2) {
       this.initialPinchDistance = 0;
     }
-    if (event.pointerType === 'mouse' && event.button === this.panButton) {
+
+    if (this.activePointers.size === 1 && this.isPanning()) {
+      const remaining = this.activePointers.values().next().value;
+      if (remaining) {
+        this.lastPointerX = remaining.x;
+        this.lastPointerY = remaining.y;
+      }
+    }
+
+    const isPanEnd =
+      (event.pointerType === 'mouse' && (event.button === 0 || event.button === this.panButton)) ||
+      (event.pointerType !== 'mouse' && this.activePointers.size === 0);
+
+    if (isPanEnd) {
       this.isPanning.set(false);
-      event.preventDefault();
     }
   }
 
@@ -348,6 +373,7 @@ export class HullLayoutComponent implements OnChanges {
   }
 
   onSlotClick(slotId: string) {
+    if (this.hasPanned) return;
     this.slotSelected.emit(slotId);
   }
 
