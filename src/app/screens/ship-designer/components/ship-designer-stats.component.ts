@@ -72,6 +72,18 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
           <span class="label">Firepower:</span>
           <span class="value">{{ stats.firepower }}</span>
         </div>
+        @if (stats.maxWeaponRange > 0) {
+          <div class="stat">
+            <span class="label">Max Range:</span>
+            <span class="value">{{ stats.maxWeaponRange }}</span>
+          </div>
+        }
+        @if (stats.bombing.kill > 0 || stats.bombing.destroy > 0) {
+          <div class="stat">
+            <span class="label">Bombing:</span>
+            <span class="value">{{ stats.bombing.kill }}% / {{ stats.bombing.destroy }}%</span>
+          </div>
+        }
         <div class="stat">
           <span class="label">Armor:</span>
           <span class="value">{{ stats.armor }}</span>
@@ -99,6 +111,10 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
         <div class="stat">
           <span class="label">Scan Range:</span>
           <span class="value">{{ stats.scanRange }}ly</span>
+        </div>
+        <div class="stat">
+          <span class="label">Pen Scan:</span>
+          <span class="value">{{ stats.penScanRange }}ly</span>
         </div>
         @if (stats.canDetectCloaked) {
           <div class="stat">

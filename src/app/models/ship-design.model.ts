@@ -29,12 +29,14 @@ export function compileShipStats(
   let isRamscoop = false;
   let firepower = 0;
   let shields = 0;
+  let armor = hull.armor; // Start with hull base armor
   let accuracy = 0;
   let initiative = hull.Stats.Initiative || 0; // Start with hull base initiative
   let cargoCapacity = hull.cargoCapacity || 0;
   let fuelCapacity = hull.fuelCapacity || 0;
   let colonistCapacity = 0;
   let scanRange = 0;
+  let penScanRange = 0;
   let canDetectCloaked = false;
   let hasEngine = false;
   let hasColonyModule = false;
@@ -42,6 +44,7 @@ export function compileShipStats(
   let terraformRate = 0;
   let bombing = { kill: 0, destroy: 0 };
   let massDriver = { speed: 0, catch: 0 };
+  let maxWeaponRange = 0;
 
   const cost = {
     resources: hull.baseCost.resources,
@@ -91,6 +94,10 @@ export function compileShipStats(
 
       // Apply component effects based on type (using base stats, multiplied by count)
       if (baseComponent.stats) {
+        if (baseComponent.stats.armor) {
+          armor += baseComponent.stats.armor * count;
+        }
+
         if (baseComponent.stats.mining) {
           miningRate += baseComponent.stats.mining * count;
         }
@@ -140,6 +147,9 @@ export function compileShipStats(
 
         case 'weapon':
           firepower += (baseComponent.damage || 0) * count;
+          if (baseComponent.stats?.range) {
+            maxWeaponRange = Math.max(maxWeaponRange, baseComponent.stats.range);
+          }
           // Note: Weapon accuracy is intrinsic to the weapon and doesn't add to ship accuracy rating
           // Ship accuracy rating comes from battle computers
           if (baseComponent.initiative) {
@@ -178,6 +188,9 @@ export function compileShipStats(
         case 'scanner':
           // For scanners, only the best one matters
           scanRange = Math.max(scanRange, baseComponent.scanRange || 0);
+          if (baseComponent.stats?.pen) {
+            penScanRange = Math.max(penScanRange, baseComponent.stats.pen);
+          }
           if (baseComponent.canDetectCloaked) {
             canDetectCloaked = true;
           }
@@ -205,13 +218,15 @@ export function compileShipStats(
     idealWarp,
     isRamscoop,
     firepower,
-    armor: hull.armor,
+    maxWeaponRange,
+    armor,
     shields,
     accuracy,
     initiative,
     cargoCapacity,
     colonistCapacity,
     scanRange,
+    penScanRange,
     canDetectCloaked,
     miningRate,
     terraformRate,

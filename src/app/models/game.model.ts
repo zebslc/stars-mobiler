@@ -39,6 +39,7 @@ export interface CompiledShipStats {
 
   // Combat
   firepower: number;
+  maxWeaponRange: number;
   armor: number;
   shields: number;
   accuracy: number;
@@ -48,6 +49,7 @@ export interface CompiledShipStats {
   cargoCapacity: number;
   colonistCapacity: number;
   scanRange: number;
+  penScanRange: number;
   canDetectCloaked: boolean;
   miningRate: number;
   terraformRate: number;

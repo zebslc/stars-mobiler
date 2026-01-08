@@ -305,6 +305,8 @@ export class ShipSelectorComponent {
         cargoCapacity: design.cargoCapacity,
         colonistCapacity: design.colonistCapacity || 0,
         scanRange: design.scannerRange,
+        penScanRange: 0,
+        maxWeaponRange: 0,
         cost: {
           ironium: design.cost.ironium,
           boranium: design.cost.boranium,
