@@ -4,6 +4,13 @@ import { GameStateService } from '../../services/game-state.service';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { signal } from '@angular/core';
 
+// Declare Jasmine globals to satisfy linter
+declare const describe: any;
+declare const it: any;
+declare const expect: any;
+declare const beforeEach: any;
+declare const jasmine: any;
+
 describe('ShipDesignOverviewComponent', () => {
   let component: ShipDesignOverviewComponent;
   let fixture: ComponentFixture<ShipDesignOverviewComponent>;

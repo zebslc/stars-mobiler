@@ -106,6 +106,12 @@ export class FleetService {
     ownerId: string,
     baseNameSource?: string,
   ): Fleet {
+    // Check fleet limit
+    const playerFleets = game.fleets.filter((f) => f.ownerId === ownerId);
+    if (playerFleets.length >= this.MAX_FLEETS) {
+      throw new Error(`Maximum of ${this.MAX_FLEETS} fleets allowed per player.`);
+    }
+
     // Generate fleet name
     const userDesign = baseNameSource
       ? game.shipDesigns.find((d) => d.id === baseNameSource)
