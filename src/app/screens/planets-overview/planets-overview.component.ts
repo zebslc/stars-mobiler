@@ -5,6 +5,7 @@ import { GameStateService } from '../../services/game-state.service';
 import { TechService } from '../../services/tech.service';
 import { Planet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
+import { getHull } from '../../data/hulls.data';
 import { PlanetCardComponent } from './components/planet-card.component';
 
 @Component({
@@ -128,12 +129,22 @@ export class PlanetsOverviewComponent {
 
   starbaseMap = computed(() => {
     const game = this.gs.game();
-    const map = new Map<string, { name: string; imageClass: string }>();
+    const map = new Map<string, { designId: string; name: string; imageClass: string }>();
     if (!game) return map;
 
     const playerId = this.gs.player()?.id;
 
     for (const fleet of game.fleets) {
+      // Debug logging for starbase detection
+      if (fleet.location.type === 'orbit') {
+        const planetId = (fleet.location as any).planetId;
+        const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+        if (planet?.name === 'Home') {
+          console.log('Checking fleet at Home:', fleet);
+          console.log('Ships:', fleet.ships);
+        }
+      }
+
       if (fleet.ownerId !== playerId) continue;
       if (fleet.location.type !== 'orbit') continue;
 
@@ -146,16 +157,18 @@ export class PlanetsOverviewComponent {
         let hullName = '';
 
         if (dynamicDesign) {
-          const hull = this.techService.getHulls().find((h) => h.id === dynamicDesign.hullId);
+          const hull = getHull(dynamicDesign.hullId);
           if (hull) {
             isStarbase =
               hull.isStarbase ||
+              hull.type === 'starbase' ||
               [
                 'Orbital Fort',
                 'Space Dock',
                 'Space Station',
                 'Ultra Station',
                 'Death Star',
+                'Starbase',
               ].includes(hull.Name);
             designName = dynamicDesign.name;
             hullName = hull.Name;
@@ -172,6 +185,7 @@ export class PlanetsOverviewComponent {
 
         if (isStarbase) {
           map.set((fleet.location as any).planetId, {
+            designId: ship.designId,
             name: designName,
             imageClass: this.techService.getHullImageClass(hullName),
           });

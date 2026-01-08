@@ -17,12 +17,12 @@ import { Hull, getHull } from '../../../data/hulls.data';
 import { COMPONENTS } from '../../../data/components.data';
 import { compileShipStats } from '../../../models/ship-design.model';
 import { miniaturizeComponent } from '../../../utils/miniaturization.util';
-import { HullPreviewModalComponent } from '../../../shared/components/hull-preview-modal.component';
+import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 
 @Component({
   selector: 'app-fleet-card',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, HullPreviewModalComponent],
+  imports: [CommonModule, DecimalPipe, DesignPreviewButtonComponent],
   template: `
     <div class="fleet-card">
       <div class="fleet-header">
@@ -41,14 +41,17 @@ import { HullPreviewModalComponent } from '../../../shared/components/hull-previ
         <div class="composition-header">Ships:</div>
         <div class="ships-list">
           @for (ship of fleet.ships; track ship.designId) {
-            <div class="ship-row" (click)="openPreview(ship.designId)" title="View hull layout">
-              <span class="ship-icon tech-icon" [ngClass]="getHullImageClass(ship.designId)"></span>
+            <app-design-preview-button
+              [designId]="ship.designId"
+              buttonClass="ship-row"
+              title="View hull layout"
+            >
               <span class="ship-count">{{ ship.count }}x</span>
               <span class="ship-name">{{ getDesignName(ship.designId) }}</span>
               @if (ship.damage > 0) {
                 <span class="ship-damage">{{ ship.damage }}% dmg</span>
               }
-            </div>
+            </app-design-preview-button>
           }
         </div>
       </div>
@@ -97,16 +100,6 @@ import { HullPreviewModalComponent } from '../../../shared/components/hull-previ
         </div>
       </div>
     </div>
-
-    @if (previewOpen()) {
-      <app-hull-preview-modal
-        [hull]="previewHull()"
-        [design]="previewDesign()"
-        [title]="previewTitle()"
-        [stats]="previewStats()"
-        (close)="previewOpen.set(false)"
-      ></app-hull-preview-modal>
-    }
   `,
   styles: [
     `
@@ -285,11 +278,6 @@ export class FleetCardComponent {
 
   private gs = inject(GameStateService);
   private techService = inject(TechService);
-  previewOpen = signal(false);
-  previewHull = signal<Hull | null>(null);
-  previewDesign = signal<ShipDesign | null>(null);
-  previewTitle = signal<string>('');
-  previewStats = signal<any>(null);
 
   orders = computed(() => this.fleet.orders || []);
 
@@ -401,65 +389,6 @@ export class FleetCardComponent {
   getDesignName(designId: string): string {
     const design = this.getDesignDetails(designId);
     return design.name || designId;
-  }
-
-  getHullNameFromDesign(designId: string): string {
-    const design = this.getDesignDetails(designId);
-
-    // If it's a dynamic design, we have the hull name directly or via hullId
-    if (design.hullName) return design.hullName;
-
-    const name = design.name;
-
-    // Map compiled design names to hull names (Legacy/Static fallback)
-    const nameMap: Record<string, string> = {
-      Scout: 'Scout',
-      Frigate: 'Frigate',
-      Destroyer: 'Destroyer',
-      'Small Freighter': 'Small Freighter',
-      'Super Freighter': 'Super Freighter',
-      'Fuel Transport': 'Fuel Transport',
-      'Colony Ship': 'Colony Ship',
-      Starbase: 'Orbital Fort',
-    };
-
-    return nameMap[name] || 'Scout'; // Default to Scout if not found
-  }
-
-  getHullImageClass(designId: string): string {
-    const hullName = this.getHullNameFromDesign(designId);
-    return this.techService.getHullImageClass(hullName);
-  }
-
-  openPreview(designId: string): void {
-    const designDetails = this.getDesignDetails(designId);
-    const hull = getHull(designDetails.hullId);
-
-    // Try to find the actual ship design for slot layout
-    const playerDesigns = this.gs.getPlayerShipDesigns();
-    const realDesign = playerDesigns.find((d) => d.id === designId);
-
-    this.previewHull.set(hull || null);
-    this.previewDesign.set(realDesign || null);
-    this.previewTitle.set(designDetails.name);
-    if (realDesign && hull) {
-      const player = this.gs.player();
-      const techLevels = player?.techLevels || {
-        Energy: 0,
-        Kinetics: 0,
-        Propulsion: 0,
-        Construction: 0,
-      };
-      const miniaturizedComponents = Object.values(COMPONENTS).map((comp) =>
-        miniaturizeComponent(comp, techLevels),
-      );
-      const stats = compileShipStats(hull, realDesign.slots, miniaturizedComponents);
-      this.previewStats.set(stats);
-    } else {
-      this.previewStats.set(designDetails || null);
-    }
-
-    this.previewOpen.set(true);
   }
 
   formatOrder(order: any): string {

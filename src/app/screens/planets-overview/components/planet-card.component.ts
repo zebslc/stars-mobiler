@@ -1,22 +1,36 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  inject,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { Planet } from '../../../models/game.model';
+import { Planet, ShipDesign } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game-state.service';
+import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 
 @Component({
   selector: 'app-planet-card',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, TitleCasePipe],
+  imports: [CommonModule, DecimalPipe, TitleCasePipe, DesignPreviewButtonComponent],
   template: `
     <div class="planet-card">
       <div class="planet-header">
         <h3>{{ planet.name }}</h3>
         <div class="header-buttons">
+          @if (starbase && starbase.designId) {
+            <app-design-preview-button [designId]="starbase.designId" title="View Starbase Design">
+            </app-design-preview-button>
+          }
           <button (click)="onViewOnMap()" class="btn-small" title="View on Map">
-            <span style="font-size: 16px;">🌃</span>
+            <span style="font-size: 24px;">🌃</span>
           </button>
           <button (click)="onViewPlanet()" class="btn-small" title="Planet Details">
-            <span style="font-size: 16px;">🌍</span>
+            <span style="font-size: 24px;">🌍</span>
           </button>
         </div>
       </div>
@@ -67,13 +81,6 @@ import { GameStateService } from '../../../services/game-state.service';
           <span class="text-small">{{ planet.research || 0 }}</span>
         </div>
       </div>
-
-      @if (starbase) {
-        <div class="starbase-display">
-          <span class="ship-icon tech-icon" [ngClass]="starbase.imageClass"></span>
-          <span class="starbase-name">{{ starbase.name }}</span>
-        </div>
-      }
 
       @if (buildQueue().length > 0) {
         <div class="build-queue">
@@ -133,6 +140,11 @@ import { GameStateService } from '../../../services/game-state.service';
         font-size: var(--font-size-lg);
       }
 
+      .header-buttons {
+        display: flex;
+        gap: var(--space-sm);
+      }
+
       .btn-small {
         display: flex;
         align-items: center;
@@ -177,30 +189,6 @@ import { GameStateService } from '../../../services/game-state.service';
       }
       .germanium {
         color: var(--color-germanium);
-      }
-
-      .starbase-display {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: var(--space-sm) var(--space-md);
-        background: var(--color-bg-tertiary);
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--color-border);
-        margin-top: var(--space-xs);
-      }
-
-      .starbase-name {
-        font-size: var(--font-size-sm);
-        font-weight: 500;
-      }
-
-      .ship-icon {
-        width: 24px;
-        height: 24px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
       }
 
       .planet-production {
@@ -268,7 +256,7 @@ import { GameStateService } from '../../../services/game-state.service';
 })
 export class PlanetCardComponent {
   @Input({ required: true }) planet!: Planet;
-  @Input() starbase: { name: string; imageClass: string } | null = null;
+  @Input() starbase: { designId?: string; name: string; imageClass: string } | null = null;
   @Output() viewPlanet = new EventEmitter<void>();
   @Output() viewOnMap = new EventEmitter<void>();
 
