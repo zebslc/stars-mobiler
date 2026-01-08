@@ -311,6 +311,7 @@ export class ShipSelectorComponent {
           ironium: design.cost.ironium,
           boranium: design.cost.boranium,
           germanium: design.cost.germanium,
+          resources: design.cost.resources || 0,
         },
         idealWarp: design.idealWarp,
         fuelEfficiency: design.fuelEfficiency,

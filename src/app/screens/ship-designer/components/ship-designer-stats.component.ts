@@ -28,10 +28,12 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
             <span class="label">Hull Mass:</span>
             <span class="value">{{ hull.mass }}kt</span>
           </div>
-          <div class="stat">
-            <span class="label">Max Fuel:</span>
-            <span class="value">{{ hull.fuelCapacity }}mg</span>
-          </div>
+          @if (!stats.isStarbase) {
+            <div class="stat">
+              <span class="label">Max Fuel:</span>
+              <span class="value">{{ hull.fuelCapacity }}mg</span>
+            </div>
+          }
           <div class="stat">
             <span class="label">Armor:</span>
             <span class="value">{{ hull.armor }}</span>
@@ -44,27 +46,29 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
           }
         </div>
       }
-      <div class="stat-group">
-        <h4>⚡ Movement</h4>
-        <div class="stat">
-          <span class="label">Warp Speed:</span>
-          <span class="value">{{ stats.warpSpeed }}</span>
+      @if (!stats.isStarbase) {
+        <div class="stat-group">
+          <h4>⚡ Movement</h4>
+          <div class="stat">
+            <span class="label">Warp Speed:</span>
+            <span class="value">{{ stats.warpSpeed }}</span>
+          </div>
+          <div class="stat">
+            <span class="label">Fuel Capacity:</span>
+            <span class="value">{{ stats.fuelCapacity }}mg</span>
+          </div>
+          <div class="stat">
+            <span class="label">Fuel Efficiency:</span>
+            <span class="value">
+              {{ stats.isRamscoop ? 'Ramscoop' : (stats.fuelEfficiency ?? '—') }}
+            </span>
+          </div>
+          <div class="stat">
+            <span class="label">Ideal Warp:</span>
+            <span class="value">{{ stats.idealWarp }}</span>
+          </div>
         </div>
-        <div class="stat">
-          <span class="label">Fuel Capacity:</span>
-          <span class="value">{{ stats.fuelCapacity }}mg</span>
-        </div>
-        <div class="stat">
-          <span class="label">Fuel Efficiency:</span>
-          <span class="value">
-            {{ stats.isRamscoop ? 'Ramscoop' : (stats.fuelEfficiency ?? '—') }}
-          </span>
-        </div>
-        <div class="stat">
-          <span class="label">Ideal Warp:</span>
-          <span class="value">{{ stats.idealWarp }}</span>
-        </div>
-      </div>
+      }
 
       <div class="stat-group">
         <h4>🔫 Combat</h4>
@@ -104,10 +108,12 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
 
       <div class="stat-group">
         <h4>🔧 Utility</h4>
-        <div class="stat">
-          <span class="label">Cargo:</span>
-          <span class="value">{{ stats.cargoCapacity }}kt</span>
-        </div>
+        @if (!stats.isStarbase) {
+          <div class="stat">
+            <span class="label">Cargo:</span>
+            <span class="value">{{ stats.cargoCapacity }}kt</span>
+          </div>
+        }
         <div class="stat">
           <span class="label">Scan Range:</span>
           <span class="value">{{ stats.scanRange }}ly</span>

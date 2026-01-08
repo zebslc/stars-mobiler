@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { CompiledShipStats, ShipDesign } from '../../models/game.model';
 import { getHull } from '../../data/hulls.data';
 
@@ -13,7 +14,7 @@ export interface ShipDesignDisplay {
 @Component({
   selector: 'app-ship-design-item',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ResourceCostComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -42,10 +43,12 @@ export interface ShipDesignDisplay {
       </div>
 
       <div class="design-stats">
-        <div class="stat-row" title="Mass">
-          <span class="stat-icon">⚖️</span>
-          <span>{{ design.stats.mass }}kt</span>
-        </div>
+        @if (!design.stats.isStarbase) {
+          <div class="stat-row" title="Mass">
+            <span class="stat-icon">⚖️</span>
+            <span>{{ design.stats.mass }}kt</span>
+          </div>
+        }
         <div class="stat-row" title="Armor">
           <span class="stat-icon">🛡️</span>
           <span>{{ design.stats.armor }}dp</span>
@@ -62,10 +65,30 @@ export interface ShipDesignDisplay {
             <span>{{ design.stats.firepower }}</span>
           </div>
         }
-        <div class="stat-row" title="Speed">
-          <span class="stat-icon">🚀</span>
-          <span>W{{ design.stats.warpSpeed }}</span>
-        </div>
+        @if (!design.stats.isStarbase) {
+          <div class="stat-row" title="Speed">
+            <span class="stat-icon">🚀</span>
+            <span>W{{ design.stats.warpSpeed }}</span>
+          </div>
+        }
+        @if (design.stats.initiative > 0) {
+          <div class="stat-row" title="Initiative">
+            <span class="stat-icon">⏱️</span>
+            <span>{{ design.stats.initiative }}</span>
+          </div>
+        }
+        @if (design.stats.scanRange > 0) {
+          <div class="stat-row" title="Scan Range">
+            <span class="stat-icon">📡</span>
+            <span>{{ design.stats.scanRange }}ly</span>
+          </div>
+        }
+        @if (design.stats.penScanRange > 0) {
+          <div class="stat-row" title="Penetrating Scan Range">
+            <span class="stat-icon">👁️</span>
+            <span>{{ design.stats.penScanRange }}ly</span>
+          </div>
+        }
         @if (design.stats.fuelCapacity > 0) {
           <div class="stat-row" title="Fuel">
             <span class="stat-icon">⛽</span>
@@ -84,6 +107,10 @@ export interface ShipDesignDisplay {
             <span>{{ design.stats.colonistCapacity }}</span>
           </div>
         }
+        <div class="stat-row full-width" title="Cost">
+          <span class="stat-icon">💰</span>
+          <app-resource-cost [cost]="design.stats.cost" [inline]="true"></app-resource-cost>
+        </div>
       </div>
 
       @if (mode === 'card') {
@@ -181,6 +208,10 @@ export interface ShipDesignDisplay {
         display: flex;
         align-items: center;
         gap: var(--space-sm);
+      }
+
+      .stat-row.full-width {
+        grid-column: 1 / -1;
       }
 
       .stat-icon {

@@ -33,11 +33,10 @@ import { GridSlot } from '../hull-layout.types';
           <div
             class="tech-icon-bg tech-icon"
             [style.background-image]="
-              'url(/assets/tech-icons/' +
-              (componentData.component.img || 'placeholder') +
-              '.png)'
+              'url(/assets/tech-icons/' + (componentData.component.img || 'placeholder') + '.png)'
             "
             [title]="componentData.component.name"
+            (click)="onComponentInfoClick($event)"
           ></div>
           @if (maxCount > 1) {
             <div class="slot-controls-overlay">
@@ -61,9 +60,7 @@ import { GridSlot } from '../hull-layout.types';
                   </button>
                 </div>
               }
-              <div class="component-count">
-                {{ componentData.count }}/{{ maxCount }}
-              </div>
+              <div class="component-count">{{ componentData.count }}/{{ maxCount }}</div>
             </div>
           }
           @if (editable && slot.editable) {
@@ -360,12 +357,17 @@ export class HullSlotComponent implements OnChanges {
   @Output() slotClear = new EventEmitter<Event>();
   @Output() slotTouchStart = new EventEmitter<TouchEvent>();
   @Output() slotTouchEnd = new EventEmitter<TouchEvent>();
+  @Output() componentInfoClick = new EventEmitter<void>();
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['componentData']) {
       const data = changes['componentData'].currentValue;
-      if (this.slot?.id === 'SA1' || this.slot?.id === 'SA2') { // Filter to reduce noise
-         console.log(`HullSlot ${this.slot?.id} componentData changed:`, data ? `${data.component.name} (x${data.count})` : 'null');
+      if (this.slot?.id === 'SA1' || this.slot?.id === 'SA2') {
+        // Filter to reduce noise
+        console.log(
+          `HullSlot ${this.slot?.id} componentData changed:`,
+          data ? `${data.component.name} (x${data.count})` : 'null',
+        );
       }
     }
   }
@@ -398,6 +400,11 @@ export class HullSlotComponent implements OnChanges {
     this.slotTouchStart.emit(event);
   }
 
+  onComponentInfoClick(event: Event) {
+    event.stopPropagation();
+    this.componentInfoClick.emit();
+  }
+
   onTouchEnd(event: TouchEvent) {
     this.slotTouchEnd.emit(event);
   }
@@ -423,27 +430,27 @@ export class HullSlotComponent implements OnChanges {
       orb: '🛞',
       orbital: '🛞',
     };
-    
+
     let icons = '';
     // Use a Set to avoid duplicate icons if multiple types map to the same icon
     const addedIcons = new Set<string>();
-    
+
     for (const t of allowedTypes) {
       const key = t.toLowerCase();
       let icon = '';
-      
+
       if (key.includes('orbital')) {
         icon = typeMap['orb'];
       } else if (typeMap[key]) {
         icon = typeMap[key];
       }
-      
+
       if (icon && !addedIcons.has(icon)) {
         icons += icon;
         addedIcons.add(icon);
       }
     }
-    
+
     return icons || '⚡';
   }
 }

@@ -60,6 +60,7 @@ import { HullSlotComponent } from './hull-slot/hull-slot.component';
                 (slotClear)="clearSlot($event, slot.id)"
                 (slotTouchStart)="onTouchStart($event, slot.id)"
                 (slotTouchEnd)="onTouchEnd($event)"
+                (componentInfoClick)="onComponentInfoClick(slot.id)"
               ></app-hull-slot>
             }
           </div>
@@ -131,6 +132,7 @@ export class HullLayoutComponent implements OnChanges {
   @Output() componentRemoved = new EventEmitter<{ slotId: string; componentId: string }>();
   @Output() componentIncremented = new EventEmitter<{ slotId: string; componentId: string }>();
   @Output() slotCleared = new EventEmitter<string>();
+  @Output() componentInfoClick = new EventEmitter<string>();
 
   private _hull = signal<Hull | null>(null);
   private _design = signal<ShipDesign | null>(null);
@@ -456,5 +458,9 @@ export class HullLayoutComponent implements OnChanges {
     event.stopPropagation();
     this.slotCleared.emit(slotId);
     this.showClearButton.set(null);
+  }
+
+  onComponentInfoClick(slotId: string) {
+    this.componentInfoClick.emit(slotId);
   }
 }

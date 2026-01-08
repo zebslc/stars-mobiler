@@ -70,6 +70,7 @@ export interface CompiledShipStats {
     ironium: number;
     boranium: number;
     germanium: number;
+    resources: number;
   };
 
   // Flags

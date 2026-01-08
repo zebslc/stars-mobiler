@@ -298,11 +298,12 @@ export class ShipDesignerComponentSelectorComponent {
     event.target.src = '/assets/tech-icons/placeholder.png';
   }
 
-  formatCost(cost: { ironium?: number; boranium?: number; germanium?: number }): string {
+  formatCost(cost: { ironium?: number; boranium?: number; germanium?: number; resources?: number }): string {
     const parts: string[] = [];
     if (cost.ironium) parts.push(`${cost.ironium} Fe`);
     if (cost.boranium) parts.push(`${cost.boranium} B`);
     if (cost.germanium) parts.push(`${cost.germanium} Ge`);
+    if (cost.resources) parts.push(`${cost.resources} Res`);
     return parts.join(', ');
   }
 

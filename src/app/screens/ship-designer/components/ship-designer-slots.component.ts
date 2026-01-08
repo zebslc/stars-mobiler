@@ -33,6 +33,7 @@ import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull
             (componentRemoved)="onComponentRemovedEvent($event)"
             (componentIncremented)="onComponentIncrementedEvent($event)"
             (slotCleared)="onSlotClearedEvent($event)"
+            (componentInfoClick)="componentInfoClick.emit($event)"
           ></app-hull-layout>
         </div>
       </div>
@@ -67,6 +68,7 @@ export class ShipDesignerSlotsComponent implements OnChanges {
   @Output() componentRemoved = new EventEmitter<{ slotId: string; componentId: string }>();
   @Output() componentIncremented = new EventEmitter<{ slotId: string; componentId: string }>();
   @Output() slotCleared = new EventEmitter<string>();
+  @Output() componentInfoClick = new EventEmitter<string>();
 
   private _hull = signal<Hull | null>(null);
   private _design = signal<ShipDesign | null>(null);
@@ -98,5 +100,9 @@ export class ShipDesignerSlotsComponent implements OnChanges {
 
   onSlotClearedEvent(slotId: string) {
     this.slotCleared.emit(slotId);
+  }
+
+  onComponentInfoClick(slotId: string) {
+    this.componentInfoClick.emit(slotId);
   }
 }

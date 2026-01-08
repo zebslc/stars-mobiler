@@ -91,6 +91,7 @@ export function compileShipStats(
       if (miniComponent.cost.ironium) cost.ironium += miniComponent.cost.ironium * count;
       if (miniComponent.cost.boranium) cost.boranium += miniComponent.cost.boranium * count;
       if (miniComponent.cost.germanium) cost.germanium += miniComponent.cost.germanium * count;
+      if (miniComponent.cost.resources) cost.resources += miniComponent.cost.resources * count;
 
       // Apply component effects based on type (using base stats, multiplied by count)
       if (baseComponent.stats) {

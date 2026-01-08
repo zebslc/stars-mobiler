@@ -95,6 +95,16 @@ export class ShipDesignerComponent implements OnInit {
     }
   }
 
+  onComponentInfoClick(slotId: string) {
+    const design = this.design();
+    if (!design) return;
+    const slot = design.slots.find((s) => s.slotId === slotId);
+    if (slot && slot.components.length > 0) {
+      const componentId = slot.components[0].componentId;
+      this.previewComponentName.set(componentId);
+    }
+  }
+
   selectHull(hullId: string) {
     const player = this.gameState.player();
     const turn = this.gameState.turn();

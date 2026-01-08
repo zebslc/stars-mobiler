@@ -23,11 +23,13 @@ export interface MiniaturizedComponent {
     ironium?: number;
     boranium?: number;
     germanium?: number;
+    resources?: number;
   };
   baseCost: {
     ironium?: number;
     boranium?: number;
     germanium?: number;
+    resources?: number;
   };
   miniaturizationLevel: number;
 }
@@ -100,6 +102,7 @@ export function miniaturizeComponent(
     ironium?: number;
     boranium?: number;
     germanium?: number;
+    resources?: number;
   } = {};
 
   if (component.cost.ironium) {
@@ -110,6 +113,9 @@ export function miniaturizeComponent(
   }
   if (component.cost.germanium) {
     miniaturizedCost.germanium = Math.ceil(component.cost.germanium * factor);
+  }
+  if (component.cost.resources) {
+    miniaturizedCost.resources = Math.ceil(component.cost.resources * factor);
   }
 
   return {
@@ -125,6 +131,7 @@ export function miniaturizeComponent(
       ironium: component.cost.ironium || 0,
       boranium: component.cost.boranium || 0,
       germanium: component.cost.germanium || 0,
+      resources: component.cost.resources || 0,
     },
     miniaturizationLevel: Math.max(0, miniaturizationLevel),
   };

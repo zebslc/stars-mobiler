@@ -40,14 +40,18 @@
   <!-- Top Summary Bar -->
   @if (stats() && hull()) {
     <div class="summary-bar">
-      <div class="summary-item">
-        <span class="label">Mass</span>
-        <span class="value">{{ stats()!.mass }}kt</span>
-      </div>
-      <div class="summary-item">
-        <span class="label">Fuel</span>
-        <span class="value">{{ stats()!.fuelCapacity }}mg</span>
-      </div>
+      @if (!stats()!.isStarbase) {
+        <div class="summary-item">
+          <span class="label">Mass</span>
+          <span class="value">{{ stats()!.mass }}kt</span>
+        </div>
+      }
+      @if (!stats()!.isStarbase) {
+        <div class="summary-item">
+          <span class="label">Fuel</span>
+          <span class="value">{{ stats()!.fuelCapacity }}mg</span>
+        </div>
+      }
       <div class="summary-item">
         <span class="label">Armor</span>
         <span class="value">{{ stats()!.armor }}</span>
@@ -93,6 +97,7 @@
       (componentRemoved)="onComponentRemoved($event)"
       (componentIncremented)="onComponentIncremented($event)"
       (slotCleared)="onSlotCleared($event)"
+      (componentInfoClick)="onComponentInfoClick($event)"
     ></app-ship-designer-slots>
 
     <!-- Right: Stats -->

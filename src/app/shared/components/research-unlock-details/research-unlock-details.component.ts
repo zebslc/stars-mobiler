@@ -237,7 +237,7 @@ export class ResearchUnlockDetailsComponent {
     const name = this.unlockName;
     const hull = this.techService.getHullByName(name);
     if (hull) return hull;
-    return this.techService.getComponentByName(name);
+    return this.techService.getComponentByName(name) || this.techService.getComponentById(name);
   });
 
   hullData = computed(() => {
