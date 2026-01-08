@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { BuildItem, GameState, Planet } from '../models/game.model';
 import { EconomyService } from './economy.service';
-import { getDesign } from '../data/ships.data';
 import { ShipyardService } from './shipyard.service';
+import { FleetService } from './fleet.service';
 import { PLANETARY_SCANNER_COMPONENTS } from '../data/techs/planetary.data';
+import { BUILD_COSTS } from '../data/costs.data';
 
 @Injectable({ providedIn: 'root' })
 export class ColonyService {
   constructor(
     private economy: EconomyService,
     private shipyard: ShipyardService,
+    private fleet: FleetService,
   ) {}
 
   addToBuildQueue(game: GameState, planetId: string, item: BuildItem): GameState {
@@ -73,20 +75,12 @@ export class ColonyService {
               if (idx >= 0) {
                 existingStarbaseIndex = idx;
                 existingFleet = f;
-                const oldDesign = game.shipDesigns.find(
-                  (d) => d.id === f.ships[idx].designId,
-                );
+                const oldDesign = game.shipDesigns.find((d) => d.id === f.ships[idx].designId);
                 if (oldDesign?.spec?.cost) {
                   // 75% Mineral Recovery
-                  scrapCredit.ironium = Math.floor(
-                    (oldDesign.spec.cost.ironium || 0) * 0.75,
-                  );
-                  scrapCredit.boranium = Math.floor(
-                    (oldDesign.spec.cost.boranium || 0) * 0.75,
-                  );
-                  scrapCredit.germanium = Math.floor(
-                    (oldDesign.spec.cost.germanium || 0) * 0.75,
-                  );
+                  scrapCredit.ironium = Math.floor((oldDesign.spec.cost.ironium || 0) * 0.75);
+                  scrapCredit.boranium = Math.floor((oldDesign.spec.cost.boranium || 0) * 0.75);
+                  scrapCredit.germanium = Math.floor((oldDesign.spec.cost.germanium || 0) * 0.75);
                 }
                 break;
               }
@@ -97,18 +91,9 @@ export class ColonyService {
         // Calculate remaining needed (taking credit into account)
         const remaining = {
           resources: Math.max(0, totalCost.resources - item.paid.resources),
-          ironium: Math.max(
-            0,
-            totalCost.ironium - item.paid.ironium - scrapCredit.ironium,
-          ),
-          boranium: Math.max(
-            0,
-            totalCost.boranium - item.paid.boranium - scrapCredit.boranium,
-          ),
-          germanium: Math.max(
-            0,
-            totalCost.germanium - item.paid.germanium - scrapCredit.germanium,
-          ),
+          ironium: Math.max(0, totalCost.ironium - item.paid.ironium - scrapCredit.ironium),
+          boranium: Math.max(0, totalCost.boranium - item.paid.boranium - scrapCredit.boranium),
+          germanium: Math.max(0, totalCost.germanium - item.paid.germanium - scrapCredit.germanium),
         };
 
         // Pay what we can
@@ -116,10 +101,7 @@ export class ColonyService {
           resources: Math.min(remaining.resources, planet.resources),
           ironium: Math.min(remaining.ironium, planet.surfaceMinerals.ironium),
           boranium: Math.min(remaining.boranium, planet.surfaceMinerals.boranium),
-          germanium: Math.min(
-            remaining.germanium,
-            planet.surfaceMinerals.germanium,
-          ),
+          germanium: Math.min(remaining.germanium, planet.surfaceMinerals.germanium),
         };
 
         // Deduct from planet
@@ -143,24 +125,20 @@ export class ColonyService {
 
         if (isPaid) {
           // Refund excess minerals (if scrap credit exceeded cost)
-          const excessIronium =
-            item.paid.ironium + scrapCredit.ironium - totalCost.ironium;
-          const excessBoranium =
-            item.paid.boranium + scrapCredit.boranium - totalCost.boranium;
-          const excessGermanium =
-            item.paid.germanium + scrapCredit.germanium - totalCost.germanium;
+          const excessIronium = item.paid.ironium + scrapCredit.ironium - totalCost.ironium;
+          const excessBoranium = item.paid.boranium + scrapCredit.boranium - totalCost.boranium;
+          const excessGermanium = item.paid.germanium + scrapCredit.germanium - totalCost.germanium;
 
           if (excessIronium > 0) planet.surfaceMinerals.ironium += excessIronium;
           if (excessBoranium > 0) planet.surfaceMinerals.boranium += excessBoranium;
-          if (excessGermanium > 0)
-            planet.surfaceMinerals.germanium += excessGermanium;
+          if (excessGermanium > 0) planet.surfaceMinerals.germanium += excessGermanium;
 
           // Remove old starbase if we built a new one
           if (existingFleet && existingStarbaseIndex >= 0) {
             existingFleet.ships.splice(existingStarbaseIndex, 1);
             if (existingFleet.ships.length === 0) {
-                // If fleet is empty, remove it
-                game.fleets = game.fleets.filter(f => f.id !== existingFleet!.id);
+              // If fleet is empty, remove it
+              game.fleets = game.fleets.filter((f) => f.id !== existingFleet!.id);
             }
           }
 
@@ -198,115 +176,13 @@ export class ColonyService {
             }
             case 'terraform':
               planet.temperature +=
-                planet.temperature <
-                game.humanPlayer.species.habitat.idealTemperature
-                  ? 1
-                  : -1;
+                planet.temperature < game.humanPlayer.species.habitat.idealTemperature ? 1 : -1;
               planet.atmosphere +=
-                planet.atmosphere < game.humanPlayer.species.habitat.idealAtmosphere
-                  ? 1
-                  : -1;
+                planet.atmosphere < game.humanPlayer.species.habitat.idealAtmosphere ? 1 : -1;
               break;
             case 'ship': {
               const designId = item.shipDesignId ?? 'scout';
-              const shipDesign = game.shipDesigns.find((d) => d.id === designId);
-
-              // Find or create fleet
-              const orbitFleets = game.fleets.filter(
-                (f) =>
-                  f.ownerId === game.humanPlayer.id &&
-                  f.location.type === 'orbit' &&
-                  f.location.planetId === planet.id,
-              );
-              let fleet = orbitFleets[0];
-              
-              // If no fleet or we want to separate (logic can be refined, defaulting to first fleet or new)
-              // Logic: Join existing fleet if possible, else create new.
-              // NOTE: If we just removed the old starbase fleet, orbitFleets[0] might be gone or changed.
-              // So we should re-fetch or be careful.
-              // Re-fetching is safer.
-               const currentOrbitFleets = game.fleets.filter(
-                (f) =>
-                  f.ownerId === game.humanPlayer.id &&
-                  f.location.type === 'orbit' &&
-                  f.location.planetId === planet.id,
-              );
-              fleet = currentOrbitFleets[0];
-
-              if (!fleet) {
-                // Generate fleet name
-                const userDesign = game.shipDesigns.find((d) => d.id === designId);
-                const legacyDesign = getDesign(designId);
-                const baseName =
-                  userDesign?.name || legacyDesign?.name || 'Fleet';
-
-                const sameNameFleets = game.fleets.filter(
-                  (f) =>
-                    f.ownerId === game.humanPlayer.id &&
-                    f.name &&
-                    f.name.startsWith(baseName),
-                );
-                let maxNum = 0;
-                const escapedBaseName = baseName.replace(
-                  /[.*+?^${}()|[\]\\]/g,
-                  '\\$&',
-                );
-                const regex = new RegExp(`^${escapedBaseName}-(\\d+)$`);
-                for (const f of sameNameFleets) {
-                  const match = f.name.match(regex);
-                  if (match) {
-                    const num = parseInt(match[1], 10);
-                    if (num > maxNum) maxNum = num;
-                  }
-                }
-                const newName = `${baseName}-${maxNum + 1}`;
-
-                fleet = {
-                  id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-                  name: newName,
-                  ownerId: game.humanPlayer.id,
-                  location: { type: 'orbit', planetId: planet.id },
-                  ships: [],
-                  fuel: 0,
-                  cargo: {
-                    resources: 0,
-                    minerals: { ironium: 0, boranium: 0, germanium: 0 },
-                    colonists: 0,
-                  },
-                  orders: [],
-                };
-                game.fleets.push(fleet);
-              }
-
-              const stack = fleet.ships.find((s) => s.designId === designId);
-              if (stack) stack.count += 1;
-              else fleet.ships.push({ designId, count: 1, damage: 0 });
-
-              // Add starting fuel
-              const legacyDesign = getDesign(designId);
-              const fuelCap =
-                shipDesign?.spec?.fuelCapacity ?? legacyDesign?.fuelCapacity ?? 0;
-              fleet.fuel += fuelCap;
-
-              // Preload colonists if colony ship
-              const hasColony =
-                shipDesign?.spec?.hasColonyModule ?? legacyDesign?.colonyModule;
-              const colCap =
-                shipDesign?.spec?.colonistCapacity ?? legacyDesign?.colonistCapacity;
-
-              if (hasColony && colCap) {
-                // Take colonists from planet?
-                // Standard Stars!: Colony ships are built empty?
-                // Wait, in `ColonyService` original code:
-                // `fleet.cargo.colonists += colCap;`
-                // It just GAVE colonists. It didn't deduct from planet.
-                // That's infinite colonists!
-                // We should check if we should deduct.
-                // For now, I will keep original logic but ideally we should deduct.
-                // Requirement "Maintain all existing functionality".
-                // I will keep it as is (magic colonists).
-                fleet.cargo.colonists += colCap;
-              }
+              this.fleet.addShipToFleet(game, planet, designId, 1);
               break;
             }
             default:
@@ -345,19 +221,19 @@ export class ColonyService {
           if (planet.mines < minesTarget) {
             this.addToBuildQueue(game, planet.id, {
               project: 'mine',
-              cost: { resources: 5 },
+              cost: BUILD_COSTS['mine'],
               isAuto: true,
             });
           } else if (planet.factories < Math.floor(planet.population / 10)) {
             this.addToBuildQueue(game, planet.id, {
               project: 'factory',
-              cost: { resources: 10, germanium: 4 },
+              cost: BUILD_COSTS['factory'],
               isAuto: true,
             });
           } else {
             this.addToBuildQueue(game, planet.id, {
               project: 'defense',
-              cost: { resources: 15, ironium: 2, boranium: 2 },
+              cost: BUILD_COSTS['defense'],
               isAuto: true,
             });
           }
@@ -366,28 +242,28 @@ export class ColonyService {
         case 'mining':
           this.addToBuildQueue(game, planet.id, {
             project: 'mine',
-            cost: { resources: 5 },
+            cost: BUILD_COSTS['mine'],
             isAuto: true,
           });
           break;
         case 'industrial':
           this.addToBuildQueue(game, planet.id, {
             project: 'factory',
-            cost: { resources: 10, germanium: 4 },
+            cost: BUILD_COSTS['factory'],
             isAuto: true,
           });
           break;
         case 'military':
           this.addToBuildQueue(game, planet.id, {
             project: 'defense',
-            cost: { resources: 15, ironium: 2, boranium: 2 },
+            cost: BUILD_COSTS['defense'],
             isAuto: true,
           });
           break;
         case 'research':
           this.addToBuildQueue(game, planet.id, {
             project: 'research',
-            cost: { resources: 10 },
+            cost: BUILD_COSTS['research'],
             isAuto: true,
           });
           break;

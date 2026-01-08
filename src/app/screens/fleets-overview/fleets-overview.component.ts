@@ -24,7 +24,12 @@ import { getDesign } from '../../data/ships.data';
 
       <div class="fleets-grid">
         @for (fleet of fleets(); track fleet.id) {
-          <app-fleet-card [fleet]="fleet" (jumpToFleet)="jumpToFleet(fleet)"> </app-fleet-card>
+          <app-fleet-card
+            [fleet]="fleet"
+            (jumpToFleet)="jumpToFleet(fleet)"
+            (viewDetails)="viewFleet(fleet)"
+          >
+          </app-fleet-card>
         }
       </div>
     </main>
@@ -82,6 +87,10 @@ export class FleetsOverviewComponent {
   });
 
   jumpToFleet(fleet: Fleet) {
+    this.router.navigate(['/map'], { queryParams: { fleetId: fleet.id } });
+  }
+
+  viewFleet(fleet: Fleet) {
     this.router.navigate(['/fleet', fleet.id]);
   }
 }

@@ -13,11 +13,8 @@ import { HabitabilityService } from '../../services/habitability.service';
 import { ToastService } from '../../services/toast.service';
 import { ShipyardService } from '../../services/shipyard.service';
 import { TechService } from '../../services/tech.service';
-import { getDesign, COMPILED_DESIGNS, CompiledDesign } from '../../data/ships.data';
-import { TECH_ATLAS } from '../../data/tech-atlas.data';
-import { COMPONENTS } from '../../data/components.data';
-import { compileShipStats } from '../../models/ship-design.model';
-import { miniaturizeComponent } from '../../utils/miniaturization.util';
+import { getDesign } from '../../data/ships.data';
+import { BUILD_COSTS } from '../../data/costs.data';
 import { getHull } from '../../data/hulls.data';
 import { ShipOption } from '../../components/ship-selector.component';
 import { PlanetSummaryComponent } from './components/planet-summary.component';
@@ -366,97 +363,10 @@ export class PlanetDetailComponent implements OnInit {
   shipOptions = computed(() => {
     const player = this.gs.player();
     const game = this.gs.game();
-    if (!player || !game) return [];
+    const planet = this.planet();
+    if (!player || !game || !planet) return [];
 
-    const userDesigns = this.shipyardService.getPlayerShipDesigns(game);
-    const techLevels = player.techLevels;
-    const miniComps = Object.values(COMPONENTS).map((comp) =>
-      miniaturizeComponent(comp, techLevels),
-    );
-
-    // Calculate existing ship counts
-    const shipCounts = new Map<string, number>();
-    if (game.fleets) {
-      for (const fleet of game.fleets) {
-        for (const stack of fleet.ships) {
-          const current = shipCounts.get(stack.designId) || 0;
-          shipCounts.set(stack.designId, current + stack.count);
-        }
-      }
-    }
-
-    const userOptions = userDesigns
-      .map((design) => {
-        const hull = getHull(design.hullId);
-        if (!hull) return null;
-
-        const stats = compileShipStats(hull, design.slots, miniComps);
-        const cost = this.shipyardService.getShipCost(design, techLevels);
-
-        const compiled: CompiledDesign = {
-          id: design.id,
-          name: design.name,
-          hullId: design.hullId,
-          hullName: hull.Name,
-          mass: stats.mass,
-          cargoCapacity: stats.cargoCapacity,
-          fuelCapacity: stats.fuelCapacity,
-          fuelEfficiency: 100, // Not in stats?
-          warpSpeed: stats.warpSpeed,
-          idealWarp: stats.idealWarp,
-          armor: stats.armor,
-          shields: stats.shields,
-          initiative: stats.initiative,
-          firepower: stats.firepower,
-          colonistCapacity: stats.colonistCapacity,
-          cost: {
-            ironium: cost.ironium,
-            boranium: cost.boranium,
-            germanium: cost.germanium,
-            resources: cost.resources,
-          },
-          colonyModule: stats.hasColonyModule,
-          scannerRange: stats.scanRange,
-          cloakedRange: stats.canDetectCloaked ? stats.scanRange : 0,
-          components: [],
-        };
-
-        // Determine ship type for badge
-        let shipType: 'attack' | 'cargo' | 'support' | 'colony' = 'support';
-        const hullNameLower = hull.Name.toLowerCase();
-        if (hullNameLower.includes('colony')) shipType = 'colony';
-        else if (hullNameLower.includes('freighter')) shipType = 'cargo';
-        else if (
-          hullNameLower.includes('destroyer') ||
-          hullNameLower.includes('frigate') ||
-          hullNameLower.includes('battleship') ||
-          hullNameLower.includes('cruiser')
-        )
-          shipType = 'attack';
-
-        const planet = this.planet();
-        const canAfford = planet
-          ? planet.resources >= cost.resources &&
-            planet.surfaceMinerals.ironium >= (cost.ironium ?? 0) &&
-            planet.surfaceMinerals.boranium >= (cost.boranium ?? 0) &&
-            planet.surfaceMinerals.germanium >= (cost.germanium ?? 0)
-          : false;
-
-        return {
-          design: compiled,
-          cost,
-          shipType,
-          canAfford,
-          existingCount: shipCounts.get(design.id) || 0,
-        } as ShipOption;
-      })
-      .filter((opt): opt is ShipOption => opt !== null);
-
-    if (userOptions.length > 0) {
-      return userOptions;
-    }
-
-    return [];
+    return this.shipyardService.getAvailableShipOptions(planet, player, game);
   });
 
   onShipSelected(option: ShipOption) {
@@ -506,24 +416,13 @@ export class PlanetDetailComponent implements OnInit {
     const shipOption = this.selectedShipOption();
     const shipCost = shipOption ? shipOption.cost : { resources: 0 };
 
-    let item =
-      project === 'mine'
-        ? { project, cost: { resources: 5 } }
-        : project === 'factory'
-          ? { project, cost: { resources: 10, germanium: 4 } }
-          : project === 'defense'
-            ? { project, cost: { resources: 15, ironium: 2, boranium: 2 } }
-            : project === 'research'
-              ? { project, cost: { resources: 10 } }
-              : project === 'terraform'
-                ? { project, cost: { resources: 25, germanium: 5 } }
-                : project === 'scanner'
-                  ? { project, cost: { resources: 50, germanium: 10, ironium: 5 } }
-                  : ({
-                      project: 'ship',
-                      cost: shipCost,
-                      shipDesignId: this.selectedDesign(),
-                    } as any);
+    const cost = BUILD_COSTS[project] || (project === 'ship' ? shipCost : { resources: 0 });
+
+    let item = {
+      project,
+      cost,
+      shipDesignId: project === 'ship' ? this.selectedDesign() : undefined,
+    } as any;
 
     item.count =
       project === 'scanner' ? 1 : project === 'ship' ? this.shipBuildAmount() : this.buildAmount();

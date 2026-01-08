@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, FleetOrder } from '../models/game.model';
+import { GameState, Fleet, FleetOrder, Planet } from '../models/game.model';
 import { getDesign } from '../data/ships.data';
 import { SettingsService } from './settings.service';
 import { HabitabilityService } from './habitability.service';
@@ -12,6 +12,106 @@ export class FleetService {
     private hab: HabitabilityService,
     private shipyard: ShipyardService,
   ) {}
+
+  addShipToFleet(game: GameState, planet: Planet, shipDesignId: string, count: number): void {
+    const designId = shipDesignId ?? 'scout';
+    const shipDesign = game.shipDesigns.find((d) => d.id === designId);
+    const legacyDesign = getDesign(designId);
+
+    const isNewShipStarbase = shipDesign?.spec?.isStarbase ?? legacyDesign?.isStarbase ?? false;
+
+    // Find or create fleet
+    // We must separate starbases from regular fleets because starbases are hidden in fleet lists
+    const orbitFleets = game.fleets.filter(
+      (f) =>
+        f.ownerId === game.humanPlayer.id &&
+        f.location.type === 'orbit' &&
+        (f.location as any).planetId === planet.id,
+    );
+
+    let fleet: Fleet | undefined;
+
+    if (isNewShipStarbase) {
+      // Look for existing starbase fleet to merge into (usually only one)
+      fleet = orbitFleets.find((f) =>
+        f.ships.some((s) => {
+          const d = game.shipDesigns.find((sd) => sd.id === s.designId);
+          const ld = getDesign(s.designId);
+          return d?.spec?.isStarbase ?? ld?.isStarbase;
+        }),
+      );
+    } else {
+      // Look for existing regular fleet (non-starbase)
+      // If there are multiple, we pick the first one.
+      // Ideally we might want to let user choose, but auto-stacking is standard for now.
+      fleet = orbitFleets.find(
+        (f) =>
+          !f.ships.some((s) => {
+            const d = game.shipDesigns.find((sd) => sd.id === s.designId);
+            const ld = getDesign(s.designId);
+            return d?.spec?.isStarbase ?? ld?.isStarbase;
+          }),
+      );
+    }
+
+    if (!fleet) {
+      // Generate fleet name
+      const userDesign = game.shipDesigns.find((d) => d.id === designId);
+      // legacyDesign is already fetched above
+      const baseName = userDesign?.name || legacyDesign?.name || 'Fleet';
+
+      const sameNameFleets = game.fleets.filter(
+        (f) => f.ownerId === game.humanPlayer.id && f.name && f.name.startsWith(baseName),
+      );
+      let maxNum = 0;
+      const escapedBaseName = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`^${escapedBaseName}-(\\d+)$`);
+      for (const f of sameNameFleets) {
+        const match = f.name.match(regex);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNum) maxNum = num;
+        }
+      }
+      const newName = `${baseName}-${maxNum + 1}`;
+
+      fleet = {
+        id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        name: newName,
+        ownerId: game.humanPlayer.id,
+        location: { type: 'orbit', planetId: planet.id },
+        ships: [],
+        fuel: 0,
+        cargo: {
+          resources: 0,
+          minerals: { ironium: 0, boranium: 0, germanium: 0 },
+          colonists: 0,
+        },
+        orders: [],
+      };
+      game.fleets.push(fleet);
+    }
+
+    const stack = fleet.ships.find((s) => s.designId === designId);
+    if (stack) stack.count += count;
+    else fleet.ships.push({ designId, count, damage: 0 });
+
+    // Add starting fuel
+    const fuelCap = shipDesign?.spec?.fuelCapacity ?? legacyDesign?.fuelCapacity ?? 0;
+    fleet.fuel += fuelCap * count;
+
+    // Preload colonists if colony ship
+    const hasColony = shipDesign?.spec?.hasColonyModule ?? legacyDesign?.colonyModule;
+    const colCap = shipDesign?.spec?.colonistCapacity ?? legacyDesign?.colonistCapacity;
+
+    if (hasColony && colCap) {
+      // Deduct colonists from planet
+      const totalColCap = colCap * count;
+      const amount = Math.min(totalColCap, planet.population);
+      planet.population -= amount;
+      fleet.cargo.colonists += amount;
+    }
+  }
 
   issueFleetOrder(game: GameState, fleetId: string, order: FleetOrder): GameState {
     return this.setFleetOrders(game, fleetId, [order]);
@@ -32,17 +132,14 @@ export class FleetService {
       .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
     if (!planet) return [game, null];
     const colonyStack = fleet.ships.find((s) => {
-      const design = game.shipDesigns.find(d => d.id === s.designId);
-      return design && getDesign(design.hullId)?.colonyModule && s.count > 0
+      const design = game.shipDesigns.find((d) => d.id === s.designId);
+      return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
     });
     const hasColony = !!colonyStack;
-    const hab = this.hab.calculate(
-      planet,
-      game.humanPlayer.species,
-    );
+    const hab = this.hab.calculate(planet, game.humanPlayer.species);
     // Allow colonization if hab <= 0, but warn (handled in UI). Logic here allows it.
     if (!hasColony) return [game, null];
-    const design = game.shipDesigns.find(d => d.id === colonyStack!.designId);
+    const design = game.shipDesigns.find((d) => d.id === colonyStack!.designId);
     if (!design) return [game, null];
 
     colonyStack!.count -= 1;
@@ -113,7 +210,10 @@ export class FleetService {
     const capacity = this.fleetCargoCapacity(fleet);
     let used = this.fleetCargoUsed(fleet);
     const free = Math.max(0, capacity - used);
-    const takeMineral = (key: 'ironium' | 'boranium' | 'germanium', req?: number | 'all' | 'fill') => {
+    const takeMineral = (
+      key: 'ironium' | 'boranium' | 'germanium',
+      req?: number | 'all' | 'fill',
+    ) => {
       if (!req) return;
       const available = planet.surfaceMinerals[key];
       const room = Math.max(0, free - (this.fleetCargoUsed(fleet) - used));
@@ -281,15 +381,14 @@ export class FleetService {
       } else if (order.type === 'colonize') {
         const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === order.planetId);
         if (!planet) continue;
-        const colonyStack = fleet.ships.find(
-          (s) => {
-            const design = game.shipDesigns.find(d => d.id === s.designId);
-            return design && getDesign(design.hullId)?.colonyModule && s.count > 0
-          });
+        const colonyStack = fleet.ships.find((s) => {
+          const design = game.shipDesigns.find((d) => d.id === s.designId);
+          return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
+        });
         const hasColony = !!colonyStack;
         const hab = this.hab.calculate(planet, game.humanPlayer.species);
         if (hasColony) {
-          const design = game.shipDesigns.find(d => d.id === colonyStack!.designId);
+          const design = game.shipDesigns.find((d) => d.id === colonyStack!.designId);
           if (!design) continue;
           // consume one colony ship
           colonyStack!.count -= 1;

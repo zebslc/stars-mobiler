@@ -32,9 +32,14 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
             {{ status().label }}
           </span>
         </div>
-        <button (click)="onJumpToFleet()" class="btn-small" title="View on Map">
-          <span style="font-size: 16px;">🌃</span>
-        </button>
+        <div style="display:flex; gap:4px">
+          <button (click)="onViewDetails()" class="btn-small" title="Manage Fleet">
+            <span style="font-size: 16px;">⚙️</span>
+          </button>
+          <button (click)="onJumpToFleet()" class="btn-small" title="View on Map">
+            <span style="font-size: 16px;">🌃</span>
+          </button>
+        </div>
       </div>
 
       <div class="fleet-composition">
@@ -90,6 +95,10 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
           No orders - fleet is idle
         </div>
       }
+
+      <div class="footer-actions" style="margin-top:var(--space-sm)">
+        <ng-content select="[footer-actions]"></ng-content>
+      </div>
 
       <div class="future-features">
         <div class="text-xs text-muted">
@@ -275,6 +284,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
 export class FleetCardComponent {
   @Input({ required: true }) fleet!: Fleet;
   @Output() jumpToFleet = new EventEmitter<void>();
+  @Output() viewDetails = new EventEmitter<void>();
 
   private gs = inject(GameStateService);
   private techService = inject(TechService);
@@ -407,5 +417,9 @@ export class FleetCardComponent {
 
   onJumpToFleet() {
     this.jumpToFleet.emit();
+  }
+
+  onViewDetails() {
+    this.viewDetails.emit();
   }
 }

@@ -5,6 +5,7 @@ import { ALL_HULLS } from './tech-atlas.data';
 export interface CompiledDesign {
   id: string;
   name: string;
+  image?: string;
   hullId: string;
   hullName: string;
   isStarbase?: boolean;
@@ -47,6 +48,7 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
     designs[designId] = {
       id: designId,
       name: hull.Name,
+      image: hull.img,
       hullId: designId,
       hullName: hull.Name,
       isStarbase: hull.isStarbase,
@@ -88,7 +90,7 @@ export function getDesign(designId: string): CompiledDesign {
 
   if (!design) {
     // Try normalizing the ID to handle cases where name is passed as ID
-    const normalizedId = designId.toLowerCase().replace(/\s+/g, '_');
+    const normalizedId = designId.toLowerCase().replace(/[\s-]+/g, '_');
     design = COMPILED_DESIGNS[normalizedId];
   }
 

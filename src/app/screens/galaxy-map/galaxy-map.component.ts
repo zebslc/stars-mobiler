@@ -301,14 +301,35 @@ export class GalaxyMapComponent implements OnInit {
   private isTouchHolding = false;
 
   ngOnInit() {
-    // Check for query params to center on a specific planet
+    // Check for query params to center on a specific planet or fleet
     this.route.queryParams.subscribe((params) => {
       const planetId = params['planetId'];
+      const fleetId = params['fleetId'];
+
       if (planetId) {
         const star = this.stars().find((s) => s.planets.some((p) => p.id === planetId));
         if (star) {
           this.centerOnStar(star);
           this.state.selectedStarId.set(star.id);
+          return;
+        }
+      }
+
+      if (fleetId) {
+        const fleet = this.gs.game()?.fleets.find((f) => f.id === fleetId);
+        if (fleet) {
+          this.state.selectedFleetId.set(fleet.id);
+
+          if (fleet.location.type === 'orbit') {
+            const loc = fleet.location as { planetId: string };
+            const star = this.stars().find((s) => s.planets.some((p) => p.id === loc.planetId));
+            if (star) {
+              this.centerOnStar(star);
+            }
+          } else {
+            const loc = fleet.location as { x: number; y: number };
+            this.centerOnPoint(loc.x, loc.y);
+          }
           return;
         }
       }
@@ -458,6 +479,11 @@ export class GalaxyMapComponent implements OnInit {
   centerOnStar(star: Star) {
     this.state.translateX.set(-star.position.x * this.state.scale() + 500); // Approximation
     this.state.translateY.set(-star.position.y * this.state.scale() + 500);
+  }
+
+  centerOnPoint(x: number, y: number) {
+    this.state.translateX.set(-x * this.state.scale() + 500);
+    this.state.translateY.set(-y * this.state.scale() + 500);
   }
 
   // Context Menus
