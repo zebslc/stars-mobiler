@@ -124,6 +124,21 @@ export type BuildProject =
               </div>
               <div class="info-bottom">
                 <span class="text-small font-medium cost">{{ formatCost(it.cost) }}</span>
+                @if (it.paid) {
+                  <div style="margin-top: 4px; width: 100%;">
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted);">
+                      Paid: {{ formatCost(it.paid) }}
+                    </div>
+                    <div
+                      style="height: 4px; background: var(--color-bg-dark); border-radius: 2px; margin-top: 2px; overflow: hidden;"
+                    >
+                      <div
+                        [style.width.%]="getPercentComplete(it)"
+                        style="height: 100%; background: var(--color-primary);"
+                      ></div>
+                    </div>
+                  </div>
+                }
               </div>
             </div>
             <div class="item-actions">
@@ -217,18 +232,24 @@ export class PlanetBuildQueueComponent {
     return ` (${this.formatCost(cost)})`;
   }
 
+  getPercentComplete(item: any): number {
+    if (!item.paid) return 0;
+    const total =
+      (item.cost.resources || 0) +
+      (item.cost.ironium || 0) +
+      (item.cost.boranium || 0) +
+      (item.cost.germanium || 0);
+    if (total === 0) return 100;
+    const paid =
+      (item.paid.resources || 0) +
+      (item.paid.ironium || 0) +
+      (item.paid.boranium || 0) +
+      (item.paid.germanium || 0);
+    return Math.min(100, (paid / total) * 100);
+  }
+
   queueColor(item: any, index: number): string {
-    if (index === 0) return 'inherit';
-    const planet = this.planet();
-    const neededR = item.cost?.resources ?? 0;
-    const neededFe = item.cost?.ironium ?? 0;
-    const neededBo = item.cost?.boranium ?? 0;
-    const neededGe = item.cost?.germanium ?? 0;
-    const haveR = planet.resources;
-    const haveFe = planet.surfaceMinerals.ironium;
-    const haveBo = planet.surfaceMinerals.boranium;
-    const haveGe = planet.surfaceMinerals.germanium;
-    const cannot = haveR < neededR || haveFe < neededFe || haveBo < neededBo || haveGe < neededGe;
-    return cannot ? 'var(--color-danger)' : 'inherit';
+    // With partial payments, we don't warn about immediate affordability
+    return 'inherit';
   }
 }

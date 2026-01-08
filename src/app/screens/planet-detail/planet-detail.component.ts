@@ -391,7 +391,7 @@ export class PlanetDetailComponent implements OnInit {
         if (!hull) return null;
 
         const stats = compileShipStats(hull, design.slots, miniComps);
-        const cost = this.shipyardService.getShipCost(design);
+        const cost = this.shipyardService.getShipCost(design, techLevels);
 
         const compiled: CompiledDesign = {
           id: design.id,

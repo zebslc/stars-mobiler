@@ -34,178 +34,296 @@ export class ColonyService {
       // Process items in queue until resources run out or queue is empty
       while (queue.length > 0) {
         const item = queue[0];
-        const count = item.count ?? 1;
-        let constructed = 0;
+        if (!item.paid) {
+          item.paid = { resources: 0, ironium: 0, boranium: 0, germanium: 0 };
+        }
 
-        // Try to build as many as possible
-        for (let i = 0; i < count; i++) {
-          if (this.economy.spend(planet, item.cost)) {
-            // Build successful
-            constructed++;
-            switch (item.project) {
-              case 'mine':
-                planet.mines += 1;
-                break;
-              case 'factory':
-                planet.factories += 1;
-                break;
-              case 'defense':
-                planet.defenses += 1;
-                break;
-              case 'research':
-                planet.research = (planet.research || 0) + 1;
-                break;
-              case 'scanner': {
-                // Find best available scanner
-                const techLevels = game.humanPlayer.techLevels;
-                let bestRange = 0;
-                for (const s of PLANETARY_SCANNER_COMPONENTS) {
-                  if (
-                    s.tech &&
-                    techLevels.Energy >= (s.tech.Energy || 0) &&
-                    techLevels.Kinetics >= (s.tech.Kinetics || 0) &&
-                    techLevels.Propulsion >= (s.tech.Propulsion || 0) &&
-                    techLevels.Construction >= (s.tech.Construction || 0)
-                  ) {
-                    const scan = s.stats?.scan || 0;
-                    if (scan > bestRange) bestRange = scan;
-                  }
-                }
-                planet.scanner = bestRange > 0 ? bestRange : 50; // Fallback to basic if logic fails
-                break;
-              }
-              case 'terraform':
-                planet.temperature +=
-                  planet.temperature < game.humanPlayer.species.habitat.idealTemperature ? 1 : -1;
-                planet.atmosphere +=
-                  planet.atmosphere < game.humanPlayer.species.habitat.idealAtmosphere ? 1 : -1;
-                break;
-              case 'ship': {
-                const designId = item.shipDesignId ?? 'scout';
-                const shipDesign = game.shipDesigns.find((d) => d.id === designId);
-                const isStarbase = shipDesign?.spec?.isStarbase;
+        const totalCost = {
+          resources: item.cost.resources ?? 0,
+          ironium: item.cost.ironium ?? 0,
+          boranium: item.cost.boranium ?? 0,
+          germanium: item.cost.germanium ?? 0,
+        };
 
-                // Check for existing starbase to replace/upgrade
-                if (isStarbase) {
-                  const orbitFleets = game.fleets.filter(
-                    (f) =>
-                      f.ownerId === game.humanPlayer.id &&
-                      f.location.type === 'orbit' &&
-                      f.location.planetId === planet.id,
-                  );
+        // Handle Starbase Upgrade Credit
+        let scrapCredit = { resources: 0, ironium: 0, boranium: 0, germanium: 0 };
+        let existingStarbaseIndex = -1;
+        let existingFleet = null;
 
-                  for (const f of orbitFleets) {
-                    const starbaseIndex = f.ships.findIndex((s) => {
-                      const d = game.shipDesigns.find((sd) => sd.id === s.designId);
-                      return d?.spec?.isStarbase;
-                    });
+        if (item.project === 'ship') {
+          const design = game.shipDesigns.find((d) => d.id === item.shipDesignId);
+          // Also check built-in designs if not found in user designs (e.g. for initial tests)
+          const isStarbase = design?.spec?.isStarbase;
 
-                    if (starbaseIndex >= 0) {
-                      // Found existing starbase - recover resources
-                      const oldStack = f.ships[starbaseIndex];
-                      const oldDesign = game.shipDesigns.find((d) => d.id === oldStack.designId);
-
-                      if (oldDesign?.spec?.cost) {
-                        // Recover minerals (using 100% recovery as implied by "full credit" for upgrades)
-                        planet.surfaceMinerals.ironium += oldDesign.spec.cost.ironium || 0;
-                        planet.surfaceMinerals.boranium += oldDesign.spec.cost.boranium || 0;
-                        planet.surfaceMinerals.germanium += oldDesign.spec.cost.germanium || 0;
-                      }
-
-                      // Remove old starbase
-                      f.ships.splice(starbaseIndex, 1);
-                      // Only one starbase per planet allowed
-                      break;
-                    }
-                  }
-                }
-
-                const orbitFleets = game.fleets.filter(
-                  (f) =>
-                    f.ownerId === game.humanPlayer.id &&
-                    f.location.type === 'orbit' &&
-                    f.location.planetId === planet.id,
+          if (isStarbase) {
+            const orbitFleets = game.fleets.filter(
+              (f) =>
+                f.ownerId === planet.ownerId &&
+                f.location.type === 'orbit' &&
+                (f.location as any).planetId === planet.id,
+            );
+            for (const f of orbitFleets) {
+              const idx = f.ships.findIndex((s) => {
+                const d = game.shipDesigns.find((sd) => sd.id === s.designId);
+                // Also check legacy/built-in designs if needed, but game.shipDesigns should have them if loaded correctly
+                // Assuming game.shipDesigns contains all relevant designs or we have a way to check.
+                // For safety, let's assume we might need to check the spec directly if available or infer.
+                return d?.spec?.isStarbase;
+              });
+              if (idx >= 0) {
+                existingStarbaseIndex = idx;
+                existingFleet = f;
+                const oldDesign = game.shipDesigns.find(
+                  (d) => d.id === f.ships[idx].designId,
                 );
-                let fleet = orbitFleets[0];
-                if (!fleet) {
-                  // Generate fleet name
-                  const userDesign = game.shipDesigns.find((d) => d.id === designId);
-                  const legacyDesign = getDesign(designId);
-                  const baseName = userDesign?.name || legacyDesign.name || 'Fleet';
-
-                  const sameNameFleets = game.fleets.filter(
-                    (f) =>
-                      f.ownerId === game.humanPlayer.id && f.name && f.name.startsWith(baseName),
+                if (oldDesign?.spec?.cost) {
+                  // 75% Mineral Recovery
+                  scrapCredit.ironium = Math.floor(
+                    (oldDesign.spec.cost.ironium || 0) * 0.75,
                   );
-                  let maxNum = 0;
-                  // Match "Name-1", "Name-2", etc.
-                  const escapedBaseName = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                  const regex = new RegExp(`^${escapedBaseName}-(\\d+)$`);
-                  for (const f of sameNameFleets) {
-                    const match = f.name.match(regex);
-                    if (match) {
-                      const num = parseInt(match[1], 10);
-                      if (num > maxNum) maxNum = num;
-                    }
-                  }
-                  const newName = `${baseName}-${maxNum + 1}`;
-
-                  fleet = {
-                    id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-                    name: newName,
-                    ownerId: game.humanPlayer.id,
-                    location: { type: 'orbit', planetId: planet.id },
-                    ships: [],
-                    fuel: 0,
-                    cargo: {
-                      resources: 0,
-                      minerals: { ironium: 0, boranium: 0, germanium: 0 },
-                      colonists: 0,
-                    },
-                    orders: [],
-                  };
-                  game.fleets.push(fleet);
-                }
-                const stack = fleet.ships.find((s) => s.designId === designId);
-                if (stack) stack.count += 1;
-                else fleet.ships.push({ designId, count: 1, damage: 0 });
-                // Add starting fuel based on design
-                const fuelCap = shipDesign?.spec?.fuelCapacity ?? getDesign(designId).fuelCapacity;
-                fleet.fuel += fuelCap;
-
-                // If colony ship, preload colonists based on design capacity
-                const hasColony =
-                  shipDesign?.spec?.hasColonyModule ?? getDesign(designId).colonyModule;
-                const colCap =
-                  shipDesign?.spec?.colonistCapacity ?? getDesign(designId).colonistCapacity;
-
-                if (hasColony && colCap) {
-                  fleet.cargo.colonists += colCap;
+                  scrapCredit.boranium = Math.floor(
+                    (oldDesign.spec.cost.boranium || 0) * 0.75,
+                  );
+                  scrapCredit.germanium = Math.floor(
+                    (oldDesign.spec.cost.germanium || 0) * 0.75,
+                  );
                 }
                 break;
               }
-              default:
-                break;
             }
-          } else {
-            // Cannot afford anymore
-            break;
           }
         }
 
-        if (constructed > 0) {
-          // If we built some, update the item count
-          if (constructed >= count) {
-            // Finished this item
-            queue = queue.slice(1);
+        // Calculate remaining needed (taking credit into account)
+        const remaining = {
+          resources: Math.max(0, totalCost.resources - item.paid.resources),
+          ironium: Math.max(
+            0,
+            totalCost.ironium - item.paid.ironium - scrapCredit.ironium,
+          ),
+          boranium: Math.max(
+            0,
+            totalCost.boranium - item.paid.boranium - scrapCredit.boranium,
+          ),
+          germanium: Math.max(
+            0,
+            totalCost.germanium - item.paid.germanium - scrapCredit.germanium,
+          ),
+        };
+
+        // Pay what we can
+        const affordable = {
+          resources: Math.min(remaining.resources, planet.resources),
+          ironium: Math.min(remaining.ironium, planet.surfaceMinerals.ironium),
+          boranium: Math.min(remaining.boranium, planet.surfaceMinerals.boranium),
+          germanium: Math.min(
+            remaining.germanium,
+            planet.surfaceMinerals.germanium,
+          ),
+        };
+
+        // Deduct from planet
+        planet.resources -= affordable.resources;
+        planet.surfaceMinerals.ironium -= affordable.ironium;
+        planet.surfaceMinerals.boranium -= affordable.boranium;
+        planet.surfaceMinerals.germanium -= affordable.germanium;
+
+        // Add to paid
+        item.paid.resources += affordable.resources;
+        item.paid.ironium += affordable.ironium;
+        item.paid.boranium += affordable.boranium;
+        item.paid.germanium += affordable.germanium;
+
+        // Check completion
+        const isPaid =
+          item.paid.resources >= totalCost.resources &&
+          item.paid.ironium + scrapCredit.ironium >= totalCost.ironium &&
+          item.paid.boranium + scrapCredit.boranium >= totalCost.boranium &&
+          item.paid.germanium + scrapCredit.germanium >= totalCost.germanium;
+
+        if (isPaid) {
+          // Refund excess minerals (if scrap credit exceeded cost)
+          const excessIronium =
+            item.paid.ironium + scrapCredit.ironium - totalCost.ironium;
+          const excessBoranium =
+            item.paid.boranium + scrapCredit.boranium - totalCost.boranium;
+          const excessGermanium =
+            item.paid.germanium + scrapCredit.germanium - totalCost.germanium;
+
+          if (excessIronium > 0) planet.surfaceMinerals.ironium += excessIronium;
+          if (excessBoranium > 0) planet.surfaceMinerals.boranium += excessBoranium;
+          if (excessGermanium > 0)
+            planet.surfaceMinerals.germanium += excessGermanium;
+
+          // Remove old starbase if we built a new one
+          if (existingFleet && existingStarbaseIndex >= 0) {
+            existingFleet.ships.splice(existingStarbaseIndex, 1);
+            if (existingFleet.ships.length === 0) {
+                // If fleet is empty, remove it
+                game.fleets = game.fleets.filter(f => f.id !== existingFleet!.id);
+            }
+          }
+
+          // Build logic
+          switch (item.project) {
+            case 'mine':
+              planet.mines += 1;
+              break;
+            case 'factory':
+              planet.factories += 1;
+              break;
+            case 'defense':
+              planet.defenses += 1;
+              break;
+            case 'research':
+              planet.research = (planet.research || 0) + 1;
+              break;
+            case 'scanner': {
+              const techLevels = game.humanPlayer.techLevels;
+              let bestRange = 0;
+              for (const s of PLANETARY_SCANNER_COMPONENTS) {
+                if (
+                  s.tech &&
+                  techLevels.Energy >= (s.tech.Energy || 0) &&
+                  techLevels.Kinetics >= (s.tech.Kinetics || 0) &&
+                  techLevels.Propulsion >= (s.tech.Propulsion || 0) &&
+                  techLevels.Construction >= (s.tech.Construction || 0)
+                ) {
+                  const scan = s.stats?.scan || 0;
+                  if (scan > bestRange) bestRange = scan;
+                }
+              }
+              planet.scanner = bestRange > 0 ? bestRange : 50;
+              break;
+            }
+            case 'terraform':
+              planet.temperature +=
+                planet.temperature <
+                game.humanPlayer.species.habitat.idealTemperature
+                  ? 1
+                  : -1;
+              planet.atmosphere +=
+                planet.atmosphere < game.humanPlayer.species.habitat.idealAtmosphere
+                  ? 1
+                  : -1;
+              break;
+            case 'ship': {
+              const designId = item.shipDesignId ?? 'scout';
+              const shipDesign = game.shipDesigns.find((d) => d.id === designId);
+
+              // Find or create fleet
+              const orbitFleets = game.fleets.filter(
+                (f) =>
+                  f.ownerId === game.humanPlayer.id &&
+                  f.location.type === 'orbit' &&
+                  f.location.planetId === planet.id,
+              );
+              let fleet = orbitFleets[0];
+              
+              // If no fleet or we want to separate (logic can be refined, defaulting to first fleet or new)
+              // Logic: Join existing fleet if possible, else create new.
+              // NOTE: If we just removed the old starbase fleet, orbitFleets[0] might be gone or changed.
+              // So we should re-fetch or be careful.
+              // Re-fetching is safer.
+               const currentOrbitFleets = game.fleets.filter(
+                (f) =>
+                  f.ownerId === game.humanPlayer.id &&
+                  f.location.type === 'orbit' &&
+                  f.location.planetId === planet.id,
+              );
+              fleet = currentOrbitFleets[0];
+
+              if (!fleet) {
+                // Generate fleet name
+                const userDesign = game.shipDesigns.find((d) => d.id === designId);
+                const legacyDesign = getDesign(designId);
+                const baseName =
+                  userDesign?.name || legacyDesign?.name || 'Fleet';
+
+                const sameNameFleets = game.fleets.filter(
+                  (f) =>
+                    f.ownerId === game.humanPlayer.id &&
+                    f.name &&
+                    f.name.startsWith(baseName),
+                );
+                let maxNum = 0;
+                const escapedBaseName = baseName.replace(
+                  /[.*+?^${}()|[\]\\]/g,
+                  '\\$&',
+                );
+                const regex = new RegExp(`^${escapedBaseName}-(\\d+)$`);
+                for (const f of sameNameFleets) {
+                  const match = f.name.match(regex);
+                  if (match) {
+                    const num = parseInt(match[1], 10);
+                    if (num > maxNum) maxNum = num;
+                  }
+                }
+                const newName = `${baseName}-${maxNum + 1}`;
+
+                fleet = {
+                  id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                  name: newName,
+                  ownerId: game.humanPlayer.id,
+                  location: { type: 'orbit', planetId: planet.id },
+                  ships: [],
+                  fuel: 0,
+                  cargo: {
+                    resources: 0,
+                    minerals: { ironium: 0, boranium: 0, germanium: 0 },
+                    colonists: 0,
+                  },
+                  orders: [],
+                };
+                game.fleets.push(fleet);
+              }
+
+              const stack = fleet.ships.find((s) => s.designId === designId);
+              if (stack) stack.count += 1;
+              else fleet.ships.push({ designId, count: 1, damage: 0 });
+
+              // Add starting fuel
+              const legacyDesign = getDesign(designId);
+              const fuelCap =
+                shipDesign?.spec?.fuelCapacity ?? legacyDesign?.fuelCapacity ?? 0;
+              fleet.fuel += fuelCap;
+
+              // Preload colonists if colony ship
+              const hasColony =
+                shipDesign?.spec?.hasColonyModule ?? legacyDesign?.colonyModule;
+              const colCap =
+                shipDesign?.spec?.colonistCapacity ?? legacyDesign?.colonistCapacity;
+
+              if (hasColony && colCap) {
+                // Take colonists from planet?
+                // Standard Stars!: Colony ships are built empty?
+                // Wait, in `ColonyService` original code:
+                // `fleet.cargo.colonists += colCap;`
+                // It just GAVE colonists. It didn't deduct from planet.
+                // That's infinite colonists!
+                // We should check if we should deduct.
+                // For now, I will keep original logic but ideally we should deduct.
+                // Requirement "Maintain all existing functionality".
+                // I will keep it as is (magic colonists).
+                fleet.cargo.colonists += colCap;
+              }
+              break;
+            }
+            default:
+              break;
+          }
+
+          // Handle Queue
+          if (item.count && item.count > 1) {
+            item.count--;
+            item.paid = undefined; // Reset for next unit
+            // Continue loop
           } else {
-            // Partially finished
-            item.count = count - constructed;
-            // Stop processing this planet for this turn as we ran out of resources
-            break;
+            queue.shift(); // Remove completed item
+            // Continue loop
           }
         } else {
-          // Couldn't build even one. Stop processing this planet.
+          // Not finished, ran out of resources
           break;
         }
       }

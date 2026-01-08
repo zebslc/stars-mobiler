@@ -309,7 +309,7 @@ export class FleetService {
           planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
           planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
           // Ship breakdown minerals
-          const cost = this.shipyard.getShipCost(design);
+          const cost = this.shipyard.getShipCost(design, game.humanPlayer.techLevels);
           planet.resources += cost.resources;
           planet.surfaceMinerals.ironium += cost.ironium ?? 0;
           planet.surfaceMinerals.boranium += cost.boranium ?? 0;

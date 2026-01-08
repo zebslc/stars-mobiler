@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { TECH_ATLAS } from '../data/tech-atlas.data';
-import { GameState, ShipDesign } from '../models/game.model';
+import { getComponent } from '../data/components.data';
+import { GameState, ShipDesign, PlayerTech } from '../models/game.model';
+import { miniaturizeComponent } from '../utils/miniaturization.util';
 
 @Injectable({ providedIn: 'root' })
 export class ShipyardService {
@@ -43,7 +45,10 @@ export class ShipyardService {
     return game.shipDesigns.filter((d) => d.playerId === game.humanPlayer.id);
   }
 
-  getShipCost(design: ShipDesign): {
+  getShipCost(
+    design: ShipDesign,
+    playerTech?: PlayerTech,
+  ): {
     resources: number;
     ironium: number;
     boranium: number;
@@ -57,16 +62,23 @@ export class ShipyardService {
       germanium: hull?.Cost.Germanium ?? 0,
     };
 
+    const techLevels = playerTech || {
+      Energy: 0,
+      Kinetics: 0,
+      Propulsion: 0,
+      Construction: 0,
+    };
+
     for (const slot of design.slots) {
       for (const component of slot.components) {
-        const allComponents = TECH_ATLAS.components.flatMap((c) => c.items);
-        const componentData = allComponents.find((item) => item.name === component.componentId);
+        const componentData = getComponent(component.componentId);
 
         if (componentData) {
-          totalCost.resources += (componentData.cost.resources ?? 0) * component.count;
-          totalCost.ironium += (componentData.cost.ironium ?? 0) * component.count;
-          totalCost.boranium += (componentData.cost.boranium ?? 0) * component.count;
-          totalCost.germanium += (componentData.cost.germanium ?? 0) * component.count;
+          const miniComp = miniaturizeComponent(componentData, techLevels);
+          totalCost.resources += (miniComp.cost.resources ?? 0) * component.count;
+          totalCost.ironium += (miniComp.cost.ironium ?? 0) * component.count;
+          totalCost.boranium += (miniComp.cost.boranium ?? 0) * component.count;
+          totalCost.germanium += (miniComp.cost.germanium ?? 0) * component.count;
         }
       }
     }

@@ -205,6 +205,7 @@ export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraf
 export interface BuildItem {
   project: BuildProject;
   cost: { resources: number; ironium?: number; boranium?: number; germanium?: number };
+  paid?: { resources: number; ironium: number; boranium: number; germanium: number };
   shipDesignId?: string;
   isAuto?: boolean;
   count?: number;
