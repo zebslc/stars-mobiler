@@ -1,15 +1,28 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Hull } from '../../data/hulls.data';
 import { getComponent } from '../../data/components.data';
 import { ShipDesign } from '../../models/game.model';
 import { HullLayoutComponent } from './hull-layout/hull-layout.component';
 import { ResourceCostComponent, Cost } from './resource-cost/resource-cost.component';
+import { ResearchUnlockDetailsComponent } from './research-unlock-details/research-unlock-details.component';
 
 @Component({
   selector: 'app-hull-preview-modal',
   standalone: true,
-  imports: [CommonModule, HullLayoutComponent, ResourceCostComponent],
+  imports: [
+    CommonModule,
+    HullLayoutComponent,
+    ResourceCostComponent,
+    ResearchUnlockDetailsComponent,
+  ],
   template: `
     <div class="modal-overlay" (click)="close.emit()">
       <div class="modal-content" (click)="$event.stopPropagation()">
@@ -119,10 +132,22 @@ import { ResourceCostComponent, Cost } from './resource-cost/resource-cost.compo
             }
           </div>
 
-          <app-hull-layout [hull]="hull" [design]="design" [editable]="false"></app-hull-layout>
+          <app-hull-layout
+            [hull]="hull"
+            [design]="design"
+            [editable]="false"
+            (componentInfoClick)="onComponentInfoClick($event)"
+          ></app-hull-layout>
         </div>
       </div>
     </div>
+
+    @if (previewComponentName()) {
+      <app-research-unlock-details
+        [unlockName]="previewComponentName()!"
+        (close)="previewComponentName.set(null)"
+      ></app-research-unlock-details>
+    }
   `,
   styles: [
     `
@@ -245,6 +270,20 @@ export class HullPreviewModalComponent {
   @Input() stats: any | null = null;
   @Input() title: string | null = null;
   @Output() close = new EventEmitter<void>();
+
+  previewComponentName = signal<string | null>(null);
+
+  onComponentInfoClick(slotId: string) {
+    if (!this.design) return;
+    const slot = this.design.slots.find((s) => s.slotId === slotId);
+    if (slot && slot.components && slot.components.length > 0) {
+      const componentId = slot.components[0].componentId;
+      const component = getComponent(componentId);
+      if (component) {
+        this.previewComponentName.set(component.name);
+      }
+    }
+  }
 
   get componentList(): { name: string; count: number; icon: string }[] {
     if (this.stats?.components) {
