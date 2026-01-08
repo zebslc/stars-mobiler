@@ -40,7 +40,12 @@ export type TraitType =
   | 'sensor' 
   | 'cloak' 
   | 'mining' 
-  | 'terraform';
+  | 'terraform'
+  | 'repair'
+  | 'bomb'
+  | 'minesweeping'
+  | 'settler'
+  | 'cloak';
 
 export interface ComponentTrait {
   type: TraitType;

@@ -66,6 +66,9 @@ All engines now include proper fuel consumption patterns:
 
 ### Weapons - Beam Weapons
 Many beam weapons need tech requirement updates to match standardized format
+Some weapons such as gatling gun have the ability to clear a certain number of mines per turn. The number of mines needs to be added as a stat to the weapon.
+Pulsed and phased sappers only damage shields
+
 
 ### Bombs
 Need to verify all bomb stats match table values:
