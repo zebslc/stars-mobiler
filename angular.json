@@ -46,6 +46,22 @@
           },
           "defaultConfiguration": "development"
         },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [],
+            "tsConfig": "tsconfig.spec.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.css",
+              "src/app/shared/components/tech-atlas.css"
+            ],
+            "scripts": []
+          }
+        },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {

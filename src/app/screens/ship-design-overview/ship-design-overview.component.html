@@ -51,21 +51,16 @@
     <!-- Filters (Only for Ships Tab) -->
     @if (activeTab() === 'ships') {
       <div class="filter-ribbon">
-        <button 
-          class="ribbon-btn"
-          [class.active]="selectedCategories().has('Warship')"
-          (click)="toggleCategory('Warship')"
-        >Warships</button>
-        <button 
-          class="ribbon-btn"
-          [class.active]="selectedCategories().has('Freighter')"
-          (click)="toggleCategory('Freighter')"
-        >Freighters</button>
-        <button 
-          class="ribbon-btn"
-          [class.active]="selectedCategories().has('Utility')"
-          (click)="toggleCategory('Utility')"
-        >Utility</button>
+        @for (category of availableCategories(); track category.type) {
+          <button 
+            class="ribbon-btn"
+            [class.active]="selectedCategories().has(category.type)"
+            (click)="toggleCategory(category.type)"
+            [title]="category.config.label"
+          >
+            {{ category.config.icon }} <span class="btn-label">{{ category.config.label }}</span>
+          </button>
+        }
       </div>
     }
 

@@ -12,7 +12,7 @@ declare const beforeEach: any;
 declare const jasmine: any;
 declare const fdescribe: any;
 
-fdescribe('ColonyService', () => {
+describe('ColonyService', () => {
   let service: ColonyService;
   let mockEconomyService: any;
   let mockShipyardService: any;
@@ -24,7 +24,7 @@ fdescribe('ColonyService', () => {
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     ownedPlanetIds: ['planet1'],
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy'
+    selectedResearchField: 'Energy',
   };
 
   const mockPlanet: Planet = {
@@ -45,7 +45,7 @@ fdescribe('ColonyService', () => {
     terraformOffset: { temperature: 0, atmosphere: 0 },
     buildQueue: [],
     scanner: 0,
-    research: 0
+    research: 0,
   };
 
   const mockDesign: ShipDesign = {
@@ -56,9 +56,9 @@ fdescribe('ColonyService', () => {
     createdTurn: 0,
     playerId: 'p1',
     spec: {
-        cost: { resources: 50, ironium: 10, boranium: 0, germanium: 0 },
-        isStarbase: false
-    } as any
+      cost: { resources: 50, ironium: 10, boranium: 0, germanium: 0 },
+      isStarbase: false,
+    } as any,
   };
 
   const mockStarbaseDesign: ShipDesign = {
@@ -69,9 +69,9 @@ fdescribe('ColonyService', () => {
     createdTurn: 0,
     playerId: 'p1',
     spec: {
-        cost: { resources: 200, ironium: 100, boranium: 50, germanium: 50 },
-        isStarbase: true
-    } as any
+      cost: { resources: 200, ironium: 100, boranium: 50, germanium: 50 },
+      isStarbase: true,
+    } as any,
   };
 
   const mockStarbaseDesign2: ShipDesign = {
@@ -82,9 +82,9 @@ fdescribe('ColonyService', () => {
     createdTurn: 0,
     playerId: 'p1',
     spec: {
-        cost: { resources: 400, ironium: 200, boranium: 100, germanium: 100 },
-        isStarbase: true
-    } as any
+      cost: { resources: 400, ironium: 200, boranium: 100, germanium: 100 },
+      isStarbase: true,
+    } as any,
   };
 
   beforeEach(() => {
@@ -107,12 +107,16 @@ fdescribe('ColonyService', () => {
 
   describe('processBuildQueues', () => {
     it('should process partial payment for expensive items', () => {
-      const planet = { ...mockPlanet, resources: 10, surfaceMinerals: { ironium: 0, boranium: 0, germanium: 0 } };
+      const planet = {
+        ...mockPlanet,
+        resources: 10,
+        surfaceMinerals: { ironium: 0, boranium: 0, germanium: 0 },
+      };
       const item: BuildItem = {
         project: 'ship',
         cost: { resources: 100, ironium: 0, boranium: 0, germanium: 0 },
         shipDesignId: 'scout',
-        count: 1
+        count: 1,
       };
       planet.buildQueue = [item];
 
@@ -120,7 +124,7 @@ fdescribe('ColonyService', () => {
         humanPlayer: mockPlayer,
         stars: [{ planets: [planet] }] as any,
         shipDesigns: [mockDesign],
-        fleets: []
+        fleets: [],
       } as any;
 
       service.processBuildQueues(game);
@@ -133,12 +137,16 @@ fdescribe('ColonyService', () => {
     });
 
     it('should complete item when fully paid', () => {
-      const planet = { ...mockPlanet, resources: 100, surfaceMinerals: { ironium: 10, boranium: 0, germanium: 0 } };
+      const planet = {
+        ...mockPlanet,
+        resources: 100,
+        surfaceMinerals: { ironium: 10, boranium: 0, germanium: 0 },
+      };
       const item: BuildItem = {
         project: 'ship',
         cost: { resources: 50, ironium: 10, boranium: 0, germanium: 0 },
         shipDesignId: 'scout',
-        count: 1
+        count: 1,
       };
       planet.buildQueue = [item];
 
@@ -146,7 +154,7 @@ fdescribe('ColonyService', () => {
         humanPlayer: mockPlayer,
         stars: [{ planets: [planet] }] as any,
         shipDesigns: [mockDesign],
-        fleets: []
+        fleets: [],
       } as any;
 
       service.processBuildQueues(game);
@@ -157,64 +165,68 @@ fdescribe('ColonyService', () => {
     });
 
     it('should apply 75% mineral recovery for starbase upgrades', () => {
-        const planet = { ...mockPlanet, resources: 1000, surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 } };
-        
-        // Existing starbase fleet
-        const existingFleet: Fleet = {
-            id: 'f1',
-            ownerId: 'p1',
-            location: { type: 'orbit', planetId: planet.id },
-            ships: [{ designId: 'starbase1', count: 1, damage: 0 }],
-            cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
-            fuel: 0,
-            orders: [],
-            name: 'Starbase'
-        };
+      const planet = {
+        ...mockPlanet,
+        resources: 1000,
+        surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
+      };
 
-        // New starbase build item
-        const item: BuildItem = {
-          project: 'ship',
-          cost: mockStarbaseDesign2.spec!.cost, // 400 res, 200 Fe, 100 Bo, 100 Ge
-          shipDesignId: 'starbase2',
-          count: 1
-        };
-        planet.buildQueue = [item];
-  
-        const game: GameState = {
-          humanPlayer: mockPlayer,
-          stars: [{ planets: [planet] }] as any,
-          shipDesigns: [mockStarbaseDesign, mockStarbaseDesign2],
-          fleets: [existingFleet]
-        } as any;
-  
-        service.processBuildQueues(game);
-  
-        // Calculation:
-        // Old cost: 200 Res, 100 Fe, 50 Bo, 50 Ge
-        // Credit (75%): 75 Fe, 37 Bo, 37 Ge (Resources not credited)
-        // New cost: 400 Res, 200 Fe, 100 Bo, 100 Ge
-        // Net needed: 400 Res, 125 Fe, 63 Bo, 63 Ge
-        
-        // Paid:
-        // Resources: 400
-        // Ironium: 125
-        // Boranium: 63
-        // Germanium: 63
-        
-        // Remaining on planet:
-        // Resources: 1000 - 400 = 600
-        // Ironium: 1000 - 125 = 875
-        // Boranium: 1000 - 63 = 937
-        // Germanium: 1000 - 63 = 937
-  
-        expect(planet.buildQueue?.length).toBe(0);
-        expect(planet.resources).toBe(600);
-        expect(planet.surfaceMinerals.ironium).toBe(875);
-        expect(planet.surfaceMinerals.boranium).toBe(937);
-        expect(planet.surfaceMinerals.germanium).toBe(937);
-        
-        expect(game.fleets.length).toBe(1);
-        expect(game.fleets[0].ships[0].designId).toBe('starbase2');
-      });
+      // Existing starbase fleet
+      const existingFleet: Fleet = {
+        id: 'f1',
+        ownerId: 'p1',
+        location: { type: 'orbit', planetId: planet.id },
+        ships: [{ designId: 'starbase1', count: 1, damage: 0 }],
+        cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+        fuel: 0,
+        orders: [],
+        name: 'Starbase',
+      };
+
+      // New starbase build item
+      const item: BuildItem = {
+        project: 'ship',
+        cost: mockStarbaseDesign2.spec!.cost, // 400 res, 200 Fe, 100 Bo, 100 Ge
+        shipDesignId: 'starbase2',
+        count: 1,
+      };
+      planet.buildQueue = [item];
+
+      const game: GameState = {
+        humanPlayer: mockPlayer,
+        stars: [{ planets: [planet] }] as any,
+        shipDesigns: [mockStarbaseDesign, mockStarbaseDesign2],
+        fleets: [existingFleet],
+      } as any;
+
+      service.processBuildQueues(game);
+
+      // Calculation:
+      // Old cost: 200 Res, 100 Fe, 50 Bo, 50 Ge
+      // Credit (75%): 75 Fe, 37 Bo, 37 Ge (Resources not credited)
+      // New cost: 400 Res, 200 Fe, 100 Bo, 100 Ge
+      // Net needed: 400 Res, 125 Fe, 63 Bo, 63 Ge
+
+      // Paid:
+      // Resources: 400
+      // Ironium: 125
+      // Boranium: 63
+      // Germanium: 63
+
+      // Remaining on planet:
+      // Resources: 1000 - 400 = 600
+      // Ironium: 1000 - 125 = 875
+      // Boranium: 1000 - 63 = 937
+      // Germanium: 1000 - 63 = 937
+
+      expect(planet.buildQueue?.length).toBe(0);
+      expect(planet.resources).toBe(600);
+      expect(planet.surfaceMinerals.ironium).toBe(875);
+      expect(planet.surfaceMinerals.boranium).toBe(937);
+      expect(planet.surfaceMinerals.germanium).toBe(937);
+
+      expect(game.fleets.length).toBe(1);
+      expect(game.fleets[0].ships[0].designId).toBe('starbase2');
+    });
   });
 });

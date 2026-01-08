@@ -10,10 +10,27 @@ import { getHull } from '../../data/hulls.data';
 import { compileShipStats } from '../../models/ship-design.model';
 import { ShipDesign } from '../../models/game.model';
 import { HullPreviewModalComponent } from '../../shared/components/hull-preview-modal.component';
+import { HullTemplate } from '../../data/tech-atlas.types';
 
 type DesignerMode = 'list' | 'designer';
 type DesignTab = 'starbases' | 'ships';
-type HullCategory = 'Warship' | 'Freighter' | 'Utility' | 'Starbase';
+
+interface CategoryConfig {
+  label: string;
+  icon: string;
+}
+
+const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
+  warship: { label: 'Warship', icon: '⚔️' },
+  freighter: { label: 'Freighter', icon: '⛽' },
+  utility: { label: 'Utility', icon: '🔧' },
+  scout: { label: 'Scout', icon: '👁️' },
+  colonizer: { label: 'Colonizer', icon: '🌱' },
+  miner: { label: 'Miner', icon: '⛏️' },
+  starbase: { label: 'Starbase', icon: '🏯' },
+  bomber: { label: 'Bomber', icon: '💣' },
+  'mine-layer': { label: 'Mine Layer', icon: '🕸️' },
+};
 
 const MAX_SHIP_DESIGNS = 16;
 const MAX_STARBASE_DESIGNS = 10;
@@ -39,7 +56,7 @@ export class ShipDesignOverviewComponent {
   readonly isDesignerMode = computed(() => this.mode() === 'designer');
 
   readonly activeTab = signal<DesignTab>('ships');
-  readonly selectedCategories = signal<Set<string>>(new Set(['Warship', 'Freighter', 'Utility']));
+  readonly selectedCategories = signal<Set<string>>(new Set());
   readonly designerHullFilter = signal<DesignTab>('ships');
   readonly openHullSelectorOnStart = signal(false);
 
@@ -57,12 +74,29 @@ export class ShipDesignOverviewComponent {
     return Object.values(COMPONENTS).map((comp) => miniaturizeComponent(comp, this.techLevels()));
   });
 
-  private getHullCategory(hull: any): HullCategory {
-    if (hull.isStarbase || hull.type === 'starbase') return 'Starbase';
-    if (hull.type === 'freighter') return 'Freighter';
-    if (hull.type === 'utility' || hull.type === 'colonizer' || hull.type === 'miner')
-      return 'Utility';
-    return 'Warship';
+  readonly availableCategories = computed(() => {
+    const hulls = this.designer.getAvailableHulls();
+    const categories = new Set<string>();
+
+    hulls.forEach((hull) => {
+      // Skip starbases if we are not in starbase tab logic (but here we want all non-starbase categories)
+      if (hull.isStarbase || hull.type === 'starbase') return;
+
+      const type = hull.type || 'warship';
+      categories.add(type);
+    });
+
+    return Array.from(categories)
+      .map((type) => ({
+        type,
+        config: CATEGORY_CONFIG[type] || { label: type, icon: '❓' },
+      }))
+      .sort((a, b) => a.config.label.localeCompare(b.config.label));
+  });
+
+  constructor() {
+    // Initialize selected categories with all available ones when they change?
+    // For now, if empty, we assume all are selected in the filter logic
   }
 
   readonly designDisplays = computed(() => {
@@ -76,14 +110,16 @@ export class ShipDesignOverviewComponent {
         const hull = getHull(d.hullId);
         if (!hull) return null;
 
-        const category = this.getHullCategory(hull);
+        const isStarbase = hull.isStarbase || hull.type === 'starbase';
+        const type = hull.type || 'warship';
 
         // Filter by tab
-        if (tab === 'starbases' && category !== 'Starbase') return null;
-        if (tab === 'ships' && category === 'Starbase') return null;
+        if (tab === 'starbases' && !isStarbase) return null;
+        if (tab === 'ships' && isStarbase) return null;
 
         // Filter by category (only for ships tab)
-        if (tab === 'ships' && !categories.has(category)) return null;
+        // If categories set is empty, show all (or if it has the type)
+        if (tab === 'ships' && categories.size > 0 && !categories.has(type)) return null;
 
         const stats = compileShipStats(hull, d.slots, miniComps);
         return {
@@ -172,9 +208,9 @@ export class ShipDesignOverviewComponent {
 
     // Get available hulls filtered by current tab
     const availableHulls = this.designer.getAvailableHulls().filter((h) => {
-      const category = this.getHullCategory(h);
-      if (this.activeTab() === 'starbases') return category === 'Starbase';
-      return category !== 'Starbase';
+      const isStarbase = h.isStarbase || h.type === 'starbase';
+      if (this.activeTab() === 'starbases') return isStarbase;
+      return !isStarbase;
     });
 
     // If no hullId provided, use the first available hull from the filtered list
@@ -208,8 +244,8 @@ export class ShipDesignOverviewComponent {
     if (design) {
       const hull = getHull(design.hullId);
       if (hull) {
-        const category = this.getHullCategory(hull);
-        this.designerHullFilter.set(category === 'Starbase' ? 'starbases' : 'ships');
+        const isStarbase = hull.isStarbase || hull.type === 'starbase';
+        this.designerHullFilter.set(isStarbase ? 'starbases' : 'ships');
       }
       this.openHullSelectorOnStart.set(false);
       const player = this.gameState.player();
