@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { ToastService } from '../../services/toast.service';
@@ -7,11 +8,12 @@ import { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { StarSelectorComponent, StarOption } from '../../components/star-selector.component';
 import { TechService } from '../../services/tech.service';
+import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
 
 @Component({
   standalone: true,
   selector: 'app-fleet-detail',
-  imports: [CommonModule, StarSelectorComponent],
+  imports: [CommonModule, StarSelectorComponent, FormsModule, DesignPreviewButtonComponent],
   template: `
     <main style="padding:var(--space-lg)" *ngIf="fleet(); else missing">
       <header
@@ -32,6 +34,153 @@ import { TechService } from '../../services/tech.service';
           Owner: {{ fleet()!.ownerId === gs.player()?.id ? 'You' : 'Enemy' }}
         </div>
       </header>
+
+      <!-- Transfer Overlay -->
+      <div *ngIf="transferTarget()" class="transfer-overlay">
+        <div class="card transfer-modal">
+          <h3>
+            {{ transferMode === 'split' ? 'Split Fleet' : 'Transfer to ' + transferTarget()?.name }}
+          </h3>
+
+          <div
+            *ngIf="transferMode === 'split'"
+            style="display:flex;gap:var(--space-md);margin-bottom:var(--space-md)"
+          >
+            <button
+              class="btn-small"
+              [class.btn-primary]="splitMode === 'custom'"
+              (click)="setSplitMode('custom')"
+            >
+              Custom Split
+            </button>
+            <button
+              class="btn-small"
+              [class.btn-primary]="splitMode === 'separate'"
+              (click)="setSplitMode('separate')"
+            >
+              Separate All
+            </button>
+          </div>
+
+          <div class="transfer-grid" *ngIf="transferMode === 'transfer' || splitMode === 'custom'">
+            <!-- Ships -->
+            <div class="transfer-section">
+              <h4>Ships</h4>
+              <div *ngFor="let item of transferState.ships" class="transfer-row">
+                <app-design-preview-button
+                  [designId]="item.designId"
+                  buttonClass="transfer-ship-btn"
+                  title="View hull layout"
+                >
+                  <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+                    {{ getDesignName(item.designId) }} ({{ item.damage || 0 }}% dmg)
+                  </span>
+                </app-design-preview-button>
+                <span class="text-muted" style="white-space:nowrap">Max: {{ item.max }}</span>
+                <input
+                  type="number"
+                  [(ngModel)]="item.count"
+                  min="0"
+                  [max]="item.max"
+                  class="qty-input"
+                />
+              </div>
+            </div>
+
+            <!-- Cargo -->
+            <div class="transfer-section" *ngIf="transferMode === 'transfer'">
+              <h4>Cargo & Fuel</h4>
+              <div class="transfer-row">
+                <span>Fuel</span>
+                <span class="text-muted">Max: {{ fleet()!.fuel | number: '1.0-0' }}</span>
+                <input
+                  type="number"
+                  [(ngModel)]="transferState.fuel"
+                  min="0"
+                  [max]="fleet()!.fuel"
+                  class="qty-input"
+                />
+              </div>
+              <div class="transfer-row">
+                <span>Resources</span>
+                <span class="text-muted">Max: {{ fleet()!.cargo.resources }}</span>
+                <input
+                  type="number"
+                  [(ngModel)]="transferState.resources"
+                  min="0"
+                  [max]="fleet()!.cargo.resources"
+                  class="qty-input"
+                />
+              </div>
+              <div class="transfer-row">
+                <span>Ironium</span>
+                <span class="text-muted">Max: {{ fleet()!.cargo.minerals.ironium }}</span>
+                <input
+                  type="number"
+                  [(ngModel)]="transferState.ironium"
+                  min="0"
+                  [max]="fleet()!.cargo.minerals.ironium"
+                  class="qty-input"
+                />
+              </div>
+              <div class="transfer-row">
+                <span>Boranium</span>
+                <span class="text-muted">Max: {{ fleet()!.cargo.minerals.boranium }}</span>
+                <input
+                  type="number"
+                  [(ngModel)]="transferState.boranium"
+                  min="0"
+                  [max]="fleet()!.cargo.minerals.boranium"
+                  class="qty-input"
+                />
+              </div>
+              <div class="transfer-row">
+                <span>Germanium</span>
+                <span class="text-muted">Max: {{ fleet()!.cargo.minerals.germanium }}</span>
+                <input
+                  type="number"
+                  [(ngModel)]="transferState.germanium"
+                  min="0"
+                  [max]="fleet()!.cargo.minerals.germanium"
+                  class="qty-input"
+                />
+              </div>
+              <div class="transfer-row">
+                <span>Colonists</span>
+                <span class="text-muted">Max: {{ fleet()!.cargo.colonists }}</span>
+                <input
+                  type="number"
+                  [(ngModel)]="transferState.colonists"
+                  min="0"
+                  [max]="fleet()!.cargo.colonists"
+                  class="qty-input"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            *ngIf="transferMode === 'split' && splitMode === 'separate'"
+            style="padding:var(--space-lg);text-align:center"
+          >
+            <p>Separate this fleet into {{ totalShipCount() }} individual fleets?</p>
+          </div>
+
+          <div class="transfer-actions">
+            <button (click)="cancelTransfer()" class="btn-secondary">Cancel</button>
+            <button (click)="confirmTransfer()" class="btn-primary">
+              {{
+                transferMode === 'split'
+                  ? splitMode === 'separate'
+                    ? 'Separate All'
+                    : 'Split Fleet'
+                  : 'Transfer'
+              }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <section class="card" style="display:grid;gap:var(--space-md)">
         <div>
           <div class="text-small text-muted">Location</div>
@@ -56,21 +205,49 @@ import { TechService } from '../../services/tech.service';
           <div
             style="display:flex;flex-direction:column;gap:var(--space-xs);margin-top:var(--space-xs)"
           >
-            <div
+            <app-design-preview-button
               *ngFor="let s of fleet()!.ships"
-              style="display:flex;align-items:center;gap:var(--space-sm);background:var(--color-bg-tertiary);padding:var(--space-sm);border-radius:var(--radius-sm)"
+              [designId]="s.designId"
+              buttonClass="ship-row"
+              title="View hull layout"
             >
-              <span
-                class="tech-icon"
-                [ngClass]="getHullImageClass(s.designId)"
-                style="flex-shrink:0"
-              ></span>
-              <span class="font-medium" style="flex:1">{{ getDesignName(s.designId) }}</span>
-              <span class="text-muted">×{{ s.count }}</span>
+              <span class="ship-count" style="margin-right:8px">{{ s.count }}x</span>
+              <span class="ship-name" style="flex:1">{{ getDesignName(s.designId) }}</span>
+              <span *ngIf="s.damage" class="ship-damage" style="color:var(--color-danger)"
+                >{{ s.damage }}% dmg</span
+              >
+            </app-design-preview-button>
+          </div>
+        </div>
+
+        <!-- Fleet Actions -->
+        <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-sm)">
+          <button (click)="startSplit()" class="btn-secondary" *ngIf="totalShipCount() > 1">
+            Split Fleet
+          </button>
+        </div>
+      </section>
+
+      <!-- Other Fleets Section -->
+      <section *ngIf="otherFleets().length > 0" class="card" style="margin-top:var(--space-xl)">
+        <h3 style="margin-bottom:var(--space-md)">Other Fleets Here</h3>
+        <div style="display:grid; gap:var(--space-sm)">
+          <div
+            *ngFor="let f of otherFleets()"
+            style="display:flex; justify-content:space-between; align-items:center; background:var(--color-bg-tertiary); padding:var(--space-md); border-radius:var(--radius-sm)"
+          >
+            <div>
+              <div class="font-medium">{{ f.name }}</div>
+              <div class="text-small text-muted">{{ f.ships.length }} ship stacks</div>
+            </div>
+            <div style="display:flex; gap:var(--space-xs)">
+              <button (click)="startTransfer(f)" class="btn-small">Transfer</button>
+              <button (click)="mergeInto(f)" class="btn-small btn-warning">Merge Into</button>
             </div>
           </div>
         </div>
       </section>
+
       <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
       <section class="card">
         <h3 style="margin-bottom:var(--space-lg)">Orders</h3>
@@ -193,6 +370,116 @@ import { TechService } from '../../services/tech.service';
       </main>
     </ng-template>
   `,
+  styles: [
+    `
+      :host {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+      main {
+        flex: 1;
+        overflow-y: auto;
+      }
+      .transfer-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: var(--space-lg);
+      }
+      .transfer-modal {
+        background: var(--color-bg-primary);
+        width: 100%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        /* Ensure it doesn't overflow horizontally on small screens */
+        box-sizing: border-box;
+      }
+      .transfer-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-lg);
+        margin: var(--space-md) 0;
+      }
+      .transfer-section {
+        background: var(--color-bg-secondary);
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+        /* Prevent section from forcing width */
+        min-width: 0;
+      }
+      .transfer-row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-sm);
+        min-width: 0; /* Important for flex child truncation */
+      }
+      /* Custom button class for the transfer row to behave like a flex item but look clean */
+      :host ::ng-deep .transfer-ship-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        padding: 4px;
+        color: var(--color-text);
+        text-align: left;
+        cursor: pointer;
+        min-width: 0; /* Allow text truncation */
+        overflow: hidden; /* Ensure content doesn't spill out */
+      }
+      :host ::ng-deep .transfer-ship-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-sm);
+      }
+      .qty-input {
+        width: 60px; /* Reduced width to save space */
+        padding: 4px;
+        flex-shrink: 0; /* Prevent input from shrinking */
+      }
+      .transfer-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--space-md);
+        margin-top: var(--space-lg);
+      }
+      @media (max-width: 700px) {
+        .transfer-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .ship-count {
+        color: var(--color-text-muted);
+        min-width: 30px;
+        flex-shrink: 0;
+      }
+      .ship-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+      }
+      .ship-damage {
+        color: var(--color-danger);
+        font-size: var(--font-size-xs);
+        flex-shrink: 0;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FleetDetailComponent implements OnInit {
@@ -210,6 +497,173 @@ export class FleetDetailComponent implements OnInit {
     return f ? { ...f } : null; // Shallow copy for change detection
   });
 
+  otherFleets = computed(() => {
+    const f = this.fleet();
+    const game = this.gs.game();
+    if (!f || !game) return [];
+
+    return game.fleets.filter(
+      (other) => other.id !== f.id && other.ownerId === f.ownerId && this.isSameLocation(f, other),
+    );
+  });
+
+  // Transfer State
+  transferTarget = signal<Fleet | { name: string; id: 'new' } | null>(null);
+  transferMode: 'split' | 'transfer' = 'transfer';
+  splitMode: 'custom' | 'separate' = 'custom';
+  transferState = {
+    ships: [] as { designId: string; damage: number; count: number; max: number }[],
+    fuel: 0,
+    resources: 0,
+    ironium: 0,
+    boranium: 0,
+    germanium: 0,
+    colonists: 0,
+  };
+
+  isSameLocation(f1: Fleet, f2: Fleet): boolean {
+    if (f1.location.type !== f2.location.type) return false;
+    if (f1.location.type === 'orbit') {
+      return (f1.location as any).planetId === (f2.location as any).planetId;
+    }
+    return (
+      (f1.location as any).x === (f2.location as any).x &&
+      (f1.location as any).y === (f2.location as any).y
+    );
+  }
+
+  totalShipCount = computed(() => {
+    const f = this.fleet();
+    if (!f) return 0;
+    return f.ships.reduce((acc, s) => acc + s.count, 0);
+  });
+
+  getDesignName(designId: string): string {
+    const d = this.getShipDesign(designId);
+    return d?.name || 'Unknown Design';
+  }
+
+  private getShipDesign(designId: string): any {
+    const game = this.gs.game();
+    const dynamicDesign = game?.shipDesigns.find((d) => d.id === designId);
+    if (dynamicDesign?.spec) {
+      return {
+        ...dynamicDesign.spec,
+        colonyModule: dynamicDesign.spec.hasColonyModule,
+        fuelEfficiency: dynamicDesign.spec.fuelEfficiency ?? 100,
+      };
+    }
+    return getDesign(designId);
+  }
+
+  startSplit() {
+    const f = this.fleet();
+    if (!f) return;
+    this.transferMode = 'split';
+    this.splitMode = 'custom';
+    this.transferTarget.set({ name: 'New Fleet', id: 'new' });
+    this.initTransferState(f);
+  }
+
+  setSplitMode(mode: 'custom' | 'separate') {
+    this.splitMode = mode;
+  }
+
+  startTransfer(target: Fleet) {
+    const f = this.fleet();
+    if (!f) return;
+    this.transferMode = 'transfer';
+    this.transferTarget.set(target);
+    this.initTransferState(f);
+  }
+
+  mergeInto(target: Fleet) {
+    const f = this.fleet();
+    if (!f) return;
+    if (confirm(`Merge ${f.name} into ${target.name}?`)) {
+      this.gs.mergeFleets(f.id, target.id);
+      this.toast.success('Fleets merged');
+      this.router.navigateByUrl('/map');
+    }
+  }
+
+  initTransferState(f: Fleet) {
+    this.transferState = {
+      ships: f.ships.map((s) => ({
+        designId: s.designId,
+        damage: s.damage || 0,
+        count: 0,
+        max: s.count,
+      })),
+      fuel: 0,
+      resources: 0,
+      ironium: 0,
+      boranium: 0,
+      germanium: 0,
+      colonists: 0,
+    };
+  }
+
+  cancelTransfer() {
+    this.transferTarget.set(null);
+  }
+
+  confirmTransfer() {
+    const target = this.transferTarget();
+    const f = this.fleet();
+    if (!target || !f) return;
+
+    if (this.transferMode === 'split') {
+      if (this.splitMode === 'separate') {
+        this.gs.separateFleet(f.id);
+        this.toast.success('Fleet separated');
+        this.transferTarget.set(null);
+        return;
+      }
+
+      // Custom Split
+      const spec = {
+        ships: this.transferState.ships
+          .filter((s) => s.count > 0)
+          .map((s) => ({ designId: s.designId, count: s.count, damage: s.damage })),
+        fuel: 0,
+        cargo: { resources: 0, ironium: 0, boranium: 0, germanium: 0, colonists: 0 },
+      };
+
+      if (spec.ships.length === 0) {
+        this.toast.error('Select ships to split');
+        return;
+      }
+
+      const newId = this.gs.splitFleet(f.id, spec);
+      if (newId) {
+        this.toast.success('Fleet split created');
+        this.transferTarget.set(null);
+      }
+    } else {
+      // Transfer
+      const spec = {
+        ships: this.transferState.ships
+          .filter((s) => s.count > 0)
+          .map((s) => ({ designId: s.designId, count: s.count, damage: s.damage })),
+        fuel: this.transferState.fuel,
+        cargo: {
+          resources: this.transferState.resources,
+          ironium: this.transferState.ironium,
+          boranium: this.transferState.boranium,
+          germanium: this.transferState.germanium,
+          colonists: this.transferState.colonists,
+        },
+      };
+
+      if (target && 'id' in target && target.id !== 'new') {
+        this.gs.transferFleetCargo(f.id, target.id, spec);
+        this.toast.success('Transfer complete');
+        this.transferTarget.set(null);
+      }
+    }
+  }
+
   stars = computed(() => this.gs.stars());
   selectedStarId = signal('');
   showAll = false;
@@ -222,7 +676,7 @@ export class FleetDetailComponent implements OnInit {
     let totalMass = 0;
     let worstEfficiency = -Infinity;
     for (const s of f.ships) {
-      const d = getDesign(s.designId);
+      const d = this.getShipDesign(s.designId);
       maxWarp = Math.min(maxWarp, d.warpSpeed);
       idealWarp = Math.min(idealWarp, d.idealWarp);
       totalMass += d.mass * s.count;
@@ -308,7 +762,7 @@ export class FleetDetailComponent implements OnInit {
     if (!f || distance === 0) return 0;
     let maxWarp = Infinity;
     for (const s of f.ships) {
-      const d = getDesign(s.designId);
+      const d = this.getShipDesign(s.designId);
       maxWarp = Math.min(maxWarp, d.warpSpeed);
     }
     const speed = Math.max(1, maxWarp * 20);
@@ -317,40 +771,6 @@ export class FleetDetailComponent implements OnInit {
 
   onStarSelected(option: StarOption) {
     this.selectedStarId.set(option.star.id);
-  }
-
-  getDesignName(id: string) {
-    return getDesign(id).name;
-  }
-
-  /**
-   * Map design name to hull name from tech-atlas.data
-   */
-  getHullNameFromDesign(designId: string): string {
-    const design = getDesign(designId);
-    const name = design.name;
-
-    // Map compiled design names to hull names
-    const nameMap: Record<string, string> = {
-      Scout: 'Scout',
-      Frigate: 'Frigate',
-      Destroyer: 'Destroyer',
-      'Small Freighter': 'Small Freighter',
-      'Super Freighter': 'Super Freighter',
-      'Fuel Transport': 'Fuel Transport',
-      'Colony Ship': 'Colony Ship',
-      Starbase: 'Orbital Fort',
-    };
-
-    return nameMap[name] || 'Scout'; // Default to Scout if not found
-  }
-
-  /**
-   * Get CSS class for hull image
-   */
-  getHullImageClass(designId: string): string {
-    const hullName = this.getHullNameFromDesign(designId);
-    return this.techService.getHullImageClass(hullName);
   }
 
   move() {
@@ -365,7 +785,9 @@ export class FleetDetailComponent implements OnInit {
   canColonize(): boolean {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return false;
-    const hasColony = f.ships.some((s) => getDesign(s.designId).colonyModule && s.count > 0);
+    const hasColony = f.ships.some(
+      (s) => this.getShipDesign(s.designId).colonyModule && s.count > 0,
+    );
     return hasColony;
   }
 
@@ -418,7 +840,10 @@ export class FleetDetailComponent implements OnInit {
   cargoCapacity(): number {
     const f = this.fleet();
     if (!f) return 0;
-    return f.ships.reduce((sum, s) => sum + getDesign(s.designId).cargoCapacity * s.count, 0);
+    return f.ships.reduce(
+      (sum, s) => sum + this.getShipDesign(s.designId).cargoCapacity * s.count,
+      0,
+    );
   }
   cargoUsed(): number {
     const f = this.fleet();

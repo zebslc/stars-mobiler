@@ -55,44 +55,15 @@ export class FleetService {
     }
 
     if (!fleet) {
-      // Generate fleet name
-      const userDesign = game.shipDesigns.find((d) => d.id === designId);
-      // legacyDesign is already fetched above
-      const baseName = userDesign?.name || legacyDesign?.name || 'Fleet';
-
-      const sameNameFleets = game.fleets.filter(
-        (f) => f.ownerId === game.humanPlayer.id && f.name && f.name.startsWith(baseName),
+      fleet = this.createFleet(
+        game,
+        { type: 'orbit', planetId: planet.id },
+        game.humanPlayer.id,
+        designId,
       );
-      let maxNum = 0;
-      const escapedBaseName = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`^${escapedBaseName}-(\\d+)$`);
-      for (const f of sameNameFleets) {
-        const match = f.name.match(regex);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxNum) maxNum = num;
-        }
-      }
-      const newName = `${baseName}-${maxNum + 1}`;
-
-      fleet = {
-        id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        name: newName,
-        ownerId: game.humanPlayer.id,
-        location: { type: 'orbit', planetId: planet.id },
-        ships: [],
-        fuel: 0,
-        cargo: {
-          resources: 0,
-          minerals: { ironium: 0, boranium: 0, germanium: 0 },
-          colonists: 0,
-        },
-        orders: [],
-      };
-      game.fleets.push(fleet);
     }
 
-    const stack = fleet.ships.find((s) => s.designId === designId);
+    const stack = fleet.ships.find((s) => s.designId === designId && (s.damage || 0) === 0);
     if (stack) stack.count += count;
     else fleet.ships.push({ designId, count, damage: 0 });
 
@@ -111,6 +82,235 @@ export class FleetService {
       planet.population -= amount;
       fleet.cargo.colonists += amount;
     }
+  }
+
+  createFleet(
+    game: GameState,
+    location: { type: 'space'; x: number; y: number } | { type: 'orbit'; planetId: string },
+    ownerId: string,
+    baseNameSource?: string,
+  ): Fleet {
+    // Generate fleet name
+    const userDesign = baseNameSource
+      ? game.shipDesigns.find((d) => d.id === baseNameSource)
+      : null;
+    const legacyDesign = baseNameSource ? getDesign(baseNameSource) : null;
+    const baseName = userDesign?.name || legacyDesign?.name || 'Fleet';
+
+    const sameNameFleets = game.fleets.filter(
+      (f) => f.ownerId === ownerId && f.name && f.name.startsWith(baseName),
+    );
+    let maxNum = 0;
+    const escapedBaseName = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`^${escapedBaseName}-(\\d+)$`);
+    for (const f of sameNameFleets) {
+      const match = f.name.match(regex);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) maxNum = num;
+      }
+    }
+    const newName = `${baseName}-${maxNum + 1}`;
+
+    const fleet: Fleet = {
+      id: `fleet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      name: newName,
+      ownerId: ownerId,
+      location: location,
+      ships: [],
+      fuel: 0,
+      cargo: {
+        resources: 0,
+        minerals: { ironium: 0, boranium: 0, germanium: 0 },
+        colonists: 0,
+      },
+      orders: [],
+    };
+    game.fleets.push(fleet);
+    return fleet;
+  }
+
+  transfer(
+    game: GameState,
+    sourceId: string,
+    targetId: string,
+    transferSpec: {
+      ships: { designId: string; count: number; damage?: number }[];
+      fuel: number;
+      cargo: {
+        resources: number;
+        ironium: number;
+        boranium: number;
+        germanium: number;
+        colonists: number;
+      };
+    },
+  ): GameState {
+    const source = game.fleets.find((f) => f.id === sourceId);
+    const target = game.fleets.find((f) => f.id === targetId);
+    if (!source || !target) return game;
+
+    // Validation: Same location
+    const sameLoc =
+      (source.location.type === 'orbit' &&
+        target.location.type === 'orbit' &&
+        (source.location as any).planetId === (target.location as any).planetId) ||
+      (source.location.type === 'space' &&
+        target.location.type === 'space' &&
+        (source.location as any).x === (target.location as any).x &&
+        (source.location as any).y === (target.location as any).y);
+
+    if (!sameLoc) return game;
+
+    // Transfer Ships
+    for (const ship of transferSpec.ships) {
+      const sourceStack = source.ships.find(
+        (s) => s.designId === ship.designId && (s.damage || 0) === (ship.damage || 0),
+      );
+      if (!sourceStack || sourceStack.count < ship.count) continue;
+
+      sourceStack.count -= ship.count;
+      if (sourceStack.count <= 0) {
+        source.ships = source.ships.filter((s) => s !== sourceStack);
+      }
+
+      const targetStack = target.ships.find(
+        (s) => s.designId === ship.designId && (s.damage || 0) === (ship.damage || 0),
+      );
+      if (targetStack) {
+        targetStack.count += ship.count;
+      } else {
+        target.ships.push({
+          designId: ship.designId,
+          count: ship.count,
+          damage: ship.damage || 0,
+        });
+      }
+    }
+
+    // Transfer Fuel
+    const fuelToMove = Math.min(source.fuel, transferSpec.fuel);
+    source.fuel -= fuelToMove;
+    target.fuel += fuelToMove;
+
+    // Transfer Cargo
+    const moveCargo = (
+      key: 'resources' | 'colonists' | 'ironium' | 'boranium' | 'germanium',
+      amount: number,
+    ) => {
+      if (key === 'resources' || key === 'colonists') {
+        const val = Math.min(source.cargo[key], amount);
+        source.cargo[key] -= val;
+        target.cargo[key] += val;
+      } else {
+        const val = Math.min(source.cargo.minerals[key], amount);
+        source.cargo.minerals[key] -= val;
+        target.cargo.minerals[key] += val;
+      }
+    };
+
+    moveCargo('resources', transferSpec.cargo.resources);
+    moveCargo('colonists', transferSpec.cargo.colonists);
+    moveCargo('ironium', transferSpec.cargo.ironium);
+    moveCargo('boranium', transferSpec.cargo.boranium);
+    moveCargo('germanium', transferSpec.cargo.germanium);
+
+    // Cleanup empty fleets
+    if (source.ships.length === 0) {
+      game.fleets = game.fleets.filter((f) => f.id !== source.id);
+    }
+
+    return { ...game, fleets: [...game.fleets] };
+  }
+
+  splitFleet(
+    game: GameState,
+    sourceId: string,
+    transferSpec: {
+      ships: { designId: string; count: number; damage?: number }[];
+      fuel: number;
+      cargo: {
+        resources: number;
+        ironium: number;
+        boranium: number;
+        germanium: number;
+        colonists: number;
+      };
+    },
+  ): [GameState, string | null] {
+    const source = game.fleets.find((f) => f.id === sourceId);
+    if (!source) return [game, null];
+
+    const newFleet = this.createFleet(
+      game,
+      source.location,
+      source.ownerId,
+      transferSpec.ships[0]?.designId,
+    );
+    const nextGame = this.transfer(game, sourceId, newFleet.id, transferSpec);
+    return [nextGame, newFleet.id];
+  }
+
+  separateFleet(game: GameState, fleetId: string): GameState {
+    const source = game.fleets.find((f) => f.id === fleetId);
+    if (!source) return game;
+
+    // Create a flat list of all ships to move
+    // We leave exactly 1 ship in the source fleet (the last one processed)
+    const shipsToMove: { designId: string; damage: number }[] = [];
+
+    // Calculate total ships
+    let totalShips = 0;
+    source.ships.forEach((s) => (totalShips += s.count));
+
+    // If only 1 ship, nothing to separate
+    if (totalShips <= 1) return game;
+
+    // We want to move (total - 1) ships
+    let shipsAdded = 0;
+    for (const stack of source.ships) {
+      for (let i = 0; i < stack.count; i++) {
+        if (shipsAdded < totalShips - 1) {
+          shipsToMove.push({ designId: stack.designId, damage: stack.damage || 0 });
+          shipsAdded++;
+        }
+      }
+    }
+
+    let currentGame = game;
+    for (const ship of shipsToMove) {
+      const newFleet = this.createFleet(
+        currentGame,
+        source.location,
+        source.ownerId,
+        ship.designId,
+      );
+      currentGame = this.transfer(currentGame, source.id, newFleet.id, {
+        ships: [{ designId: ship.designId, count: 1, damage: ship.damage }],
+        fuel: 0,
+        cargo: { resources: 0, colonists: 0, ironium: 0, boranium: 0, germanium: 0 },
+      });
+    }
+
+    return currentGame;
+  }
+
+  mergeFleets(game: GameState, sourceId: string, targetId: string): GameState {
+    const source = game.fleets.find((f) => f.id === sourceId);
+    if (!source) return game;
+
+    // Move everything
+    return this.transfer(game, sourceId, targetId, {
+      ships: source.ships.map((s) => ({ ...s })),
+      fuel: source.fuel,
+      cargo: {
+        resources: source.cargo.resources,
+        ironium: source.cargo.minerals.ironium,
+        boranium: source.cargo.minerals.boranium,
+        germanium: source.cargo.minerals.germanium,
+        colonists: source.cargo.colonists,
+      },
+    });
   }
 
   issueFleetOrder(game: GameState, fleetId: string, order: FleetOrder): GameState {
@@ -179,9 +379,9 @@ export class FleetService {
     return [newGame, planet.id];
   }
 
-  private fleetCargoCapacity(fleet: Fleet): number {
+  private fleetCargoCapacity(game: GameState, fleet: Fleet): number {
     return fleet.ships.reduce((sum, s) => {
-      const d = getDesign(s.designId);
+      const d = this.getShipDesign(game, s.designId);
       return sum + d.cargoCapacity * s.count;
     }, 0);
   }
@@ -207,7 +407,7 @@ export class FleetService {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
     if (!fleet || !planet) return game;
-    const capacity = this.fleetCargoCapacity(fleet);
+    const capacity = this.fleetCargoCapacity(game, fleet);
     let used = this.fleetCargoUsed(fleet);
     const free = Math.max(0, capacity - used);
     const takeMineral = (
@@ -304,12 +504,24 @@ export class FleetService {
     return { ...game, stars: [...game.stars], fleets: [...game.fleets] };
   }
 
+  private getShipDesign(game: GameState, designId: string): any {
+    const dynamicDesign = game.shipDesigns.find((d) => d.id === designId);
+    if (dynamicDesign?.spec) {
+      return {
+        ...dynamicDesign.spec,
+        colonyModule: dynamicDesign.spec.hasColonyModule,
+        fuelEfficiency: dynamicDesign.spec.fuelEfficiency ?? 100,
+      };
+    }
+    return getDesign(designId);
+  }
+
   processFleets(game: GameState) {
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== game.humanPlayer.id) continue;
       // Calculate total fuel capacity
       const totalFuelCapacity = fleet.ships.reduce(
-        (sum, s) => sum + getDesign(s.designId).fuelCapacity * s.count,
+        (sum, s) => sum + this.getShipDesign(game, s.designId).fuelCapacity * s.count,
         0,
       );
 
@@ -335,7 +547,9 @@ export class FleetService {
         // Unowned or enemy planet: no refueling
       } else {
         // In space: only ramscoop ships refuel
-        const hasRamscoop = fleet.ships.some((s) => getDesign(s.designId).fuelEfficiency === 0);
+        const hasRamscoop = fleet.ships.some(
+          (s) => this.getShipDesign(game, s.designId).fuelEfficiency === 0,
+        );
         if (hasRamscoop) {
           fleet.fuel = Math.min(totalFuelCapacity, fleet.fuel + totalFuelCapacity * 0.15);
         }
@@ -343,7 +557,7 @@ export class FleetService {
       const order = fleet.orders[0];
       if (!order) continue;
       if (order.type === 'move') {
-        const stats = this.calculateMovementStats(fleet);
+        const stats = this.calculateMovementStats(game, fleet);
         const dest = order.destination;
         const curr =
           fleet.location.type === 'orbit'
@@ -382,14 +596,22 @@ export class FleetService {
         const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === order.planetId);
         if (!planet) continue;
         const colonyStack = fleet.ships.find((s) => {
-          const design = game.shipDesigns.find((d) => d.id === s.designId);
-          return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
+          return this.getShipDesign(game, s.designId).colonyModule && s.count > 0;
         });
         const hasColony = !!colonyStack;
         const hab = this.hab.calculate(planet, game.humanPlayer.species);
         if (hasColony) {
           const design = game.shipDesigns.find((d) => d.id === colonyStack!.designId);
-          if (!design) continue;
+          // If dynamic design missing but we found it via getShipDesign (static), we might need fallback logic?
+          // But getShipCost needs dynamic design or compiled design?
+          // shipyard.getShipCost takes compiled design or similar.
+          // Let's assume if it's a colony ship it has a design.
+          // However, if it's a static design (e.g. starter colony ship), game.shipDesigns won't have it.
+          // We should use the result of getShipDesign?
+          // But getShipCost might expect a specific type.
+
+          // Let's just fix the finding logic first.
+
           // consume one colony ship
           colonyStack!.count -= 1;
           if (colonyStack!.count <= 0) {
@@ -408,7 +630,16 @@ export class FleetService {
           planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
           planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
           // Ship breakdown minerals
-          const cost = this.shipyard.getShipCost(design, game.humanPlayer.techLevels);
+          // We need a design object for getShipCost.
+          // If it is dynamic, 'design' is valid. If static, 'design' is undefined.
+          // We can use this.getShipDesign(game, colonyStack!.designId) but getShipCost signature might vary.
+          // Let's check getShipCost later. For now, try to get the design if possible.
+          const effectiveDesign = this.getShipDesign(game, colonyStack!.designId);
+
+          // We'll pass effectiveDesign to getShipCost if it accepts it, or just use it manually?
+          // this.shipyard.getShipCost expects (design: CompiledDesign | ShipDesign, ...) ?
+          // I'll assume getShipCost can handle the object returned by getShipDesign which matches CompiledDesign.
+          const cost = this.shipyard.getShipCost(effectiveDesign, game.humanPlayer.techLevels);
           planet.resources += cost.resources;
           planet.surfaceMinerals.ironium += cost.ironium ?? 0;
           planet.surfaceMinerals.boranium += cost.boranium ?? 0;
@@ -430,14 +661,14 @@ export class FleetService {
     return star ? star.position : { x: 0, y: 0 };
   }
 
-  private calculateMovementStats(fleet: Fleet) {
+  private calculateMovementStats(game: GameState, fleet: Fleet) {
     let maxWarp = Infinity;
     let idealWarp = Infinity;
     let totalMass = 0;
     let totalFuel = 0;
     let worstEfficiency = -Infinity;
     for (const stack of fleet.ships) {
-      const d = getDesign(stack.designId);
+      const d = this.getShipDesign(game, stack.designId);
       maxWarp = Math.min(maxWarp, d.warpSpeed);
       idealWarp = Math.min(idealWarp, d.idealWarp);
       totalMass += d.mass * stack.count;

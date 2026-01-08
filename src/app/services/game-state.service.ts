@@ -144,6 +144,62 @@ export class GameStateService {
     this._game.set(nextGame);
   }
 
+  splitFleet(
+    fleetId: string,
+    transferSpec: {
+      ships: { designId: string; count: number; damage?: number }[];
+      fuel: number;
+      cargo: {
+        resources: number;
+        ironium: number;
+        boranium: number;
+        germanium: number;
+        colonists: number;
+      };
+    },
+  ): string | null {
+    const game = this._game();
+    if (!game) return null;
+    const [nextGame, newFleetId] = this.fleetService.splitFleet(game, fleetId, transferSpec);
+    this._game.set(nextGame);
+    return newFleetId;
+  }
+
+  separateFleet(fleetId: string) {
+    const game = this._game();
+    if (!game) return;
+    const nextGame = this.fleetService.separateFleet(game, fleetId);
+    this._game.set(nextGame);
+  }
+
+  mergeFleets(sourceId: string, targetId: string) {
+    const game = this._game();
+    if (!game) return;
+    const nextGame = this.fleetService.mergeFleets(game, sourceId, targetId);
+    this._game.set(nextGame);
+  }
+
+  transferFleetCargo(
+    sourceId: string,
+    targetId: string,
+    transferSpec: {
+      ships: { designId: string; count: number; damage?: number }[];
+      fuel: number;
+      cargo: {
+        resources: number;
+        ironium: number;
+        boranium: number;
+        germanium: number;
+        colonists: number;
+      };
+    },
+  ) {
+    const game = this._game();
+    if (!game) return;
+    const nextGame = this.fleetService.transfer(game, sourceId, targetId, transferSpec);
+    this._game.set(nextGame);
+  }
+
   setResearchField(fieldId: TechField) {
     const game = this._game();
     if (!game) return;

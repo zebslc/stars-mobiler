@@ -36,6 +36,12 @@ import { getDesign } from '../../data/ships.data';
   `,
   styles: [
     `
+      :host {
+        display: block;
+        height: 100%;
+        overflow-y: auto;
+      }
+
       .empty-state {
         text-align: center;
         padding: var(--space-xl);
