@@ -22,7 +22,7 @@ import { getHull } from '../../../data/hulls.data';
         <div class="modal-header">
           <div class="modal-title-group">
             <div class="tech-icon large" [ngClass]="iconClass()"></div>
-            <h3>{{ unlockName }}</h3>
+            <h3>{{ displayName() }}</h3>
           </div>
           <button class="modal-close" (click)="onClose()">✕</button>
         </div>
@@ -240,6 +240,12 @@ export class ResearchUnlockDetailsComponent {
     return this.techService.getComponentByName(name) || this.techService.getComponentById(name);
   });
 
+  displayName = computed(() => {
+    const d = this.details();
+    if (!d) return this.unlockName;
+    return 'Name' in d ? (d as HullTemplate).Name : (d as ComponentStats).name;
+  });
+
   hullData = computed(() => {
     const d = this.details();
     if (!d || !('Slots' in d)) return null;
@@ -373,9 +379,11 @@ export class ResearchUnlockDetailsComponent {
       'Alpha Torpedo': 'Basic torpedo launcher. Range: 4, Damage: 5, Accuracy: 75%',
       'Total Terraform ±3': 'Allows terraforming of all environmental factors by ±3%',
     };
+    const name = this.displayName();
     return (
       descriptions[this.unlockName] ??
-      `${this.unlockName} - Technology from the Stars! universe. This component will be available once this tech level is reached.`
+      descriptions[name] ??
+      `${name} - Technology from the Stars! universe. This component will be available once this tech level is reached.`
     );
   });
 
