@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
   Output,
   EventEmitter,
+  Input,
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -38,6 +39,15 @@ import { ResearchUnlockDetailsComponent } from '../../shared/components/research
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerComponent implements OnInit {
+  private hullFilterSig = signal<'starbases' | 'ships' | null>(null);
+  @Input() set hullFilter(value: 'starbases' | 'ships' | null) {
+    this.hullFilterSig.set(value);
+  }
+  get hullFilter(): 'starbases' | 'ships' | null {
+    return this.hullFilterSig();
+  }
+
+  @Input() openHullSelectorOnInit = false;
   @Output() save = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -53,7 +63,13 @@ export class ShipDesignerComponent implements OnInit {
   readonly hull = computed(() => this.designer.currentHull() ?? null);
   readonly stats = computed(() => this.designer.compiledStats() ?? null);
 
-  readonly availableHulls = computed(() => this.designer.getAvailableHulls());
+  readonly availableHulls = computed(() => {
+    const all = this.designer.getAvailableHulls();
+    const filter = this.hullFilterSig();
+    if (!filter) return all;
+    if (filter === 'starbases') return all.filter((h) => this.isStarbaseHull(h));
+    return all.filter((h) => !this.isStarbaseHull(h));
+  });
 
   readonly selectedSlot = computed(() => {
     const slotId = this.selectedSlotId();
@@ -82,6 +98,13 @@ export class ShipDesignerComponent implements OnInit {
   readonly designNameEditing = signal(false);
   readonly hoveredItem = signal<any>(null);
 
+  private isStarbaseHull(hull: any): boolean {
+    const name = hull?.name ?? hull?.Name ?? '';
+    return (
+      !!hull?.isStarbase || hull?.type === 'starbase' || STARBASE_HULLS.some((h) => h.Name === name)
+    );
+  }
+
   ngOnInit() {
     // Set player tech levels for miniaturization
     const player = this.gameState.player();
@@ -91,7 +114,13 @@ export class ShipDesignerComponent implements OnInit {
 
     // If no design is loaded, start with a Scout hull
     if (!this.design()) {
-      this.selectHull('scout');
+      const available = this.availableHulls();
+      const defaultHull = available[0]?.id ?? 'scout';
+      this.selectHull(defaultHull);
+    }
+
+    if (this.openHullSelectorOnInit) {
+      this.hullSelectOpen.set(true);
     }
   }
 

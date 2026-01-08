@@ -12,7 +12,11 @@ import { ShipDesign } from '../../models/game.model';
 import { HullPreviewModalComponent } from '../../shared/components/hull-preview-modal.component';
 
 type DesignerMode = 'list' | 'designer';
-const MAX_DESIGNS = 16;
+type DesignTab = 'starbases' | 'ships';
+type HullCategory = 'Warship' | 'Freighter' | 'Utility' | 'Starbase';
+
+const MAX_SHIP_DESIGNS = 16;
+const MAX_STARBASE_DESIGNS = 10;
 
 @Component({
   standalone: true,
@@ -34,6 +38,11 @@ export class ShipDesignOverviewComponent {
   private mode = signal<DesignerMode>('list');
   readonly isDesignerMode = computed(() => this.mode() === 'designer');
 
+  readonly activeTab = signal<DesignTab>('ships');
+  readonly selectedCategories = signal<Set<string>>(new Set(['Warship', 'Freighter', 'Utility']));
+  readonly designerHullFilter = signal<DesignTab>('ships');
+  readonly openHullSelectorOnStart = signal(false);
+
   readonly techLevels = computed(
     () =>
       this.gameState.player()?.techLevels || {
@@ -48,14 +57,34 @@ export class ShipDesignOverviewComponent {
     return Object.values(COMPONENTS).map((comp) => miniaturizeComponent(comp, this.techLevels()));
   });
 
+  private getHullCategory(hull: any): HullCategory {
+    if (hull.isStarbase || hull.type === 'starbase') return 'Starbase';
+    if (hull.type === 'freighter') return 'Freighter';
+    if (hull.type === 'utility' || hull.type === 'colonizer' || hull.type === 'miner')
+      return 'Utility';
+    return 'Warship';
+  }
+
   readonly designDisplays = computed(() => {
     const designs = this.gameState.game()?.shipDesigns || [];
     const miniComps = this.miniaturizedComponents();
+    const tab = this.activeTab();
+    const categories = this.selectedCategories();
 
     return designs
       .map((d) => {
         const hull = getHull(d.hullId);
         if (!hull) return null;
+
+        const category = this.getHullCategory(hull);
+
+        // Filter by tab
+        if (tab === 'starbases' && category !== 'Starbase') return null;
+        if (tab === 'ships' && category === 'Starbase') return null;
+
+        // Filter by category (only for ships tab)
+        if (tab === 'ships' && !categories.has(category)) return null;
+
         const stats = compileShipStats(hull, d.slots, miniComps);
         return {
           id: d.id,
@@ -68,22 +97,87 @@ export class ShipDesignOverviewComponent {
       .filter((d): d is ShipDesignDisplay => d !== null);
   });
 
-  readonly canCreateNew = computed(() => this.designDisplays().length < MAX_DESIGNS);
+  readonly shipDesignCount = computed(() => {
+    const designs = this.gameState.game()?.shipDesigns || [];
+    return designs.filter((d) => {
+      const hull = getHull(d.hullId);
+      return hull && !hull.isStarbase && hull.type !== 'starbase';
+    }).length;
+  });
+
+  readonly starbaseDesignCount = computed(() => {
+    const designs = this.gameState.game()?.shipDesigns || [];
+    return designs.filter((d) => {
+      const hull = getHull(d.hullId);
+      return hull && (hull.isStarbase || hull.type === 'starbase');
+    }).length;
+  });
+
+  canCreateNew(tab?: DesignTab): boolean {
+    const targetTab = tab || this.activeTab();
+    if (targetTab === 'starbases') {
+      return this.starbaseDesignCount() < MAX_STARBASE_DESIGNS;
+    } else {
+      return this.shipDesignCount() < MAX_SHIP_DESIGNS;
+    }
+  }
+
+  limitMessage(tab?: DesignTab): string {
+    const targetTab = tab || this.activeTab();
+    const canCreate = this.canCreateNew(targetTab);
+    if (canCreate) return '';
+
+    if (targetTab === 'starbases') {
+      return `Maximum number of starbase designs (${MAX_STARBASE_DESIGNS}) reached`;
+    } else {
+      return `Maximum number of ship designs (${MAX_SHIP_DESIGNS}) reached`;
+    }
+  }
+
   readonly previewOpen = signal(false);
   readonly previewTitle = signal<string>('');
   readonly previewHull = signal<any>(null);
   readonly previewStats = signal<any>(null);
   readonly previewDesign = signal<ShipDesign | null>(null);
 
+  setTab(tab: DesignTab) {
+    this.activeTab.set(tab);
+  }
+
+  startNewDesignFromTab(tab: DesignTab) {
+    this.activeTab.set(tab);
+    this.designerHullFilter.set(tab);
+    this.openHullSelectorOnStart.set(true);
+    this.startNewDesign();
+  }
+
+  toggleCategory(category: string) {
+    const current = new Set(this.selectedCategories());
+    if (current.has(category)) {
+      current.delete(category);
+    } else {
+      current.add(category);
+    }
+    this.selectedCategories.set(current);
+  }
+
   startNewDesign(hullId?: string) {
-    if (!this.canCreateNew()) return;
+    if (!this.canCreateNew(this.activeTab())) return;
 
     const player = this.gameState.player();
     const turn = this.gameState.turn();
     if (!player) return;
 
-    // If no hullId provided, use the first available hull
-    const availableHulls = this.designer.getAvailableHulls();
+    this.designerHullFilter.set(this.activeTab());
+
+    // Get available hulls filtered by current tab
+    const availableHulls = this.designer.getAvailableHulls().filter((h) => {
+      const category = this.getHullCategory(h);
+      if (this.activeTab() === 'starbases') return category === 'Starbase';
+      return category !== 'Starbase';
+    });
+
+    // If no hullId provided, use the first available hull from the filtered list
     const defaultHullId =
       hullId || (availableHulls.length > 0 ? availableHulls[0].Name : 'Small Freighter');
 
@@ -98,11 +192,13 @@ export class ShipDesignOverviewComponent {
       this.gameState.saveShipDesign(design);
     }
     this.mode.set('list');
+    this.openHullSelectorOnStart.set(false);
     this.designer.clearDesign();
   }
 
   onDesignCanceled() {
     this.mode.set('list');
+    this.openHullSelectorOnStart.set(false);
     this.designer.clearDesign();
   }
 
@@ -110,6 +206,12 @@ export class ShipDesignOverviewComponent {
     const designs = this.gameState.game()?.shipDesigns || [];
     const design = designs.find((d) => d.id === designId);
     if (design) {
+      const hull = getHull(design.hullId);
+      if (hull) {
+        const category = this.getHullCategory(hull);
+        this.designerHullFilter.set(category === 'Starbase' ? 'starbases' : 'ships');
+      }
+      this.openHullSelectorOnStart.set(false);
       const player = this.gameState.player();
       if (player) {
         this.designer.setTechLevels(player.techLevels);
@@ -126,7 +228,7 @@ export class ShipDesignOverviewComponent {
   }
 
   onCloneDesign(designId: string) {
-    if (!this.canCreateNew()) {
+    if (!this.canCreateNew(this.activeTab())) {
       alert('Maximum number of designs reached.');
       return;
     }

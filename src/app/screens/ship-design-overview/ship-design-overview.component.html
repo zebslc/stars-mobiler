@@ -2,20 +2,77 @@
   <!-- Design List Mode -->
   @if (!isDesignerMode()) {
     <div class="design-list-header">
-      <h1>Ship Designs</h1>
-      <button 
-        type="button" 
-        class="btn-primary" 
-        (click)="startNewDesign()"
-        [disabled]="!canCreateNew()"
-        [title]="!canCreateNew() ? 'Maximum number of designs reached' : ''"
-      >+ New Design</button>
+      <h1>Design Management</h1>
     </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <!-- Starbases Tab Group -->
+        <div class="tab-group" [class.active]="activeTab() === 'starbases'">
+          <button
+            class="tab-btn"
+            (click)="setTab('starbases')"
+          >
+            Starbases ({{ starbaseDesignCount() }}/10)
+          </button>
+          <button
+            type="button"
+            class="tab-add-btn"
+            (click)="$event.stopPropagation(); startNewDesignFromTab('starbases')"
+            [disabled]="!canCreateNew('starbases')"
+            [title]="limitMessage('starbases')"
+          >
+            +
+          </button>
+        </div>
+
+        <!-- Ships Tab Group -->
+        <div class="tab-group" [class.active]="activeTab() === 'ships'">
+          <button 
+            class="tab-btn" 
+            (click)="setTab('ships')"
+          >
+            Ships ({{ shipDesignCount() }}/16)
+          </button>
+          <button
+            type="button"
+            class="tab-add-btn"
+            (click)="$event.stopPropagation(); startNewDesignFromTab('ships')"
+            [disabled]="!canCreateNew('ships')"
+            [title]="limitMessage('ships')"
+          >
+            +
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters (Only for Ships Tab) -->
+    @if (activeTab() === 'ships') {
+      <div class="filter-ribbon">
+        <button 
+          class="ribbon-btn"
+          [class.active]="selectedCategories().has('Warship')"
+          (click)="toggleCategory('Warship')"
+        >Warships</button>
+        <button 
+          class="ribbon-btn"
+          [class.active]="selectedCategories().has('Freighter')"
+          (click)="toggleCategory('Freighter')"
+        >Freighters</button>
+        <button 
+          class="ribbon-btn"
+          [class.active]="selectedCategories().has('Utility')"
+          (click)="toggleCategory('Utility')"
+        >Utility</button>
+      </div>
+    }
 
     <div class="designs-grid">
       @if (designDisplays().length === 0) {
         <div class="empty-state">
-           <p>No ship designs found. Create one to get started!</p>
+           <p>No designs found for this category.</p>
         </div>
       }
       
@@ -35,6 +92,8 @@
   <!-- Designer Mode -->
   @if (isDesignerMode()) {
     <app-ship-designer
+      [hullFilter]="designerHullFilter()"
+      [openHullSelectorOnInit]="openHullSelectorOnStart()"
       (save)="onDesignSaved()"
       (cancel)="onDesignCanceled()"
     ></app-ship-designer>

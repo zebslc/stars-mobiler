@@ -7,6 +7,9 @@ import { ShipyardService } from './shipyard.service';
 
 @Injectable({ providedIn: 'root' })
 export class FleetService {
+  readonly MAX_FLEETS = 512;
+  readonly MAX_SHIPS_PER_DESIGN = 32000;
+
   constructor(
     private settings: SettingsService,
     private hab: HabitabilityService,
@@ -64,8 +67,21 @@ export class FleetService {
     }
 
     const stack = fleet.ships.find((s) => s.designId === designId && (s.damage || 0) === 0);
-    if (stack) stack.count += count;
-    else fleet.ships.push({ designId, count, damage: 0 });
+    if (stack) {
+      if (stack.count + count > this.MAX_SHIPS_PER_DESIGN) {
+        throw new Error(
+          `Cannot add ships: Fleet '${fleet.name}' already has ${stack.count} ships of design '${designId}' (Max: ${this.MAX_SHIPS_PER_DESIGN})`,
+        );
+      }
+      stack.count += count;
+    } else {
+      if (count > this.MAX_SHIPS_PER_DESIGN) {
+        throw new Error(
+          `Cannot add ships: Amount ${count} exceeds max ships per design (${this.MAX_SHIPS_PER_DESIGN})`,
+        );
+      }
+      fleet.ships.push({ designId, count, damage: 0 });
+    }
 
     // Add starting fuel
     const fuelCap = shipDesign?.spec?.fuelCapacity ?? legacyDesign?.fuelCapacity ?? 0;
