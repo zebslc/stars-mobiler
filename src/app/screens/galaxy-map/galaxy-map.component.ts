@@ -15,6 +15,7 @@ import { PlanetContextMenuComponent } from '../../components/planet-context-menu
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
 import { GalaxyStarComponent } from './components/galaxy-star.component';
 import { GalaxyFleetComponent } from './components/galaxy-fleet.component';
+import { StarfieldComponent } from '../../components/starfield/starfield.component';
 import { GalaxyMapControlsComponent } from './components/galaxy-map-controls.component';
 import { GalaxyMapSettingsComponent } from './components/galaxy-map-settings.component';
 import { GalaxyMapStateService } from './services/galaxy-map-state.service';
@@ -42,11 +43,14 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
           (wheel)="onWheel($event)"
           (click)="closeContextMenus()"
         >
+          <app-starfield
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;"
+          ></app-starfield>
           <svg
             #galaxySvg
             [attr.viewBox]="'0 0 1000 1000'"
             preserveAspectRatio="xMidYMid meet"
-            style="width:100%;height:100%;touch-action:none"
+            style="width:100%;height:100%;touch-action:none;position:relative;z-index:1"
             (contextmenu)="onMapRightClick($event)"
           >
             <g [attr.transform]="state.transformString()">
@@ -250,6 +254,7 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
     GalaxyFleetComponent,
     GalaxyMapControlsComponent,
     GalaxyMapSettingsComponent,
+    StarfieldComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

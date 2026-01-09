@@ -224,9 +224,13 @@ import { GameStateService } from '../../../services/game-state.service';
             <svg:text
               [attr.x]="9"
               [attr.y]="-9"
-              [attr.font-size]="10"
-              fill="#2c3e50"
-              style="pointer-events: none; text-shadow: 0px 0px 2px white;"
+              [attr.font-size]="11"
+              fill="#ffffff"
+              stroke="#000000"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="pointer-events: none; paint-order: stroke;"
             >
               {{ star.name }}
             </svg:text>
@@ -236,9 +240,13 @@ import { GameStateService } from '../../../services/game-state.service';
           <svg:text
             [attr.x]="9"
             [attr.y]="-9"
-            [attr.font-size]="10"
-            fill="#7f8c8d"
-            style="pointer-events: none; text-shadow: 0px 0px 2px white;"
+            [attr.font-size]="11"
+            fill="#bdc3c7"
+            stroke="#000000"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="pointer-events: none; paint-order: stroke;"
           >
             {{ star.name }}
           </svg:text>
