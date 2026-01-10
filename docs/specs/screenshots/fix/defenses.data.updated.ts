@@ -9,7 +9,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 1, boranium: 0, germanium: 1, resources: 4 },
     stats: { shield: 25 },
-    img: 'def-shield-mole.png',
+    img: 'def-shield-mole',
     description: 'Basic energy barrier.'
   },
   {
@@ -20,7 +20,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 2, boranium: 0, germanium: 2, resources: 5 },
     stats: { shield: 40 },
-    img: 'def-shield-cow.png',
+    img: 'def-shield-cow',
     description: 'Improved magnetic containment.'
   },
   {
@@ -31,7 +31,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 3, boranium: 0, germanium: 3, resources: 6 },
     stats: { shield: 60 },
-    img: 'def-shield-wolf.png',
+    img: 'def-shield-wolf',
     description: 'Diffuse shield technology.'
   },
   {
@@ -42,7 +42,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 10,
     cost: { ironium: 7, boranium: 0, germanium: 4, resources: 15 },
     stats: { shield: 60 },
-    img: 'def-shield-croby.png',
+    img: 'def-shield-croby',
     description: 'Shield-armor hybrid. Heavy but effective.'
   },
   {
@@ -53,7 +53,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 2,
     cost: { ironium: 3, boranium: 0, germanium: 3, resources: 7 },
     stats: { shield: 75 },
-    img: 'def-shield-shadow.png',
+    img: 'def-shield-shadow',
     description: 'Cloaking-enhanced shield matrix.'
   },
   {
@@ -64,7 +64,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 4, boranium: 0, germanium: 4, resources: 8 },
     stats: { shield: 100 },
-    img: 'def-shield-bear.png',
+    img: 'def-shield-bear',
     description: 'Neutrino particle barrier.'
   },
   {
@@ -75,7 +75,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 5, boranium: 0, germanium: 6, resources: 11 },
     stats: { shield: 175 },
-    img: 'def-shield-gorilla.png',
+    img: 'def-shield-gorilla',
     description: 'Heavy-duty deflector array.'
   },
   {
@@ -86,7 +86,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 8, boranium: 0, germanium: 10, resources: 15 },
     stats: { shield: 300 },
-    img: 'def-shield-elephant.png',
+    img: 'def-shield-elephant',
     description: 'Fortress-grade protection.'
   },
   {
@@ -97,7 +97,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     mass: 1,
     cost: { ironium: 12, boranium: 0, germanium: 15, resources: 20 },
     stats: { shield: 500 },
-    img: 'def-shield-phase.png',
+    img: 'def-shield-phase',
     description: 'Complete phased energy barrier.'
   }
 ];
@@ -111,7 +111,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 60,
     cost: { ironium: 5, boranium: 0, germanium: 0, resources: 10 },
     stats: { armor: 50 },
-    img: 'def_tritanium.png',
+    img: 'def-armor-tri',
     description: 'Standard composite plating.'
   },
   {
@@ -122,7 +122,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 56,
     cost: { ironium: 6, boranium: 0, germanium: 0, resources: 13 },
     stats: { armor: 75 },
-    img: 'def_crobmnium.png',
+    img: 'def-armor-crob',
     description: 'Crystalline lattice armor.'
   },
   {
@@ -133,7 +133,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 25,
     cost: { ironium: 0, boranium: 0, germanium: 5, resources: 15 },
     stats: { armor: 100 },
-    img: 'def_carbonic.png',
+    img: 'def-armor-carbonic',
     description: 'Bio-engineered carbon fiber armor.'
   },
   {
@@ -144,7 +144,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 54,
     cost: { ironium: 8, boranium: 0, germanium: 0, resources: 18 },
     stats: { armor: 120 },
-    img: 'def_strobnium.png',
+    img: 'def-armor-strobnium',
     description: 'Advanced metallic compound.'
   },
   {
@@ -155,7 +155,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 15,
     cost: { ironium: 0, boranium: 0, germanium: 6, resources: 20 },
     stats: { armor: 175 },
-    img: 'def_organic.png',
+    img: 'def-armor-organic',
     description: 'Living armor that adapts to damage.'
   },
   {
@@ -166,7 +166,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 50,
     cost: { ironium: 9, boranium: 1, germanium: 0, resources: 25 },
     stats: { armor: 180 },
-    img: 'def_kelarium.png',
+    img: 'def-armor-kelarium',
     description: 'Dense crystalline armor plating.'
   },
   {
@@ -177,7 +177,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 50,
     cost: { ironium: 10, boranium: 0, germanium: 2, resources: 28 },
     stats: { armor: 175 },
-    img: 'def_fielded_kelarium.png',
+    img: 'def-armor-fielded-kelarium',
     description: 'Energy-reinforced kelarium.'
   },
   {
@@ -188,7 +188,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 50,
     cost: { ironium: 10, boranium: 0, germanium: 2, resources: 28 },
     stats: { armor: 200 },
-    img: 'def_depleted_neutronium.png',
+    img: 'def-armor-neu',
     description: 'Processed neutron star matter.'
   },
   {
@@ -199,7 +199,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 45,
     cost: { ironium: 11, boranium: 2, germanium: 1, resources: 30 },
     stats: { armor: 275 },
-    img: 'def_neutronium.png',
+    img: 'def-armor-neu',
     description: 'Collapsed matter plating. Very heavy.'
   },
   {
@@ -210,7 +210,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 40,
     cost: { ironium: 15, boranium: 0, germanium: 0, resources: 50 },
     stats: { armor: 500 },
-    img: 'def_valanium.png',
+    img: 'def-armor-val',
     description: 'Ultimate material science.'
   },
   {
@@ -221,7 +221,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     mass: 30,
     cost: { ironium: 25, boranium: 0, germanium: 0, resources: 100 },
     stats: { armor: 1500 },
-    img: 'def_superlatanium.png',
+    img: 'def-armor-superlatanium',
     description: 'The ultimate armor technology.'
   }
 ];

@@ -28,6 +28,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_quick_jump_5',
+    img: 'eng_quick_jump_5.png',
     name: 'Quick Jump 5',
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -53,6 +54,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_fuel_mizer',
+    img: 'eng_fuel_mizer.png',
     name: 'Fuel Mizer',
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 2, Construction: 0 },
@@ -78,6 +80,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_long_hump_6',
+    img: 'eng_long_hump_6.png',
     name: 'Jump Hub 6',
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 3, Construction: 0 },
@@ -103,6 +106,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_daddy_long_legs_7',
+    img: 'eng_daddy_long_legs_7.png',
     name: 'Daddy Long Legs 7',
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 5, Construction: 0 },
@@ -128,6 +132,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_alpha_drive_8',
+    img: 'eng_alpha_drive_8.png',
     name: 'Alpha Drive 8',
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 7, Construction: 0 },
@@ -178,6 +183,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_interspace_10',
+    img: 'eng_interspace_10.png',
     name: 'Interspace-10',
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 11, Construction: 0 },
@@ -203,6 +209,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_trans_star_10',
+    img: 'eng_trans_star_10.png',
     name: 'Trans-Star 10',
     type: 'Engine',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 23, Construction: 0 },
@@ -280,6 +287,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_trans_galactic_fuel_scoop',
+    img: 'eng_trans_galactic_fuel_scoop.png',
     name: 'Trans-Galactic Fuel Scoop',
     type: 'Engine',
     tech: { Energy: 3, Kinetics: 0, Propulsion: 9, Construction: 0 },
@@ -306,6 +314,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_trans_galactic_super_scoop',
+    img: 'eng_trans_galactic_super_scoop.png',
     name: 'Trans-Galactic Super Scoop',
     type: 'Engine',
     tech: { Energy: 4, Kinetics: 0, Propulsion: 12, Construction: 0 },
@@ -332,6 +341,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_trans_galactic_mizer_scoop',
+    img: 'eng_trans_galactic_mizer_scoop.png',
     name: 'Trans-Galactic Mizer Scoop',
     type: 'Engine',
     tech: { Energy: 4, Kinetics: 0, Propulsion: 16, Construction: 0 },
@@ -358,6 +368,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'eng_galaxy_scoop',
+    img: 'eng_galaxy_scoop.png',
     name: 'Galaxy Scoop',
     type: 'Engine',
     tech: { Energy: 5, Kinetics: 0, Propulsion: 20, Construction: 0 },

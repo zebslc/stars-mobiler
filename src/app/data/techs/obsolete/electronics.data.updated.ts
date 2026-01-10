@@ -14,6 +14,7 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_stealth_cloak',
+    img: 'elec_stealth_cloak.png',
     name: 'Stealth Cloak',
     type: 'Cloak',
     tech: { Energy: 5, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -25,6 +26,7 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_super_stealth_cloak',
+    img: 'elec_super_stealth_cloak.png',
     name: 'Super-Stealth Cloak',
     type: 'Cloak',
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -36,6 +38,7 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_ultra_stealth_cloak',
+    img: 'elec_ultra_stealth_cloak.png',
     name: 'Ultra-Stealth Cloak',
     type: 'Cloak',
     tech: { Energy: 12, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -50,6 +53,7 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
 export const COMPUTER_COMPONENTS: ComponentStats[] = [
   {
     id: 'elec_battle_computer',
+    img: 'elec_battle_computer.png',
     name: 'Battle Computer',
     type: 'Computer',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -61,6 +65,7 @@ export const COMPUTER_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_battle_super_computer',
+    img: 'elec_battle_super_computer.png',
     name: 'Battle Super Computer',
     type: 'Computer',
     tech: { Energy: 11, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -72,6 +77,7 @@ export const COMPUTER_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_battle_nexus',
+    img: 'elec_battle_nexus.png',
     name: 'Battle Nexus',
     type: 'Computer',
     tech: { Energy: 19, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -86,6 +92,7 @@ export const COMPUTER_COMPONENTS: ComponentStats[] = [
 export const JAMMER_COMPONENTS: ComponentStats[] = [
   {
     id: 'elec_jammer_10',
+    img: 'elec_jammer_10.png',
     name: 'Jammer 10',
     type: 'Electrical',
     tech: { Energy: 6, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -97,6 +104,7 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_jammer_20',
+    img: 'elec_jammer_20.png',
     name: 'Jammer 20',
     type: 'Electrical',
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -108,6 +116,7 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_jammer_30',
+    img: 'elec_jammer_30.png',
     name: 'Jammer 30',
     type: 'Electrical',
     tech: { Energy: 16, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -119,6 +128,7 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_jammer_50',
+    img: 'elec_jammer_50.png',
     name: 'Jammer 50',
     type: 'Electrical',
     tech: { Energy: 22, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -133,6 +143,7 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
 export const CAPACITOR_COMPONENTS: ComponentStats[] = [
   {
     id: 'elec_energy_capacitor',
+    img: 'elec_energy_capacitor.png',
     name: 'Energy Capacitor',
     type: 'Electrical',
     tech: { Energy: 7, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -144,6 +155,7 @@ export const CAPACITOR_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_flux_capacitor',
+    img: 'elec_flux_capacitor.png',
     name: 'Flux Capacitor',
     type: 'Electrical',
     tech: { Energy: 14, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -158,6 +170,7 @@ export const CAPACITOR_COMPONENTS: ComponentStats[] = [
 export const DAMPENER_COMPONENTS: ComponentStats[] = [
   {
     id: 'elec_energy_dampener',
+    img: 'elec_energy_dampener.png',
     name: 'Energy Dampener',
     type: 'Electrical',
     tech: { Energy: 14, Kinetics: 0, Propulsion: 8, Construction: 0 },
@@ -169,6 +182,7 @@ export const DAMPENER_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'elec_tachyon_detector',
+    img: 'elec_tachyon_detector.png',
     name: 'Tachyon Detector',
     type: 'Electrical',
     tech: { Energy: 14, Kinetics: 0, Propulsion: 0, Construction: 0 },

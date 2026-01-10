@@ -3,6 +3,7 @@ import { ComponentStats } from '../tech-atlas.types';
 export const MECHANICAL_COMPONENTS: ComponentStats[] = [
   {
     id: 'mech_fuel_tank',
+    img: 'mech_fuel_tank.png',
     name: 'Fuel Tank',
     type: 'Mechanical',
     tech: { Construction: 0 },
@@ -47,6 +48,7 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
   },
   {
     id: 'mech_overthruster',
+    img: 'mech_overthruster.png',
     name: 'Overthruster',
     type: 'Mechanical',
     tech: { Propulsion: 10, Energy: 6 },
