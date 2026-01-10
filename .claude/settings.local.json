@@ -4,7 +4,10 @@
       "Bash(cat:*)",
       "Bash(npm start)",
       "Bash(npm run build:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(wc:*)"
     ]
   }
 }

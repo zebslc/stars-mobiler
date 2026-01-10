@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed } from '@angular/core';
 import {
   GameSettings,
   GameState,
@@ -10,39 +10,41 @@ import {
 import { GameInitializerService } from './game-initializer.service';
 import { HabitabilityService } from './habitability.service';
 import { TechField } from '../data/tech-tree.data';
-
-import { SettingsService } from './settings.service';
-import { TurnService } from './turn.service';
-import { ResearchService } from './research.service';
-import { ColonyService } from './colony.service';
-import { FleetService } from './fleet.service';
+import { CommandExecutorService } from '../core/commands/command-executor.service';
+import { CommandFactoryService } from '../core/commands/command-factory.service';
 import { ShipyardService } from './shipyard.service';
 
+/**
+ * Facade service for game state management using the Command pattern.
+ * 
+ * This service provides a clean API for game operations while delegating
+ * the actual work to command objects. This approach:
+ * - Separates concerns (API vs implementation)
+ * - Makes operations testable in isolation
+ * - Enables future features like undo/redo, command queuing, etc.
+ * - Reduces coupling between the facade and business logic services
+ */
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
-  private _game = signal<GameState | null>(null);
-
-  readonly game = this._game.asReadonly();
-  readonly turn = computed(() => this._game()?.turn ?? 0);
-  readonly stars = computed(() => this._game()?.stars ?? []);
-  readonly player = computed(() => this._game()?.humanPlayer);
+  // Computed signals for reactive state access
+  get game() { return this.commandExecutor.game; }
+  readonly turn = computed(() => this.game()?.turn ?? 0);
+  readonly stars = computed(() => this.game()?.stars ?? []);
+  readonly player = computed(() => this.game()?.humanPlayer);
   readonly playerSpecies = computed(() => this.player()?.species);
-  readonly playerEconomy = computed(() => this._game()?.playerEconomy);
+  readonly playerEconomy = computed(() => this.game()?.playerEconomy);
 
   constructor(
     private gameInitializer: GameInitializerService,
     private hab: HabitabilityService,
-    private settings: SettingsService,
-    private turnService: TurnService,
-    private researchService: ResearchService,
-    private colonyService: ColonyService,
-    private fleetService: FleetService,
-    private shipyardService: ShipyardService,
+    private commandExecutor: CommandExecutorService,
+    private commandFactory: CommandFactoryService,
+    private shipyardService: ShipyardService, // Still needed for read operations
   ) {}
 
   newGame(settings: GameSettings) {
     const state = this.gameInitializer.initializeGame(settings);
-    this._game.set(state);
+    this.commandExecutor.setGame(state);
   }
 
   habitabilityFor(planetId: string): number {
@@ -54,60 +56,49 @@ export class GameStateService {
     return this.hab.calculate(planet, species);
   }
 
+  // Turn management
   endTurn() {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.turnService.endTurn(game);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createEndTurnCommand();
+    this.commandExecutor.execute(command);
   }
 
+  // Colony management
   addToBuildQueue(planetId: string, item: BuildItem): boolean {
-    const game = this._game();
-    if (!game) return false;
-    const nextGame = this.colonyService.addToBuildQueue(game, planetId, item);
-    if (nextGame !== game) {
-      this._game.set(nextGame);
-      return true;
-    }
-    return false;
+    const command = this.commandFactory.createAddToBuildQueueCommand(planetId, item);
+    const currentGame = this.commandExecutor.getCurrentGame();
+    if (!currentGame) return false;
+    
+    const originalGame = currentGame;
+    this.commandExecutor.execute(command);
+    
+    // Check if the game state actually changed
+    return this.commandExecutor.getCurrentGame() !== originalGame;
   }
 
   setGovernor(planetId: string, governor: Planet['governor']) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.colonyService.setGovernor(game, planetId, governor);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createSetGovernorCommand(planetId, governor);
+    this.commandExecutor.execute(command);
   }
 
   removeFromQueue(planetId: string, index: number) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.colonyService.removeFromQueue(game, planetId, index);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createRemoveFromQueueCommand(planetId, index);
+    this.commandExecutor.execute(command);
   }
 
+  // Fleet management
   issueFleetOrder(fleetId: string, order: FleetOrder) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.fleetService.setFleetOrders(game, fleetId, [order]);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createIssueFleetOrderCommand(fleetId, order);
+    this.commandExecutor.execute(command);
   }
 
   setFleetOrders(fleetId: string, orders: FleetOrder[]) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.fleetService.setFleetOrders(game, fleetId, orders);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createSetFleetOrdersCommand(fleetId, orders);
+    this.commandExecutor.execute(command);
   }
 
   colonizeNow(fleetId: string): string | null {
-    const game = this._game();
-    if (!game) return null;
-    const [nextGame, planetId] = this.fleetService.colonizeNow(game, fleetId);
-    if (planetId) {
-      this._game.set(nextGame);
-    }
-    return planetId;
+    const command = this.commandFactory.createColonizeNowCommand(fleetId);
+    return this.commandExecutor.executeWithResult(command);
   }
 
   loadCargo(
@@ -121,10 +112,8 @@ export class GameStateService {
       colonists?: number | 'all' | 'fill';
     },
   ) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.fleetService.loadCargo(game, fleetId, planetId, manifest);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createLoadCargoCommand(fleetId, planetId, manifest);
+    this.commandExecutor.execute(command);
   }
 
   unloadCargo(
@@ -138,10 +127,8 @@ export class GameStateService {
       colonists?: number | 'all';
     },
   ) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.fleetService.unloadCargo(game, fleetId, planetId, manifest);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createUnloadCargoCommand(fleetId, planetId, manifest);
+    this.commandExecutor.execute(command);
   }
 
   splitFleet(
@@ -158,25 +145,18 @@ export class GameStateService {
       };
     },
   ): string | null {
-    const game = this._game();
-    if (!game) return null;
-    const [nextGame, newFleetId] = this.fleetService.splitFleet(game, fleetId, transferSpec);
-    this._game.set(nextGame);
-    return newFleetId;
+    const command = this.commandFactory.createSplitFleetCommand(fleetId, transferSpec);
+    return this.commandExecutor.executeWithResult(command);
   }
 
   separateFleet(fleetId: string) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.fleetService.separateFleet(game, fleetId);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createSeparateFleetCommand(fleetId);
+    this.commandExecutor.execute(command);
   }
 
   mergeFleets(sourceId: string, targetId: string) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.fleetService.mergeFleets(game, sourceId, targetId);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createMergeFleetsCommand(sourceId, targetId);
+    this.commandExecutor.execute(command);
   }
 
   transferFleetCargo(
@@ -194,35 +174,29 @@ export class GameStateService {
       };
     },
   ) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.fleetService.transfer(game, sourceId, targetId, transferSpec);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createTransferFleetCargoCommand(sourceId, targetId, transferSpec);
+    this.commandExecutor.execute(command);
   }
 
+  // Research management
   setResearchField(fieldId: TechField) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.researchService.setResearchField(game, fieldId);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createSetResearchFieldCommand(fieldId);
+    this.commandExecutor.execute(command);
   }
 
+  // Ship design management
   saveShipDesign(design: ShipDesign) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.shipyardService.saveShipDesign(game, design);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createSaveShipDesignCommand(design);
+    this.commandExecutor.execute(command);
   }
 
   deleteShipDesign(designId: string) {
-    const game = this._game();
-    if (!game) return;
-    const nextGame = this.shipyardService.deleteShipDesign(game, designId);
-    this._game.set(nextGame);
+    const command = this.commandFactory.createDeleteShipDesignCommand(designId);
+    this.commandExecutor.execute(command);
   }
 
   getPlayerShipDesigns(): ShipDesign[] {
-    const game = this._game();
+    const game = this.commandExecutor.getCurrentGame();
     if (!game) return [];
     return this.shipyardService.getPlayerShipDesigns(game);
   }

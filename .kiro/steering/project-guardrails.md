@@ -14,7 +14,7 @@ This is **Stellar Remnants**, a modernized Stars! 4X strategy game built with An
 - **Signals-first**: Use `signal()`, `computed()`, `effect()` - avoid RxJS in app code except for library interop
 - **Standalone components**: All components must be standalone with lazy `loadComponent` routes
 - **Folder structure**: 
-  - `app/core`: cross-cutting concerns (state stores, guards, config)
+  - `app/core`: cross-cutting concerns (state stores, guards, config, commands)
   - `app/shared`: reusable UI components and utilities  
   - `app/features`: feature/page components
   - `app/screens`: main screen components (already established)
@@ -25,8 +25,13 @@ This is **Stellar Remnants**, a modernized Stars! 4X strategy game built with An
 ### State Management
 - **Store pattern**: Logic lives in stores under `core/state` using signals
 - **Component role**: Components read signals in templates, trigger actions via stores/services
-- **No god classes**: Keep modules small and cohesive
+- **No god classes**: Keep modules small and cohesive - use Command Pattern for complex operations
 - **DRY and YAGNI**: Avoid speculative abstractions
+- **Command Pattern**: Use for game state operations involving multiple services or complex logic
+  - Commands in `app/core/commands/` - organized by domain (colony, fleet, research, etc.)
+  - CommandExecutorService manages state transitions
+  - CommandFactoryService handles dependency injection
+  - GameStateService acts as facade using commands
 
 ### Code Quality
 - **Strong typing**: No `any` types allowed
@@ -73,6 +78,8 @@ This is **Stellar Remnants**, a modernized Stars! 4X strategy game built with An
 - Configure TestBed with `provideZonelessChangeDetection()`
 - Prefer interaction-driven tests
 - Avoid `fixture.detectChanges()` unless necessary
+- **Command testing**: Test commands in isolation with mock services
+- Test command execution through CommandExecutorService for integration tests
 
 ## Performance Guidelines
 - Avoid global listeners - use component-bound listeners
@@ -107,6 +114,50 @@ This is **Stellar Remnants**, a modernized Stars! 4X strategy game built with An
 - Don't break the folder structure - respect the organization
 - Don't ignore the specs - they are the source of truth
 - Don't use traditional change detection - stay zoneless + OnPush
+- Don't mark command classes as `@Injectable` - they're data objects, not services
+- Don't use commands for simple read operations - use computed signals instead
+
+## Command Pattern Guidelines
+
+### When to Use Commands
+- **Complex game operations** involving multiple services (turn processing, fleet operations)
+- **State mutations** that need to be atomic and reversible
+- **Operations that may need auditing** or logging for debugging
+- **Multi-step processes** that should be treated as single transactions
+- **Operations with side effects** that need careful coordination
+
+### When NOT to Use Commands
+- **Simple read operations** - use computed signals or direct service calls
+- **UI state changes** - use signals directly in components
+- **Single-service operations** with no complex logic or side effects
+- **Computed values** - use `computed()` signals instead
+
+### Command Implementation Rules
+- Commands implement `GameCommand` or `GameCommandWithResult<T>`
+- Commands are **pure functions** of game state - no side effects in constructors
+- Use `CommandFactoryService` to create command instances with proper DI
+- Commands should be **lightweight objects** - avoid heavy computation
+- Group related commands by domain (colony, fleet, research, etc.)
+- Commands should handle errors gracefully and return valid game state
+
+### Example Usage
+```typescript
+// ✅ Good - Complex operation involving multiple concerns
+const command = this.commandFactory.createEndTurnCommand();
+this.commandExecutor.execute(command);
+
+// ✅ Good - Operation that may need result data
+const command = this.commandFactory.createColonizeNowCommand(fleetId);
+const planetId = this.commandExecutor.executeWithResult(command);
+
+// ❌ Bad - Simple read operation
+const command = this.commandFactory.createGetPlanetCommand(planetId);
+// Use: const planet = this.gameState.stars().find(...)
+
+// ❌ Bad - UI state
+const command = this.commandFactory.createSetSelectedPlanetCommand(planetId);
+// Use: this.selectedPlanet.set(planetId)
+```
 
 ## Reference Files
 - Engineering rules: `docs/guardrails.md`
