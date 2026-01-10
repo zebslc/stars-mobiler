@@ -10,8 +10,8 @@ import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game-state.service';
 import { TechService } from '../../services/tech.service';
 import { HullPreviewModalComponent } from './hull-preview-modal.component';
-import { Hull, getHull } from '../../data/hulls.data';
-import { COMPONENTS } from '../../data/components.data';
+import { HullTemplate } from '../../data/tech-atlas.types';
+import { getHull, getAllComponents } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { getDesign } from '../../data/ships.data';
@@ -87,7 +87,7 @@ export class DesignPreviewButtonComponent {
   private techService = inject(TechService);
 
   previewOpen = signal(false);
-  previewHull = signal<Hull | null>(null);
+  previewHull = signal<HullTemplate | null>(null);
   previewDesign = signal<ShipDesign | null>(null);
   previewTitle = signal<string>('');
   previewStats = signal<any>(null);
@@ -135,7 +135,7 @@ export class DesignPreviewButtonComponent {
         Propulsion: 0,
         Construction: 0,
       };
-      const miniaturizedComponents = Object.values(COMPONENTS).map((comp) =>
+      const miniaturizedComponents = getAllComponents().map((comp) =>
         miniaturizeComponent(comp, techLevels),
       );
       const stats = compileShipStats(hull, realDesign.slots, miniaturizedComponents);

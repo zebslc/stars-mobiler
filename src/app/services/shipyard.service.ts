@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { TECH_ATLAS } from '../data/tech-atlas.data';
-import { getComponent, COMPONENTS } from '../data/components.data';
 import { GameState, ShipDesign, PlayerTech, Planet, Player } from '../models/game.model';
 import { miniaturizeComponent } from '../utils/miniaturization.util';
 import { ShipOption } from '../components/ship-selector.component';
-import { getHull } from '../data/hulls.data';
+import { getComponent, getHull, getAllComponents } from '../utils/data-access.util';
+import { HullTemplate } from '../data/tech-atlas.types';
 import { compileShipStats } from '../models/ship-design.model';
 import { CompiledDesign } from '../data/ships.data';
 
@@ -58,7 +57,7 @@ export class ShipyardService {
     boranium: number;
     germanium: number;
   } {
-    const hull = TECH_ATLAS.hulls.find((h) => h.Name === design.hullId);
+    const hull = getHull(design.hullId);
     let totalCost = {
       resources: hull?.Cost.Resources ?? 0,
       ironium: hull?.Cost.Ironium ?? 0,
@@ -95,7 +94,7 @@ export class ShipyardService {
 
     const userDesigns = this.getPlayerShipDesigns(game);
     const techLevels = player.techLevels;
-    const miniComps = Object.values(COMPONENTS).map((comp) =>
+    const miniComps = getAllComponents().map((comp) =>
       miniaturizeComponent(comp, techLevels),
     );
 

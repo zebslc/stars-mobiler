@@ -12,8 +12,7 @@ import { GameStateService } from '../../services/game-state.service';
 import { ToastService } from '../../services/toast.service';
 import { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
-import { getHull } from '../../data/hulls.data';
-import { COMPONENTS } from '../../data/components.data';
+import { getHull, getAllComponents } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { StarOption } from '../../components/star-selector.component';
@@ -325,7 +324,7 @@ export class FleetDetailComponent implements OnInit {
           Electronics: 0,
           Biotechnology: 0,
         };
-        const miniaturizedComponents = Object.values(COMPONENTS).map((comp) =>
+        const miniaturizedComponents = getAllComponents().map((comp) =>
           miniaturizeComponent(comp, techLevels),
         );
         const stats = compileShipStats(hull, dynamicDesign.slots, miniaturizedComponents);

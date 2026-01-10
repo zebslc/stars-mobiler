@@ -1,7 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { CompiledShipStats } from '../../../models/game.model';
-import { Hull } from '../../../data/hulls.data';
+import { HullTemplate } from '../../../data/tech-atlas.types';
 import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-stats.component';
 import { ResourceCostComponent } from '../../../shared/components/resource-cost/resource-cost.component';
 
@@ -26,17 +26,17 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
           <h4>Base</h4>
           <div class="stat">
             <span class="label">Hull Mass:</span>
-            <span class="value">{{ hull.mass }}kt</span>
+            <span class="value">{{ hull.Stats.Mass }}kt</span>
           </div>
           @if (!stats.isStarbase) {
             <div class="stat">
               <span class="label">Max Fuel:</span>
-              <span class="value">{{ hull.fuelCapacity }}mg</span>
+              <span class="value">{{ hull.Stats['Max Fuel'] }}mg</span>
             </div>
           }
           <div class="stat">
             <span class="label">Armor:</span>
-            <span class="value">{{ hull.armor }}</span>
+            <span class="value">{{ hull.Stats.Armor }}</span>
           </div>
           @if (hull.Stats.Initiative) {
             <div class="stat">
@@ -278,7 +278,7 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
 export class ShipDesignerStatsComponent {
   @Input({ required: true }) stats: CompiledShipStats | null = null;
   @Input() hoveredItem: any = null;
-  @Input() hull: Hull | null = null;
+  @Input() hull: HullTemplate | null = null;
   selectedTab = signal<'summary' | 'details'>('summary');
 
   get hoveredComponent() {

@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, comput
 import { CommonModule } from '@angular/common';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { CompiledShipStats, ShipDesign } from '../../models/game.model';
-import { getHull } from '../../data/hulls.data';
+import { getHull } from '../../utils/data-access.util';
 
 export interface ShipDesignDisplay {
   id: string;

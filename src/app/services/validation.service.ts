@@ -1,10 +1,9 @@
-import { Hull } from '../data/hulls.data';
-import { Component } from '../data/components.data';
+import { HullTemplate, ComponentStats } from '../data/tech-atlas.types';
 import { SlotAssignment } from '../models/game.model';
 import { TraitType, ValidationRule } from '../data/tech-atlas.types';
 
 type InstalledComponent = {
-  component: Component;
+  component: ComponentStats;
   count: number;
 };
 
@@ -36,7 +35,7 @@ const hasTrait = (installed: InstalledComponent[], trait: TraitType): boolean =>
 
 const getInstalledComponents = (
   assignments: SlotAssignment[],
-  componentsById: Record<string, Component>,
+  componentsById: Record<string, ComponentStats>,
 ): InstalledComponent[] => {
   const counts = new Map<string, number>();
 
@@ -64,7 +63,7 @@ const validateRule = (
   rule: ValidationRule,
   subject: InstalledComponent,
   installed: InstalledComponent[],
-  hull: Hull,
+  hull: HullTemplate,
 ): string | null => {
   switch (rule.type) {
     case 'max_per_hull': {
@@ -109,9 +108,9 @@ const validateRule = (
 };
 
 export function validateShipDesign(
-  hull: Hull,
+  hull: HullTemplate,
   assignments: SlotAssignment[],
-  componentsById: Record<string, Component>,
+  componentsById: Record<string, ComponentStats>,
 ): string[] {
   const errors: string[] = [];
   const installed = getInstalledComponents(assignments, componentsById);

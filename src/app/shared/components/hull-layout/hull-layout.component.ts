@@ -11,9 +11,9 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Hull, HullSlot } from '../../../data/hulls.data';
+import { HullTemplate, SlotDefinition } from '../../../data/tech-atlas.types';
 import { ShipDesign } from '../../../models/game.model';
-import { getComponent } from '../../../data/components.data';
+import { getComponent } from '../../../utils/data-access.util';
 import { GridSlot } from './hull-layout.types';
 import { HullSlotComponent } from './hull-slot/hull-slot.component';
 
@@ -122,7 +122,7 @@ import { HullSlotComponent } from './hull-slot/hull-slot.component';
   ],
 })
 export class HullLayoutComponent implements OnChanges {
-  @Input({ required: true }) hull: Hull | null = null;
+  @Input({ required: true }) hull: HullTemplate | null = null;
   @Input({ required: true }) design: ShipDesign | null = null;
   @Input() editable: boolean = false;
   @Input() selectedSlotId: string | null = null;
@@ -134,7 +134,7 @@ export class HullLayoutComponent implements OnChanges {
   @Output() slotCleared = new EventEmitter<string>();
   @Output() componentInfoClick = new EventEmitter<string>();
 
-  private _hull = signal<Hull | null>(null);
+  private _hull = signal<HullTemplate | null>(null);
   private _design = signal<ShipDesign | null>(null);
 
   imageErrors = signal<Set<string>>(new Set());
@@ -180,7 +180,7 @@ export class HullLayoutComponent implements OnChanges {
   readonly positionedSlots = computed(() => {
     const hull = this._hull();
     if (!hull || !hull.Structure) return [];
-    const slots = this.parseStructure(hull.Structure, hull.slots, hull);
+    const slots = this.parseStructure(hull.Structure, hull.Slots, hull);
     console.log(
       'Positioned slots IDs:',
       slots.map((s) => s.id),
@@ -308,7 +308,7 @@ export class HullLayoutComponent implements OnChanges {
     }
   }
 
-  private parseStructure(structure: string[], slots: HullSlot[], hull: Hull): GridSlot[] {
+  private parseStructure(structure: string[], slots: SlotDefinition[], hull: HullTemplate): GridSlot[] {
     const grid = structure.map((row) => row.split(','));
     const rows = grid.length;
     const cols = grid[0].length;
@@ -347,11 +347,11 @@ export class HullLayoutComponent implements OnChanges {
           }
         }
 
-        const slotDef = slots.find((s: HullSlot) => s.id === cell);
+        const slotDef = slots.find((s: SlotDefinition) => s.Code === cell);
         if (slotDef) {
           let capacity: number | 'Unlimited' | undefined = undefined;
-          if (typeof slotDef.size === 'number') {
-            capacity = slotDef.size;
+          if (typeof slotDef.Size === 'number') {
+            capacity = slotDef.Size;
           } else if (
             (cell.startsWith('SD') || cell.toUpperCase().includes('SD')) &&
             hull?.Stats?.DockCapacity === 'Unlimited'
@@ -365,7 +365,7 @@ export class HullLayoutComponent implements OnChanges {
             width,
             height,
             slotDef,
-            editable: slotDef.editable !== false,
+            editable: slotDef.Editable !== false,
             capacity,
           });
         }
@@ -406,16 +406,16 @@ export class HullLayoutComponent implements OnChanges {
 
   canIncrement(slotId: string): boolean {
     const hull = this._hull();
-    const slot = hull?.slots.find((s) => s.id === slotId);
-    if (!slot || !slot.max) return false;
+    const slot = hull?.Slots.find((s: any) => s.Code === slotId);
+    if (!slot || !slot.Max) return false;
     const currentCount = this.slotComponents().get(slotId)?.count || 0;
-    return currentCount < slot.max;
+    return currentCount < slot.Max;
   }
 
   getSlotMaxCount(slotId: string): number {
     const hull = this._hull();
-    const slot = hull?.slots.find((s: any) => s.id === slotId);
-    return slot?.max || 1;
+    const slot = hull?.Slots.find((s: any) => s.Code === slotId);
+    return slot?.Max || 1;
   }
 
   onSlotHover(slotId: string): void {

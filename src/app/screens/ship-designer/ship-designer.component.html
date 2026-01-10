@@ -14,11 +14,11 @@
         />
       } @else {
         <div class="title-container">
-          <button class="btn-icon hull-btn" (click)="previewHullName.set(hull()?.name || null)" title="Show Hull Info">
+          <button class="btn-icon hull-btn" (click)="previewHullName.set(hull()?.Name || null)" title="Show Hull Info">
             <img
               [src]="'/assets/tech-icons/' + ((hull()?.img) || 'hull-scout') + '.png'"
-              [alt]="hull()?.name || 'Hull Icon'"
-              [title]="hull()?.name || 'Hull Icon'"
+              [alt]="hull()?.Name || 'Hull Icon'"
+              [title]="hull()?.Name || 'Hull Icon'"
               class="hull-icon"
               (error)="onHullIconError($event)"
             />

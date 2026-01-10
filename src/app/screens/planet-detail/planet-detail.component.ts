@@ -15,7 +15,7 @@ import { ShipyardService } from '../../services/shipyard.service';
 import { TechService } from '../../services/tech.service';
 import { getDesign } from '../../data/ships.data';
 import { BUILD_COSTS } from '../../data/costs.data';
-import { getHull } from '../../data/hulls.data';
+import { getHull } from '../../utils/data-access.util';
 import { ShipOption } from '../../components/ship-selector.component';
 import { PlanetSummaryComponent } from './components/planet-summary.component';
 import { PlanetBuildQueueComponent } from './components/planet-build-queue.component';

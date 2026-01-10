@@ -171,3 +171,14 @@ export const TECH_ATLAS = {
   hulls: ALL_HULLS,
   components: ALL_COMPONENTS
 };
+
+// ==========================================
+// Utility Functions
+// ==========================================
+
+/**
+ * Get all components as a flat array
+ */
+export function getAllComponents() {
+  return ALL_COMPONENTS.flatMap(category => category.items);
+}

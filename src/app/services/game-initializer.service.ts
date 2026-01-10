@@ -10,7 +10,7 @@ import {
 } from '../models/game.model';
 import { GalaxyGeneratorService } from './galaxy-generator.service';
 import { SPECIES } from '../data/species.data';
-import { getHull } from '../data/hulls.data';
+import { getHull } from '../utils/data-access.util';
 import { createEmptyDesign } from '../models/ship-design.model';
 
 @Injectable({ providedIn: 'root' })

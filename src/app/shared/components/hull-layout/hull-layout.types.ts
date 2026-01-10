@@ -1,4 +1,4 @@
-import { HullSlot } from '../../../data/hulls.data';
+import { SlotDefinition } from '../../../data/tech-atlas.types';
 
 export interface GridSlot {
   id: string;
@@ -6,7 +6,7 @@ export interface GridSlot {
   col: number;
   width: number;
   height: number;
-  slotDef: HullSlot;
+  slotDef: SlotDefinition;
   editable: boolean;
   capacity?: number | 'Unlimited';
 }

@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Hull } from '../../data/hulls.data';
-import { getComponent } from '../../data/components.data';
+import { HullTemplate } from '../../data/tech-atlas.types';
+import { getComponent } from '../../utils/data-access.util';
 import { ShipDesign } from '../../models/game.model';
 import { HullLayoutComponent } from './hull-layout/hull-layout.component';
 import { ResourceCostComponent, Cost } from './resource-cost/resource-cost.component';
@@ -27,7 +27,7 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
     <div class="modal-overlay" (click)="close.emit()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>{{ title || hull?.name || 'Hull Preview' }}</h3>
+          <h3>{{ title || hull?.Name || 'Hull Preview' }}</h3>
           <button class="btn-text" (click)="close.emit()">Close</button>
         </div>
         <div class="modal-body">
@@ -38,15 +38,15 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
                   <h4>General</h4>
                   <div class="spec-row">
                     <span class="label">Mass:</span>
-                    <span class="value">{{ stats?.mass || hull?.mass }}kt</span>
+                    <span class="value">{{ stats?.mass || hull?.Stats?.Mass }}kt</span>
                   </div>
                   <div class="spec-row">
                     <span class="label">Fuel:</span>
-                    <span class="value">{{ stats?.fuelCapacity || hull?.fuelCapacity }}mg</span>
+                    <span class="value">{{ stats?.fuelCapacity || hull?.Stats?.['Max Fuel'] }}mg</span>
                   </div>
                   <div class="spec-row">
                     <span class="label">Armor:</span>
-                    <span class="value">{{ stats?.armor || hull?.armor }}</span>
+                    <span class="value">{{ stats?.armor || hull?.Stats?.Armor }}</span>
                   </div>
                   @if (stats?.shields > 0) {
                     <div class="spec-row">
@@ -126,7 +126,7 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
               <div class="cost">
                 <span class="label">Cost:</span>
                 <app-resource-cost
-                  [cost]="toCost(stats?.cost || hull?.baseCost)"
+                  [cost]="toCost(stats?.cost || hull?.Cost)"
                 ></app-resource-cost>
               </div>
             }
@@ -265,7 +265,7 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HullPreviewModalComponent {
-  @Input() hull: Hull | null = null;
+  @Input() hull: HullTemplate | null = null;
   @Input() design: ShipDesign | null = null;
   @Input() stats: any | null = null;
   @Input() title: string | null = null;
@@ -325,16 +325,20 @@ export class HullPreviewModalComponent {
   }
 
   toCost(cost: {
+    Ironium?: number;
+    Boranium?: number;
+    Germanium?: number;
+    Resources?: number;
     ironium?: number;
     boranium?: number;
     germanium?: number;
     resources?: number;
   }): Cost {
     return {
-      ironium: cost?.ironium,
-      boranium: cost?.boranium,
-      germanium: cost?.germanium,
-      resources: cost?.resources,
+      ironium: cost?.ironium || cost?.Ironium,
+      boranium: cost?.boranium || cost?.Boranium,
+      germanium: cost?.germanium || cost?.Germanium,
+      resources: cost?.resources || cost?.Resources,
     };
   }
 }

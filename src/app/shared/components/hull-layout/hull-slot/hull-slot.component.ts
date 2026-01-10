@@ -77,7 +77,7 @@ import { GridSlot } from '../hull-layout.types';
         @if (!slot.editable || !editable) {
           <div class="non-editable-content">
             <div class="slot-type-icon">
-              {{ getSlotTypeDisplay(slot.slotDef.allowedTypes) }}
+              {{ getSlotTypeDisplay(slot.slotDef.Allowed) }}
             </div>
             @if (slot.capacity) {
               @if (slot.capacity === 'Unlimited') {
@@ -90,7 +90,7 @@ import { GridSlot } from '../hull-layout.types';
         } @else {
           <div class="empty-slot-content">
             <div class="slot-type-icon">
-              {{ getSlotTypeDisplay(slot.slotDef.allowedTypes) }}
+              {{ getSlotTypeDisplay(slot.slotDef.Allowed) }}
             </div>
           </div>
           @if (maxCount > 1) {

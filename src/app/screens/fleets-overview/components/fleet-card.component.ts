@@ -13,8 +13,8 @@ import { Fleet, ShipDesign } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game-state.service';
 import { TechService } from '../../../services/tech.service';
 import { getDesign } from '../../../data/ships.data';
-import { Hull, getHull } from '../../../data/hulls.data';
-import { COMPONENTS } from '../../../data/components.data';
+import { HullTemplate } from '../../../data/tech-atlas.types';
+import { getHull, getAllComponents } from '../../../utils/data-access.util';
 import { compileShipStats } from '../../../models/ship-design.model';
 import { miniaturizeComponent } from '../../../utils/miniaturization.util';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
@@ -341,7 +341,7 @@ export class FleetCardComponent {
         Propulsion: 0,
         Construction: 0,
       };
-      const miniaturizedComponents = Object.values(COMPONENTS).map((comp) =>
+      const miniaturizedComponents = getAllComponents().map((comp) =>
         miniaturizeComponent(comp, techLevels),
       );
 

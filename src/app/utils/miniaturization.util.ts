@@ -1,5 +1,6 @@
-import { Component } from '../data/components.data';
+import { ComponentStats } from '../data/tech-atlas.types';
 import { PlayerTech } from '../models/game.model';
+import { getPrimaryTechField, getRequiredTechLevel } from './data-access.util';
 
 /**
  * Miniaturization System
@@ -63,32 +64,15 @@ export function calculateMiniaturizationFactor(playerLevel: number, requiredLeve
  * @returns Miniaturized component with reduced mass and cost
  */
 export function miniaturizeComponent(
-  component: Component,
+  component: ComponentStats,
   techLevels: PlayerTech,
 ): MiniaturizedComponent {
-  // Map old tech field names to new ones
-  const fieldMap: Record<string, keyof PlayerTech> = {
-    energy: 'Energy',
-    Energy: 'Energy',
-    weapons: 'Kinetics',
-    Kinetics: 'Kinetics',
-    propulsion: 'Propulsion',
-    Propulsion: 'Propulsion',
-    construction: 'Construction',
-    Construction: 'Construction',
-    electronics: 'Energy', // Electronics tech is now part of Energy
-    Electronics: 'Energy',
-    biotechnology: 'Construction', // Biotechnology removed, map to Construction as fallback
-    Biotechnology: 'Construction',
-  };
-
+  // Get the primary tech field and required level from the component
+  const primaryField = getPrimaryTechField(component);
+  const requiredLevel = getRequiredTechLevel(component);
+  
   // Get player's tech level in the component's required field
-  const mappedField =
-    fieldMap[component.techRequired.field] ||
-    fieldMap[component.techRequired.field.toLowerCase()] ||
-    'Construction';
-  const playerLevel = techLevels[mappedField];
-  const requiredLevel = component.techRequired.level;
+  const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
 
   // Calculate miniaturization factor
   const factor = calculateMiniaturizationFactor(playerLevel, requiredLevel);
@@ -127,7 +111,7 @@ export function miniaturizeComponent(
     mass: miniaturizedMass,
     baseMass: component.mass,
     cost: miniaturizedCost,
-    baseCost: component.baseCost || {
+    baseCost: {
       ironium: component.cost.ironium || 0,
       boranium: component.cost.boranium || 0,
       germanium: component.cost.germanium || 0,

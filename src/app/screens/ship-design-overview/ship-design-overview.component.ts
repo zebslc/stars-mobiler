@@ -4,9 +4,9 @@ import { GameStateService } from '../../services/game-state.service';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { ShipDesignerComponent } from '../ship-designer/ship-designer.component';
 import { ShipDesignItemComponent, ShipDesignDisplay } from '../../components/ship-design-item/ship-design-item.component';
-import { COMPONENTS } from '../../data/components.data';
+import { getAllComponents } from '../../utils/data-access.util';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
-import { getHull } from '../../data/hulls.data';
+import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { ShipDesign } from '../../models/game.model';
 import { HullPreviewModalComponent } from '../../shared/components/hull-preview-modal.component';
@@ -71,7 +71,7 @@ export class ShipDesignOverviewComponent {
   );
 
   readonly miniaturizedComponents = computed(() => {
-    return Object.values(COMPONENTS).map((comp) => miniaturizeComponent(comp, this.techLevels()));
+    return getAllComponents().map((comp) => miniaturizeComponent(comp, this.techLevels()));
   });
 
   readonly availableCategories = computed(() => {
@@ -294,7 +294,7 @@ export class ShipDesignOverviewComponent {
       this.previewHull.set(hull || null);
       this.previewStats.set(design.stats);
       this.previewDesign.set(rawDesign || null);
-      this.previewTitle.set(`${design.name} — ${hull?.name || design.hullId}`);
+      this.previewTitle.set(`${design.name} — ${hull?.Name || design.hullId}`);
       this.previewOpen.set(true);
     }
   }

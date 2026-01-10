@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Hull } from '../../../data/hulls.data';
+import { HullTemplate } from '../../../data/tech-atlas.types';
 
 @Component({
   selector: 'app-ship-designer-hull-selector',
@@ -11,23 +11,23 @@ import { Hull } from '../../../data/hulls.data';
       <div class="modal-content" (click)="$event.stopPropagation()">
         <h3>Select Hull</h3>
         <div class="hull-list">
-          @for (hull of hulls; track hull.id) {
-            <div class="hull-option" (click)="onSelect(hull.id)">
+          @for (hull of hulls; track hull.id || hull.Name) {
+            <div class="hull-option" (click)="onSelect(hull.id || hull.Name)">
               <div class="hull-icon">
                 <img
                   [src]="getHullImagePath(hull)"
-                  [alt]="hull.name"
+                  [alt]="hull.Name"
                   (error)="onImageError($event)"
                   (click)="$event.stopPropagation(); onPreview(hull)"
                 />
               </div>
               <div class="hull-details">
-                <div class="hull-name">{{ hull.name }}</div>
+                <div class="hull-name">{{ hull.Name }}</div>
                 <div class="hull-role">{{ hull.role }}</div>
                 <div class="hull-specs">
-                  {{ hull.mass }}kt | {{ hull.fuelCapacity }}mg | Armor {{ hull.armor }}
+                  {{ hull.Stats.Mass }}kt | {{ hull.Stats['Max Fuel'] }}mg | Armor {{ hull.Stats.Armor }}
                 </div>
-                <div class="hull-tech">Tech: Con {{ hull.techRequired?.construction || 0 }}</div>
+                <div class="hull-tech">Tech: Con {{ hull.techReq?.Construction || 0 }}</div>
               </div>
             </div>
           }
@@ -177,7 +177,7 @@ import { Hull } from '../../../data/hulls.data';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerHullSelectorComponent {
-  @Input({ required: true }) hulls: Hull[] = [];
+  @Input({ required: true }) hulls: HullTemplate[] = [];
   @Output() hullSelected = new EventEmitter<string>();
   @Output() previewHull = new EventEmitter<string>();
   @Output() close = new EventEmitter<void>();
@@ -186,20 +186,20 @@ export class ShipDesignerHullSelectorComponent {
     this.hullSelected.emit(hullId);
   }
 
-  onPreview(hull: Hull) {
-    this.previewHull.emit(hull.name);
+  onPreview(hull: HullTemplate) {
+    this.previewHull.emit(hull.Name);
   }
 
   onClose() {
     this.close.emit();
   }
 
-  getHullImagePath(hull: Hull): string {
+  getHullImagePath(hull: HullTemplate): string {
     if ((hull as any).img) {
       return `/assets/tech-icons/${(hull as any).img}.png`;
     }
     // Fallback based on name if no img property
-    const name = hull.name.toLowerCase();
+    const name = hull.Name.toLowerCase();
     if (name.includes('scout')) return '/assets/tech-icons/hull-scout.png';
     if (name.includes('freighter')) {
       if (name.includes('small')) return '/assets/tech-icons/hull-freight-s.png';

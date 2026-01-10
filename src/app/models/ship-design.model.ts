@@ -1,8 +1,8 @@
-import { Hull, HullSlot, SlotType } from '../data/hulls.data';
-import { Component, COMPONENTS } from '../data/components.data';
+import { HullTemplate, ComponentStats, SlotType, SlotDefinition } from '../data/tech-atlas.types';
 import { MiniaturizedComponent } from '../utils/miniaturization.util';
 import { SlotAssignment, ComponentAssignment, CompiledShipStats } from '../models/game.model';
 import { validateShipDesign } from '../services/validation.service';
+import { getComponentsLookup } from '../utils/data-access.util';
 
 /**
  * Ship Design Models
@@ -11,30 +11,70 @@ import { validateShipDesign } from '../services/validation.service';
  * Based on Stars! modular ship design system
  */
 
+// Helper interface for slot compatibility checking
+interface HullSlot {
+  id: string;
+  allowedTypes: SlotType[];
+  max?: number;
+  required?: boolean;
+  editable?: boolean;
+  size?: number;
+}
+
+// Convert SlotDefinition to HullSlot for compatibility
+function convertSlotDefinition(slot: SlotDefinition, index: number): HullSlot {
+  return {
+    id: slot.Code || `slot_${index}`,
+    allowedTypes: slot.Allowed.map(type => {
+      // Map string types to SlotType
+      switch (type.toLowerCase()) {
+        case 'engine': return 'Engine';
+        case 'cargo': return 'Cargo';
+        case 'shield': return 'Shield';
+        case 'armor': return 'Armor';
+        case 'scanner': return 'Scanner';
+        case 'elect': return 'Electrical';
+        case 'mech': return 'Mechanical';
+        case 'weapon': return 'Weapon';
+        case 'bomb': return 'Bomb';
+        case 'orbital': return 'Orbital';
+        case 'mining': return 'Mining';
+        case 'mine': return 'Mine';
+        default: return 'General';
+      }
+    }) as SlotType[],
+    max: slot.Max,
+    required: slot.Required,
+    editable: slot.Editable,
+    size: typeof slot.Size === 'number' ? slot.Size : undefined,
+  };
+}
+
 /**
  * Compile ship stats from hull and installed components
  * Uses miniaturized components for mass/cost, but base components for capabilities
  */
 export function compileShipStats(
-  hull: Hull,
+  hull: HullTemplate,
   assignments: SlotAssignment[],
   miniaturizedComponents: MiniaturizedComponent[],
 ): CompiledShipStats {
   const errors: string[] = [];
+  const COMPONENTS = getComponentsLookup();
 
   // Start with hull base stats
-  let totalMass = hull.mass;
+  let totalMass = hull.Stats.Mass;
   let warpSpeed = 0;
   let fuelEfficiency: number | undefined = undefined;
   let idealWarp = 0;
   let isRamscoop = false;
   let firepower = 0;
   let shields = 0;
-  let armor = hull.armor; // Start with hull base armor
+  let armor = hull.Stats.Armor || 0; // Start with hull base armor
   let accuracy = 0;
   let initiative = hull.Stats.Initiative || 0; // Start with hull base initiative
-  let cargoCapacity = hull.cargoCapacity || 0;
-  let fuelCapacity = hull.fuelCapacity || 0;
+  let cargoCapacity = hull.Stats.Cargo || 0;
+  let fuelCapacity = hull.Stats['Max Fuel'] || 0;
   let colonistCapacity = 0;
   let scanRange = 0;
   let penScanRange = 0;
@@ -48,10 +88,10 @@ export function compileShipStats(
   let maxWeaponRange = 0;
 
   const cost = {
-    resources: hull.baseCost.resources,
-    ironium: hull.baseCost.ironium,
-    boranium: hull.baseCost.boranium,
-    germanium: hull.baseCost.germanium,
+    resources: hull.Cost.Resources,
+    ironium: hull.Cost.Ironium,
+    boranium: hull.Cost.Boranium,
+    germanium: hull.Cost.Germanium,
   };
 
   const components: Array<{ id: string; name: string; quantity: number }> = [];
@@ -66,7 +106,7 @@ export function compileShipStats(
 
     for (const compAssignment of assignment.components) {
       const miniComponent = miniComponentMap.get(compAssignment.componentId);
-      const baseComponent: Component = COMPONENTS[compAssignment.componentId];
+      const baseComponent: ComponentStats = COMPONENTS[compAssignment.componentId];
 
       if (!miniComponent || !baseComponent) {
         errors.push(`Component ${compAssignment.componentId} not found`);
@@ -128,9 +168,10 @@ export function compileShipStats(
         }
       }
 
-      // Colonist Capacity
-      if (baseComponent.colonistCapacity) {
-        colonistCapacity += baseComponent.colonistCapacity * count;
+      // Colonist Capacity - check for settler trait
+      const settlerTrait = baseComponent.traits?.find(t => t.type === 'settler');
+      if (settlerTrait && settlerTrait.properties.colonistCapacity) {
+        colonistCapacity += (settlerTrait.properties.colonistCapacity as number) * count;
         hasColonyModule = true;
       }
 
@@ -138,68 +179,63 @@ export function compileShipStats(
         case 'engine':
           hasEngine = true;
           // For engines, only the best one matters (not cumulative)
-          if (baseComponent.warpSpeed && baseComponent.warpSpeed > warpSpeed) {
-            warpSpeed = baseComponent.warpSpeed;
-            fuelEfficiency = baseComponent.fuelEfficiency;
-            idealWarp = baseComponent.idealWarp || baseComponent.warpSpeed;
-            // Only engines ending in "Scoop" are ramscoops (flagged in data)
+          if (baseComponent.stats.maxWarp && baseComponent.stats.maxWarp > warpSpeed) {
+            warpSpeed = baseComponent.stats.maxWarp;
+            fuelEfficiency = baseComponent.stats.fuelEff;
+            idealWarp = baseComponent.stats.maxWarp;
             isRamscoop = !!baseComponent.isRamscoop;
           }
           break;
 
         case 'weapon':
-          firepower += (baseComponent.damage || 0) * count;
+          firepower += (baseComponent.stats.power || 0) * count;
           if (baseComponent.stats?.range) {
             maxWeaponRange = Math.max(maxWeaponRange, baseComponent.stats.range);
           }
           // Note: Weapon accuracy is intrinsic to the weapon and doesn't add to ship accuracy rating
           // Ship accuracy rating comes from battle computers
-          if (baseComponent.initiative) {
-            initiative += baseComponent.initiative * count; // Initiative is additive
+          if (baseComponent.stats.initiative) {
+            initiative += baseComponent.stats.initiative * count; // Initiative is additive
           }
           break;
 
         case 'shield':
-          shields += (baseComponent.shieldStrength || 0) * count;
+          shields += (baseComponent.stats.shield || 0) * count;
           break;
 
         case 'computer':
         case 'electronics':
-        case 'elect':
+        case 'electrical':
           // Battle computers add to ship accuracy
-          if (baseComponent.accuracy) {
-            accuracy += baseComponent.accuracy * count;
+          if (baseComponent.stats.accuracy) {
+            accuracy += baseComponent.stats.accuracy * count;
           }
           // Jammers and other electrical components could be handled here
           break;
 
         case 'mechanical':
-        case 'mech':
           // Handle mechanical components like maneuvering jets
-          if (baseComponent.initiative) {
-            initiative += baseComponent.initiative * count; // Initiative is additive
+          if (baseComponent.stats.initiative) {
+            initiative += baseComponent.stats.initiative * count; // Initiative is additive
           }
-          if (baseComponent.cargoCapacity) {
-            cargoCapacity += baseComponent.cargoCapacity * count;
-          }
-          if (baseComponent.fuelCapacity) {
-            fuelCapacity += baseComponent.fuelCapacity * count;
+          if (baseComponent.stats.cap) {
+            cargoCapacity += baseComponent.stats.cap * count;
           }
           break;
 
         case 'scanner':
           // For scanners, only the best one matters
-          scanRange = Math.max(scanRange, baseComponent.scanRange || 0);
+          scanRange = Math.max(scanRange, baseComponent.stats.scan || 0);
           if (baseComponent.stats?.pen) {
             penScanRange = Math.max(penScanRange, baseComponent.stats.pen);
           }
-          if (baseComponent.canDetectCloaked) {
+          if (baseComponent.stats.detection && baseComponent.stats.detection > 0) {
             canDetectCloaked = true;
           }
           break;
 
         case 'cargo':
-          cargoCapacity += (baseComponent.cargoCapacity || 0) * count;
+          cargoCapacity += (baseComponent.stats.cap || 0) * count;
           break;
       }
     }
@@ -207,7 +243,7 @@ export function compileShipStats(
 
   // Validation
   const isStarbase = !!hull.isStarbase;
-  errors.push(...validateShipDesign(hull, assignments, COMPONENTS));
+  errors.push(...validateShipDesign(hull, assignments, getComponentsLookup()));
 
   const isValid = errors.length === 0;
 
@@ -246,7 +282,7 @@ export function compileShipStats(
 /**
  * Check if a component can be installed in a specific slot
  */
-export function canInstallComponent(component: Component, slot: HullSlot): boolean {
+export function canInstallComponent(component: ComponentStats, slot: HullSlot): boolean {
   // Map component types to slot types
   const componentSlotType = getSlotTypeForComponent(component);
 
@@ -257,39 +293,36 @@ export function canInstallComponent(component: Component, slot: HullSlot): boole
 /**
  * Get the slot type that corresponds to a component type
  */
-function getSlotTypeForComponent(component: Component): SlotType {
+function getSlotTypeForComponent(component: ComponentStats): SlotType {
   switch (component.type.toLowerCase()) {
     case 'engine':
-      return SlotType.Engine;
+      return 'Engine';
     case 'weapon':
-      return SlotType.Weapon;
+      return 'Weapon';
     case 'shield':
-      return SlotType.Shield;
+      return 'Shield';
     case 'scanner':
-      return SlotType.Scanner;
+      return 'Scanner';
     case 'armor':
-      return SlotType.Armor;
+      return 'Armor';
     case 'cargo':
-      return SlotType.Cargo;
+      return 'Cargo';
     case 'electronics':
     case 'computer':
-    case 'elect':
-      return SlotType.Elect;
+    case 'electrical':
+      return 'Electrical';
     case 'mechanical':
-    case 'mech':
-      return SlotType.Mech;
+      return 'Mechanical';
     case 'mining':
-      return SlotType.Mech; // Mining components go in mechanical slots
+      return 'Mining';
     case 'bomb':
-      return SlotType.Bomb;
+      return 'Bomb';
     case 'orbital':
-      return SlotType.Orbital;
+      return 'Orbital';
     case 'mine':
-      return SlotType.Mine;
-    case 'dock':
-      return SlotType.Dock;
+      return 'Mine';
     default:
-      return SlotType.General;
+      return 'General';
   }
 }
 
@@ -297,12 +330,12 @@ function getSlotTypeForComponent(component: Component): SlotType {
  * Create an empty ship design from a hull
  */
 export function createEmptyDesign(
-  hull: Hull,
+  hull: HullTemplate,
   playerId: string,
   turn: number
 ): import('../models/game.model').ShipDesign {
-  const slots: SlotAssignment[] = hull.slots.map((slot: HullSlot) => ({
-    slotId: slot.id,
+  const slots: SlotAssignment[] = hull.Slots.map((slot: SlotDefinition, index: number) => ({
+    slotId: slot.Code || `slot_${index}`,
     components: [],
   }));
 

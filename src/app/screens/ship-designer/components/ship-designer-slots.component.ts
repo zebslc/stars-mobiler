@@ -9,9 +9,9 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Hull } from '../../../data/hulls.data';
+import { HullTemplate } from '../../../data/tech-atlas.types';
 import { ShipDesign } from '../../../models/game.model';
-import { getComponent } from '../../../data/components.data';
+import { getComponent } from '../../../utils/data-access.util';
 import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull-layout.component';
 
 @Component({
@@ -60,7 +60,7 @@ import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull
   ],
 })
 export class ShipDesignerSlotsComponent implements OnChanges {
-  @Input({ required: true }) hull: Hull | null = null;
+  @Input({ required: true }) hull: HullTemplate | null = null;
   @Input({ required: true }) design: ShipDesign | null = null;
   @Input() selectedSlotId: string | null = null;
   @Output() slotSelected = new EventEmitter<string>();
@@ -70,7 +70,7 @@ export class ShipDesignerSlotsComponent implements OnChanges {
   @Output() slotCleared = new EventEmitter<string>();
   @Output() componentInfoClick = new EventEmitter<string>();
 
-  private _hull = signal<Hull | null>(null);
+  private _hull = signal<HullTemplate | null>(null);
   private _design = signal<ShipDesign | null>(null);
 
   ngOnChanges(changes: SimpleChanges): void {

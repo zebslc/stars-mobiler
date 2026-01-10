@@ -5,7 +5,7 @@ import { GameStateService } from '../../services/game-state.service';
 import { TechService } from '../../services/tech.service';
 import { Planet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
-import { getHull } from '../../data/hulls.data';
+import { getHull } from '../../utils/data-access.util';
 import { PlanetCardComponent } from './components/planet-card.component';
 
 @Component({

@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MiniaturizedComponent } from '../../../utils/miniaturization.util';
-import { HullSlot } from '../../../data/hulls.data';
-import { getComponent } from '../../../data/components.data';
+import { SlotDefinition } from '../../../data/tech-atlas.types';
+import { getComponent } from '../../../utils/data-access.util';
 
 @Component({
   selector: 'app-ship-designer-component-selector',
@@ -245,7 +245,7 @@ import { getComponent } from '../../../data/components.data';
 export class ShipDesignerComponentSelectorComponent {
   @Input({ required: true }) components: MiniaturizedComponent[] = [];
   @Input({ required: true }) selectedSlotId: string | null = null;
-  @Input({ required: true }) selectedSlot: HullSlot | null = null;
+  @Input({ required: true }) selectedSlot: SlotDefinition | null = null;
   @Input() currentComponentId: string | null = null;
 
   @Output() componentSelected = new EventEmitter<string>();
@@ -307,9 +307,9 @@ export class ShipDesignerComponentSelectorComponent {
     return parts.join(', ');
   }
 
-  getSlotSelectionTitle(slot: HullSlot | null): string {
+  getSlotSelectionTitle(slot: SlotDefinition | null): string {
     if (!slot) return 'Select component';
-    const types = (slot.allowedTypes || []).map((t: any) => String(t).toLowerCase());
+    const types = (slot.Allowed || []).map((t: any) => String(t).toLowerCase());
     const order = [
       'engine',
       'weapon',

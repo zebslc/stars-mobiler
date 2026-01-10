@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { HULLS, Hull, getHull } from '../data/hulls.data';
-import { COMPONENTS, Component, getComponent } from '../data/components.data';
+import { HullTemplate, ComponentStats } from '../data/tech-atlas.types';
+import { ALL_HULLS, getAllComponents } from '../data/tech-atlas.data';
+import { getHull, getComponent, getPrimaryTechField, getRequiredTechLevel } from '../utils/data-access.util';
 import { PlayerTech, ShipDesign, SlotAssignment, CompiledShipStats } from '../models/game.model';
 import { miniaturizeComponent, MiniaturizedComponent } from '../utils/miniaturization.util';
 import {
@@ -38,7 +39,7 @@ export class ShipDesignerService {
 
   readonly miniaturizedComponents = computed(() => {
     const techLevels = this._techLevels();
-    return Object.values(COMPONENTS).map((comp) => miniaturizeComponent(comp, techLevels));
+    return getAllComponents().map((comp) => miniaturizeComponent(comp, techLevels));
   });
 
   readonly compiledStats = computed(() => {
@@ -83,8 +84,9 @@ export class ShipDesignerService {
 
     if (hull) {
       // Create slots based on hull to ensure all are present and in sync with hull definition
-      slots = hull.slots.map((hullSlot) => {
-        const existingSlot = design.slots.find((s) => s.slotId === hullSlot.id);
+      slots = hull.Slots.map((hullSlot, index) => {
+        const slotId = hullSlot.Code || `slot_${index}`;
+        const existingSlot = design.slots.find((s) => s.slotId === slotId);
         if (existingSlot) {
           // Deep copy existing slot components
           return {
@@ -96,7 +98,7 @@ export class ShipDesignerService {
         } else {
           // Create empty slot if missing in design
           return {
-            slotId: hullSlot.id,
+            slotId,
             components: [],
           };
         }
@@ -138,7 +140,7 @@ export class ShipDesignerService {
     if (!design || !hull) return false;
 
     // Find the slot
-    const hullSlot = hull.slots.find((s: any) => s.id === slotId);
+    const hullSlot = hull.Slots.find((s, index) => (s.Code || `slot_${index}`) === slotId);
     if (!hullSlot) {
       console.error(`Slot ${slotId} not found in hull`);
       return false;
@@ -151,18 +153,44 @@ export class ShipDesignerService {
       return false;
     }
 
+    // Convert SlotDefinition to HullSlot for compatibility checking
+    const convertedSlot = {
+      id: hullSlot.Code || slotId,
+      allowedTypes: hullSlot.Allowed.map(type => {
+        switch (type.toLowerCase()) {
+          case 'engine': return 'Engine';
+          case 'cargo': return 'Cargo';
+          case 'shield': return 'Shield';
+          case 'armor': return 'Armor';
+          case 'scanner': return 'Scanner';
+          case 'elect': return 'Electrical';
+          case 'mech': return 'Mechanical';
+          case 'weapon': return 'Weapon';
+          case 'bomb': return 'Bomb';
+          case 'orbital': return 'Orbital';
+          case 'mining': return 'Mining';
+          case 'mine': return 'Mine';
+          default: return 'General';
+        }
+      }) as any[],
+      max: hullSlot.Max,
+      required: hullSlot.Required,
+      editable: hullSlot.Editable,
+      size: typeof hullSlot.Size === 'number' ? hullSlot.Size : undefined,
+    };
+
     // Check if component can be installed
-    const canInstall = canInstallComponent(component, hullSlot);
+    const canInstall = canInstallComponent(component, convertedSlot);
     if (!canInstall) {
       console.error(
-        `Component ${component.name} (${component.type}) cannot be installed in slot ${slotId} (Allowed: ${hullSlot.allowedTypes})`,
+        `Component ${component.name} (${component.type}) cannot be installed in slot ${slotId} (Allowed: ${convertedSlot.allowedTypes})`,
       );
       return false;
     }
 
     // Replace all components in the slot with this one
     // Enforce max count
-    const maxCount = hullSlot.max || 1;
+    const maxCount = hullSlot.Max || 1;
     const finalCount = Math.min(count, maxCount);
 
     console.log(`Setting slot ${slotId} to component ${component.name} (count: ${finalCount})`);
@@ -195,11 +223,37 @@ export class ShipDesignerService {
     if (!design || !hull) return false;
 
     // Find the slot
-    const hullSlot = hull.slots.find((s: any) => s.id === slotId);
-    if (!hullSlot) {
+    const hullSlotDef = hull.Slots.find((s, index) => (s.Code || `slot_${index}`) === slotId);
+    if (!hullSlotDef) {
       console.error(`Slot ${slotId} not found in hull`);
       return false;
     }
+
+    // Convert SlotDefinition to HullSlot for compatibility
+    const hullSlot = {
+      id: hullSlotDef.Code || slotId,
+      allowedTypes: hullSlotDef.Allowed.map(type => {
+        switch (type.toLowerCase()) {
+          case 'engine': return 'Engine';
+          case 'cargo': return 'Cargo';
+          case 'shield': return 'Shield';
+          case 'armor': return 'Armor';
+          case 'scanner': return 'Scanner';
+          case 'elect': return 'Electrical';
+          case 'mech': return 'Mechanical';
+          case 'weapon': return 'Weapon';
+          case 'bomb': return 'Bomb';
+          case 'orbital': return 'Orbital';
+          case 'mining': return 'Mining';
+          case 'mine': return 'Mine';
+          default: return 'General';
+        }
+      }) as any[],
+      max: hullSlotDef.Max,
+      required: hullSlotDef.Required,
+      editable: hullSlotDef.Editable,
+      size: typeof hullSlotDef.Size === 'number' ? hullSlotDef.Size : undefined,
+    };
 
     // Get the component
     const component = getComponent(componentId);
@@ -302,7 +356,7 @@ export class ShipDesignerService {
 
     if (!hull) return [];
 
-    const hullSlot = hull.slots.find((s: any) => s.id === slotId);
+    const hullSlot = hull.Slots.find((s, index) => (s.Code || `slot_${index}`) === slotId);
     if (!hullSlot) return [];
 
     // Filter components that:
@@ -328,27 +382,52 @@ export class ShipDesignerService {
         Biotechnology: 'Construction',
       };
 
-      // Check tech level requirement
-      const mappedField = fieldMap[baseComponent.techRequired.field] || fieldMap[baseComponent.techRequired.field.toLowerCase()] || 'Construction';
-      const playerLevel = techLevels[mappedField];
-      if (playerLevel < baseComponent.techRequired.level) {
+      // Check tech level requirement using new system
+      const primaryField = getPrimaryTechField(baseComponent);
+      const requiredLevel = getRequiredTechLevel(baseComponent);
+      const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
+      if (playerLevel < requiredLevel) {
         return false;
       }
 
-      // Check slot compatibility
-      return canInstallComponent(baseComponent, hullSlot);
+      // Check slot compatibility - Convert SlotDefinition to HullSlot for compatibility
+      const convertedSlot = {
+        id: hullSlot.Code || slotId,
+        allowedTypes: hullSlot.Allowed.map(type => {
+          switch (type.toLowerCase()) {
+            case 'engine': return 'Engine';
+            case 'cargo': return 'Cargo';
+            case 'shield': return 'Shield';
+            case 'armor': return 'Armor';
+            case 'scanner': return 'Scanner';
+            case 'elect': return 'Electrical';
+            case 'mech': return 'Mechanical';
+            case 'weapon': return 'Weapon';
+            case 'bomb': return 'Bomb';
+            case 'orbital': return 'Orbital';
+            case 'mining': return 'Mining';
+            case 'mine': return 'Mine';
+            default: return 'General';
+          }
+        }) as any[],
+        max: hullSlot.Max,
+        required: hullSlot.Required,
+        editable: hullSlot.Editable,
+        size: typeof hullSlot.Size === 'number' ? hullSlot.Size : undefined,
+      };
+      return canInstallComponent(baseComponent, convertedSlot);
     });
   }
 
   /**
    * Get available hulls based on construction tech level
    */
-  getAvailableHulls(): Hull[] {
+  getAvailableHulls(): HullTemplate[] {
     const techLevels = this._techLevels();
     const constructionLevel = techLevels.Construction;
 
-    return Object.values(HULLS).filter(
-      (hull: any) => (hull.techRequired?.construction || 0) <= constructionLevel,
+    return ALL_HULLS.filter(
+      (hull) => (hull.techReq?.Construction || 0) <= constructionLevel,
     );
   }
 

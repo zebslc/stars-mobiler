@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject
 import { CommonModule } from '@angular/common';
 import { TechService } from '../../../services/tech.service';
 import { GameStateService } from '../../../services/game-state.service';
-import { HullTemplate, ComponentStats, TechRequirement, TECH_ATLAS } from '../../../data/tech-atlas.data';
+import { HullTemplate, ComponentStats, TechRequirement } from '../../../data/tech-atlas.types';
 import { TechField } from '../../../data/tech-tree.data';
 import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.component';
 import { HullLayoutComponent } from '../hull-layout/hull-layout.component';
@@ -10,7 +10,7 @@ import {
   ResourceCostComponent,
   Cost,
 } from '../resource-cost/resource-cost.component';
-import { getHull } from '../../../data/hulls.data';
+import { getHull } from '../../../utils/data-access.util';
 
 @Component({
   selector: 'app-research-unlock-details',

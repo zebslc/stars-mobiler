@@ -17,7 +17,8 @@ import { ShipDesignerStatsComponent } from './components/ship-designer-stats.com
 import { ShipDesignerSlotsComponent } from './components/ship-designer-slots.component';
 import { ShipDesignerHullSelectorComponent } from './components/ship-designer-hull-selector.component';
 import { ShipDesignerComponentSelectorComponent } from './components/ship-designer-component-selector.component';
-import { getHull } from '../../data/hulls.data';
+import { getHull } from '../../utils/data-access.util';
+import { SlotDefinition } from '../../data/tech-atlas.types';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
@@ -75,7 +76,7 @@ export class ShipDesignerComponent implements OnInit {
     const slotId = this.selectedSlotId();
     const hull = this.hull();
     if (!slotId || !hull) return null;
-    return hull.slots.find((s) => s.id === slotId) || null;
+    return hull.Slots.find((s: SlotDefinition) => s.Code === slotId) || null;
   });
 
   readonly availableComponentsForSlot = computed(() => {
@@ -213,16 +214,16 @@ export class ShipDesignerComponent implements OnInit {
     const isUpdate = existingDesigns.some((d) => d.id === design.id);
 
     if (!isUpdate) {
-      const isStarbase = STARBASE_HULLS.some((h) => h.Name === currentHull.name);
+      const isStarbase = STARBASE_HULLS.some((h) => h.Name === currentHull.Name);
 
       const starbaseDesigns = existingDesigns.filter((d) => {
         const h = getHull(d.hullId);
-        return h && STARBASE_HULLS.some((sh) => sh.Name === h.name);
+        return h && STARBASE_HULLS.some((sh) => sh.Name === h.Name);
       });
 
       const shipDesigns = existingDesigns.filter((d) => {
         const h = getHull(d.hullId);
-        return h && !STARBASE_HULLS.some((sh) => sh.Name === h.name);
+        return h && !STARBASE_HULLS.some((sh) => sh.Name === h.Name);
       });
 
       if (isStarbase) {
