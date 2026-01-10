@@ -110,6 +110,18 @@ export class GalaxyGeneratorService {
   }
 
   private starName(seed: number, index: number): string {
+    const names = [
+      'Oxygen', 'No Vacancy', 'Mozart', 'Wallaby', 'Mohlodi', 'Slime', 'Hiho',
+      'Hacker', 'Prune', 'Stove Top', 'Shaggy Dog', 'Alexander', '90210',
+      'Sea Squared', 'Red Storm', 'Mobius', 'Castle', 'Dwarte', 'Kalamazoo', 'Bloop'
+    ];
+
+    // Use predefined names first
+    if (index < names.length) {
+      return names[index];
+    }
+
+    // Fall back to generated names
     const rng = mulberry32(seed + index);
     const prefixes = ['Kepler', 'Proxima', 'Vega', 'Rigel', 'Deneb', 'Altair', 'Epsilon'];
     return `${choice(rng, prefixes)}-${Math.floor(rng() * 900 + 100)}`;
