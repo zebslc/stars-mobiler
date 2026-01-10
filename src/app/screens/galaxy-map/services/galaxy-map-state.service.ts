@@ -29,6 +29,7 @@ export class GalaxyMapStateService {
   private touchStartTranslateX = 0;
   private touchStartTranslateY = 0;
   private lastTouchDistance = 0;
+  private touchZoomSvg: SVGSVGElement | null = null;
 
   readonly transformString = computed(() => {
     return `translate(${this.translateX()} ${this.translateY()}) scale(${this.scale()})`;
@@ -118,15 +119,47 @@ export class GalaxyMapStateService {
     this.translateY.set(this.touchStartTranslateY + deltaY * this.TOUCH_SENSITIVITY);
   }
 
-  startTouchZoom(touches: TouchList) {
+  startTouchZoom(touches: TouchList, svgElement: SVGSVGElement) {
     this.isPanning = false;
     this.lastTouchDistance = this.getTouchDistance(touches);
+    // Store the SVG element for coordinate conversion
+    this.touchZoomSvg = svgElement;
   }
 
   moveTouchZoom(touches: TouchList) {
+    if (!this.touchZoomSvg) return;
+
     const dist = this.getTouchDistance(touches);
     const factor = dist / this.lastTouchDistance;
-    this.scale.update((s) => Math.min(Math.max(s * factor, 0.5), 5));
+
+    const oldScale = this.scale();
+    const newScale = Math.min(Math.max(oldScale * factor, 0.5), 5);
+
+    if (newScale !== oldScale) {
+      // Calculate midpoint between the two touches (recalculated each frame)
+      const midClientX = (touches[0].clientX + touches[1].clientX) / 2;
+      const midClientY = (touches[0].clientY + touches[1].clientY) / 2;
+
+      // Convert client coordinates to SVG coordinates
+      const point = this.touchZoomSvg.createSVGPoint();
+      point.x = midClientX;
+      point.y = midClientY;
+      const svgPoint = point.matrixTransform(this.touchZoomSvg.getScreenCTM()!.inverse());
+
+      // Use SVG coordinates as zoom center
+      const zoomCenterX = svgPoint.x;
+      const zoomCenterY = svgPoint.y;
+
+      // Calculate world coordinates at the zoom center
+      const worldX = (zoomCenterX - this.translateX()) / oldScale;
+      const worldY = (zoomCenterY - this.translateY()) / oldScale;
+
+      // Apply new scale and adjust translation to keep zoom center fixed
+      this.scale.set(newScale);
+      this.translateX.set(zoomCenterX - worldX * newScale);
+      this.translateY.set(zoomCenterY - worldY * newScale);
+    }
+
     this.lastTouchDistance = dist;
   }
 

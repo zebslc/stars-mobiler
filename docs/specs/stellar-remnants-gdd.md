@@ -62,7 +62,7 @@ The minimum playable game includes:
 interface Star {
   id: string;
   name: string;
-  position: { x: number; y: number };  // 0-1000 coordinate space
+  position: { x: number; y: number };  // 0-2000 coordinate space
   planets: Planet[];
 }
 
@@ -72,7 +72,7 @@ function generateGalaxy(starCount: number, seed: number): Star[] {
   
   // Use Poisson disc sampling for natural-looking distribution
   // Minimum distance between stars based on count
-  const minDistance = 1000 / Math.sqrt(starCount) * 0.8;
+  const minDistance = 2000 / Math.sqrt(starCount) * 0.8;
   
   // Generate star positions
   const positions = poissonDiscSample(starCount, minDistance, rng);

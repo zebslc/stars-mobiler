@@ -7,11 +7,11 @@ export class GalaxyGeneratorService {
   generateGalaxy(starCount: number, seed: number): Star[] {
     const rng = mulberry32(seed);
     const positions: Array<{ x: number; y: number }> = [];
-    const minDistance = (1000 / Math.sqrt(starCount)) * 0.6;
+    const minDistance = (2000 / Math.sqrt(starCount)) * 0.6;
     let attempts = 0;
     while (positions.length < starCount && attempts < starCount * 2000) {
       attempts++;
-      const candidate = { x: randInt(rng, 20, 980), y: randInt(rng, 20, 980) };
+      const candidate = { x: randInt(rng, 50, 1950), y: randInt(rng, 50, 1950) };
       if (positions.every((p) => this.distance(p, candidate) >= minDistance)) {
         positions.push(candidate);
       }

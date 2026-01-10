@@ -37,7 +37,7 @@ This is **Stellar Remnants**, a modernized Stars! 4X strategy game built with An
 ## Game Domain Rules
 
 ### Core Game Concepts
-- **Galaxy**: 1000×1000 coordinate space with Poisson-disc distribution
+- **Galaxy**: 2000×2000 coordinate space with Poisson-disc distribution
 - **Stars**: 1-4 planets each, deterministic generation with seeds
 - **Species**: 4 presets (Terrans, Crystallids, Pyreans, Voidborn) with habitat preferences
 - **Habitability**: 2-axis calculation (temperature/atmosphere) with tolerance radius

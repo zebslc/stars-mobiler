@@ -5,6 +5,8 @@ import {
   signal,
   OnInit,
   computed,
+  viewChild,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -15,7 +17,6 @@ import { PlanetContextMenuComponent } from '../../components/planet-context-menu
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
 import { GalaxyStarComponent } from './components/galaxy-star.component';
 import { GalaxyFleetComponent } from './components/galaxy-fleet.component';
-import { StarfieldComponent } from '../../components/starfield/starfield.component';
 import { GalaxyMapControlsComponent } from './components/galaxy-map-controls.component';
 import { GalaxyMapSettingsComponent } from './components/galaxy-map-settings.component';
 import { GalaxyMapStateService } from './services/galaxy-map-state.service';
@@ -43,17 +44,41 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
           (wheel)="onWheel($event)"
           (click)="closeContextMenus()"
         >
-          <app-starfield
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;"
-          ></app-starfield>
           <svg
             #galaxySvg
-            [attr.viewBox]="'0 0 1000 1000'"
+            [attr.viewBox]="'0 0 2000 2000'"
             preserveAspectRatio="xMidYMid meet"
-            style="width:100%;height:100%;touch-action:none;position:relative;z-index:1"
+            style="width:100%;height:100%;touch-action:none;background:#02030a"
             (contextmenu)="onMapRightClick($event)"
           >
+            <defs>
+              <radialGradient id="galaxyBgGradient" cx="50%" cy="50%" r="80%">
+                <stop offset="0%" stop-color="#0b1030"></stop>
+                <stop offset="45%" stop-color="#05081a"></stop>
+                <stop offset="100%" stop-color="#02030a"></stop>
+              </radialGradient>
+              <filter id="galaxyNoise" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="7" result="noise"></feTurbulence>
+                <feColorMatrix in="noise" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.15 0" result="noiseAlpha"></feColorMatrix>
+                <feComposite in="noiseAlpha" in2="SourceGraphic" operator="over"></feComposite>
+              </filter>
+              <filter id="galaxyNebulaBlur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="18"></feGaussianBlur>
+              </filter>
+            </defs>
+
             <g [attr.transform]="state.transformString()">
+              <!-- Background Layer -->
+              <rect x="0" y="0" width="2000" height="2000" fill="url(#galaxyBgGradient)"></rect>
+              <rect x="0" y="0" width="2000" height="2000" filter="url(#galaxyNoise)" opacity="0.55"></rect>
+
+              <!-- Nebulae -->
+              <g style="mix-blend-mode: screen; opacity: 0.9;">
+                <circle cx="500" cy="520" r="240" fill="#2b3bff" opacity="0.08" filter="url(#galaxyNebulaBlur)"></circle>
+                <circle cx="1840" cy="840" r="320" fill="#ff2bd6" opacity="0.05" filter="url(#galaxyNebulaBlur)"></circle>
+                <circle cx="1300" cy="380" r="280" fill="#2bffd5" opacity="0.04" filter="url(#galaxyNebulaBlur)"></circle>
+              </g>
+
               <!-- Scanner Ranges -->
               @if (settings.showScannerRanges()) {
                 @for (range of visibility.scannerRanges(); track $index) {
@@ -254,7 +279,6 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
     GalaxyFleetComponent,
     GalaxyMapControlsComponent,
     GalaxyMapSettingsComponent,
-    StarfieldComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -268,6 +292,9 @@ export class GalaxyMapComponent implements OnInit {
   readonly state = inject(GalaxyMapStateService);
   readonly visibility = inject(GalaxyVisibilityService);
   readonly fleetService = inject(GalaxyFleetService);
+
+  // SVG element reference
+  readonly galaxySvg = viewChild<ElementRef<SVGSVGElement>>('galaxySvg');
 
   readonly stars = this.gs.stars;
   readonly turn = this.gs.turn;
@@ -387,7 +414,10 @@ export class GalaxyMapComponent implements OnInit {
         }
       }, 500);
     } else if (event.touches.length === 2) {
-      this.state.startTouchZoom(event.touches);
+      const svgEl = this.galaxySvg();
+      if (svgEl) {
+        this.state.startTouchZoom(event.touches, svgEl.nativeElement);
+      }
       this.cancelTouchHold();
     }
   }
