@@ -1,6 +1,6 @@
-import { HullTemplate, ComponentStats, SlotType, SlotDefinition } from '../data/tech-atlas.types';
+import { HullTemplate, ComponentStats, SlotType, SlotDefinition, getSlotTypeForComponentType } from '../data/tech-atlas.types';
 import { MiniaturizedComponent } from '../utils/miniaturization.util';
-import { SlotAssignment, ComponentAssignment, CompiledShipStats } from '../models/game.model';
+import { SlotAssignment, CompiledShipStats } from '../models/game.model';
 import { validateShipDesign } from '../services/validation.service';
 import { getComponentsLookup } from '../utils/data-access.util';
 
@@ -25,24 +25,7 @@ interface HullSlot {
 function convertSlotDefinition(slot: SlotDefinition, index: number): HullSlot {
   return {
     id: slot.Code || `slot_${index}`,
-    allowedTypes: slot.Allowed.map(type => {
-      // Map string types to SlotType
-      switch (type.toLowerCase()) {
-        case 'engine': return 'Engine';
-        case 'cargo': return 'Cargo';
-        case 'shield': return 'Shield';
-        case 'armor': return 'Armor';
-        case 'scanner': return 'Scanner';
-        case 'elect': return 'Electrical';
-        case 'mech': return 'Mechanical';
-        case 'weapon': return 'Weapon';
-        case 'bomb': return 'Bomb';
-        case 'orbital': return 'Orbital';
-        case 'mining': return 'Mining';
-        case 'mine': return 'Mine';
-        default: return 'General';
-      }
-    }) as SlotType[],
+    allowedTypes: slot.Allowed.map(type => getSlotTypeForComponentType(type)) as SlotType[],
     max: slot.Max,
     required: slot.Required,
     editable: slot.Editable,
@@ -292,38 +275,10 @@ export function canInstallComponent(component: ComponentStats, slot: HullSlot): 
 
 /**
  * Get the slot type that corresponds to a component type
+ * Uses the data-driven registry instead of hardcoded switch statement
  */
 function getSlotTypeForComponent(component: ComponentStats): SlotType {
-  switch (component.type.toLowerCase()) {
-    case 'engine':
-      return 'Engine';
-    case 'weapon':
-      return 'Weapon';
-    case 'shield':
-      return 'Shield';
-    case 'scanner':
-      return 'Scanner';
-    case 'armor':
-      return 'Armor';
-    case 'cargo':
-      return 'Cargo';
-    case 'electronics':
-    case 'computer':
-    case 'electrical':
-      return 'Electrical';
-    case 'mechanical':
-      return 'Mechanical';
-    case 'mining':
-      return 'Mining';
-    case 'bomb':
-      return 'Bomb';
-    case 'orbital':
-      return 'Orbital';
-    case 'mine':
-      return 'Mine';
-    default:
-      return 'General';
-  }
+  return getSlotTypeForComponentType(component.type);
 }
 
 /**

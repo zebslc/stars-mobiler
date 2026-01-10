@@ -72,40 +72,155 @@ export interface ComponentCost {
   resources: number;
 }
 
-export type SlotType =
-  | 'Engine'
-  | 'Scanner'
-  | 'Shield'
-  | 'Armor'
-  | 'Weapon'
-  | 'Bomb'
-  | 'Mine'
-  | 'Mining'
-  | 'Mechanical'
-  | 'Electrical'
-  | 'Computer'
-  | 'Cloak'
-  | 'Cargo'
-  | 'Orbital'
-  | 'Stargate'
-  | 'MassDriver'
-  | 'Planetary'
-  | 'Terraforming'
-  | 'Starbase'
-  | 'General';
+// ==========================================
+// Component Type Registry - Data-Driven System
+// ==========================================
 
-export type TraitType =
-  | 'damage_dealer'
-  | 'propulsion'
-  | 'storage'
-  | 'sensor'
-  | 'cloak'
-  | 'mining'
-  | 'terraform'
-  | 'repair'
-  | 'bomb'
-  | 'minesweeping'
-  | 'settler';
+export interface ComponentTypeConfig {
+  slotType: string;
+  category: string;
+  aliases?: string[];
+  description?: string;
+}
+
+export interface TraitTypeConfig {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+  isImplemented: boolean;
+}
+
+// Component Type Registry - Extensible configuration
+export const COMPONENT_TYPE_REGISTRY: Record<string, ComponentTypeConfig> = {
+  Engine: { slotType: 'Engine', category: 'Propulsion' },
+  Scanner: { slotType: 'Scanner', category: 'Electronics', aliases: ['sensor'] },
+  Shield: { slotType: 'Shield', category: 'Defense' },
+  Armor: { slotType: 'Armor', category: 'Defense' },
+  Weapon: { slotType: 'Weapon', category: 'Offense' },
+  Bomb: { slotType: 'Bomb', category: 'Offense' },
+  Mine: { slotType: 'Mine', category: 'Offense' },
+  Mining: { slotType: 'Mining', category: 'Utility' },
+  Mechanical: { slotType: 'Mechanical', category: 'Utility', aliases: ['mech'] },
+  Electrical: { slotType: 'Electrical', category: 'Electronics', aliases: ['electronics', 'computer', 'elect'] },
+  Computer: { slotType: 'Electrical', category: 'Electronics' },
+  Cloak: { slotType: 'Cloak', category: 'Special' },
+  Cargo: { slotType: 'Cargo', category: 'Utility' },
+  Orbital: { slotType: 'Orbital', category: 'Special' },
+  Stargate: { slotType: 'Stargate', category: 'Special' },
+  MassDriver: { slotType: 'MassDriver', category: 'Special' },
+  Planetary: { slotType: 'Planetary', category: 'Special' },
+  Terraforming: { slotType: 'Terraforming', category: 'Utility' },
+  Starbase: { slotType: 'Starbase', category: 'Special' },
+  General: { slotType: 'General', category: 'General' },
+};
+
+// Trait Type Registry - Extensible configuration
+export const TRAIT_TYPE_REGISTRY: Record<string, TraitTypeConfig> = {
+  damage_dealer: { id: 'damage_dealer', name: 'Damage Dealer', category: 'Combat', isImplemented: true },
+  propulsion: { id: 'propulsion', name: 'Propulsion', category: 'Movement', isImplemented: true },
+  storage: { id: 'storage', name: 'Storage', category: 'Utility', isImplemented: true },
+  sensor: { id: 'sensor', name: 'Sensor', category: 'Detection', isImplemented: true },
+  cloak: { id: 'cloak', name: 'Cloaking', category: 'Stealth', isImplemented: false },
+  mining: { id: 'mining', name: 'Mining', category: 'Resource', isImplemented: true },
+  terraform: { id: 'terraform', name: 'Terraforming', category: 'Planetary', isImplemented: true },
+  repair: { id: 'repair', name: 'Repair', category: 'Utility', isImplemented: false },
+  bomb: { id: 'bomb', name: 'Bombing', category: 'Combat', isImplemented: true },
+  minesweeping: { id: 'minesweeping', name: 'Mine Sweeping', category: 'Combat', description: 'Ability to clear enemy minefields', isImplemented: false },
+  settler: { id: 'settler', name: 'Colonization', category: 'Expansion', isImplemented: true },
+};
+
+// Derived types for backward compatibility
+export type SlotType = keyof typeof COMPONENT_TYPE_REGISTRY;
+export type TraitType = keyof typeof TRAIT_TYPE_REGISTRY;
+
+// ==========================================
+// Registry Utility Functions
+// ==========================================
+
+/**
+ * Get slot type for a component type, with alias support
+ */
+export function getSlotTypeForComponentType(componentType: string): SlotType {
+  const normalizedType = componentType.toLowerCase();
+  
+  // Direct match
+  const directMatch = Object.keys(COMPONENT_TYPE_REGISTRY).find(
+    key => key.toLowerCase() === normalizedType
+  );
+  if (directMatch) {
+    return directMatch as SlotType;
+  }
+  
+  // Check aliases
+  const aliasMatch = Object.entries(COMPONENT_TYPE_REGISTRY).find(
+    ([_, config]) => config.aliases?.some(alias => alias.toLowerCase() === normalizedType)
+  );
+  if (aliasMatch) {
+    return aliasMatch[0] as SlotType;
+  }
+  
+  // Fallback to General
+  console.warn(`Unknown component type: ${componentType}, falling back to General`);
+  return 'General';
+}
+
+/**
+ * Check if a trait type is implemented
+ */
+export function isTraitImplemented(traitType: TraitType): boolean {
+  return TRAIT_TYPE_REGISTRY[traitType]?.isImplemented ?? false;
+}
+
+/**
+ * Get all implemented trait types
+ */
+export function getImplementedTraitTypes(): TraitType[] {
+  return Object.entries(TRAIT_TYPE_REGISTRY)
+    .filter(([_, config]) => config.isImplemented)
+    .map(([key, _]) => key as TraitType);
+}
+
+/**
+ * Get all available slot types
+ */
+export function getAllSlotTypes(): SlotType[] {
+  return Object.keys(COMPONENT_TYPE_REGISTRY) as SlotType[];
+}
+
+/**
+ * Validate component type exists in registry
+ */
+export function isValidComponentType(componentType: string): boolean {
+  const normalizedType = componentType.toLowerCase();
+  
+  // Check direct match
+  const hasDirectMatch = Object.keys(COMPONENT_TYPE_REGISTRY).some(
+    key => key.toLowerCase() === normalizedType
+  );
+  if (hasDirectMatch) return true;
+  
+  // Check aliases
+  return Object.values(COMPONENT_TYPE_REGISTRY).some(
+    config => config.aliases?.some(alias => alias.toLowerCase() === normalizedType)
+  );
+}
+
+/**
+ * Check if a validation rule type is implemented
+ */
+export function isValidationRuleImplemented(ruleType: ValidationRuleType): boolean {
+  return VALIDATION_RULE_REGISTRY[ruleType]?.isImplemented ?? false;
+}
+
+/**
+ * Get all implemented validation rule types
+ */
+export function getImplementedValidationRuleTypes(): ValidationRuleType[] {
+  return Object.entries(VALIDATION_RULE_REGISTRY)
+    .filter(([_, config]) => config.isImplemented)
+    .map(([key, _]) => key as ValidationRuleType);
+}
 
 export interface ComponentTrait {
   type: TraitType;
@@ -113,11 +228,15 @@ export interface ComponentTrait {
   isMajor: boolean;
 }
 
-export type ValidationRuleType =
-  | 'max_per_hull'
-  | 'exclusive_to_hull_type'
-  | 'requires_trait'
-  | 'mutually_exclusive';
+// Validation Rule Registry - Extensible configuration
+export const VALIDATION_RULE_REGISTRY: Record<string, { name: string; description: string; isImplemented: boolean }> = {
+  max_per_hull: { name: 'Max Per Hull', description: 'Limits the maximum number of this component per hull', isImplemented: true },
+  exclusive_to_hull_type: { name: 'Exclusive to Hull Type', description: 'Component can only be used on specific hull types', isImplemented: true },
+  requires_trait: { name: 'Requires Trait', description: 'Component requires another component with specific trait', isImplemented: false },
+  mutually_exclusive: { name: 'Mutually Exclusive', description: 'Component cannot be used with certain other components', isImplemented: false },
+};
+
+export type ValidationRuleType = keyof typeof VALIDATION_RULE_REGISTRY;
 
 export interface ValidationRule {
   type: ValidationRuleType;

@@ -105,6 +105,9 @@ const validateRule = (
       return null;
     }
   }
+  
+  // Default case: unknown rule type
+  return null;
 };
 
 export function validateShipDesign(

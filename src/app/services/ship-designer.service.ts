@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { HullTemplate, ComponentStats } from '../data/tech-atlas.types';
+import { HullTemplate, ComponentStats, getSlotTypeForComponentType } from '../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../data/tech-atlas.data';
 import { getHull, getComponent, getPrimaryTechField, getRequiredTechLevel } from '../utils/data-access.util';
 import { PlayerTech, ShipDesign, SlotAssignment, CompiledShipStats } from '../models/game.model';
@@ -156,23 +156,7 @@ export class ShipDesignerService {
     // Convert SlotDefinition to HullSlot for compatibility checking
     const convertedSlot = {
       id: hullSlot.Code || slotId,
-      allowedTypes: hullSlot.Allowed.map(type => {
-        switch (type.toLowerCase()) {
-          case 'engine': return 'Engine';
-          case 'cargo': return 'Cargo';
-          case 'shield': return 'Shield';
-          case 'armor': return 'Armor';
-          case 'scanner': return 'Scanner';
-          case 'elect': return 'Electrical';
-          case 'mech': return 'Mechanical';
-          case 'weapon': return 'Weapon';
-          case 'bomb': return 'Bomb';
-          case 'orbital': return 'Orbital';
-          case 'mining': return 'Mining';
-          case 'mine': return 'Mine';
-          default: return 'General';
-        }
-      }) as any[],
+      allowedTypes: hullSlot.Allowed.map(type => getSlotTypeForComponentType(type)) as any[],
       max: hullSlot.Max,
       required: hullSlot.Required,
       editable: hullSlot.Editable,
@@ -232,23 +216,7 @@ export class ShipDesignerService {
     // Convert SlotDefinition to HullSlot for compatibility
     const hullSlot = {
       id: hullSlotDef.Code || slotId,
-      allowedTypes: hullSlotDef.Allowed.map(type => {
-        switch (type.toLowerCase()) {
-          case 'engine': return 'Engine';
-          case 'cargo': return 'Cargo';
-          case 'shield': return 'Shield';
-          case 'armor': return 'Armor';
-          case 'scanner': return 'Scanner';
-          case 'elect': return 'Electrical';
-          case 'mech': return 'Mechanical';
-          case 'weapon': return 'Weapon';
-          case 'bomb': return 'Bomb';
-          case 'orbital': return 'Orbital';
-          case 'mining': return 'Mining';
-          case 'mine': return 'Mine';
-          default: return 'General';
-        }
-      }) as any[],
+      allowedTypes: hullSlotDef.Allowed.map(type => getSlotTypeForComponentType(type)) as any[],
       max: hullSlotDef.Max,
       required: hullSlotDef.Required,
       editable: hullSlotDef.Editable,
@@ -393,23 +361,7 @@ export class ShipDesignerService {
       // Check slot compatibility - Convert SlotDefinition to HullSlot for compatibility
       const convertedSlot = {
         id: hullSlot.Code || slotId,
-        allowedTypes: hullSlot.Allowed.map(type => {
-          switch (type.toLowerCase()) {
-            case 'engine': return 'Engine';
-            case 'cargo': return 'Cargo';
-            case 'shield': return 'Shield';
-            case 'armor': return 'Armor';
-            case 'scanner': return 'Scanner';
-            case 'elect': return 'Electrical';
-            case 'mech': return 'Mechanical';
-            case 'weapon': return 'Weapon';
-            case 'bomb': return 'Bomb';
-            case 'orbital': return 'Orbital';
-            case 'mining': return 'Mining';
-            case 'mine': return 'Mine';
-            default: return 'General';
-          }
-        }) as any[],
+        allowedTypes: hullSlot.Allowed.map(type => getSlotTypeForComponentType(type)) as any[],
         max: hullSlot.Max,
         required: hullSlot.Required,
         editable: hullSlot.Editable,
