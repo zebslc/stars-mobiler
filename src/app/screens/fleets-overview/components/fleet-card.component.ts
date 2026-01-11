@@ -14,9 +14,8 @@ import { GameStateService } from '../../../services/game-state.service';
 import { TechService } from '../../../services/tech.service';
 import { getDesign } from '../../../data/ships.data';
 import { HullTemplate } from '../../../data/tech-atlas.types';
-import { getHull, getAllComponents } from '../../../utils/data-access.util';
+import { getHull } from '../../../utils/data-access.util';
 import { compileShipStats } from '../../../models/ship-design.model';
-import { miniaturizeComponent } from '../../../utils/miniaturization.util';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 
 @Component({
@@ -341,13 +340,10 @@ export class FleetCardComponent {
         Propulsion: 0,
         Construction: 0,
       };
-      const miniaturizedComponents = getAllComponents().map((comp) =>
-        miniaturizeComponent(comp, techLevels),
-      );
 
       // Safety check if hull exists
       if (hull) {
-        const stats = compileShipStats(hull, dynamicDesign.slots, miniaturizedComponents);
+        const stats = compileShipStats(hull, dynamicDesign.slots, techLevels);
         return {
           id: dynamicDesign.id,
           name: dynamicDesign.name,

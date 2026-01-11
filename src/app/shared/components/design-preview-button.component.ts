@@ -11,9 +11,8 @@ import { GameStateService } from '../../services/game-state.service';
 import { TechService } from '../../services/tech.service';
 import { HullPreviewModalComponent } from './hull-preview-modal.component';
 import { HullTemplate } from '../../data/tech-atlas.types';
-import { getHull, getAllComponents } from '../../utils/data-access.util';
+import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
-import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { getDesign } from '../../data/ships.data';
 import { ShipDesign } from '../../models/game.model';
 
@@ -135,10 +134,7 @@ export class DesignPreviewButtonComponent {
         Propulsion: 0,
         Construction: 0,
       };
-      const miniaturizedComponents = getAllComponents().map((comp) =>
-        miniaturizeComponent(comp, techLevels),
-      );
-      const stats = compileShipStats(hull, realDesign.slots, miniaturizedComponents);
+      const stats = compileShipStats(hull, realDesign.slots, techLevels);
       this.previewStats.set(stats);
     } else {
       this.previewStats.set(designDetails || null);

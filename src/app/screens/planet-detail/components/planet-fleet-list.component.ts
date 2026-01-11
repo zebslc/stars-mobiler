@@ -4,9 +4,8 @@ import { Router } from '@angular/router';
 import { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game-state.service';
 import { getDesign } from '../../../data/ships.data';
-import { getHull, getAllComponents } from '../../../utils/data-access.util';
+import { getHull } from '../../../utils/data-access.util';
 import { compileShipStats } from '../../../models/ship-design.model';
-import { miniaturizeComponent } from '../../../utils/miniaturization.util';
 import { FleetCardComponent } from '../../fleets-overview/components/fleet-card.component';
 
 @Component({
@@ -81,13 +80,8 @@ export class PlanetFleetListComponent {
           Kinetics: 0,
           Propulsion: 0,
           Construction: 0,
-          Electronics: 0,
-          Biotechnology: 0,
         };
-        const miniaturizedComponents = getAllComponents().map((comp) =>
-          miniaturizeComponent(comp, techLevels),
-        );
-        const stats = compileShipStats(hull, dynamicDesign.slots, miniaturizedComponents);
+        const stats = compileShipStats(hull, dynamicDesign.slots, techLevels);
         return {
           ...stats,
           colonyModule: stats.hasColonyModule,

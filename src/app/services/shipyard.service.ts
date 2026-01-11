@@ -94,9 +94,6 @@ export class ShipyardService {
 
     const userDesigns = this.getPlayerShipDesigns(game);
     const techLevels = player.techLevels;
-    const miniComps = getAllComponents().map((comp) =>
-      miniaturizeComponent(comp, techLevels),
-    );
 
     // Calculate existing ship counts
     const shipCounts = new Map<string, number>();
@@ -114,7 +111,7 @@ export class ShipyardService {
         const hull = getHull(design.hullId);
         if (!hull) return null;
 
-        const stats = compileShipStats(hull, design.slots, miniComps);
+        const stats = compileShipStats(hull, design.slots, techLevels);
         const cost = this.getShipCost(design, techLevels);
 
         const compiled: CompiledDesign = {

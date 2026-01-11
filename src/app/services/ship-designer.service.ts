@@ -2,13 +2,13 @@ import { Injectable, computed, signal } from '@angular/core';
 import { HullTemplate, ComponentStats, getSlotTypeForComponentType } from '../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../data/tech-atlas.data';
 import { getHull, getComponent, getPrimaryTechField, getRequiredTechLevel } from '../utils/data-access.util';
-import { PlayerTech, ShipDesign, SlotAssignment, CompiledShipStats } from '../models/game.model';
-import { miniaturizeComponent, MiniaturizedComponent } from '../utils/miniaturization.util';
+import { PlayerTech, ShipDesign, SlotAssignment } from '../models/game.model';
 import {
   compileShipStats,
   canInstallComponent,
   createEmptyDesign,
 } from '../models/ship-design.model';
+import { miniaturizeComponent, MiniaturizedComponent } from '../utils/miniaturization.util';
 
 /**
  * Ship Designer Service
@@ -37,21 +37,16 @@ export class ShipDesignerService {
     return getHull(design.hullId);
   });
 
-  readonly miniaturizedComponents = computed(() => {
-    const techLevels = this._techLevels();
-    return getAllComponents().map((comp) => miniaturizeComponent(comp, techLevels));
-  });
-
   readonly compiledStats = computed(() => {
     const design = this._currentDesign();
     const hull = this.currentHull();
-    const components = this.miniaturizedComponents();
+    const techLevels = this._techLevels();
 
     if (!design || !hull) {
       return null;
     }
 
-    return compileShipStats(hull, design.slots, components);
+    return compileShipStats(hull, design.slots, techLevels);
   });
 
   /**
@@ -320,7 +315,6 @@ export class ShipDesignerService {
   getAvailableComponentsForSlot(slotId: string): MiniaturizedComponent[] {
     const hull = this.currentHull();
     const techLevels = this._techLevels();
-    const miniaturizedComponents = this.miniaturizedComponents();
 
     if (!hull) return [];
 
@@ -330,26 +324,7 @@ export class ShipDesignerService {
     // Filter components that:
     // 1. Can be installed in this slot type
     // 2. Player has the required tech level
-    return miniaturizedComponents.filter((miniComp) => {
-      const baseComponent = getComponent(miniComp.id);
-      if (!baseComponent) return false;
-
-      // Map old tech field names to new ones
-      const fieldMap: Record<string, keyof PlayerTech> = {
-        energy: 'Energy',
-        Energy: 'Energy',
-        weapons: 'Kinetics',
-        Kinetics: 'Kinetics',
-        propulsion: 'Propulsion',
-        Propulsion: 'Propulsion',
-        construction: 'Construction',
-        Construction: 'Construction',
-        electronics: 'Energy',
-        Electronics: 'Energy',
-        biotechnology: 'Construction',
-        Biotechnology: 'Construction',
-      };
-
+    const availableComponents = getAllComponents().filter((baseComponent) => {
       // Check tech level requirement using new system
       const primaryField = getPrimaryTechField(baseComponent);
       const requiredLevel = getRequiredTechLevel(baseComponent);
@@ -369,6 +344,9 @@ export class ShipDesignerService {
       };
       return canInstallComponent(baseComponent, convertedSlot);
     });
+
+    // Return miniaturized versions of available components
+    return availableComponents.map(component => miniaturizeComponent(component, techLevels));
   }
 
   /**

@@ -1,6 +1,6 @@
 import { HullTemplate, ComponentStats, SlotType, SlotDefinition, getSlotTypeForComponentType } from '../data/tech-atlas.types';
-import { MiniaturizedComponent } from '../utils/miniaturization.util';
-import { SlotAssignment, CompiledShipStats } from '../models/game.model';
+import { getMiniaturizedMass, getMiniaturizedCost } from '../utils/miniaturization.util';
+import { SlotAssignment, CompiledShipStats, PlayerTech } from '../models/game.model';
 import { validateShipDesign } from '../services/validation.service';
 import { getComponentsLookup } from '../utils/data-access.util';
 
@@ -40,7 +40,7 @@ function convertSlotDefinition(slot: SlotDefinition, index: number): HullSlot {
 export function compileShipStats(
   hull: HullTemplate,
   assignments: SlotAssignment[],
-  miniaturizedComponents: MiniaturizedComponent[],
+  techLevels: PlayerTech,
 ): CompiledShipStats {
   const errors: string[] = [];
   const COMPONENTS = getComponentsLookup();
@@ -79,19 +79,14 @@ export function compileShipStats(
 
   const components: Array<{ id: string; name: string; quantity: number }> = [];
 
-  // Build component lookups
-  const miniComponentMap = new Map<string, MiniaturizedComponent>();
-  miniaturizedComponents.forEach((comp) => miniComponentMap.set(comp.id, comp));
-
   // Process each slot assignment
   for (const assignment of assignments) {
     if (!assignment.components || assignment.components.length === 0) continue;
 
     for (const compAssignment of assignment.components) {
-      const miniComponent = miniComponentMap.get(compAssignment.componentId);
       const baseComponent: ComponentStats = COMPONENTS[compAssignment.componentId];
 
-      if (!miniComponent || !baseComponent) {
+      if (!baseComponent) {
         errors.push(`Component ${compAssignment.componentId} not found`);
         continue;
       }
@@ -111,11 +106,14 @@ export function compileShipStats(
       }
 
       // Add miniaturized mass and cost (multiplied by count)
-      totalMass += miniComponent.mass * count;
-      if (miniComponent.cost.ironium) cost.ironium += miniComponent.cost.ironium * count;
-      if (miniComponent.cost.boranium) cost.boranium += miniComponent.cost.boranium * count;
-      if (miniComponent.cost.germanium) cost.germanium += miniComponent.cost.germanium * count;
-      if (miniComponent.cost.resources) cost.resources += miniComponent.cost.resources * count;
+      const miniaturizedMass = getMiniaturizedMass(baseComponent, techLevels);
+      const miniaturizedCost = getMiniaturizedCost(baseComponent, techLevels);
+      
+      totalMass += miniaturizedMass * count;
+      if (miniaturizedCost.ironium) cost.ironium += miniaturizedCost.ironium * count;
+      if (miniaturizedCost.boranium) cost.boranium += miniaturizedCost.boranium * count;
+      if (miniaturizedCost.germanium) cost.germanium += miniaturizedCost.germanium * count;
+      if (miniaturizedCost.resources) cost.resources += miniaturizedCost.resources * count;
 
       // Apply component effects based on type (using base stats, multiplied by count)
       if (baseComponent.stats) {

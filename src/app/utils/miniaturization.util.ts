@@ -3,6 +3,21 @@ import { PlayerTech } from '../models/game.model';
 import { getPrimaryTechField, getRequiredTechLevel } from './data-access.util';
 
 /**
+ * Represents a component with miniaturized properties
+ */
+export interface MiniaturizedComponent extends ComponentStats {
+  miniaturizedMass: number;
+  miniaturizedCost: {
+    ironium?: number;
+    boranium?: number;
+    germanium?: number;
+    resources?: number;
+  };
+  miniaturizationLevel: number;
+  miniaturizationDescription: string;
+}
+
+/**
  * Miniaturization System
  *
  * In Stars!, as players advance in technology, components become smaller and cheaper.
@@ -11,29 +26,6 @@ import { getPrimaryTechField, getRequiredTechLevel } from './data-access.util';
  *
  * Based on Stars! Modernization Specification section 6.2
  */
-
-export interface MiniaturizedComponent {
-  id: string;
-  name: string;
-  img: string;
-  description?: string;
-  isRamscoop?: boolean;
-  mass: number;
-  baseMass: number;
-  cost: {
-    ironium?: number;
-    boranium?: number;
-    germanium?: number;
-    resources?: number;
-  };
-  baseCost: {
-    ironium?: number;
-    boranium?: number;
-    germanium?: number;
-    resources?: number;
-  };
-  miniaturizationLevel: number;
-}
 
 /**
  * Calculate miniaturization factor based on tech level difference
@@ -58,30 +50,35 @@ export function calculateMiniaturizationFactor(playerLevel: number, requiredLeve
 }
 
 /**
- * Apply miniaturization to a component based on player tech levels
+ * Get miniaturized mass for a component
  * @param component The base component
  * @param techLevels Player's current tech levels
- * @returns Miniaturized component with reduced mass and cost
+ * @returns Miniaturized mass value
  */
-export function miniaturizeComponent(
-  component: ComponentStats,
-  techLevels: PlayerTech,
-): MiniaturizedComponent {
-  // Get the primary tech field and required level from the component
+export function getMiniaturizedMass(component: ComponentStats, techLevels: PlayerTech): number {
   const primaryField = getPrimaryTechField(component);
   const requiredLevel = getRequiredTechLevel(component);
-  
-  // Get player's tech level in the component's required field
   const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
-
-  // Calculate miniaturization factor
   const factor = calculateMiniaturizationFactor(playerLevel, requiredLevel);
-  const miniaturizationLevel = playerLevel - requiredLevel;
+  
+  return Math.round(component.mass * factor * 10) / 10; // Round to 1 decimal
+}
 
-  // Apply factor to mass
-  const miniaturizedMass = Math.round(component.mass * factor * 10) / 10; // Round to 1 decimal
+/**
+ * Get miniaturized cost for a component
+ * @param component The base component
+ * @param techLevels Player's current tech levels
+ * @returns Miniaturized cost object
+ */
+export function getMiniaturizedCost(
+  component: ComponentStats, 
+  techLevels: PlayerTech
+): { ironium?: number; boranium?: number; germanium?: number; resources?: number } {
+  const primaryField = getPrimaryTechField(component);
+  const requiredLevel = getRequiredTechLevel(component);
+  const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
+  const factor = calculateMiniaturizationFactor(playerLevel, requiredLevel);
 
-  // Apply factor to costs
   const miniaturizedCost: {
     ironium?: number;
     boranium?: number;
@@ -102,35 +99,36 @@ export function miniaturizeComponent(
     miniaturizedCost.resources = Math.ceil(component.cost.resources * factor);
   }
 
-  return {
-    id: component.id,
-    name: component.name,
-    img: component.img,
-    description: component.description,
-    isRamscoop: component.isRamscoop,
-    mass: miniaturizedMass,
-    baseMass: component.mass,
-    cost: miniaturizedCost,
-    baseCost: {
-      ironium: component.cost.ironium || 0,
-      boranium: component.cost.boranium || 0,
-      germanium: component.cost.germanium || 0,
-      resources: component.cost.resources || 0,
-    },
-    miniaturizationLevel: Math.max(0, miniaturizationLevel),
-  };
+  return miniaturizedCost;
+}
+
+/**
+ * Get miniaturization level (tech levels above requirement)
+ * @param component The base component
+ * @param techLevels Player's current tech levels
+ * @returns Number of tech levels above requirement
+ */
+export function getMiniaturizationLevel(component: ComponentStats, techLevels: PlayerTech): number {
+  const primaryField = getPrimaryTechField(component);
+  const requiredLevel = getRequiredTechLevel(component);
+  const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
+  
+  return Math.max(0, playerLevel - requiredLevel);
 }
 
 /**
  * Get miniaturization description for UI display
- * @param baseMass Original component mass
- * @param miniaturizedMass Miniaturized component mass
+ * @param component The base component
+ * @param techLevels Player's current tech levels
  * @returns Human-readable description
  */
 export function getMiniaturizationDescription(
-  baseMass: number,
-  miniaturizedMass: number
+  component: ComponentStats,
+  techLevels: PlayerTech
 ): string {
+  const baseMass = component.mass;
+  const miniaturizedMass = getMiniaturizedMass(component, techLevels);
+  
   if (baseMass === miniaturizedMass) {
     return 'No miniaturization';
   }
@@ -140,14 +138,37 @@ export function getMiniaturizationDescription(
 }
 
 /**
- * Calculate total mass savings from miniaturization
- * @param components Array of miniaturized components
- * @returns Total mass saved
+ * Calculate mass savings from miniaturization for a single component
+ * @param component The base component
+ * @param techLevels Player's current tech levels
+ * @param count Number of components
+ * @returns Mass saved
  */
-export function calculateTotalMassSavings(
-  components: MiniaturizedComponent[]
+export function calculateComponentMassSavings(
+  component: ComponentStats,
+  techLevels: PlayerTech,
+  count: number = 1
 ): number {
-  return components.reduce((total, comp) => {
-    return total + (comp.baseMass - comp.mass);
-  }, 0);
+  const baseMass = component.mass * count;
+  const miniaturizedMass = getMiniaturizedMass(component, techLevels) * count;
+  return baseMass - miniaturizedMass;
+}
+
+/**
+ * Create a miniaturized version of a component
+ * @param component The base component
+ * @param techLevels Player's current tech levels
+ * @returns Miniaturized component with all calculated properties
+ */
+export function miniaturizeComponent(
+  component: ComponentStats,
+  techLevels: PlayerTech
+): MiniaturizedComponent {
+  return {
+    ...component,
+    miniaturizedMass: getMiniaturizedMass(component, techLevels),
+    miniaturizedCost: getMiniaturizedCost(component, techLevels),
+    miniaturizationLevel: getMiniaturizationLevel(component, techLevels),
+    miniaturizationDescription: getMiniaturizationDescription(component, techLevels)
+  };
 }

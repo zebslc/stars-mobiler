@@ -4,13 +4,10 @@ import { GameStateService } from '../../services/game-state.service';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { ShipDesignerComponent } from '../ship-designer/ship-designer.component';
 import { ShipDesignItemComponent, ShipDesignDisplay } from '../../components/ship-design-item/ship-design-item.component';
-import { getAllComponents } from '../../utils/data-access.util';
-import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { ShipDesign } from '../../models/game.model';
 import { HullPreviewModalComponent } from '../../shared/components/hull-preview-modal.component';
-import { HullTemplate } from '../../data/tech-atlas.types';
 
 type DesignerMode = 'list' | 'designer';
 type DesignTab = 'starbases' | 'ships';
@@ -70,8 +67,17 @@ export class ShipDesignOverviewComponent {
       },
   );
 
-  readonly miniaturizedComponents = computed(() => {
-    return getAllComponents().map((comp) => miniaturizeComponent(comp, this.techLevels()));
+  readonly compiledDesigns = computed(() => {
+    const designs = this.gameState.game()?.shipDesigns || [];
+    const techLevels = this.techLevels();
+
+    return designs.map((design) => {
+      const hull = getHull(design.hullId);
+      if (!hull) return null;
+
+      const stats = compileShipStats(hull, design.slots, techLevels);
+      return { design, hull, stats };
+    }).filter(Boolean);
   });
 
   readonly availableCategories = computed(() => {
@@ -100,16 +106,15 @@ export class ShipDesignOverviewComponent {
   }
 
   readonly designDisplays = computed(() => {
-    const designs = this.gameState.game()?.shipDesigns || [];
-    const miniComps = this.miniaturizedComponents();
+    const compiledDesigns = this.compiledDesigns();
     const tab = this.activeTab();
     const categories = this.selectedCategories();
 
-    return designs
-      .map((d) => {
-        const hull = getHull(d.hullId);
-        if (!hull) return null;
-
+    return compiledDesigns
+      .map((compiled) => {
+        if (!compiled) return null;
+        
+        const { design, hull, stats } = compiled;
         const isStarbase = hull.isStarbase || hull.type === 'starbase';
         const type = hull.type || 'warship';
 
@@ -121,11 +126,10 @@ export class ShipDesignOverviewComponent {
         // If categories set is empty, show all (or if it has the type)
         if (tab === 'ships' && categories.size > 0 && !categories.has(type)) return null;
 
-        const stats = compileShipStats(hull, d.slots, miniComps);
         return {
-          id: d.id,
-          name: d.name,
-          hullId: d.hullId,
+          id: design.id,
+          name: design.name,
+          hullId: design.hullId,
           hullName: hull.Name,
           stats: stats,
         } as ShipDesignDisplay;
