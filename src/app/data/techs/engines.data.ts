@@ -24,7 +24,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-settlers-delight',
     description: 'Basic colonist transport engine.',
   },
   {
@@ -50,7 +49,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-quick-jump-5',
     description: 'Short-range efficient drive.',
   },
   {
@@ -76,7 +74,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-fuel-mizer',
     description: 'Extremely fuel-efficient engine.',
   },
   {
@@ -102,7 +99,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-jump-hub-6',
     description: 'Balanced performance drive.',
   },
   {
@@ -128,7 +124,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-daddy-long-legs-7',
     description: 'Long-range exploration engine.',
   },
   {
@@ -154,7 +149,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-alpha-drive-8',
     description: 'High-performance military drive.',
   },
   {
@@ -180,7 +174,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-trans-galactic-drive',
     description: 'Advanced interstellar drive.',
   },
   {
@@ -206,7 +199,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 100,
       },
     },
-    img: 'eng-interspace-10',
     description: 'Ultimate drive technology.',
   },
   {
@@ -232,7 +224,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 50,
       },
     },
-    img: 'eng-trans-star-10',
     description: 'Compact ultra-efficient drive.',
   },
   {
@@ -258,7 +249,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-radiating-hydro-ram-scoop',
     description: 'Dirty ram scoop fuel collector. Kills settlers in transit',
     isRamscoop: true,
   },
@@ -285,7 +275,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-sub-galactic-scoop',
     description: 'Improved ram scoop technology.',
     isRamscoop: true,
   },
@@ -312,7 +301,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-trans-galactic-fuel-scoop',
     description: 'Advanced fuel scoop system.',
     isRamscoop: true,
   },
@@ -339,7 +327,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-trans-galactic-super-scoop',
     description: 'High-efficiency fuel collection.',
     isRamscoop: true,
   },
@@ -366,7 +353,6 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    img: 'eng-trans-galactic-mizer-scoop',
     description: 'Ultra-efficient fuel scoop.',
     isRamscoop: true,
   },
@@ -393,7 +379,46 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 60,
       },
     },
-    img: 'eng-galaxy-scoop',
     description: 'Ultimate fuel scoop technology.',
   },
+ {
+    id: 'eng_radiating_hydro_ram_scoop',
+    name: 'Eng Radiating Hydro Ram Scoop',
+    type: 'Engine',
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
+    mass: 10,
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
+    stats: {},
+    description: 'TODO: Component needs proper configuration.'
+  },
+   {
+    id: 'eng_settler_s_delight',
+    name: 'Eng Settler S Delight',
+    type: 'Engine',
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
+    mass: 10,
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
+    stats: {},
+    description: 'TODO: Component needs proper configuration.'
+  },
+  {
+    id: 'eng_sub_galactic_fuel_scoop',
+    name: 'Eng Sub Galactic Fuel Scoop',
+    type: 'Engine',
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
+    mass: 10,
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
+    stats: {},
+    description: 'TODO: Component needs proper configuration.'
+  },
+  {
+    id: 'eng_trans_galactic_drive',
+    name: 'Eng Trans Galactic Drive',
+    type: 'Engine',
+    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
+    mass: 10,
+    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
+    stats: {},
+    description: 'TODO: Component needs proper configuration.'
+  }
 ];

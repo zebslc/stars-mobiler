@@ -23,7 +23,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 50, Boranium: 3, Germanium: 2, Resources: 50 },
     Stats: { Mass: 65, 'Max Fuel': 650, Armor: 150, Cargo: 250, Initiative: 3 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-privateer',
+    id: 'hull-privateer',
     type: 'utility',
   },
   {
@@ -53,7 +53,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 80, Boranium: 5, Germanium: 5, Resources: 60 },
     Stats: { Mass: 75, 'Max Fuel': 2250, Armor: 450, Cargo: 500, Initiative: 4 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
-    img: 'hull-rogue',
+    id: 'hull-rogue',
     type: 'utility',
   },
   {
@@ -82,7 +82,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 70, Boranium: 5, Germanium: 5, Resources: 105 },
     Stats: { Mass: 125, 'Max Fuel': 2500, Armor: 900, Cargo: 1000, Initiative: 4 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-galleon',
+    id: 'hull-galleon',
     type: 'utility',
   },
   {
@@ -115,7 +115,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 75, Boranium: 12, Germanium: 12, Resources: 150 },
     Stats: { Mass: 100, 'Max Fuel': 5000, Armor: 5000, Cargo: 0, Initiative: 2 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
-    img: 'hull-nubian',
+    id: 'hull-nubian',
     type: 'utility',
   },
   {
@@ -141,7 +141,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 50, Boranium: 12, Germanium: 12, Resources: 120 },
     Stats: { Mass: 85, 'Max Fuel': 700, Armor: 500, Cargo: 300, Initiative: 2 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
-    img: 'hull-meta-morph',
+    id: 'hull-meta-morph',
     type: 'utility'
   },
 
@@ -157,7 +157,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 2, Boranium: 0, Germanium: 2, Resources: 3 },
     Stats: { Mass: 8, 'Max Fuel': 150, Armor: 10, Cargo: 10, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-mini-colony',
+    id: 'hull-mini-colony',
     type: 'colonizer'
   },
   {
@@ -171,7 +171,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 10, Boranium: 0, Germanium: 15, Resources: 20 },
     Stats: { Mass: 20, 'Max Fuel': 200, Armor: 20, Cargo: 25, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-colony',
+    id: 'hull-colony',
     type: 'colonizer'
   },
 
@@ -186,7 +186,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 20, Boranium: 5, Germanium: 10, Resources: 35 },
     Stats: { Mass: 28, 'Max Fuel': 120, Armor: 50, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-mini-bomber',
+    id: 'hull-mini-bomber',
     type: 'bomber'
   },
   {
@@ -201,7 +201,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 55, Boranium: 10, Germanium: 10, Resources: 150 },
     Stats: { Mass: 69, 'Max Fuel': 400, Armor: 175, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-b17',
+    id: 'hull-b17',
     type: 'bomber'
   },
   {
@@ -222,7 +222,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 55, Boranium: 10, Germanium: 15, Resources: 175 },
     Stats: { Mass: 70, 'Max Fuel': 750, Armor: 225, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
-    img: 'hull-stealth-bomber',
+    id: 'hull-stealth-bomber',
   },
   {
     Name: 'B-52 Bomber',
@@ -246,7 +246,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 90, Boranium: 15, Germanium: 10, Resources: 280 },
     Stats: { Mass: 110, 'Max Fuel': 750, Armor: 450, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
-    img: 'hull-b52',
+    id: 'hull-b52',
     type: 'bomber'
   },
 
@@ -261,7 +261,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 10, Boranium: 0, Germanium: 3, Resources: 20 },
     Stats: { Mass: 10, 'Max Fuel': 210, Armor: 100, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-midget-miner',
+    id: 'hull-midget-miner',
     type: 'miner'
   },
   {
@@ -281,7 +281,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 25, Boranium: 0, Germanium: 6, Resources: 50 },
     Stats: { Mass: 80, 'Max Fuel': 210, Armor: 130, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-mini-miner',
+    id: 'hull-mini-miner',
     type: 'miner'
   },
   {
@@ -303,7 +303,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 32, Boranium: 0, Germanium: 6, Resources: 110 },
     Stats: { Mass: 110, 'Max Fuel': 500, Armor: 475, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
-    img: 'hull-miner',
+    id: 'hull-miner',
     type: 'miner'
   },
   {
@@ -325,7 +325,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 32, Boranium: 0, Germanium: 6, Resources: 140 },
     Stats: { Mass: 110, 'Max Fuel': 850, Armor: 1400, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 6 },
-    img: 'hull-maxi-miner',
+    id: 'hull-maxi-miner',
     type: 'miner'
   },
   {
@@ -347,7 +347,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Cost: { Ironium: 30, Boranium: 0, Germanium: 6, Resources: 130 },
     Stats: { Mass: 100, 'Max Fuel': 1300, Armor: 1500, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 8 },
-    img: 'hull-ultra-miner',
+    id: 'hull-ultra-miner',
     type: 'miner'
   },
 
@@ -370,7 +370,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Heal: 5,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-fuel-transport',
+    id: 'hull-fuel-transport',
     type: 'utility'
   },
   {
@@ -392,7 +392,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       Heal: 10,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
-    img: 'hull-super-fuel-xport',
+    id: 'hull-super-fuel-xport',
     type: 'utility'
   },
   {
@@ -419,7 +419,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       MineEfficiency: 2,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-mini-mine-layer',
+    id: 'hull-mini-mine-layer',
     type: 'mine-layer'
   },
   {
@@ -448,7 +448,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
       MineEfficiency: 2,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-super-mine-layer',
+    id: 'hull-super-mine-layer',
     type: 'mine-layer'
   },
 ];

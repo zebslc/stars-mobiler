@@ -168,6 +168,8 @@ export interface Species {
     | { type: 'research'; modifier: number }
     | { type: 'shipCost'; modifier: number }
   >;
+  primaryTraits?: string[];
+  lesserTraits?: string[];
 }
 
 export interface ShipStack {

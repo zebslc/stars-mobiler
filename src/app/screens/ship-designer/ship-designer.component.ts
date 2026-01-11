@@ -18,7 +18,6 @@ import { ShipDesignerSlotsComponent } from './components/ship-designer-slots.com
 import { ShipDesignerHullSelectorComponent } from './components/ship-designer-hull-selector.component';
 import { ShipDesignerComponentSelectorComponent } from './components/ship-designer-component-selector.component';
 import { getHull } from '../../utils/data-access.util';
-import { SlotDefinition } from '../../data/tech-atlas.types';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
@@ -76,7 +75,7 @@ export class ShipDesignerComponent implements OnInit {
     const slotId = this.selectedSlotId();
     const hull = this.hull();
     if (!slotId || !hull) return null;
-    return hull.Slots.find((s: SlotDefinition) => s.Code === slotId) || null;
+    return hull.Slots.find((s: any) => s.Code === slotId) || null;
   });
 
   readonly availableComponentsForSlot = computed(() => {
@@ -111,6 +110,7 @@ export class ShipDesignerComponent implements OnInit {
     const player = this.gameState.player();
     if (player) {
       this.designer.setTechLevels(player.techLevels);
+      this.designer.setPlayerSpecies(player.species);
     }
 
     // If no design is loaded, start with a Scout hull

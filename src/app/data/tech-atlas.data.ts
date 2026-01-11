@@ -13,16 +13,19 @@ import { UTILITY_HULLS } from './hulls/utility.data';
 import { STARBASE_HULLS } from './hulls/starbases.data';
 
 // Component imports
-import { CARGO_COMPONENTS } from './techs/cargo.data';
+
 import { ENGINE_COMPONENTS } from './techs/engines.data';
 import { SCANNER_COMPONENTS } from './techs/scanners.data';
-import { COMPUTER_COMPONENTS, CAPACITOR_COMPONENTS, CLOAK_COMPONENTS } from './techs/electronics.data';
+import {
+  COMPUTER_COMPONENTS,
+  CAPACITOR_COMPONENTS,
+  CLOAK_COMPONENTS,
+} from './techs/electronics.data';
 import { MECHANICAL_COMPONENTS } from './techs/mechanical.data';
 import { WEAPON_COMPONENTS } from './techs/weapons.data';
 import { BOMB_COMPONENTS } from './techs/bombs.data';
 import { SHIELD_COMPONENTS, ARMOR_COMPONENTS } from './techs/defenses.data';
-import { STARGATE_COMPONENTS } from './techs/stargates.data';
-import { MASS_DRIVER_COMPONENTS } from './techs/mass-drivers.data';
+
 import { ORBITAL_COMPONENTS } from './techs/orbitals.data';
 import { MINE_COMPONENTS } from './techs/mines.data';
 
@@ -40,14 +43,6 @@ export const ALL_HULLS: HullTemplate[] = [
 ];
 
 export const ALL_COMPONENTS: ComponentCategory[] = [
-  {
-    id: 'cargo',
-    name: 'Cargo',
-    allowedSlots: ['Cargo'],
-    displayOrder: 0,
-    category: 'Cargo',
-    items: CARGO_COMPONENTS,
-  },
   {
     id: 'engines',
     name: 'Engines',
@@ -128,27 +123,12 @@ export const ALL_COMPONENTS: ComponentCategory[] = [
     category: 'Armor',
     items: ARMOR_COMPONENTS,
   },
-  {
-    id: 'stargates',
-    name: 'Stargates',
-    allowedSlots: ['Stargate'],
-    displayOrder: 11,
-    category: 'Stargates',
-    items: STARGATE_COMPONENTS,
-  },
-  {
-    id: 'mass_drivers',
-    name: 'Mass Drivers',
-    allowedSlots: ['MassDriver'],
-    displayOrder: 12,
-    category: 'Mass Drivers',
-    items: MASS_DRIVER_COMPONENTS,
-  },
+
   {
     id: 'orbital',
     name: 'Orbital',
     allowedSlots: ['Orbital'],
-    displayOrder: 13,
+    displayOrder: 11,
     category: 'Orbital',
     items: ORBITAL_COMPONENTS,
   },
@@ -156,7 +136,7 @@ export const ALL_COMPONENTS: ComponentCategory[] = [
     id: 'mines',
     name: 'Mines',
     allowedSlots: ['Mine'],
-    displayOrder: 14,
+    displayOrder: 12,
     category: 'Mines',
     items: MINE_COMPONENTS,
   },

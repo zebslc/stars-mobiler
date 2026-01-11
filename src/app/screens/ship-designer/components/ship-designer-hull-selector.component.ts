@@ -195,10 +195,10 @@ export class ShipDesignerHullSelectorComponent {
   }
 
   getHullImagePath(hull: HullTemplate): string {
-    if ((hull as any).img) {
-      return `/assets/tech-icons/${(hull as any).img}.png`;
+    if (hull.id) {
+      return `/assets/tech-icons/${hull.id}.png`;
     }
-    // Fallback based on name if no img property
+    // Fallback based on name if no id property
     const name = hull.Name.toLowerCase();
     if (name.includes('scout')) return '/assets/tech-icons/hull-scout.png';
     if (name.includes('freighter')) {

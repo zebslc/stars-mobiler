@@ -272,8 +272,8 @@ export class ShipDesignItemComponent {
 
   get hullIcon(): string {
     const hull = getHull(this.design.hullId);
-    if (hull && (hull as any).img) {
-      return `/assets/tech-icons/${(hull as any).img}.png`;
+    if (hull && hull.id) {
+      return `/assets/tech-icons/${hull.id}.png`;
     }
 
     // Fallback mapping based on known file names

@@ -9,7 +9,6 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     mass: 3,
     cost: { ironium: 6, boranium: 0, germanium: 0, resources: 4 },
     stats: { cap: 250 },
-    img: 'mech-fuel-tank',
     description: 'Standard storage tank for Deuterium fuel.'
   },
   {
@@ -20,7 +19,6 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     mass: 8,
     cost: { ironium: 8, boranium: 0, germanium: 0, resources: 8 },
     stats: { cap: 500 },
-    img: 'mech-super-tank',
     description: 'High-pressure containment.'
   },
   {
@@ -31,7 +29,6 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     mass: 32,
     cost: { ironium: 12, boranium: 10, germanium: 10, resources: 10 },
     stats: { terraform: 0 },
-    img: 'mech-colony-mod',
     description: 'Cryogenic suspension pods.'
   },
   {
@@ -42,7 +39,6 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     mass: 5,
     cost: { ironium: 5, boranium: 0, germanium: 5, resources: 10 },
     stats: { initiative: 1 },
-    img: 'mech-maneuver-jet',
     description: 'Thrusters that aid in combat evasion.'
   },
   {
@@ -53,7 +49,6 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     mass: 8,
     cost: { ironium: 10, boranium: 0, germanium: 10, resources: 20 },
     stats: { initiative: 2 },
-    img: 'mech-overthruster',
     description: 'Combat drive assist.'
   },
   {
@@ -64,7 +59,6 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     mass: 240,
     cost: { ironium: 30, boranium: 0, germanium: 7, resources: 100 },
     stats: { mining: 12 },
-    img: 'mech-robo-miner',
     description: 'Automated extraction unit.'
   },
   {
@@ -75,7 +69,57 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     mass: 240,
     cost: { ironium: 60, boranium: 0, germanium: 14, resources: 200 },
     stats: { mining: 25 },
-    img: 'mech-auto-miner',
     description: 'High-yield extraction unit.'
+  },
+  {
+    id: 'mech_cargo_pod',
+    name: 'Cargo Pod',
+    type: 'Mechanical',
+    tech: { Construction: 0 },
+    mass: 3,
+    cost: { ironium: 2, boranium: 0, germanium: 0, resources: 3 },
+    stats: { cap: 70 },
+    description: 'Standard cargo pod.'
+  },
+  {
+    id: 'mech_super_cargo_pod',
+    name: 'Super Cargo Pod',
+    type: 'Mechanical',
+    tech: { Construction: 3 },
+    mass: 8,
+    cost: { ironium: 5, boranium: 0, germanium: 0, resources: 8 },
+    stats: { cap: 200 },
+    description: 'Large capacity cargo pod.'
+  },
+  // Merged cargo components 
+  {
+    id: 'fixed_cargo_70',
+    name: 'Cargo Bay (70kT)',
+    type: 'Cargo',
+    tech: { Construction: 0 },
+    mass: 0,
+    cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
+    stats: { cap: 70 },
+    description: 'Standard cargo hold.'
+  },
+  {
+    id: 'fixed_cargo_200',
+    name: 'Cargo Bay (200kT)',
+    type: 'Cargo',
+    tech: { Construction: 0 },
+    mass: 0,
+    cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
+    stats: { cap: 200 },
+    description: 'Standard cargo hold.'
+  },
+  {
+    id: 'fixed_cargo_1200',
+    name: 'Cargo Bay (1200kT)',
+    type: 'Cargo',
+    tech: { Construction: 0 },
+    mass: 0,
+    cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
+    stats: { cap: 1200 },
+    description: 'Massive cargo hold.'
   }
 ];

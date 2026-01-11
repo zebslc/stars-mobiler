@@ -48,7 +48,7 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
     designs[designId] = {
       id: designId,
       name: hull.Name,
-      image: hull.img,
+      image: hull.id,
       hullId: designId,
       hullName: hull.Name,
       isStarbase: hull.isStarbase,

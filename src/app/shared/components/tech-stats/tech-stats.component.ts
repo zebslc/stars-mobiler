@@ -105,6 +105,12 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
             <span class="value">{{ getTotal(stats().jamming) }}</span>
           </div>
         }
+        @if (stats().cargoSteal) {
+          <div class="stat-item highlight">
+            <span class="label">Ability:</span>
+            <span class="value">Steal Cargo</span>
+          </div>
+        }
         @if (stats().energyBonus) {
           <div class="stat-item">
             <span class="label">Capacitor:</span>

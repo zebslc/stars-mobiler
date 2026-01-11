@@ -4,7 +4,6 @@ import {
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
-  inject,
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
@@ -33,7 +32,7 @@ import { GridSlot } from '../hull-layout.types';
           <div
             class="tech-icon-bg tech-icon"
             [style.background-image]="
-              'url(/assets/tech-icons/' + (componentData.component.img || 'placeholder') + '.png)'
+              'url(/assets/tech-icons/' + (componentData.component.id || 'placeholder') + '.png)'
             "
             [title]="componentData.component.name"
             (click)="onComponentInfoClick($event)"

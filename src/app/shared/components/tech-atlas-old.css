@@ -1,0 +1,603 @@
+/* Stars! Tech Atlas - Individual Images */
+.tech-icon {
+  width: 64px;
+  height: 64px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: inline-block;
+  image-rendering: pixelated;
+}
+
+.eng-quick-jump-5 {
+  background-image: url('/assets/tech-icons/eng_quick_jump_5.png');
+}
+
+.eng-long-hump-6 {
+  background-image: url('/assets/tech-icons/eng_long_hump_6.png');
+}
+
+.eng-daddy-long-legs-7 {
+  background-image: url('/assets/tech-icons/eng_daddy_long_legs_7.png');
+}
+
+.eng-alpha-drive-8 {
+  background-image: url('/assets/tech-icons/eng_alpha_drive_8.png');
+}
+
+.eng-sub-galactic-fuel-scoop {
+  background-image: url('/assets/tech-icons/eng_sub_galactic_fuel_scoop.png');
+}
+
+.eng-trans-galactic-drive {
+  background-image: url('/assets/tech-icons/eng_trans_galactic_drive.png');
+}
+
+.eng-trans-galactic-fuel-scoop {
+  background-image: url('/assets/tech-icons/eng_trans_galactic_fuel_scoop.png');
+}
+
+.eng-radiating-hydro-ram-scoop {
+  background-image: url('/assets/tech-icons/eng_radiating_hydro_ram_scoop.png');
+}
+
+.eng-settlers-delight {
+  background-image: url('/assets/tech-icons/eng_settler_s_delight.png');
+}
+
+.eng-fuel-mizer {
+  background-image: url('/assets/tech-icons/eng_fuel_mizer.png');
+}
+
+.eng-trans-galactic-super-scoop {
+  background-image: url('/assets/tech-icons/eng_trans_galactic_super_scoop.png');
+}
+
+.eng-trans-galactic-mizer-scoop {
+  background-image: url('/assets/tech-icons/eng_trans_galactic_mizer_scoop.png');
+}
+
+.eng-interspace-10 {
+  background-image: url('/assets/tech-icons/eng_interspace_10.png');
+}
+
+.eng-trans-star-10 {
+  background-image: url('/assets/tech-icons/eng_trans_star_10.png');
+}
+
+.eng-sub-galaxy-scoop {
+  background-image: url('/assets/tech-icons/eng_galaxy_scoop.png');
+}
+
+.gate-std {
+  background-image: url('/assets/tech-icons/gate-std.png');
+}
+
+.gate-weight {
+  background-image: url('/assets/tech-icons/gate-weight.png');
+}
+
+.gate-distance {
+  background-image: url('/assets/tech-icons/gate-distance.png');
+}
+
+.gate-any {
+  background-image: url('/assets/tech-icons/gate-any.png');
+}
+
+.driver-std {
+  background-image: url('/assets/tech-icons/driver-std.png');
+}
+
+.driver-super {
+  background-image: url('/assets/tech-icons/driver-super.png');
+}
+
+.driver-ultra {
+  background-image: url('/assets/tech-icons/driver-ultra.png');
+}
+
+.weap-laser {
+  background-image: url('/assets/tech-icons/weap_laser.png');
+}
+
+.weap-xray {
+  background-image: url('/assets/tech-icons/weap_xray_laser.png');
+}
+
+.weap-minigun {
+  background-image: url('/assets/tech-icons/weap_minigun.png');
+}
+
+.weap-yakimora {
+  background-image: url('/assets/tech-icons/weap_yakimora_light_phaser.png');
+}
+
+.weap-disruptor {
+  background-image: url('/assets/tech-icons/weap_disruptor.png');
+}
+
+.weap-phazer-bazooka {
+  background-image: url('/assets/tech-icons/weap_phaser_bazooka.png');
+}
+
+.weap-gatling {
+  background-image: url('/assets/tech-icons/weap_gatling_gun.png');
+}
+
+.weap-big-mutha {
+  background-image: url('/assets/tech-icons/weap_big_mutha_cannon.png');
+}
+
+.weap-bludgeon {
+  background-image: url('/assets/tech-icons/weap_bludgeon.png');
+}
+
+.weap-blackjack {
+  background-image: url('/assets/tech-icons/weap_blackjack.png');
+}
+
+.weap-pulsed-sapper {
+  background-image: url('/assets/tech-icons/weap_pulsed_sapper.png');
+}
+
+.weap-colloidal-phaser {
+  background-image: url('/assets/tech-icons/weap_colloidal_phaser.png');
+}
+
+.weap-mini-blaster {
+  background-image: url('/assets/tech-icons/weap_mini_blaster.png');
+}
+
+.weap-mark-iv-blaster {
+  background-image: url('/assets/tech-icons/weap_mark_iv_blaster.png');
+}
+
+.weap-phased-sapper {
+  background-image: url('/assets/tech-icons/weap_phased_sapper.png');
+}
+
+.weap-heavy-blaster {
+  background-image: url('/assets/tech-icons/weap_heavy_blaster.png');
+}
+
+.weap-gatling-neutrino {
+  background-image: url('/assets/tech-icons/weap_gatling_neutrino_cannon.png');
+}
+
+.weap-myopic-disrupter {
+  background-image: url('/assets/tech-icons/weap_myopic_disruptor.png');
+}
+
+.weap-mega-disrupter {
+  background-image: url('/assets/tech-icons/weap_mega_disruptor.png');
+}
+
+.weap-streaming-pulverizer {
+  background-image: url('/assets/tech-icons/weap_streaming_pulverizer.png');
+}
+
+.weap-anti-matter-pulverizer {
+  background-image: url('/assets/tech-icons/weap_anti_matter_pulverizer.png');
+}
+
+.weap-syncro-sapper {
+  background-image: url('/assets/tech-icons/weap_syncro_sapper.png');
+}
+
+.weap-torp-alpha {
+  background-image: url('/assets/tech-icons/weap_alpha_torpedo.png');
+}
+
+.weap-torp-beta {
+  background-image: url('/assets/tech-icons/weap_beta_torpedo.png');
+}
+
+.weap-torp-delta {
+  background-image: url('/assets/tech-icons/weap_delta_torpedo.png');
+}
+
+.weap-torp-epsilon {
+  background-image: url('/assets/tech-icons/weap_epsilon_torpedo.png');
+}
+
+.weap-torp-rho {
+  background-image: url('/assets/tech-icons/weap_rho_torpedo.png');
+}
+
+.weap-torp-upsilon {
+  background-image: url('/assets/tech-icons/weap_upsilon_torpedo.png');
+}
+
+.weap-torp-omega {
+  background-image: url('/assets/tech-icons/weap_omega_torpedo.png');
+}
+
+.weap-torp-anti {
+  background-image: url('/assets/tech-icons/weap_alpha_torpedo.png');
+}
+
+.weap-missile-jihad {
+  background-image: url('/assets/tech-icons/weap_jihad_missile.png');
+}
+
+.weap-missile-juggernaut {
+  background-image: url('/assets/tech-icons/weap_juggernaut_missile.png');
+}
+
+.weap-missile-doomsday {
+  background-image: url('/assets/tech-icons/weap_doomsday_missile.png');
+}
+
+.weap-missile-armageddon {
+  background-image: url('/assets/tech-icons/weap_armageddon_missile.png');
+}
+
+.weap-bomb-lady {
+  background-image: url('/assets/tech-icons/bomb-lady-finger-bomb.png');
+}
+
+.weap-bomb-black-cat {
+  background-image: url('/assets/tech-icons/bomb_black_cat_bomb.png');
+}
+
+.weap-bomb-m70 {
+  background-image: url('/assets/tech-icons/bomb_annhihilator_bomb.png');
+}
+
+.weap-bomb-m80 {
+  background-image: url('/assets/tech-icons/bomb_annhihilator_bomb.png');
+}
+
+.weap-bomb-cherry {
+  background-image: url('/assets/tech-icons/bomb_cherry_bomb.png');
+}
+
+.weap-bomb-lbu17 {
+  background-image: url('/assets/tech-icons/bomb_lbu_17_bomb.png');
+}
+
+.weap-bomb-lbu32 {
+  background-image: url('/assets/tech-icons/bomb_lbu_17_bomb.png');
+}
+
+.weap-bomb-lbu74 {
+  background-image: url('/assets/tech-icons/bomb_lbu_17_bomb.png');
+}
+
+.weap-bomb-retro {
+  background-image: url('/assets/tech-icons/bomb_retro_bomb.png');
+}
+
+.weap-bomb-smart {
+  background-image: url('/assets/tech-icons/bomb_smart_bomb.png');
+}
+
+.weap-bomb-neutron {
+  background-image: url('/assets/tech-icons/bomb_neutron_bomb.png');
+}
+
+.weap-bomb-enriched-neutron {
+  background-image: url('/assets/tech-icons/bomb_enriched_neutron_bomb.png');
+}
+
+.weap-bomb-peerless {
+  background-image: url('/assets/tech-icons/bomb_peerless_bomb.png');
+}
+
+.weap-bomb-annihilator {
+  background-image: url('/assets/tech-icons/bomb_annhihilator_bomb.png');
+}
+
+.def-shield-mole {
+  background-image: url('/assets/tech-icons/def_mole_skin_shield.png');
+}
+
+.def-shield-cow {
+  background-image: url('/assets/tech-icons/def_cow_hide_shield.png');
+}
+
+.def-shield-wolf {
+  background-image: url('/assets/tech-icons/def_complete_phase_shield.png');
+}
+
+.def-shield-croby {
+  background-image: url('/assets/tech-icons/def_complete_phase_shield.png');
+}
+
+.def-shield-shadow {
+  background-image: url('/assets/tech-icons/def_shadow_shield.png');
+}
+
+.def-shield-bear {
+  background-image: url('/assets/tech-icons/def_bear_neutrino_barrier.png');
+}
+
+.def-shield-gorilla {
+  background-image: url('/assets/tech-icons/def_complete_phase_shield.png');
+}
+
+.def-shield-elephant {
+  background-image: url('/assets/tech-icons/def_complete_phase_shield.png');
+}
+
+.def-shield-phase {
+  background-image: url('/assets/tech-icons/def_complete_phase_shield.png');
+}
+
+.def-armor-tri {
+  background-image: url('/assets/tech-icons/def_bear_neutrino_barrier.png');
+}
+
+.def-armor-crob {
+  background-image: url('/assets/tech-icons/def_croby_sharmor.png');
+}
+
+.def-armor-neu {
+  background-image: url('/assets/tech-icons/def_bear_neutrino_barrier.png');
+}
+
+.def-armor-val {
+  background-image: url('/assets/tech-icons/def_carbonic_armor.png');
+}
+
+.elec-comp-bat {
+  background-image: url('/assets/tech-icons/elec_battle_computer.png');
+}
+
+.elec-comp-cyber {
+  background-image: url('/assets/tech-icons/elec_battle_computer.png');
+}
+
+.elec-comp-nexus {
+  background-image: url('/assets/tech-icons/elec_battle_computer.png');
+}
+
+.elec-jammer-10 {
+  background-image: url('/assets/tech-icons/elec_jammer_10.png');
+}
+
+.elec-jammer-20 {
+  background-image: url('/assets/tech-icons/elec_jammer_20.png');
+}
+
+.elec-jammer-50 {
+  background-image: url('/assets/tech-icons/elec_jammer_50.png');
+}
+
+.elec-cloak-stealth {
+  background-image: url('/assets/tech-icons/elec_stealth_cloak.png');
+}
+
+.elec-cloak-super {
+  background-image: url('/assets/tech-icons/elec_super_stealth_cloak.png');
+}
+
+.elec-capacitor {
+  background-image: url('/assets/tech-icons/elec_energy_capacitor.png');
+}
+
+.mech-fuel-tank {
+  background-image: url('/assets/tech-icons/mech_fuel_tank.png');
+}
+
+.mech-super-tank {
+  background-image: url('/assets/tech-icons/mech_super_fuel_tank.png');
+}
+
+.mech-colony-mod {
+  background-image: url('/assets/tech-icons/mech_colonisation_module.png');
+}
+
+.mech-maneuver-jet {
+  background-image: url('/assets/tech-icons/mech_manoeuvring_jet.png');
+}
+
+.mech-overthruster {
+  background-image: url('/assets/tech-icons/mech_overthruster.png');
+}
+
+.mech-robo-miner {
+  background-image: url('/assets/tech-icons/mech_robo_miner.png');
+}
+
+.mech-auto-miner {
+  background-image: url('/assets/tech-icons/mech_robo_maxi_miner.png');
+}
+
+.scan-viewer {
+  background-image: url('/assets/tech-icons/scan_bat_scanner.png');
+}
+
+.scan-rhino {
+  background-image: url('/assets/tech-icons/scan_rhino_scanner.png');
+}
+
+.scan-mole {
+  background-image: url('/assets/tech-icons/scan_mole_scanner.png');
+}
+
+.scan-possum {
+  background-image: url('/assets/tech-icons/scan_possum_scanner.png');
+}
+
+.scan-snooper {
+  background-image: url('/assets/tech-icons/scan_bat_scanner.png');
+}
+
+.scan-eagle {
+  background-image: url('/assets/tech-icons/scan_eagle_eye_scanner.png');
+}
+
+.scan-peerless {
+  background-image: url('/assets/tech-icons/scan_peerless_scanner.png');
+}
+
+.icon-cargo-small {
+  background-image: url('/assets/tech-icons/mech_cargo_pod.png');
+}
+
+.icon-cargo-med {
+  background-image: url('/assets/tech-icons/mech_cargo_pod.png');
+}
+
+.icon-cargo-large {
+  background-image: url('/assets/tech-icons/mech_cargo_pod.png');
+}
+
+.orb-dock {
+  background-image: url('/assets/tech-icons/hull-orbital-fort.png');
+}
+
+.orb-sensor {
+  background-image: url('/assets/tech-icons/hull-orbital-fort.png');
+}
+
+.orb-shield {
+  background-image: url('/assets/tech-icons/def_complete_phase_shield.png');
+}
+
+.hull-freight-s {
+  background-image: url('/assets/tech-icons/hull-freight-s.png');
+}
+
+.hull-freight-m {
+  background-image: url('/assets/tech-icons/hull-freight-m.png');
+}
+
+.hull-freight-l {
+  background-image: url('/assets/tech-icons/hull-freight-l.png');
+}
+
+.hull-freight-super {
+  background-image: url('/assets/tech-icons/hull-freight-super.png');
+}
+
+.hull-scout {
+  background-image: url('/assets/tech-icons/hull-scout.png');
+}
+
+.hull-frigate {
+  background-image: url('/assets/tech-icons/hull-frigate.png');
+}
+
+.hull-destroyer {
+  background-image: url('/assets/tech-icons/hull-destroyer.png');
+}
+
+.hull-cruiser {
+  background-image: url('/assets/tech-icons/hull-cruiser.png');
+}
+
+.hull-battle-cruiser {
+  background-image: url('/assets/tech-icons/hull-battle-cruiser.png');
+}
+
+.hull-battleship {
+  background-image: url('/assets/tech-icons/hull-battleship.png');
+}
+
+.hull-dreadnought {
+  background-image: url('/assets/tech-icons/hull-dreadnought.png');
+}
+
+.hull-privateer {
+  background-image: url('/assets/tech-icons/hull-privateer.png');
+}
+
+.hull-rogue {
+  background-image: url('/assets/tech-icons/hull-rogue.png');
+}
+
+.hull-galleon {
+  background-image: url('/assets/tech-icons/hull-galleon.png');
+}
+
+.hull-nubian {
+  background-image: url('/assets/tech-icons/hull-nubian.png');
+}
+
+.hull-meta-morph {
+  background-image: url('/assets/tech-icons/hull-meta-morph.png');
+}
+
+.hull-mini-colony {
+  background-image: url('/assets/tech-icons/hull-mini-colony.png');
+}
+
+.hull-colony {
+  background-image: url('/assets/tech-icons/hull-colony.png');
+}
+
+.hull-mini-bomber {
+  background-image: url('/assets/tech-icons/hull-mini-bomber.png');
+}
+
+.hull-b17 {
+  background-image: url('/assets/tech-icons/hull-b17.png');
+}
+
+.hull-stealth-bomber {
+  background-image: url('/assets/tech-icons/hull-stealth-bomber.png');
+}
+
+.hull-b52 {
+  background-image: url('/assets/tech-icons/hull-b52.png');
+}
+
+.hull-midget-miner {
+  background-image: url('/assets/tech-icons/hull-midget-miner.png');
+}
+
+.hull-mini-miner {
+  background-image: url('/assets/tech-icons/hull-mini-miner.png');
+}
+
+.hull-miner {
+  background-image: url('/assets/tech-icons/hull-miner.png');
+}
+
+.hull-maxi-miner {
+  background-image: url('/assets/tech-icons/hull-maxi-miner.png');
+}
+
+.hull-ultra-miner {
+  background-image: url('/assets/tech-icons/hull-ultra-miner.png');
+}
+
+.hull-fuel-transport {
+  background-image: url('/assets/tech-icons/hull-fuel-transport.png');
+}
+
+.hull-super-fuel-export {
+  background-image: url('/assets/tech-icons/hull-super-fuel-export.png');
+}
+
+.hull-mini-mine-layer {
+  background-image: url('/assets/tech-icons/hull-mini-mine-layer.png');
+}
+
+.hull-super-mine-layer {
+  background-image: url('/assets/tech-icons/hull-super-mine-layer.png');
+}
+
+.hull-orbital-fort {
+  background-image: url('/assets/tech-icons/hull-orbital-fort.png');
+}
+
+.hull-space-dock {
+  background-image: url('/assets/tech-icons/hull-space-dock.png');
+}
+
+.hull-space-station {
+  background-image: url('/assets/tech-icons/hull-space-station.png');
+}
+
+.hull-ultra-station {
+  background-image: url('/assets/tech-icons/hull-ultra-station.png');
+}
+
+.hull-death-star {
+  background-image: url('/assets/tech-icons/hull-death-star.png');
+}
+
+

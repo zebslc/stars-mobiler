@@ -41,14 +41,22 @@ export interface HullTemplate {
   Stats: ShipStats;
 
   // Additional metadata for game engine
-  id?: string;
+  id: string;
   role?: string;
   techReq?: TechRequirement;
-  img?: string;
   description?: string;
   note?: string;
   isStarbase?: boolean;
-  type?: 'warship' | 'freighter' | 'scout' | 'colonizer' | 'miner' | 'starbase' | 'utility' | 'bomber' | 'mine-layer';
+  type?:
+    | 'warship'
+    | 'freighter'
+    | 'scout'
+    | 'colonizer'
+    | 'miner'
+    | 'starbase'
+    | 'utility'
+    | 'bomber'
+    | 'mine-layer';
 }
 
 // Compatibility alias for legacy code
@@ -102,7 +110,11 @@ export const COMPONENT_TYPE_REGISTRY: Record<string, ComponentTypeConfig> = {
   Mine: { slotType: 'Mine', category: 'Offense' },
   Mining: { slotType: 'Mining', category: 'Utility' },
   Mechanical: { slotType: 'Mechanical', category: 'Utility', aliases: ['mech'] },
-  Electrical: { slotType: 'Electrical', category: 'Electronics', aliases: ['electronics', 'computer', 'elect'] },
+  Electrical: {
+    slotType: 'Electrical',
+    category: 'Electronics',
+    aliases: ['electronics', 'computer', 'elect'],
+  },
   Computer: { slotType: 'Electrical', category: 'Electronics' },
   Cloak: { slotType: 'Cloak', category: 'Special' },
   Cargo: { slotType: 'Cargo', category: 'Utility' },
@@ -117,7 +129,12 @@ export const COMPONENT_TYPE_REGISTRY: Record<string, ComponentTypeConfig> = {
 
 // Trait Type Registry - Extensible configuration
 export const TRAIT_TYPE_REGISTRY: Record<string, TraitTypeConfig> = {
-  damage_dealer: { id: 'damage_dealer', name: 'Damage Dealer', category: 'Combat', isImplemented: true },
+  damage_dealer: {
+    id: 'damage_dealer',
+    name: 'Damage Dealer',
+    category: 'Combat',
+    isImplemented: true,
+  },
   propulsion: { id: 'propulsion', name: 'Propulsion', category: 'Movement', isImplemented: true },
   storage: { id: 'storage', name: 'Storage', category: 'Utility', isImplemented: true },
   sensor: { id: 'sensor', name: 'Sensor', category: 'Detection', isImplemented: true },
@@ -126,7 +143,13 @@ export const TRAIT_TYPE_REGISTRY: Record<string, TraitTypeConfig> = {
   terraform: { id: 'terraform', name: 'Terraforming', category: 'Planetary', isImplemented: true },
   repair: { id: 'repair', name: 'Repair', category: 'Utility', isImplemented: false },
   bomb: { id: 'bomb', name: 'Bombing', category: 'Combat', isImplemented: true },
-  minesweeping: { id: 'minesweeping', name: 'Mine Sweeping', category: 'Combat', description: 'Ability to clear enemy minefields', isImplemented: false },
+  minesweeping: {
+    id: 'minesweeping',
+    name: 'Mine Sweeping',
+    category: 'Combat',
+    description: 'Ability to clear enemy minefields',
+    isImplemented: false,
+  },
   settler: { id: 'settler', name: 'Colonization', category: 'Expansion', isImplemented: true },
 };
 
@@ -143,23 +166,23 @@ export type TraitType = keyof typeof TRAIT_TYPE_REGISTRY;
  */
 export function getSlotTypeForComponentType(componentType: string): SlotType {
   const normalizedType = componentType.toLowerCase();
-  
+
   // Direct match
   const directMatch = Object.keys(COMPONENT_TYPE_REGISTRY).find(
-    key => key.toLowerCase() === normalizedType
+    (key) => key.toLowerCase() === normalizedType,
   );
   if (directMatch) {
     return directMatch as SlotType;
   }
-  
+
   // Check aliases
-  const aliasMatch = Object.entries(COMPONENT_TYPE_REGISTRY).find(
-    ([_, config]) => config.aliases?.some(alias => alias.toLowerCase() === normalizedType)
+  const aliasMatch = Object.entries(COMPONENT_TYPE_REGISTRY).find(([_, config]) =>
+    config.aliases?.some((alias) => alias.toLowerCase() === normalizedType),
   );
   if (aliasMatch) {
     return aliasMatch[0] as SlotType;
   }
-  
+
   // Fallback to General
   console.warn(`Unknown component type: ${componentType}, falling back to General`);
   return 'General';
@@ -193,16 +216,16 @@ export function getAllSlotTypes(): SlotType[] {
  */
 export function isValidComponentType(componentType: string): boolean {
   const normalizedType = componentType.toLowerCase();
-  
+
   // Check direct match
   const hasDirectMatch = Object.keys(COMPONENT_TYPE_REGISTRY).some(
-    key => key.toLowerCase() === normalizedType
+    (key) => key.toLowerCase() === normalizedType,
   );
   if (hasDirectMatch) return true;
-  
+
   // Check aliases
-  return Object.values(COMPONENT_TYPE_REGISTRY).some(
-    config => config.aliases?.some(alias => alias.toLowerCase() === normalizedType)
+  return Object.values(COMPONENT_TYPE_REGISTRY).some((config) =>
+    config.aliases?.some((alias) => alias.toLowerCase() === normalizedType),
   );
 }
 
@@ -229,11 +252,30 @@ export interface ComponentTrait {
 }
 
 // Validation Rule Registry - Extensible configuration
-export const VALIDATION_RULE_REGISTRY: Record<string, { name: string; description: string; isImplemented: boolean }> = {
-  max_per_hull: { name: 'Max Per Hull', description: 'Limits the maximum number of this component per hull', isImplemented: true },
-  exclusive_to_hull_type: { name: 'Exclusive to Hull Type', description: 'Component can only be used on specific hull types', isImplemented: true },
-  requires_trait: { name: 'Requires Trait', description: 'Component requires another component with specific trait', isImplemented: false },
-  mutually_exclusive: { name: 'Mutually Exclusive', description: 'Component cannot be used with certain other components', isImplemented: false },
+export const VALIDATION_RULE_REGISTRY: Record<
+  string,
+  { name: string; description: string; isImplemented: boolean }
+> = {
+  max_per_hull: {
+    name: 'Max Per Hull',
+    description: 'Limits the maximum number of this component per hull',
+    isImplemented: true,
+  },
+  exclusive_to_hull_type: {
+    name: 'Exclusive to Hull Type',
+    description: 'Component can only be used on specific hull types',
+    isImplemented: true,
+  },
+  requires_trait: {
+    name: 'Requires Trait',
+    description: 'Component requires another component with specific trait',
+    isImplemented: false,
+  },
+  mutually_exclusive: {
+    name: 'Mutually Exclusive',
+    description: 'Component cannot be used with certain other components',
+    isImplemented: false,
+  },
 };
 
 export type ValidationRuleType = keyof typeof VALIDATION_RULE_REGISTRY;
@@ -295,9 +337,13 @@ export interface ComponentStats {
     dampening?: number;
     detection?: number;
     dockCapacity?: number;
+    planetScanDistance?: number;
+    enemyFleetScanDistance?: number;
+    cargoSteal?: boolean;
   };
-  img: string;
   description: string;
+  primaryRacialTraitRequired?: string;
+  lesserRacialTraitUnavailable?: string;
   isRamscoop?: boolean;
   categoryId?: string;
   traits?: ComponentTrait[];

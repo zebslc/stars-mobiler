@@ -16,7 +16,7 @@
         <div class="title-container">
           <button class="btn-icon hull-btn" (click)="previewHullName.set(hull()?.Name || null)" title="Show Hull Info">
             <img
-              [src]="'/assets/tech-icons/' + ((hull()?.img) || 'hull-scout') + '.png'"
+              [src]="'/assets/tech-icons/' + ((hull()?.id) || 'hull-scout') + '.png'"
               [alt]="hull()?.Name || 'Hull Icon'"
               [title]="hull()?.Name || 'Hull Icon'"
               class="hull-icon"

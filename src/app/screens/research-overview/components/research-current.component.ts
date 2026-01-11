@@ -56,7 +56,14 @@ import { TechRequirement } from '../../../data/tech-atlas.data';
           <div class="unlock-items">
             @for (unlock of currentUnlocks(); track unlock) {
               <button class="unlock-chip" (click)="onShowUnlockDetails(unlock)">
-                <span class="tech-icon tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
+                <span
+                  class="tech-icon tech-icon-small"
+                  [style.background-image]="
+                    'url(/assets/tech-icons/' +
+                    (getUnlockIconPath(unlock) || 'placeholder') +
+                    '.png)'
+                  "
+                ></span>
                 {{ unlock }}
                 @for (dep of getExternalDependenciesWithStatus(unlock); track dep.label) {
                   <span class="dep-badge" [class]="'dep-badge-' + dep.status">{{ dep.label }}</span>
@@ -80,7 +87,14 @@ import { TechRequirement } from '../../../data/tech-atlas.data';
                 (click)="onShowUnlockDetails(unlock)"
                 [title]="unlock"
               >
-                <span class="tech-icon tech-icon-small" [ngClass]="getUnlockIcon(unlock)"></span>
+                <span
+                  class="tech-icon tech-icon-small"
+                  [style.background-image]="
+                    'url(/assets/tech-icons/' +
+                    (getUnlockIconPath(unlock) || 'placeholder') +
+                    '.png)'
+                  "
+                ></span>
               </button>
             }
           </div>
@@ -411,11 +425,11 @@ export class ResearchCurrentComponent {
     this.showUnlockDetails.emit(unlock);
   }
 
-  getUnlockIcon(name: string): string {
+  getUnlockIconPath(name: string): string {
     const hull = this.techService.getHullByName(name);
-    if (hull) return hull.img ?? '';
+    if (hull) return hull.id ?? '';
     const comp = this.techService.getComponentByName(name);
-    return comp?.img ?? '';
+    return comp?.id ?? '';
   }
 
   getExternalDependenciesWithStatus(

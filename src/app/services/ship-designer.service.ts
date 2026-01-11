@@ -2,7 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { HullTemplate, ComponentStats, getSlotTypeForComponentType } from '../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../data/tech-atlas.data';
 import { getHull, getComponent, getPrimaryTechField, getRequiredTechLevel } from '../utils/data-access.util';
-import { PlayerTech, ShipDesign, SlotAssignment } from '../models/game.model';
+import { PlayerTech, ShipDesign, SlotAssignment, Species } from '../models/game.model';
 import {
   compileShipStats,
   canInstallComponent,
@@ -26,6 +26,7 @@ export class ShipDesignerService {
     Propulsion: 0,
     Construction: 0,
   });
+  private _playerSpecies = signal<Species | null>(null);
 
   // Computed signals
   readonly currentDesign = this._currentDesign.asReadonly();
@@ -54,6 +55,13 @@ export class ShipDesignerService {
    */
   setTechLevels(techLevels: PlayerTech): void {
     this._techLevels.set({ ...techLevels });
+  }
+
+  /**
+   * Set player species for trait-based component filtering
+   */
+  setPlayerSpecies(species: Species): void {
+    this._playerSpecies.set(species);
   }
 
   /**
@@ -151,7 +159,7 @@ export class ShipDesignerService {
     // Convert SlotDefinition to HullSlot for compatibility checking
     const convertedSlot = {
       id: hullSlot.Code || slotId,
-      allowedTypes: hullSlot.Allowed.map(type => getSlotTypeForComponentType(type)) as any[],
+      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as any[],
       max: hullSlot.Max,
       required: hullSlot.Required,
       editable: hullSlot.Editable,
@@ -211,7 +219,7 @@ export class ShipDesignerService {
     // Convert SlotDefinition to HullSlot for compatibility
     const hullSlot = {
       id: hullSlotDef.Code || slotId,
-      allowedTypes: hullSlotDef.Allowed.map(type => getSlotTypeForComponentType(type)) as any[],
+      allowedTypes: hullSlotDef.Allowed.map((type) => getSlotTypeForComponentType(type)) as any[],
       max: hullSlotDef.Max,
       required: hullSlotDef.Required,
       editable: hullSlotDef.Editable,
@@ -315,6 +323,7 @@ export class ShipDesignerService {
   getAvailableComponentsForSlot(slotId: string): MiniaturizedComponent[] {
     const hull = this.currentHull();
     const techLevels = this._techLevels();
+    const species = this._playerSpecies();
 
     if (!hull) return [];
 
@@ -324,6 +333,7 @@ export class ShipDesignerService {
     // Filter components that:
     // 1. Can be installed in this slot type
     // 2. Player has the required tech level
+    // 3. Player meets racial trait requirements
     const availableComponents = getAllComponents().filter((baseComponent) => {
       // Check tech level requirement using new system
       const primaryField = getPrimaryTechField(baseComponent);
@@ -333,10 +343,24 @@ export class ShipDesignerService {
         return false;
       }
 
+      // Check Primary Racial Trait
+      if (baseComponent.primaryRacialTraitRequired && species) {
+        if (!species.primaryTraits?.includes(baseComponent.primaryRacialTraitRequired)) {
+          return false;
+        }
+      }
+
+      // Check Lesser Racial Trait
+      if (baseComponent.lesserRacialTraitUnavailable && species) {
+        if (species.lesserTraits?.includes(baseComponent.lesserRacialTraitUnavailable)) {
+          return false;
+        }
+      }
+
       // Check slot compatibility - Convert SlotDefinition to HullSlot for compatibility
       const convertedSlot = {
         id: hullSlot.Code || slotId,
-        allowedTypes: hullSlot.Allowed.map(type => getSlotTypeForComponentType(type)) as any[],
+        allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as any[],
         max: hullSlot.Max,
         required: hullSlot.Required,
         editable: hullSlot.Editable,
@@ -346,7 +370,7 @@ export class ShipDesignerService {
     });
 
     // Return miniaturized versions of available components
-    return availableComponents.map(component => miniaturizeComponent(component, techLevels));
+    return availableComponents.map((component) => miniaturizeComponent(component, techLevels));
   }
 
   /**
@@ -356,9 +380,7 @@ export class ShipDesignerService {
     const techLevels = this._techLevels();
     const constructionLevel = techLevels.Construction;
 
-    return ALL_HULLS.filter(
-      (hull) => (hull.techReq?.Construction || 0) <= constructionLevel,
-    );
+    return ALL_HULLS.filter((hull) => (hull.techReq?.Construction || 0) <= constructionLevel);
   }
 
   /**

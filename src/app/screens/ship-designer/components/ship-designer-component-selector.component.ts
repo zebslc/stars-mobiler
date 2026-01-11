@@ -288,8 +288,8 @@ export class ShipDesignerComponentSelectorComponent {
   }
 
   getComponentImagePath(component: MiniaturizedComponent): string {
-    if (component.img) {
-      return `/assets/tech-icons/${component.img}.png`;
+    if (component.id) {
+      return `/assets/tech-icons/${component.id}.png`;
     }
     return '/assets/tech-icons/placeholder.png';
   }
@@ -338,8 +338,18 @@ export class ShipDesignerComponentSelectorComponent {
       return parts.join(' • ');
     }
     if (base.stats.armor) return `Armor: ${base.stats.armor}`;
+    if (base.stats.enemyFleetScanDistance) {
+      const parts: string[] = [`Scan: ${base.stats.enemyFleetScanDistance}`];
+      if (base.stats.planetScanDistance !== undefined) {
+         if (base.stats.planetScanDistance === 0) parts.push('Planet: Orbit');
+         else if (base.stats.planetScanDistance === -1) parts.push('Planet: None');
+         else parts.push(`Planet: ${base.stats.planetScanDistance}`);
+      }
+      return parts.join(' • ');
+    }
     if (base.stats.scan) return `Scan: ${base.stats.scan}`;
-    if (base.stats.cloak) return `Cloak: ${base.stats.cloak}`;
+    if (base.stats.cargoSteal) return 'Ability: Cargo Steal';
+    if (base.stats.cloak) return `Cloak: ${base.stats.cloak}%`;
     if (base.stats.cap) return `Capacity: ${base.stats.cap}kT`;
     if (base.stats.terraform) return `Terraform: ±${base.stats.terraform}`;
     if (base.stats.driverSpeed) return `Driver: Warp ${base.stats.driverSpeed}`;

@@ -308,7 +308,7 @@ export class HullPreviewModalComponent {
             comps.push({
               name: compDef.name,
               count: c.count,
-              icon: compDef.img || 'placeholder',
+              icon: compDef.id.replace(/_/g, '-') || 'placeholder',
             });
           }
         }
@@ -321,7 +321,7 @@ export class HullPreviewModalComponent {
   getComponentIcon(nameOrId: string): string {
     // Simple mapping or check
     const comp = getComponent(nameOrId);
-    return comp?.img || 'placeholder';
+    return comp?.id || 'placeholder';
   }
 
   toCost(cost: {

@@ -12,7 +12,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Cost: { Ironium: 4, Boranium: 2, Germanium: 4, Resources: 10 },
     Stats: { Mass: 8, 'Max Fuel': 50, Armor: 20, Cargo: 0, Initiative: 1 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    img: 'hull-scout',
+    id: 'hull-scout',
     type: 'scout',
   },
   {
@@ -27,7 +27,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Cost: { Ironium: 4, Boranium: 2, Germanium: 4, Resources: 12 },
     Stats: { Mass: 8, 'Max Fuel': 125, Armor: 45, Cargo: 0, Initiative: 4 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
-    img: 'hull-frigate',
+    id: 'hull-frigate',
     type: 'warship',
   },
   {
@@ -54,7 +54,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Cost: { Ironium: 15, Boranium: 3, Germanium: 5, Resources: 35 },
     Stats: { Mass: 30, 'Max Fuel': 280, Armor: 200, Cargo: 0, Initiative: 3 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
-    img: 'hull-destroyer',
+    id: 'hull-destroyer',
     type: 'warship',
   },
   {
@@ -79,7 +79,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Cost: { Ironium: 40, Boranium: 5, Germanium: 8, Resources: 85 },
     Stats: { Mass: 90, 'Max Fuel': 600, Armor: 700, Cargo: 0, Initiative: 5 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
-    img: 'hull-cruiser',
+    id: 'hull-cruiser',
     type: 'warship',
   },
   {
@@ -104,7 +104,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Cost: { Ironium: 55, Boranium: 8, Germanium: 12, Resources: 120 },
     Stats: { Mass: 120, 'Max Fuel': 1400, Armor: 1000, Cargo: 0, Initiative: 5 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
-    img: 'hull-battle-cruiser',
+    id: 'hull-battle-cruiser',
     type: 'warship'
   },
   {
@@ -135,7 +135,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Cost: { Ironium: 120, Boranium: 25, Germanium: 20, Resources: 225 },
     Stats: { Mass: 222, 'Max Fuel': 2800, Armor: 2000, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 10 },
-    img: 'hull-battleship',
+    id: 'hull-battleship',
   },
   {
     Name: 'Dreadnought',
@@ -167,6 +167,6 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Cost: { Ironium: 140, Boranium: 30, Germanium: 25, Resources: 275 },
     Stats: { Mass: 250, 'Max Fuel': 4500, Armor: 4500, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 13 },
-    img: 'hull-dreadnought',
+    id: 'hull-dreadnought',
   },
 ];

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TECH_ATLAS, HullTemplate, ComponentStats, ComponentCategory } from '../data/tech-atlas.data';
+import { Player, PlayerTech } from '../models/game.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,7 @@ export class TechService {
    */
   getHullImageClass(hullName: string): string {
     const hull = this.getHullByName(hullName);
-    return hull?.img ?? '';
+    return hull?.id ?? '';
   }
 
   /**
@@ -82,18 +83,21 @@ export class TechService {
    */
   getComponentImageClass(componentName: string): string {
     const component = this.getComponentByName(componentName);
-    return component ? component.img : '';
+    return component ? component.id || '' : '';
   }
 
   /**
    * Check if player meets tech requirements for a hull
    */
-  meetsHullRequirements(hull: HullTemplate, playerTechLevels: Record<string, number>): boolean {
+  meetsHullRequirements(
+    hull: HullTemplate,
+    playerTechLevels: PlayerTech | Record<string, number>,
+  ): boolean {
     if (!hull.techReq) return true;
     for (const [techStream, requiredLevel] of Object.entries(hull.techReq)) {
       if (
         requiredLevel !== undefined &&
-        (playerTechLevels[techStream] || 0) < Number(requiredLevel)
+        ((playerTechLevels as any)[techStream] || 0) < Number(requiredLevel)
       ) {
         return false;
       }
@@ -106,16 +110,54 @@ export class TechService {
    */
   meetsComponentRequirements(
     component: ComponentStats,
-    playerTechLevels: Record<string, number>,
+    playerTechLevels: PlayerTech | Record<string, number>,
   ): boolean {
     for (const [techStream, requiredLevel] of Object.entries(component.tech)) {
       if (
         requiredLevel !== undefined &&
-        (playerTechLevels[techStream] || 0) < Number(requiredLevel)
+        ((playerTechLevels as any)[techStream] || 0) < Number(requiredLevel)
       ) {
         return false;
       }
     }
+    return true;
+  }
+
+  /**
+   * Check if component is allowed by player traits (ignoring tech levels)
+   */
+  isComponentAllowedByTraits(component: ComponentStats, player: Player): boolean {
+    // 1. Check Primary Racial Trait
+    if (component.primaryRacialTraitRequired) {
+      if (!player.species.primaryTraits?.includes(component.primaryRacialTraitRequired)) {
+        return false;
+      }
+    }
+
+    // 2. Check Lesser Racial Trait (Unavailable if present)
+    if (component.lesserRacialTraitUnavailable) {
+      if (player.species.lesserTraits?.includes(component.lesserRacialTraitUnavailable)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Check if component is available to player (tech levels + traits)
+   */
+  isComponentAvailable(component: ComponentStats, player: Player): boolean {
+    // 1. Check Traits
+    if (!this.isComponentAllowedByTraits(component, player)) {
+      return false;
+    }
+
+    // 2. Check Tech Levels
+    if (!this.meetsComponentRequirements(component, player.techLevels)) {
+      return false;
+    }
+
     return true;
   }
 }

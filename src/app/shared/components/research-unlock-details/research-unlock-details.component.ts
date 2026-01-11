@@ -21,7 +21,12 @@ import { getHull } from '../../../utils/data-access.util';
       <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <div class="modal-title-group">
-            <div class="tech-icon large" [ngClass]="iconClass()"></div>
+            <div
+              class="tech-icon large"
+              [style.background-image]="
+                'url(/assets/tech-icons/' + (details()?.id || 'placeholder') + '.png)'
+              "
+            ></div>
             <h3>{{ displayName() }}</h3>
           </div>
           <button class="modal-close" (click)="onClose()">✕</button>
@@ -250,11 +255,6 @@ export class ResearchUnlockDetailsComponent {
     const d = this.details();
     if (!d || !('Slots' in d)) return null;
     return getHull(this.unlockName);
-  });
-
-  iconClass = computed(() => {
-    const d = this.details();
-    return d?.img ?? '';
   });
 
   techType = computed(() => {
