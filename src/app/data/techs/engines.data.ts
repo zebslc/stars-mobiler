@@ -152,7 +152,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     description: 'High-performance military drive.',
   },
   {
-    id: 'eng_trans_galactic',
+    id: 'eng_trans_galactic_drive',
     name: 'Trans-Galactic Drive',
     type: 'Engine',
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
@@ -227,7 +227,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     description: 'Compact ultra-efficient drive.',
   },
   {
-    id: 'eng_radiating_hydro_ram',
+    id: 'eng_radiating_hydro_ram_scoop',
     name: 'Radiating Hydro-Ram Scoop',
     type: 'Engine',
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
@@ -253,7 +253,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     isRamscoop: true,
   },
   {
-    id: 'eng_sub_galactic_scoop',
+    id: 'eng_sub_galactic_fuel_scoop',
     name: 'Sub-Galactic Fuel Scoop',
     type: 'Engine',
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
@@ -391,34 +391,4 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     stats: {},
     description: 'TODO: Component needs proper configuration.'
   },
-   {
-    id: 'eng_settler_s_delight',
-    name: 'Eng Settler S Delight',
-    type: 'Engine',
-    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 10,
-    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
-    stats: {},
-    description: 'TODO: Component needs proper configuration.'
-  },
-  {
-    id: 'eng_sub_galactic_fuel_scoop',
-    name: 'Eng Sub Galactic Fuel Scoop',
-    type: 'Engine',
-    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 10,
-    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
-    stats: {},
-    description: 'TODO: Component needs proper configuration.'
-  },
-  {
-    id: 'eng_trans_galactic_drive',
-    name: 'Eng Trans Galactic Drive',
-    type: 'Engine',
-    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 10,
-    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
-    stats: {},
-    description: 'TODO: Component needs proper configuration.'
-  }
 ];

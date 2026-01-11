@@ -1,3 +1,23 @@
+// # Scanners
+// | Name                 | Energy | Weapons | Propulsion | Construction | Electronics | Bio-Tech | Mass | Resources | Ironium | Boranium | Germanium | Range |
+// |----------------------|--------|---------|------------|--------------|-------------|----------|------|-----------|---------|----------|-----------|-------|
+// | Bat Scanner          | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 1 | | 1 | 0 | 1 | 0 |
+// | Rhino Scanner        | 0 | 0 | 0 | 0 | 1 | 0 | 5 | 3 | 3 | 0 | 2 | 50 |
+// | Mole Scanner         | 0 | 0 | 0 | 0 | 4 | 0 | 2 | 9 | 2 | 0 | 2 | 100 |
+// | DNA Scanner          | 0 | 0 | 3 | 0 | 0 | 6 | 2 | 5 | 1 | 1 | 1 | 125 |
+// | Possum Scanner       | 0 | 0 | 0 | 0 | 5 | 0 | 3 | 18 | 3 | 0 | 3 | 150 |
+// | Pick Pocket Scanner  | 4 | 0 | 0 | 0 | 4 | 4 | 15 | 35 | 8 | 10 | 6 | 80 |
+// | Chameleon Scanner    | 3 | 0 | 0 | 0 | 6 | 0 | 6 | 25 | 4 | 6 | 4 | 160 |
+// | Ferret Scanner       | 3 | 0 | 0 | 0 | 7 | 2 | 2 | 36 | 2 | 0 | 8 | 185 |
+// | Dolphin Scanner      | 5 | 0 | 0 | 0 | 10 | 4 | 4 | 40 | 5 | 5 | 10 | 220 |
+// | Gazelle Scanner      | 4 | 0 | 0 | 0 | 8 | 0 | 5 | 24 | 4 | 0 | 5 | 225 |
+// | RNA Scanner          | 0 | 0 | 5 | 0 | 0 | 10 | 2 | 20 | 1 | 1 | 2 | 230 |
+// | Cheetah Scanner      | 5 | 0 | 0 | 0 | 11 | 0 | 4 | 50 | 3 | 1 | 13 | 275 |
+// | Elephant Scanner     | 6 | 0 | 0 | 0 | 16 | 7 | 6 | 70 | 8 | 5 | 14 | 300 |
+// | Eagle Eye Scanner    | 6 | 0 | 0 | 0 | 14 | 0 | 3 | 64 | 3 | 2 | 21 | 335 |
+// | Robber Baron Scanner | 10 | 0 | 0 | 0 | 15 | 10 | 20 | 90 | 10 | 10 | 10 | 220 |
+// | Peerless Scanner     | 7 | 0 | 0 | 0 | 24 | 0 | 4 | 90 | 3 | 2 | 30 | 500 |
+
 import { ComponentStats } from '../tech-atlas.types';
 
 export const SCANNER_COMPONENTS: ComponentStats[] = [
@@ -13,7 +33,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
       'Enemy fleets cannot be detected by this scanner unless they are at the same location as the scanner. This scanner is capable of determining a planets environment and composition whilst in orbit of the planet.',
   },
   {
-    id: 'scan_rhino_scanner',
+    id: 'scan_rhino',
     name: 'Rhino Scanner',
     type: 'Scanner',
     tech: { Energy: 1, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -24,7 +44,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
       'Enemy fleets not orbiting a planet can be detected up to 50 light years away. This scanner is capable of determining a planets environment and composition whilst in orbit of the planet.',
   },
   {
-    id: 'scan_mole_scanner',
+    id: 'scan_mole',
     name: 'Mole Scanner',
     type: 'Scanner',
     tech: { Energy: 4, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -46,7 +66,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
       'Enemy fleets not orbiting a planet can be detected up to 125 light years away. This scanner is capable of determining a planets environment and composition whilst in orbit of the planet.',
   },
   {
-    id: 'scan_possum_scanner',
+    id: 'scan_possum',
     name: 'Possum Scanner',
     type: 'Scanner',
     tech: { Energy: 5, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -173,7 +193,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     primaryRacialTraitRequired: 'Super Stealth',
   },
   {
-    id: 'scan_peerless_scanner',
+    id: 'scan_peerless',
     name: 'Peerless Scanner',
     type: 'Scanner',
     tech: { Energy: 24, Kinetics: 0, Propulsion: 0, Construction: 7 },

@@ -22,7 +22,7 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     description: 'High-pressure containment.'
   },
   {
-    id: 'mech_colony',
+    id: 'mech_colonisation_module',
     name: 'Colony Module',
     type: 'Mechanical',
     tech: { Construction: 0 },
@@ -32,7 +32,7 @@ export const MECHANICAL_COMPONENTS: ComponentStats[] = [
     description: 'Cryogenic suspension pods.'
   },
   {
-    id: 'mech_maneuver',
+    id: 'mech_manoeuvring_jet',
     name: 'Maneuvering Jet',
     type: 'Mechanical',
     tech: { Propulsion: 3, Energy: 2 },

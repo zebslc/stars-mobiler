@@ -19,7 +19,7 @@ import { SCANNER_COMPONENTS } from './techs/scanners.data';
 import {
   COMPUTER_COMPONENTS,
   CAPACITOR_COMPONENTS,
-  CLOAK_COMPONENTS,
+  CLOAKING_COMPONENTS,
 } from './techs/electronics.data';
 import { MECHANICAL_COMPONENTS } from './techs/mechanical.data';
 import { WEAPON_COMPONENTS } from './techs/weapons.data';
@@ -81,7 +81,7 @@ export const ALL_COMPONENTS: ComponentCategory[] = [
     allowedSlots: ['Cloak', 'Elect'],
     displayOrder: 5,
     category: 'Cloaking',
-    items: CLOAK_COMPONENTS,
+    items: CLOAKING_COMPONENTS,
   },
   {
     id: 'mechanical',

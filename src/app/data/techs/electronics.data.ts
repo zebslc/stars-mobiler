@@ -2,13 +2,14 @@ import { ComponentStats } from '../tech-atlas.types';
 
 export const CLOAKING_COMPONENTS: ComponentStats[] = [
   {
-    id: 'elec_transport_cloak',
+    id: 'elec_transport_cloaking',
     name: 'Transport Cloaking',
     type: 'Cloak',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 2, boranium: 0, germanium: 2, resources: 3 },
-    stats: { cloak: 300 },    description: 'Basic ship concealment.',
+    stats: { cloak: 300 },
+    description: 'Basic ship concealment.',
   },
   {
     id: 'elec_stealth_cloak',
@@ -17,7 +18,8 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 5, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 2,
     cost: { ironium: 2, boranium: 0, germanium: 2, resources: 5 },
-    stats: { cloak: 70 },    description: 'Advanced stealth system.',
+    stats: { cloak: 70 },
+    description: 'Advanced stealth system.',
   },
   {
     id: 'elec_super_stealth_cloak',
@@ -26,7 +28,8 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 3,
     cost: { ironium: 8, boranium: 0, germanium: 8, resources: 15 },
-    stats: { cloak: 140 },    description: 'High-grade concealment technology.',
+    stats: { cloak: 140 },
+    description: 'High-grade concealment technology.',
   },
   {
     id: 'elec_ultra_stealth_cloak',
@@ -35,7 +38,8 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 12, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 5,
     cost: { ironium: 10, boranium: 0, germanium: 10, resources: 25 },
-    stats: { cloak: 540 },    description: 'Ultimate invisibility technology.',
+    stats: { cloak: 540 },
+    description: 'Ultimate invisibility technology.',
   },
 ];
 
@@ -47,7 +51,8 @@ export const COMPUTER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 0, boranium: 0, germanium: 15, resources: 6 },
-    stats: { accuracy: 20 },    description: 'Basic targeting system.',
+    stats: { accuracy: 20 },
+    description: 'Basic targeting system.',
   },
   {
     id: 'elec_battle_super_computer',
@@ -56,7 +61,8 @@ export const COMPUTER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 11, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 0, boranium: 0, germanium: 25, resources: 14 },
-    stats: { accuracy: 30 },    description: 'Advanced tactical computer.',
+    stats: { accuracy: 30 },
+    description: 'Advanced tactical computer.',
   },
   {
     id: 'elec_battle_nexus',
@@ -65,7 +71,8 @@ export const COMPUTER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 19, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 0, boranium: 0, germanium: 30, resources: 15 },
-    stats: { accuracy: 50 },    description: 'Ultimate battle coordination system.',
+    stats: { accuracy: 50 },
+    description: 'Ultimate battle coordination system.',
   },
 ];
 
@@ -77,7 +84,8 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 6, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 0, boranium: 0, germanium: 2, resources: 6 },
-    stats: { jamming: 10 },    description: 'Basic electronic countermeasures.',
+    stats: { jamming: 10 },
+    description: 'Basic electronic countermeasures.',
   },
   {
     id: 'elec_jammer_20',
@@ -86,7 +94,8 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 1, boranium: 0, germanium: 5, resources: 20 },
-    stats: { jamming: 20 },    description: 'Improved signal disruption.',
+    stats: { jamming: 20 },
+    description: 'Improved signal disruption.',
   },
   {
     id: 'elec_jammer_30',
@@ -95,7 +104,8 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 16, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 1, boranium: 0, germanium: 6, resources: 20 },
-    stats: { jamming: 30 },    description: 'Advanced ECM suite.',
+    stats: { jamming: 30 },
+    description: 'Advanced ECM suite.',
   },
   {
     id: 'elec_jammer_50',
@@ -104,7 +114,8 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 22, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 2, boranium: 0, germanium: 7, resources: 20 },
-    stats: { jamming: 50 },    description: 'Ultimate electronic warfare system.',
+    stats: { jamming: 50 },
+    description: 'Ultimate electronic warfare system.',
   },
 ];
 
@@ -116,7 +127,8 @@ export const CAPACITOR_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 7, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 0, boranium: 0, germanium: 8, resources: 5 },
-    stats: { energyBonus: 10 },    description: 'Stores energy for burst weapons.',
+    stats: { energyBonus: 10 },
+    description: 'Stores energy for burst weapons.',
   },
   {
     id: 'elec_flux_capacitor',
@@ -125,7 +137,8 @@ export const CAPACITOR_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 14, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 0, boranium: 0, germanium: 8, resources: 5 },
-    stats: { energyBonus: 20 },    description: 'Advanced energy storage system.',
+    stats: { energyBonus: 20 },
+    description: 'Advanced energy storage system.',
   },
 ];
 
@@ -137,7 +150,8 @@ export const DAMPENER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 14, Kinetics: 0, Propulsion: 8, Construction: 0 },
     mass: 2,
     cost: { ironium: 5, boranium: 10, germanium: 0, resources: 50 },
-    stats: { dampening: -4 },    description: 'Reduces enemy weapon effectiveness.',
+    stats: { dampening: -4 },
+    description: 'Reduces enemy weapon effectiveness.',
   },
   {
     id: 'elec_tachyon_detector',
@@ -146,60 +160,21 @@ export const DAMPENER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 14, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
     cost: { ironium: 1, boranium: 5, germanium: 0, resources: 70 },
-    stats: { detection: -5 },    description: 'Detects cloaked ships.',
+    stats: { detection: -5 },
+    description: 'Detects cloaked ships.',
   },
 ];
 
 export const GENERATOR_COMPONENTS: ComponentStats[] = [
   {
-    id: 'elec_antimatter_generator',
+    id: 'elec_anti_matter_generator',
     name: 'Anti-matter Generator',
     type: 'Electrical',
     tech: { Energy: 0, Kinetics: 12, Propulsion: 0, Construction: 0 },
     mass: 10,
     cost: { ironium: 8, boranium: 3, germanium: 3, resources: 10 },
-    stats: { energyGen: 200 },    description: 'Exotic matter power source.',
+    stats: { energyGen: 200 },
+    description: 'Exotic matter power source.',
   },
 ];
 
-export const CLOAK_COMPONENTS: ComponentStats[] = [
-  {
-    id: 'elec_cloak',
-    name: 'Stealth Cloak',
-    type: 'Cloak',
-    tech: { Energy: 4 },
-    mass: 2,
-    cost: { ironium: 2, boranium: 0, germanium: 2, resources: 5 },
-    stats: { cloak: 70 },    description: 'Bends light around the hull.'
-  },
-  {
-    id: 'elec_super_cloak',
-    name: 'Super Stealth',
-    type: 'Cloak',
-    tech: { Energy: 12 },
-    mass: 5,
-    cost: { ironium: 5, boranium: 0, germanium: 10, resources: 20 },
-    stats: { cloak: 95 },    description: 'Near-perfect invisibility.'
-  }
-,
-  {
-    id: 'elec_anti_matter_generator',
-    name: 'Elec Anti Matter Generator',
-    type: 'Electrical',
-    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 10,
-    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
-    stats: {},
-    description: 'TODO: Component needs proper configuration.'
-  },
-  {
-    id: 'elec_transport_cloaking',
-    name: 'Elec Transport Cloaking',
-    type: 'Electrical',
-    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 10,
-    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
-    stats: {},
-    description: 'TODO: Component needs proper configuration.'
-  }
-];
