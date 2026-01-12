@@ -6,7 +6,7 @@ import { GalaxyFleetService } from './galaxy-fleet.service';
 import { Fleet, GameState, Planet, Player, ShipDesign, Star } from '../../../models/game.model';
 import { signal } from '@angular/core';
 
-fdescribe('GalaxyVisibilityService', () => {
+describe('GalaxyVisibilityService', () => {
   let service: GalaxyVisibilityService;
   let mockGameStateService: any;
   let mockSettingsService: any;
@@ -102,19 +102,19 @@ fdescribe('GalaxyVisibilityService', () => {
 
     mockGalaxyFleetService = {
       getFleetPosition: (f: Fleet) => {
-          if (f.location.type === 'orbit') {
-              return { x: 100, y: 100 }; // Star position
-          }
-          return null;
-      }
+        if (f.location.type === 'orbit') {
+          return { x: 100, y: 100 }; // Star position
+        }
+        return null;
+      },
     };
 
     TestBed.configureTestingModule({
       providers: [
         GalaxyVisibilityService,
+        GalaxyFleetService,
         { provide: GameStateService, useValue: mockGameStateService },
         { provide: SettingsService, useValue: mockSettingsService },
-        { provide: GalaxyFleetService, useValue: mockGalaxyFleetService },
       ],
     });
     service = TestBed.inject(GalaxyVisibilityService);
@@ -132,7 +132,7 @@ fdescribe('GalaxyVisibilityService', () => {
   it('should show scanner ring for fleet in orbit', () => {
     const ranges = service.scannerRanges();
     expect(ranges.length).toBeGreaterThan(0);
-    const fleetRange = ranges.find(r => r.type === 'fleet');
+    const fleetRange = ranges.find((r) => r.type === 'fleet');
     expect(fleetRange).toBeDefined();
     expect(fleetRange?.r).toBe(50);
     expect(fleetRange?.x).toBe(100);

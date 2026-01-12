@@ -32,13 +32,15 @@ describe('ShipDesignerHullSelectorComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show all hulls by default (empty selection)', () => {
-    expect(component.selectedCategories().size).toBe(0);
+  it('should show all hulls by default (all categories selected)', () => {
+    expect(component.selectedCategories().size).toBe(3);
     expect(component.filteredHulls().length).toBe(3);
   });
 
   it('should filter hulls when a category is selected', () => {
-    component.toggleCategory('warship');
+    // Start by deselecting all (toggle null twice to clear)
+    component.toggleCategory(null); // Deselects all
+    component.toggleCategory('warship'); // Select only warship
     fixture.detectChanges();
     expect(component.selectedCategories().has('warship')).toBeTrue();
     expect(component.filteredHulls().length).toBe(1);
@@ -46,6 +48,8 @@ describe('ShipDesignerHullSelectorComponent', () => {
   });
 
   it('should filter hulls when multiple categories are selected', () => {
+    // Start by deselecting all
+    component.toggleCategory(null); // Deselects all
     component.toggleCategory('warship');
     component.toggleCategory('miner');
     fixture.detectChanges();
@@ -56,19 +60,21 @@ describe('ShipDesignerHullSelectorComponent', () => {
     expect(names).toContain('Miner');
   });
 
-  it('should toggle category off', () => {
-    component.toggleCategory('warship');
-    component.toggleCategory('warship');
+  it('should toggle category off and back on', () => {
+    component.toggleCategory('warship'); // Deselect warship
+    expect(component.selectedCategories().size).toBe(2); // scout and miner remain
+    component.toggleCategory('warship'); // Re-select warship
     fixture.detectChanges();
-    expect(component.selectedCategories().size).toBe(0);
+    expect(component.selectedCategories().size).toBe(3); // Back to all selected
     expect(component.filteredHulls().length).toBe(3);
   });
 
-  it('should clear categories if null passed (simulate select all)', () => {
-    component.toggleCategory('warship');
-    component.toggleCategory(null);
+  it('should clear categories when null passed with all selected', () => {
+    // Start with all selected (default state)
+    expect(component.selectedCategories().size).toBe(3);
+    component.toggleCategory(null); // Toggle null when all selected = deselect all
     fixture.detectChanges();
     expect(component.selectedCategories().size).toBe(0);
-    expect(component.filteredHulls().length).toBe(3);
+    expect(component.filteredHulls().length).toBe(0); // No categories selected = no hulls shown
   });
 });

@@ -59,6 +59,8 @@ export function compileShipStats(
   let cargoCapacity = hull.Stats.Cargo || 0;
   let fuelCapacity = hull.Stats['Max Fuel'] || 0;
   let colonistCapacity = 0;
+  let totalScanPower4 = 0;
+  let totalPenScanPower4 = 0;
   let scanRange = 0;
   let penScanRange = 0;
   let canDetectCloaked = false;
@@ -108,7 +110,7 @@ export function compileShipStats(
       // Add miniaturized mass and cost (multiplied by count)
       const miniaturizedMass = getMiniaturizedMass(baseComponent, techLevels);
       const miniaturizedCost = getMiniaturizedCost(baseComponent, techLevels);
-      
+
       totalMass += miniaturizedMass * count;
       if (miniaturizedCost.ironium) cost.ironium += miniaturizedCost.ironium * count;
       if (miniaturizedCost.boranium) cost.boranium += miniaturizedCost.boranium * count;
@@ -150,7 +152,7 @@ export function compileShipStats(
       }
 
       // Colonist Capacity - check for settler trait
-      const settlerTrait = baseComponent.traits?.find(t => t.type === 'settler');
+      const settlerTrait = baseComponent.traits?.find((t) => t.type === 'settler');
       if (settlerTrait && settlerTrait.properties.colonistCapacity) {
         colonistCapacity += (settlerTrait.properties.colonistCapacity as number) * count;
         hasColonyModule = true;
@@ -205,11 +207,17 @@ export function compileShipStats(
           break;
 
         case 'scanner':
-          // For scanners, only the best one matters
-          scanRange = Math.max(scanRange, baseComponent.stats.scan || 0);
-          if (baseComponent.stats?.pen) {
-            penScanRange = Math.max(penScanRange, baseComponent.stats.pen);
+          // Scanners are cumulative: 4th root of sum of 4th powers
+          const range = baseComponent.stats.scan || baseComponent.stats.enemyFleetScanDistance || 0;
+          if (range > 0) {
+            totalScanPower4 += count * Math.pow(range, 4);
           }
+
+          const pen = baseComponent.stats.pen || 0;
+          if (pen > 0) {
+            totalPenScanPower4 += count * Math.pow(pen, 4);
+          }
+
           if (baseComponent.stats.detection && baseComponent.stats.detection > 0) {
             canDetectCloaked = true;
           }
@@ -220,6 +228,14 @@ export function compileShipStats(
           break;
       }
     }
+  }
+
+  // Final calculations
+  if (totalScanPower4 > 0) {
+    scanRange = Math.pow(totalScanPower4, 0.25);
+  }
+  if (totalPenScanPower4 > 0) {
+    penScanRange = Math.pow(totalPenScanPower4, 0.25);
   }
 
   // Validation

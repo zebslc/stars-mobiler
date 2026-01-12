@@ -9,7 +9,7 @@ module.exports = function (config) {
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
-      require('@angular-devkit/build-angular/plugins/karma')
+      require('@angular-devkit/build-angular/plugins/karma'),
     ],
     client: {
       jasmine: {
@@ -18,33 +18,36 @@ module.exports = function (config) {
         // for example, you can disable the random execution with `random: false`
         // or set a specific seed with `seed: 4321`
       },
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
+      clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
     jasmineHtmlReporter: {
-      suppressAll: true // removes the duplicated traces
+      suppressAll: true, // removes the duplicated traces
     },
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/stars-mobiler'),
       subdir: '.',
-      reporters: [
-        { type: 'html' },
-        { type: 'text-summary' }
-      ]
+      reporters: [{ type: 'html' }, { type: 'text-summary' }],
     },
     reporters: ['progress'],
+    port: 9876,
+    colors: true,
+    logLevel: config.LOG_INFO,
+    autoWatch: false,
     browsers: ['ChromeHeadless'],
+    singleRun: true,
     customLaunchers: {
       ChromeHeadless: {
-        base: 'ChromeHeadless',
+        base: 'Chrome',
         flags: [
+          '--headless',
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-gpu',
           '--disable-dev-shm-usage',
           '--remote-debugging-port=9222',
-        ]
-      }
+        ],
+      },
     },
-    restartOnFileChange: true
+    restartOnFileChange: true,
   });
 };

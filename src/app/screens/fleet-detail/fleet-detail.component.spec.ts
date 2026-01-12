@@ -105,6 +105,7 @@ describe('FleetDetailComponent', () => {
     mockGameStateService.game.set({
       fleets: [fleet1, fleet2, starbase],
       shipDesigns: designs,
+      stars: [],
     });
     mockGameStateService.player.set({ id: 'p1' });
 
@@ -159,6 +160,7 @@ describe('FleetDetailComponent', () => {
     mockGameStateService.game.set({
       fleets: [fleet1, fleet2, fleet3],
       shipDesigns: designs,
+      stars: [],
     });
     mockGameStateService.player.set({ id: 'p1' });
 
