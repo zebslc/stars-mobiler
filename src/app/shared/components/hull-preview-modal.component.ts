@@ -42,7 +42,9 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
                   </div>
                   <div class="spec-row">
                     <span class="label">Fuel:</span>
-                    <span class="value">{{ stats?.fuelCapacity || hull?.Stats?.['Max Fuel'] }}mg</span>
+                    <span class="value"
+                      >{{ stats?.fuelCapacity || hull?.Stats?.['Max Fuel'] }}mg</span
+                    >
                   </div>
                   <div class="spec-row">
                     <span class="label">Armor:</span>
@@ -88,7 +90,7 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
                     @if (stats.scanRange > 0) {
                       <div class="spec-row">
                         <span class="label">Scan Range:</span>
-                        <span class="value">{{ stats.scanRange }}</span>
+                        <span class="value">{{ stats.scanRange }} ly</span>
                       </div>
                     }
                     @if (stats.miningRate > 0) {
@@ -107,7 +109,7 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
                       <div class="spec-row">
                         <span class="label">Bombing:</span>
                         <span class="value"
-                          >{{ stats.bombing.kill }}/{{ stats.bombing.destroy }}</span
+                          >{{ stats.bombing.kill }}%/{{ stats.bombing.destroy }}</span
                         >
                       </div>
                     }
@@ -125,9 +127,7 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
 
               <div class="cost">
                 <span class="label">Cost:</span>
-                <app-resource-cost
-                  [cost]="toCost(stats?.cost || hull?.Cost)"
-                ></app-resource-cost>
+                <app-resource-cost [cost]="toCost(stats?.cost || hull?.Cost)"></app-resource-cost>
               </div>
             }
           </div>

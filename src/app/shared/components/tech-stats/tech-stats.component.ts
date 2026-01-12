@@ -44,7 +44,7 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
         @if (stats().accuracy) {
           <div class="stat-item">
             <span class="label">Accuracy:</span>
-            <span class="value">{{ stats().accuracy }}%</span>
+            <span class="value">{{ getTotal(stats().accuracy! * 100) }}%</span>
           </div>
         }
         @if (stats().initiative) {
@@ -84,25 +84,25 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
         @if (stats().cloak) {
           <div class="stat-item">
             <span class="label">Cloak:</span>
-            <span class="value">{{ stats().cloak }}%</span>
+            <span class="value">{{ getTotal(stats().cloak! * 100) }}%</span>
           </div>
         }
         @if (stats().unarmedCloak) {
           <div class="stat-item">
             <span class="label">Cloak (Unarmed):</span>
-            <span class="value">{{ stats().unarmedCloak }}%</span>
+            <span class="value">{{ getTotal(stats().unarmedCloak! * 100) }}%</span>
           </div>
         }
         @if (stats().scan) {
           <div class="stat-item">
             <span class="label">Scan:</span>
-            <span class="value">{{ getTotal(stats().scan) }}</span>
+            <span class="value">{{ getTotal(stats().scan) }} ly</span>
           </div>
         }
         @if (stats().enemyFleetScanDistance) {
           <div class="stat-item">
             <span class="label">Fleet Scan:</span>
-            <span class="value">{{ getTotal(stats().enemyFleetScanDistance) }}</span>
+            <span class="value">{{ getTotal(stats().enemyFleetScanDistance) }} ly</span>
           </div>
         }
         @if (stats().planetScanDistance !== undefined) {
@@ -113,14 +113,14 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
                 ? 'Orbit'
                 : stats().planetScanDistance === -1
                   ? 'None'
-                  : getTotal(stats().planetScanDistance)
+                  : getTotal(stats().planetScanDistance) + ' ly'
             }}</span>
           </div>
         }
         @if (stats().pen) {
           <div class="stat-item">
-            <span class="label">Pen. Scan:</span>
-            <span class="value">{{ getTotal(stats().pen) }}</span>
+            <span class="label">Penetration. Scan:</span>
+            <span class="value">{{ getTotal(stats().pen) }} ly</span>
           </div>
         }
         @if (stats().jamming) {
@@ -138,7 +138,7 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
         @if (stats().energyBonus) {
           <div class="stat-item">
             <span class="label">Capacitor:</span>
-            <span class="value">+{{ getTotal(stats().energyBonus) }}</span>
+            <span class="value">+{{ getTotal(stats().energyBonus! * 100) }}%</span>
           </div>
         }
         @if (stats().energyGen) {

@@ -15,6 +15,8 @@ export class GalaxyMapStateService {
   // Constants
   private readonly MOUSE_SENSITIVITY = 3.0;
   private readonly TOUCH_SENSITIVITY = 3.5;
+  private readonly MIN_ZOOM = 0.5;
+  private readonly MAX_ZOOM = 15;
 
   // Pan state
   private isPanning = false;
@@ -36,11 +38,11 @@ export class GalaxyMapStateService {
   });
 
   zoomIn() {
-    this.scale.update((s) => Math.min(s * 1.2, 5));
+    this.scale.update((s) => Math.min(s * 1.2, this.MAX_ZOOM));
   }
 
   zoomOut() {
-    this.scale.update((s) => Math.max(s / 1.2, 0.5));
+    this.scale.update((s) => Math.max(s / 1.2, this.MIN_ZOOM));
   }
 
   resetView() {
@@ -86,9 +88,9 @@ export class GalaxyMapStateService {
     let newScale = oldScale;
 
     if (delta > 0) {
-      newScale = Math.min(oldScale * factor, 5);
+      newScale = Math.min(oldScale * factor, this.MAX_ZOOM);
     } else {
-      newScale = Math.max(oldScale / factor, 0.5);
+      newScale = Math.max(oldScale / factor, this.MIN_ZOOM);
     }
 
     if (newScale !== oldScale) {
@@ -133,7 +135,7 @@ export class GalaxyMapStateService {
     const factor = dist / this.lastTouchDistance;
 
     const oldScale = this.scale();
-    const newScale = Math.min(Math.max(oldScale * factor, 0.5), 5);
+    const newScale = Math.min(Math.max(oldScale * factor, this.MIN_ZOOM), this.MAX_ZOOM);
 
     if (newScale !== oldScale) {
       // Calculate midpoint between the two touches (recalculated each frame)

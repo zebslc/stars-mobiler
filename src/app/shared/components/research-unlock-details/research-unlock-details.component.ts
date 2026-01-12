@@ -325,8 +325,39 @@ export class ResearchUnlockDetailsComponent {
         if (value === undefined) return;
         if (key === 'fuelUsage') return; // Skip fuel usage as it has its own graph
 
+        let displayValue = value.toString();
+
+        // Format values based on stat type
+        if (['kill', 'terraform', 'defense'].includes(key)) {
+          displayValue = `${value}%`;
+        } else if (
+          [
+            'accuracy',
+            'cloak',
+            'unarmedCloak',
+            'jamming',
+            'stealth',
+            'energyBonus',
+            'detection',
+            'deflectedShieldDamageReduction',
+          ].includes(key)
+        ) {
+          const numValue = Number(value);
+          // Handle floating point errors but keep decimals if present (e.g. 12.5)
+          const percent = Math.round(numValue * 10000) / 100;
+          displayValue = `${percent}%`;
+        } else if (key === 'dampening') {
+          displayValue = `${value} sq`;
+        } else if (['scan', 'pen', 'planetScanDistance', 'enemyFleetScanDistance'].includes(key)) {
+          displayValue = `${value} ly`;
+        } else if (['cap', 'gateMass'].includes(key)) {
+          displayValue = `${value} kT`;
+        } else if (key === 'fuelEff') {
+          displayValue = `${value} mg/ly`;
+        }
+
         const formattedKey = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-        stats.push({ key: formattedKey, value: value.toString() });
+        stats.push({ key: formattedKey, value: displayValue });
       });
     }
     return stats;

@@ -85,7 +85,7 @@ import { inject } from '@angular/core';
 
           <div class="stat-row">
             <div class="label">Scanner</div>
-            <div class="value">{{ scannerRange() > 0 ? 'Range ' + scannerRange() : 'None' }}</div>
+            <div class="value">{{ scannerRange() > 0 ? 'Range ' + scannerRange() + ' ly' : 'None' }}</div>
           </div>
         </div>
       </div>
