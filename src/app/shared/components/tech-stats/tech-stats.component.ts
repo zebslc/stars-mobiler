@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, computed, signal, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ComponentStats } from '../../../data/tech-atlas.types';
 import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.component';
@@ -30,7 +30,7 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
           <div class="stat-item highlight">
             <span class="label">Damage:</span>
             <span class="value">{{ getTotal(stats().power) }}</span>
-            @if (countSig() > 1) {
+            @if (count() > 1) {
               <span class="per-unit">({{ stats().power }})</span>
             }
           </div>
@@ -59,7 +59,7 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
           <div class="stat-item highlight">
             <span class="label">Shields:</span>
             <span class="value">{{ getTotal(stats().shield) }}</span>
-            @if (countSig() > 1) {
+            @if (count() > 1) {
               <span class="per-unit">({{ stats().shield }})</span>
             }
           </div>
@@ -68,7 +68,7 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
           <div class="stat-item">
             <span class="label">Armor:</span>
             <span class="value">{{ getTotal(stats().armor) }}</span>
-            @if (countSig() > 1) {
+            @if (count() > 1) {
               <span class="per-unit">({{ stats().armor }})</span>
             }
           </div>
@@ -217,27 +217,28 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
       <div class="meta-stats">
         <div class="meta-item mass">
           <span class="label">Mass:</span>
-          <span class="value">{{ getTotal(component.mass) }}kt</span>
+          <span class="value">{{ getTotal(component().mass) }}kt</span>
         </div>
 
         <div class="meta-item cost">
           <span class="label">Cost:</span>
           <span class="value">
-            @if (component.cost.ironium) {
-              {{ getTotal(component.cost.ironium) }} Fe,
+            @if (component().cost.ironium) {
+              {{ getTotal(component().cost.ironium) }} Fe,
             }
-            @if (component.cost.boranium) {
-              {{ getTotal(component.cost.boranium) }} Bo,
+            @if (component().cost.boranium) {
+              {{ getTotal(component().cost.boranium) }} Bo,
             }
-            @if (component.cost.germanium) {
-              {{ getTotal(component.cost.germanium) }} Ge,
+            @if (component().cost.germanium) {
+              {{ getTotal(component().cost.germanium) }} Ge,
             }
-            {{ getTotal(component.cost.resources) }} Res
+            {{ getTotal(component().cost.resources) }} Res
           </span>
         </div>
       </div>
     </div>
   `,
+
   styles: [
     `
       .tech-stats-container {
@@ -303,14 +304,11 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TechStatsComponent implements OnChanges {
-  @Input({ required: true }) component!: ComponentStats;
-  @Input() count = 1;
+export class TechStatsComponent {
+  readonly component = input.required<ComponentStats>();
+  readonly count = input(1);
 
-  readonly componentSig = signal<ComponentStats | null>(null);
-  readonly countSig = signal(1);
-
-  readonly stats = computed(() => this.componentSig()?.stats || {});
+  readonly stats = computed(() => this.component().stats || {});
 
   readonly fuelUsageInfo = computed(() => {
     const stats = this.stats();
@@ -325,28 +323,10 @@ export class TechStatsComponent implements OnChanges {
 
   // Removed graphPaths computed as it is now in the component
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['component']) {
-      this.componentSig.set(this.component);
-    }
-    if (changes['count']) {
-      this.countSig.set(this.count);
-    }
-  }
-
   getTotal(value: number | undefined): number {
     if (value === undefined) return 0;
     // Handle floating point errors
-    const total = value * this.countSig();
+    const total = value * this.count();
     return Math.round(total * 100) / 100;
-  }
-
-  formatCost(cost: any): string {
-    const parts = [];
-    if (cost.ironium) parts.push(`${this.getTotal(cost.ironium)} Fe`);
-    if (cost.boranium) parts.push(`${this.getTotal(cost.boranium)} Bo`);
-    if (cost.germanium) parts.push(`${this.getTotal(cost.germanium)} Ge`);
-    if (cost.resources) parts.push(`${this.getTotal(cost.resources)} Res`);
-    return parts.join(', ');
   }
 }

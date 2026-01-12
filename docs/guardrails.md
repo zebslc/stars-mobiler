@@ -66,4 +66,7 @@
 - ESLint + Prettier enforced
 - Strong typing; no `any`
 - Commands should not be marked `@Injectable` (they're data objects, not services)
+- **Component Inputs**: Use `input()` and `input.required()` signals instead of `@Input()` decorator.
+  - Avoid manual signals synchronized with `ngOnChanges`.
+  - Use `computed()` for derived state from inputs.
 

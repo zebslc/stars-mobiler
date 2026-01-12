@@ -12,6 +12,7 @@ This is **Stellar Remnants**, a modernized Stars! 4X strategy game built with An
 ### Angular Architecture
 - **Zoneless + OnPush everywhere**: All components MUST use `ChangeDetectionStrategy.OnPush`
 - **Signals-first**: Use `signal()`, `computed()`, `effect()` - avoid RxJS in app code except for library interop
+- **Input Signals**: Use `input()` and `input.required()` instead of `@Input()` + `ngOnChanges`
 - **Standalone components**: All components must be standalone with lazy `loadComponent` routes
 - **Folder structure**: 
   - `app/core`: cross-cutting concerns (state stores, guards, config, commands)
