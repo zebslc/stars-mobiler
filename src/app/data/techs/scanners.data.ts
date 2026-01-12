@@ -86,7 +86,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     stats: { planetScanDistance: -1, enemyFleetScanDistance: 80, pen: 0, cargoSteal: true },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 80 light years away. This scanner is capable of penetrating the defences of enemy fleets allowing you to steal the cargo.',
-    primaryRacialTraitRequired: 'Super Stealth',
+    primaryRacialTraitRequired: ['Super Stealth'],
   },
   {
     id: 'scan_chameleon_scanner',
@@ -98,7 +98,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     stats: { planetScanDistance: 45, enemyFleetScanDistance: 160, pen: 0, cloak: 20 },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 160 light years away. This scanner is can determine a planets basic stats from a distance of 45 light years. It also decreases the range at which enemy ships can see the ship by 20%.',
-    primaryRacialTraitRequired: 'Super Stealth',
+    primaryRacialTraitRequired: ['Super Stealth'],
   },
   {
     id: 'scan_ferret_scanner',
@@ -110,7 +110,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     stats: { planetScanDistance: 50, enemyFleetScanDistance: 185, pen: 0 },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 160 light years away. This scanner is can determine a planets basic stats from a distance of 45 light years. It also decreases the range at which enemy ships can see the ship by 20%.',
-    lesserRacialTraitUnavailable: 'No Advanced Sensors',
+    lesserRacialTraitUnavailable: ['No Advanced Sensors'],
   },
   {
     id: 'scan_dolphin_scanner',
@@ -122,7 +122,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     stats: { planetScanDistance: 100, enemyFleetScanDistance: 220, pen: 100 },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 220 light years away. This scanner is can determine a planets basic stats from a distance of 100 light years. The scanner will also spot enemy fleets attempting to hide behind planets within that range',
-    lesserRacialTraitUnavailable: 'No Advanced Sensors',
+    lesserRacialTraitUnavailable: ['No Advanced Sensors'],
   },
   {
     id: 'scan_gazelle_scanner',
@@ -167,7 +167,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     stats: { planetScanDistance: 200, enemyFleetScanDistance: 300, pen: 0 },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 300 light years away. This scanner is capable of determining a planets environment and composition from a distance of up to 200 light years. The scanner will also spot enemy fleets attempting to hide behind planets within range.',
-    lesserRacialTraitUnavailable: 'No Advanced Sensors',
+    lesserRacialTraitUnavailable: ['No Advanced Sensors'],
   },
   {
     id: 'scan_eagle_eye_scanner',
@@ -190,7 +190,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     stats: { planetScanDistance: 120, enemyFleetScanDistance: 220, pen: 0, cargoSteal: true },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 220 light years away. This scanner can determine a planets stats from a distance of 120 light years. This scanner is capable of penetrating the defences of enemy fleets allowing you to steal the cargo.',
-    primaryRacialTraitRequired: 'Super Stealth',
+    primaryRacialTraitRequired: ['Super Stealth'],
   },
   {
     id: 'scan_peerless',

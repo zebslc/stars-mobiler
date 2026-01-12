@@ -344,15 +344,74 @@ export class ShipDesignerService {
       }
 
       // Check Primary Racial Trait
-      if (baseComponent.primaryRacialTraitRequired && species) {
-        if (!species.primaryTraits?.includes(baseComponent.primaryRacialTraitRequired)) {
+      if (
+        baseComponent.primaryRacialTraitRequired &&
+        baseComponent.primaryRacialTraitRequired.length > 0 &&
+        species
+      ) {
+        if (!species.primaryTraits) return false;
+        const hasAllRequired = baseComponent.primaryRacialTraitRequired.every((req) =>
+          species.primaryTraits?.includes(req),
+        );
+        if (!hasAllRequired) {
           return false;
         }
       }
 
       // Check Lesser Racial Trait
-      if (baseComponent.lesserRacialTraitUnavailable && species) {
-        if (species.lesserTraits?.includes(baseComponent.lesserRacialTraitUnavailable)) {
+      if (
+        baseComponent.lesserRacialTraitUnavailable &&
+        baseComponent.lesserRacialTraitUnavailable.length > 0 &&
+        species
+      ) {
+        if (species.lesserTraits) {
+          const hasAnyForbidden = baseComponent.lesserRacialTraitUnavailable.some((forbidden) =>
+            species.lesserTraits?.includes(forbidden),
+          );
+          if (hasAnyForbidden) {
+            return false;
+          }
+        }
+      }
+
+      // Check Primary Racial Trait (Unavailable)
+      if (
+        baseComponent.primaryRacialTraitUnavailable &&
+        baseComponent.primaryRacialTraitUnavailable.length > 0 &&
+        species
+      ) {
+        if (species.primaryTraits) {
+          const hasAnyForbidden = baseComponent.primaryRacialTraitUnavailable.some((forbidden) =>
+            species.primaryTraits?.includes(forbidden),
+          );
+          if (hasAnyForbidden) {
+            return false;
+          }
+        }
+      }
+
+      // Check Lesser Racial Trait (Required)
+      if (
+        baseComponent.lesserRacialTraitRequired &&
+        baseComponent.lesserRacialTraitRequired.length > 0 &&
+        species
+      ) {
+        if (!species.lesserTraits) return false;
+        const hasAllRequired = baseComponent.lesserRacialTraitRequired.every((req) =>
+          species.lesserTraits?.includes(req),
+        );
+        if (!hasAllRequired) {
+          return false;
+        }
+      }
+
+      // Check Hull Restrictions
+      if (baseComponent.hullRestrictions && baseComponent.hullRestrictions.length > 0 && hull) {
+        // hull.Name is usually "Scout", "Destroyer", etc.
+        // The data says: hullRestrictions: ['Mini-Colonist']
+        // We need to match against the current hull's name or class.
+        // Assuming hull.Name matches.
+        if (!baseComponent.hullRestrictions.includes(hull.Name)) {
           return false;
         }
       }

@@ -340,10 +340,17 @@ export interface ComponentStats {
     planetScanDistance?: number;
     enemyFleetScanDistance?: number;
     cargoSteal?: boolean;
+    unarmedCloak?: number;
+    deflectedShieldDamageReduction?: number;
+    noDefenceColonistKill?: number;
+    stealth?: number;
   };
   description: string;
-  primaryRacialTraitRequired?: string;
-  lesserRacialTraitUnavailable?: string;
+  primaryRacialTraitRequired?: PrimaryRacialTrait[];
+  primaryRacialTraitUnavailable?: PrimaryRacialTrait[];
+  lesserRacialTraitRequired?: LesserRacialTrait[];
+  lesserRacialTraitUnavailable?: LesserRacialTrait[];
+  hullRestrictions?: string[];
   isRamscoop?: boolean;
   categoryId?: string;
   traits?: ComponentTrait[];
@@ -363,3 +370,31 @@ export interface ComponentCategory {
   category: string;
   items: ComponentStats[];
 }
+
+export type PrimaryRacialTrait =
+  | 'Hyper Expansion'
+  | 'Super Stealth'
+  | 'War Monger'
+  | 'Claim Adjuster'
+  | 'Inner Strength'
+  | 'Space Demolition'
+  | 'Packet Physics'
+  | 'Interstellar Traveler'
+  | 'Alternate Reality'
+  | 'Jack of All Trades';
+
+export type LesserRacialTrait =
+  | 'Improved Fuel Efficiency'
+  | 'Total Terraforming'
+  | 'Advanced Remote Mining'
+  | 'Improved Starbases'
+  | 'Generalized Research'
+  | 'Ultimate Recycling'
+  | 'Mineral Alchemy'
+  | 'No Ramscoop Engines'
+  | 'Cheap Engines'
+  | 'Only Basic Remote Mining'
+  | 'No Advanced Sensors'
+  | 'Low Starting Population'
+  | 'Bleeding Edge Technology'
+  | 'Regenerating Shields';

@@ -7,7 +7,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { ironium: 1, boranium: 0, germanium: 1, resources: 4 },
+    cost: { ironium: 1, boranium: 0, germanium: 1, resources: 40 },
     stats: { shield: 25 },
     description: 'Basic energy barrier.'
   },
@@ -17,7 +17,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 3, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { ironium: 2, boranium: 0, germanium: 2, resources: 5 },
+    cost: { ironium: 2, boranium: 0, germanium: 2, resources: 500 },
     stats: { shield: 40 },
     description: 'Improved magnetic containment.'
   },
@@ -27,7 +27,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 6, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 6 },
+    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 1730 },
     stats: { shield: 60 },
     description: 'Diffuse shield technology.'
   },
@@ -37,9 +37,10 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 7, Kinetics: 0, Propulsion: 0, Construction: 4 },
     mass: 10,
-    cost: { ironium: 7, boranium: 0, germanium: 4, resources: 15 },
-    stats: { shield: 60 },
-    description: 'Shield-armor hybrid. Heavy but effective.'
+    cost: { ironium: 7, boranium: 0, germanium: 4, resources: 3500 },
+    stats: { shield: 60 , armor: 65},
+    description: 'This shield also contains an armor component which will absorb 65 damage points.',
+    primaryRacialTraitRequired: ['Inner Strength'],
   },
   {
     id: 'def_shadow_shield',
@@ -47,9 +48,10 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 7, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 2,
-    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 7 },
-    stats: { shield: 75 },
-    description: 'Cloaking-enhanced shield matrix.'
+    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 5000 },
+    stats: { shield: 75, stealth: 0.35 },
+    description: 'The shield decreases the range at which enemy ships can see the ship by 35%.',
+    primaryRacialTraitRequired: ['Super Stealth'],
   },
   {
     id: 'def_bear_neutrino_barrier',
@@ -57,7 +59,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 10, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { ironium: 4, boranium: 0, germanium: 4, resources: 8 },
+    cost: { ironium: 4, boranium: 0, germanium: 4, resources: 11140 },
     stats: { shield: 100 },
     description: 'Neutrino particle barrier.'
   },
@@ -67,9 +69,19 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     type: 'Shield',
     tech: { Energy: 14, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { ironium: 5, boranium: 0, germanium: 6, resources: 11 },
+    cost: { ironium: 5, boranium: 0, germanium: 6, resources: 60140 },
     stats: { shield: 175 },
     description: 'Heavy-duty deflector array.'
+  },
+    {
+    id: 'def_elephant',
+    name: 'Elephant Hide Fortress',
+    type: 'Shield',
+    tech: { Energy: 18, Kinetics: 0, Propulsion: 0, Construction: 0 },
+    mass: 1,
+    cost: { ironium: 8, boranium: 0, germanium: 10, resources: 180000 },
+    stats: { shield: 300 },
+    description: 'Fortress-grade protection.'
   },
   {
     id: 'def_shadow_shield',
@@ -82,22 +94,12 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
     description: 'Stealth-enhanced shielding.'
   },
   {
-    id: 'def_elephant',
-    name: 'Elephant Hide Fortress',
-    type: 'Shield',
-    tech: { Energy: 18, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 1,
-    cost: { ironium: 8, boranium: 0, germanium: 10, resources: 15 },
-    stats: { shield: 300 },
-    description: 'Fortress-grade protection.'
-  },
-  {
     id: 'def_complete_phase_shield',
     name: 'Complete Phase Shield',
     type: 'Shield',
     tech: { Energy: 22, Kinetics: 0, Propulsion: 0, Construction: 0 },
     mass: 1,
-    cost: { ironium: 12, boranium: 0, germanium: 15, resources: 20 },
+    cost: { ironium: 12, boranium: 0, germanium: 15, resources: 383000 },
     stats: { shield: 500 },
     description: 'Complete phased energy barrier.'
   }
@@ -120,7 +122,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
     mass: 56,
-    cost: { ironium: 6, boranium: 0, germanium: 0, resources: 13 },
+    cost: { ironium: 6, boranium: 0, germanium: 0, resources: 130 },
     stats: { armor: 75 },
     description: 'Crystalline lattice armor.'
   },
@@ -130,7 +132,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
     mass: 25,
-    cost: { ironium: 0, boranium: 0, germanium: 5, resources: 15 },
+    cost: { ironium: 0, boranium: 0, germanium: 5, resources: 410 },
     stats: { armor: 100 },
     description: 'Bio-engineered carbon fiber armor.'
   },
@@ -140,7 +142,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 6 },
     mass: 54,
-    cost: { ironium: 8, boranium: 0, germanium: 0, resources: 18 },
+    cost: { ironium: 8, boranium: 0, germanium: 0, resources: 1558 },
     stats: { armor: 120 },
     description: 'Advanced metallic compound.'
   },
@@ -150,7 +152,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
     mass: 15,
-    cost: { ironium: 0, boranium: 0, germanium: 6, resources: 20 },
+    cost: { ironium: 0, boranium: 0, germanium: 6, resources: 2850 },
     stats: { armor: 175 },
     description: 'Living armor that adapts to damage.'
   },
@@ -160,7 +162,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
     mass: 50,
-    cost: { ironium: 9, boranium: 1, germanium: 0, resources: 25 },
+    cost: { ironium: 9, boranium: 1, germanium: 0, resources: 6938 },
     stats: { armor: 180 },
     description: 'Dense crystalline armor plating.'
   },
@@ -170,9 +172,9 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 4, Kinetics: 0, Propulsion: 0, Construction: 10 },
     mass: 50,
-    cost: { ironium: 10, boranium: 0, germanium: 2, resources: 28 },
-    stats: { armor: 175 },
-    description: 'Energy-reinforced kelarium.'
+    cost: { ironium: 10, boranium: 0, germanium: 2, resources: 10000 },
+    stats: { armor: 175, shield: 50 },
+    description: 'Energy-reinforced kelarium which acts as part shield for 50 points of damage.'
   },
   {
     id: 'def_depleted_neutronium',
@@ -180,9 +182,10 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 3, Kinetics: 0, Propulsion: 0, Construction: 10 },
     mass: 50,
-    cost: { ironium: 10, boranium: 0, germanium: 2, resources: 28 },
-    stats: { armor: 200 },
-    description: 'Processed neutron star matter.'
+    cost: { ironium: 10, boranium: 0, germanium: 2, resources: 15000 },
+    stats: { armor: 200, stealth: 0.25 },
+    description: 'This armor decreases that range at which enemy can see the ship by 25%.',
+    primaryRacialTraitRequired: ['Super Stealth'],
   },
   {
     id: 'def_neutronium',
@@ -190,7 +193,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 12 },
     mass: 45,
-    cost: { ironium: 11, boranium: 2, germanium: 1, resources: 30 },
+    cost: { ironium: 11, boranium: 2, germanium: 1, resources: 27488 },
     stats: { armor: 275 },
     description: 'Collapsed matter plating. Very heavy.'
   },
@@ -200,7 +203,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 16 },
     mass: 40,
-    cost: { ironium: 15, boranium: 0, germanium: 0, resources: 50 },
+    cost: { ironium: 15, boranium: 0, germanium: 0, resources: 110000 },
     stats: { armor: 500 },
     description: 'Ultimate material science.'
   },
@@ -210,7 +213,7 @@ export const ARMOR_COMPONENTS: ComponentStats[] = [
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 24 },
     mass: 30,
-    cost: { ironium: 25, boranium: 0, germanium: 0, resources: 100 },
+    cost: { ironium: 25, boranium: 0, germanium: 0, resources: 521000 },
     stats: { armor: 1500 },
     description: 'The ultimate armor technology.'
   }

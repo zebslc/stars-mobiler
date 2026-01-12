@@ -24,7 +24,10 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 0,
       },
     },
-    description: 'Basic colonist transport engine.',
+    description:
+      'Can only be mounted on the mini-colonizer hull and requires the primary racial trait of Hyper-Expansion.',
+    primaryRacialTraitRequired: ['Hyper Expansion'],
+    hullRestrictions: ['Mini-Colonist'],
   },
   {
     id: 'eng_quick_jump_5',
@@ -75,6 +78,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
       },
     },
     description: 'Extremely fuel-efficient engine.',
+    lesserRacialTraitRequired: ['Improved Fuel Efficiency'],
   },
   {
     id: 'eng_long_hump_6',
@@ -108,7 +112,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 0, Kinetics: 0, Propulsion: 5, Construction: 0 },
     mass: 13,
-    cost: { ironium: 11, boranium: 0, germanium: 3, resources: 12 },
+    cost: { ironium: 11, boranium: 0, germanium: 3, resources: 960 },
     stats: {
       maxWarp: 7,
       fuelUsage: {
@@ -133,7 +137,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 0, Kinetics: 0, Propulsion: 7, Construction: 0 },
     mass: 17,
-    cost: { ironium: 16, boranium: 0, germanium: 3, resources: 28 },
+    cost: { ironium: 16, boranium: 0, germanium: 3, resources: 2850 },
     stats: {
       maxWarp: 8,
       fuelUsage: {
@@ -158,7 +162,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 0, Kinetics: 0, Propulsion: 9, Construction: 0 },
     mass: 25,
-    cost: { ironium: 20, boranium: 20, germanium: 9, resources: 50 },
+    cost: { ironium: 20, boranium: 20, germanium: 9, resources: 7110 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -183,7 +187,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 0, Kinetics: 0, Propulsion: 11, Construction: 0 },
     mass: 25,
-    cost: { ironium: 18, boranium: 25, germanium: 10, resources: 60 },
+    cost: { ironium: 18, boranium: 25, germanium: 10, resources: 100000 },
     stats: {
       maxWarp: 10,
       fuelUsage: {
@@ -200,6 +204,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
       },
     },
     description: 'Ultimate drive technology.',
+    lesserRacialTraitRequired: ['No Ramscoop Engines'],
   },
   {
     id: 'eng_trans_star_10',
@@ -208,7 +213,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 0, Kinetics: 0, Propulsion: 23, Construction: 0 },
     mass: 5,
-    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 10 },
+    cost: { ironium: 3, boranium: 0, germanium: 3, resources: 449000 },
     stats: {
       maxWarp: 10,
       fuelUsage: {
@@ -224,7 +229,8 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
         warp10: 50,
       },
     },
-    description: 'Compact ultra-efficient drive.',
+    description:
+      'This engine creates powerful waves of radiation the will kill some of your colonists per turn.',
   },
   {
     id: 'eng_radiating_hydro_ram_scoop',
@@ -233,7 +239,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 2, Kinetics: 0, Propulsion: 6, Construction: 0 },
     mass: 10,
-    cost: { ironium: 3, boranium: 2, germanium: 9, resources: 8 },
+    cost: { ironium: 3, boranium: 2, germanium: 9, resources: 1730 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -251,6 +257,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     description: 'Dirty ram scoop fuel collector. Kills settlers in transit',
     isRamscoop: true,
+    lesserRacialTraitUnavailable: ['No Ramscoop Engines'],
   },
   {
     id: 'eng_sub_galactic_fuel_scoop',
@@ -259,7 +266,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 2, Kinetics: 0, Propulsion: 8, Construction: 0 },
     mass: 20,
-    cost: { ironium: 4, boranium: 4, germanium: 7, resources: 12 },
+    cost: { ironium: 4, boranium: 4, germanium: 7, resources: 4530 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -277,6 +284,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     description: 'Improved ram scoop technology.',
     isRamscoop: true,
+    lesserRacialTraitUnavailable: ['No Ramscoop Engines'],
   },
   {
     id: 'eng_trans_galactic_fuel_scoop',
@@ -285,7 +293,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 3, Kinetics: 0, Propulsion: 9, Construction: 0 },
     mass: 19,
-    cost: { ironium: 5, boranium: 4, germanium: 12, resources: 18 },
+    cost: { ironium: 5, boranium: 4, germanium: 12, resources: 7110 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -303,6 +311,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     description: 'Advanced fuel scoop system.',
     isRamscoop: true,
+    lesserRacialTraitUnavailable: ['No Ramscoop Engines'],
   },
   {
     id: 'eng_trans_galactic_super_scoop',
@@ -311,7 +320,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 4, Kinetics: 0, Propulsion: 12, Construction: 0 },
     mass: 18,
-    cost: { ironium: 6, boranium: 4, germanium: 16, resources: 24 },
+    cost: { ironium: 6, boranium: 4, germanium: 16, resources: 28160 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -329,6 +338,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     },
     description: 'High-efficiency fuel collection.',
     isRamscoop: true,
+    lesserRacialTraitUnavailable: ['No Ramscoop Engines'],
   },
   {
     id: 'eng_trans_galactic_mizer_scoop',
@@ -337,7 +347,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 4, Kinetics: 0, Propulsion: 16, Construction: 0 },
     mass: 11,
-    cost: { ironium: 5, boranium: 2, germanium: 13, resources: 20 },
+    cost: { ironium: 5, boranium: 2, germanium: 13, resources: 111000 },
     stats: {
       maxWarp: 9,
       fuelUsage: {
@@ -363,7 +373,7 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
     traits: [{ type: 'propulsion', isMajor: true, properties: {} }],
     tech: { Energy: 5, Kinetics: 0, Propulsion: 20, Construction: 0 },
     mass: 8,
-    cost: { ironium: 4, boranium: 2, germanium: 9, resources: 12 },
+    cost: { ironium: 4, boranium: 2, germanium: 9, resources: 400000 },
     stats: {
       maxWarp: 10,
       fuelUsage: {
@@ -380,15 +390,5 @@ export const ENGINE_COMPONENTS: ComponentStats[] = [
       },
     },
     description: 'Ultimate fuel scoop technology.',
-  },
- {
-    id: 'eng_radiating_hydro_ram_scoop',
-    name: 'Eng Radiating Hydro Ram Scoop',
-    type: 'Engine',
-    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 10,
-    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
-    stats: {},
-    description: 'TODO: Component needs proper configuration.'
   },
 ];

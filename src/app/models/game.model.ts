@@ -1,3 +1,5 @@
+import { PrimaryRacialTrait, LesserRacialTrait } from '../data/tech-atlas.types';
+
 export interface GameSettings {
   galaxySize: 'small' | 'medium' | 'large';
   aiCount: number;
@@ -168,8 +170,8 @@ export interface Species {
     | { type: 'research'; modifier: number }
     | { type: 'shipCost'; modifier: number }
   >;
-  primaryTraits?: string[];
-  lesserTraits?: string[];
+  primaryTraits?: PrimaryRacialTrait[];
+  lesserTraits?: LesserRacialTrait[];
 }
 
 export interface ShipStack {
@@ -203,7 +205,14 @@ export interface PlayerEconomy {
   research: number;
 }
 
-export type BuildProject = 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship';
+export type BuildProject =
+  | 'mine'
+  | 'factory'
+  | 'defense'
+  | 'research'
+  | 'terraform'
+  | 'scanner'
+  | 'ship';
 export interface BuildItem {
   project: BuildProject;
   cost: { resources: number; ironium?: number; boranium?: number; germanium?: number };
@@ -213,7 +222,13 @@ export interface BuildItem {
   count?: number;
 }
 
-export type GovernorType = 'balanced' | 'mining' | 'industrial' | 'military' | 'research' | 'manual';
+export type GovernorType =
+  | 'balanced'
+  | 'mining'
+  | 'industrial'
+  | 'military'
+  | 'research'
+  | 'manual';
 export interface PlanetGovernor {
   type: GovernorType;
   shipDesignId?: string;

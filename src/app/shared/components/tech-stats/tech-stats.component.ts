@@ -87,10 +87,34 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
             <span class="value">{{ stats().cloak }}%</span>
           </div>
         }
+        @if (stats().unarmedCloak) {
+          <div class="stat-item">
+            <span class="label">Cloak (Unarmed):</span>
+            <span class="value">{{ stats().unarmedCloak }}%</span>
+          </div>
+        }
         @if (stats().scan) {
           <div class="stat-item">
             <span class="label">Scan:</span>
             <span class="value">{{ getTotal(stats().scan) }}</span>
+          </div>
+        }
+        @if (stats().enemyFleetScanDistance) {
+          <div class="stat-item">
+            <span class="label">Fleet Scan:</span>
+            <span class="value">{{ getTotal(stats().enemyFleetScanDistance) }}</span>
+          </div>
+        }
+        @if (stats().planetScanDistance !== undefined) {
+          <div class="stat-item">
+            <span class="label">Planet Scan:</span>
+            <span class="value">{{
+              stats().planetScanDistance === 0
+                ? 'Orbit'
+                : stats().planetScanDistance === -1
+                  ? 'None'
+                  : getTotal(stats().planetScanDistance)
+            }}</span>
           </div>
         }
         @if (stats().pen) {
@@ -163,6 +187,12 @@ import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.co
           <div class="stat-item">
             <span class="label">Structure:</span>
             <span class="value">{{ getTotal(stats().struct) }}</span>
+          </div>
+        }
+        @if (stats().noDefenceColonistKill) {
+          <div class="stat-item">
+            <span class="label">Smart Kill:</span>
+            <span class="value">{{ getTotal(stats().noDefenceColonistKill) }}</span>
           </div>
         }
 
