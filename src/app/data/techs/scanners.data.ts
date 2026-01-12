@@ -107,7 +107,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 3, Kinetics: 7, Propulsion: 2, Construction: 0 },
     mass: 2,
     cost: { ironium: 2, boranium: 0, germanium: 8, resources: 2850 },
-    stats: { planetScanDistance: 50, enemyFleetScanDistance: 185, pen: 0 },
+    stats: { planetScanDistance: 50, enemyFleetScanDistance: 185, pen: 0, cloak: 0.2 },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 160 light years away. This scanner is can determine a planets basic stats from a distance of 45 light years. It also decreases the range at which enemy ships can see the ship by 20%.',
     lesserRacialTraitUnavailable: ['No Advanced Sensors'],
@@ -176,7 +176,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     tech: { Energy: 14, Kinetics: 0, Propulsion: 6, Construction: 0 },
     mass: 3,
     cost: { ironium: 3, boranium: 2, germanium: 21, resources: 62200 },
-    stats: { planetScanDistance: 0, scan: 335, pen: 0 },
+    stats: { planetScanDistance: 0, enemyFleetScanDistance: 335, pen: 0 },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 335 light years away. This scanner is capable of determining a planets environment and composition whilst in orbit of the planet.',
   },

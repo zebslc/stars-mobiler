@@ -324,6 +324,7 @@ export class ResearchUnlockDetailsComponent {
       Object.entries(comp.stats).forEach(([key, value]) => {
         if (value === undefined) return;
         if (key === 'fuelUsage') return; // Skip fuel usage as it has its own graph
+        if (key === 'pen' && Number(value) === 0) return; // Skip zero penetration
 
         let displayValue = value.toString();
 
@@ -348,7 +349,22 @@ export class ResearchUnlockDetailsComponent {
           displayValue = `${percent}%`;
         } else if (key === 'dampening') {
           displayValue = `${value} sq`;
-        } else if (['scan', 'pen', 'planetScanDistance', 'enemyFleetScanDistance'].includes(key)) {
+        } else if (key === 'pen') {
+          const dist = comp.stats.enemyFleetScanDistance || comp.stats.scan;
+          if (comp.type === 'Scanner' && dist) {
+            const numValue = Number(value);
+            const percent = Math.round((numValue / dist) * 10000) / 100;
+            displayValue = `${value} ly (${percent}%)`;
+          } else {
+            displayValue = `${value} ly`;
+          }
+        } else if (key === 'planetScanDistance') {
+          if (Number(value) === 0) {
+            displayValue = 'Orbit only';
+          } else {
+            displayValue = `${value} ly`;
+          }
+        } else if (['scan', 'enemyFleetScanDistance'].includes(key)) {
           displayValue = `${value} ly`;
         } else if (['cap', 'gateMass'].includes(key)) {
           displayValue = `${value} kT`;
@@ -356,7 +372,10 @@ export class ResearchUnlockDetailsComponent {
           displayValue = `${value} mg/ly`;
         }
 
-        const formattedKey = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+        let formattedKey = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+        if (key === 'pen') {
+          formattedKey = 'Enemy Cloak Penetration';
+        }
         stats.push({ key: formattedKey, value: displayValue });
       });
     }
