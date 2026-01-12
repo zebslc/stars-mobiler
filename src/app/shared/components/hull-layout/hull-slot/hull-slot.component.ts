@@ -359,16 +359,8 @@ export class HullSlotComponent implements OnChanges {
   @Output() componentInfoClick = new EventEmitter<void>();
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['componentData']) {
-      const data = changes['componentData'].currentValue;
-      if (this.slot?.id === 'SA1' || this.slot?.id === 'SA2') {
-        // Filter to reduce noise
-        console.log(
-          `HullSlot ${this.slot?.id} componentData changed:`,
-          data ? `${data.component.name} (x${data.count})` : 'null',
-        );
-      }
-    }
+    // Change detection tracking - ngOnChanges kept for future debugging if needed
+    // No console logging in production
   }
 
   onSlotClick() {

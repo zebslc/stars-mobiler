@@ -1,13 +1,12 @@
 import {
   Component,
-  Input,
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
   signal,
   computed,
-  OnChanges,
-  SimpleChanges,
+  input,
+  effect,
   ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -22,7 +21,7 @@ import { HullSlotComponent } from './hull-slot/hull-slot.component';
   standalone: true,
   imports: [CommonModule, HullSlotComponent],
   template: `
-    @if (hull) {
+    @if (hull()) {
       <div
         class="slots-container interactive-canvas"
         (pointerdown)="onPointerDown($event)"
@@ -48,8 +47,8 @@ import { HullSlotComponent } from './hull-slot/hull-slot.component';
                 "
                 [componentData]="slotComponents().get(slot.id)"
                 [maxCount]="getSlotMaxCount(slot.id)"
-                [editable]="editable"
-                [selected]="selectedSlotId === slot.id"
+                [editable]="editable()"
+                [selected]="selectedSlotId() === slot.id"
                 [showClear]="showClearButton() === slot.id"
                 [zoom]="zoom()"
                 (slotClick)="onSlotClick(slot.id)"
@@ -121,11 +120,11 @@ import { HullSlotComponent } from './hull-slot/hull-slot.component';
     `,
   ],
 })
-export class HullLayoutComponent implements OnChanges {
-  @Input({ required: true }) hull: HullTemplate | null = null;
-  @Input({ required: true }) design: ShipDesign | null = null;
-  @Input() editable: boolean = false;
-  @Input() selectedSlotId: string | null = null;
+export class HullLayoutComponent {
+  readonly hull = input.required<HullTemplate | null>();
+  readonly design = input.required<ShipDesign | null>();
+  readonly editable = input(false);
+  readonly selectedSlotId = input<string | null>(null);
 
   @Output() slotSelected = new EventEmitter<string>();
   @Output() slotHover = new EventEmitter<any>();
@@ -133,9 +132,6 @@ export class HullLayoutComponent implements OnChanges {
   @Output() componentIncremented = new EventEmitter<{ slotId: string; componentId: string }>();
   @Output() slotCleared = new EventEmitter<string>();
   @Output() componentInfoClick = new EventEmitter<string>();
-
-  private _hull = signal<HullTemplate | null>(null);
-  private _design = signal<ShipDesign | null>(null);
 
   imageErrors = signal<Set<string>>(new Set());
   showClearButton = signal<string | null>(null);
@@ -152,10 +148,24 @@ export class HullLayoutComponent implements OnChanges {
   offsetX = signal(0);
   offsetY = signal(0);
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef) {
+    // Reset zoom and pan when hull changes
+    effect(() => {
+      this.hull(); // Register dependency
+      this.zoom.set(1);
+      this.offsetX.set(0);
+      this.offsetY.set(0);
+    });
+
+    // Mark for check when design changes
+    effect(() => {
+      this.design(); // Register dependency
+      this.cdr.markForCheck();
+    });
+  }
 
   readonly slotComponents = computed(() => {
-    const design = this._design();
+    const design = this.design();
     if (!design) return new Map<string, { component: any; count: number }>();
 
     const map = new Map<string, { component: any; count: number }>();
@@ -178,7 +188,7 @@ export class HullLayoutComponent implements OnChanges {
   });
 
   readonly positionedSlots = computed(() => {
-    const hull = this._hull();
+    const hull = this.hull();
     if (!hull || !hull.Structure) return [];
     const slots = this.parseStructure(hull.Structure, hull.Slots, hull);
     console.log(
@@ -189,27 +199,12 @@ export class HullLayoutComponent implements OnChanges {
   });
 
   readonly gridDimensions = computed(() => {
-    const hull = this._hull();
+    const hull = this.hull();
     if (!hull || !hull.Structure) return null;
     const rows = hull.Structure.length;
     const cols = hull.Structure[0].split(',').length;
     return { rows, cols };
   });
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['hull']) {
-      this._hull.set(this.hull);
-      // Reset zoom and pan when hull changes
-      this.zoom.set(1);
-      this.offsetX.set(0);
-      this.offsetY.set(0);
-    }
-    if (changes['design']) {
-      // console.log('HullLayout: design input changed', this.design?.id);
-      this._design.set(this.design);
-      this.cdr.markForCheck();
-    }
-  }
 
   transform() {
     return `translate(${this.offsetX()}px, ${this.offsetY()}px) scale(${this.zoom()})`;
@@ -405,7 +400,7 @@ export class HullLayoutComponent implements OnChanges {
   }
 
   canIncrement(slotId: string): boolean {
-    const hull = this._hull();
+    const hull = this.hull();
     const slot = hull?.Slots.find((s: any) => s.Code === slotId);
     if (!slot || !slot.Max) return false;
     const currentCount = this.slotComponents().get(slotId)?.count || 0;
@@ -413,7 +408,7 @@ export class HullLayoutComponent implements OnChanges {
   }
 
   getSlotMaxCount(slotId: string): number {
-    const hull = this._hull();
+    const hull = this.hull();
     const slot = hull?.Slots.find((s: any) => s.Code === slotId);
     return slot?.Max || 1;
   }
@@ -426,11 +421,11 @@ export class HullLayoutComponent implements OnChanges {
       slotDef: slot.slotDef,
       component: compData?.component,
       capacity: slot.capacity,
-      editable: slot.editable && this.editable,
+      editable: slot.editable && this.editable(),
       count: compData?.count || 0,
       name: compData?.component?.name || (slot.editable ? 'Empty Slot' : 'Structural Component'),
     });
-    if (this.editable && this.getComponentInSlot(slotId)) {
+    if (this.editable() && this.getComponentInSlot(slotId)) {
       this.showClearButton.set(slotId);
     }
   }
@@ -441,7 +436,7 @@ export class HullLayoutComponent implements OnChanges {
   }
 
   onTouchStart(_event: TouchEvent, slotId: string): void {
-    if (!this.editable || !this.getComponentInSlot(slotId)) return;
+    if (!this.editable() || !this.getComponentInSlot(slotId)) return;
     this.longPressTimer = setTimeout(() => {
       this.showClearButton.set(slotId);
     }, 500);
