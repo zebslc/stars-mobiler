@@ -181,9 +181,15 @@ export interface ShipStack {
 }
 
 export type FleetOrder =
-  | { type: 'move'; destination: { x: number; y: number } }
+  | { type: 'move'; destination: { x: number; y: number }; warpSpeed?: number }
+  | {
+      type: 'orbit';
+      planetId: string;
+      warpSpeed?: number;
+      action?: 'load' | 'unload' | 'colonize' | 'decommission' | 'wait';
+    }
   | { type: 'colonize'; planetId: string }
-  | { type: 'attack'; targetFleetId: string };
+  | { type: 'attack'; targetFleetId: string; warpSpeed?: number };
 
 export type Fleet = {
   id: string;

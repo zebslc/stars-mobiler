@@ -87,6 +87,11 @@ export class FleetContextMenuComponent {
   viewFleet = output<string>();
   addWaypoint = output<{ x: number; y: number }>();
   moveToPosition = output<{ x: number; y: number }>();
+  
+  colonize = output<string>();
+  loadCargo = output<string>();
+  unloadCargo = output<string>();
+  decommission = output<string>();
 
   options = computed(() => {
     const fleet = this.fleet();
@@ -100,6 +105,28 @@ export class FleetContextMenuComponent {
       opts.push({
         label: `View ${fleet.name || 'Fleet ' + fleet.id.slice(-4)}`,
         action: () => this.viewFleet.emit(fleet.id),
+      });
+
+      // Attachment Features
+      if (fleet.location.type === 'orbit') {
+          opts.push({
+              label: 'Colonize Planet',
+              action: () => this.colonize.emit(fleet.id)
+          });
+          opts.push({
+              label: 'Load Cargo',
+              action: () => this.loadCargo.emit(fleet.id)
+          });
+          opts.push({
+              label: 'Unload Cargo',
+              action: () => this.unloadCargo.emit(fleet.id)
+          });
+      }
+      
+      opts.push({
+          label: 'Decommission Fleet',
+          action: () => this.decommission.emit(fleet.id),
+          divider: true
       });
 
       if (isSelected) {

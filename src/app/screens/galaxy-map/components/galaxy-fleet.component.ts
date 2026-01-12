@@ -21,6 +21,8 @@ import { SettingsService } from '../../../services/settings.service';
       (click)="fleetClick.emit($event)"
       (dblclick)="fleetDoubleClick.emit($event)"
       (contextmenu)="fleetContext.emit($event)"
+      (mousedown)="onDown($event)"
+      (touchstart)="onDown($event)"
       style="cursor: pointer"
     />
     @if (showCount()) {
@@ -40,15 +42,20 @@ import { SettingsService } from '../../../services/settings.service';
 })
 export class GalaxyFleetComponent {
   @Input({ required: true }) fleet!: Fleet;
-  @Input({ required: true }) position!: { x: number, y: number };
+  @Input({ required: true }) position!: { x: number; y: number };
   @Input() isOrbit = false;
 
   @Output() fleetClick = new EventEmitter<MouseEvent>();
   @Output() fleetDoubleClick = new EventEmitter<MouseEvent>();
   @Output() fleetContext = new EventEmitter<MouseEvent>();
+  @Output() fleetDown = new EventEmitter<{ originalEvent: MouseEvent | TouchEvent }>();
 
   private gs = inject(GameStateService);
   private settings = inject(SettingsService);
+
+  onDown(event: MouseEvent | TouchEvent) {
+    this.fleetDown.emit({ originalEvent: event });
+  }
 
   isOwner = computed(() => this.fleet.ownerId === this.gs.player()?.id);
 

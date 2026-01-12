@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../../services/settings.service';
@@ -14,11 +14,24 @@ import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
   imports: [CommonModule, FormsModule, FilterRibbonComponent],
   template: `
     <div class="settings-container">
-      <button class="settings-toggle" (click)="toggleMenu()" [class.active]="isOpen">
+      <button
+        *ngIf="!navigationMode"
+        class="settings-toggle"
+        (click)="toggleMenu()"
+        [class.active]="isOpen"
+      >
         <span style="font-size: 20px;">👁️</span>
       </button>
+      <button
+        *ngIf="navigationMode"
+        class="settings-toggle"
+        style="background: #e74c3c; color: white;"
+        (click)="exitNavigation.emit()"
+      >
+        <span style="font-size: 20px;">✕</span>
+      </button>
 
-      <div class="dropdown-menu" *ngIf="isOpen">
+      <div class="dropdown-menu" *ngIf="isOpen && !navigationMode">
         <!-- Tabs -->
         <div class="tabs">
           <button
@@ -382,6 +395,9 @@ export class GalaxyMapSettingsComponent {
   settings = inject(SettingsService);
   isOpen = false;
   activeTab: 'scanner' | 'fleets' | 'planets' = 'scanner';
+
+  @Input() navigationMode = false;
+  @Output() exitNavigation = new EventEmitter<void>();
 
   fleetFilterItems: FilterItem<string>[] = Object.entries(SHIP_ROLE_CONFIG)
     .filter(([key]) => key !== 'starbase')
