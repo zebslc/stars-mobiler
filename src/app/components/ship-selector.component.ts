@@ -270,15 +270,8 @@ export class ShipSelectorComponent {
   private elementRef = inject(ElementRef);
   isOpen = signal(false);
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.isOpen.set(false);
-    }
-  }
-
   toggleDropdown() {
-    this.isOpen.update((val) => !val);
+    this.isOpen.update((v) => !v);
   }
 
   close() {
@@ -288,6 +281,13 @@ export class ShipSelectorComponent {
   selectShip(option: ShipOption) {
     this.shipSelected.emit(option);
     this.isOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.isOpen.set(false);
+    }
   }
 
   toDisplay(design: CompiledDesign): ShipDesignDisplay {

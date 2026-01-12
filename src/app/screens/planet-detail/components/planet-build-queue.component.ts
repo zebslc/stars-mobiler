@@ -189,6 +189,7 @@ export class PlanetBuildQueueComponent {
   }
 
   buildShip() {
+    this.shipSelector?.close();
     this.queue.emit('ship');
   }
 

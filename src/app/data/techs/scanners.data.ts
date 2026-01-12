@@ -186,7 +186,7 @@ export const SCANNER_COMPONENTS: ComponentStats[] = [
     type: 'Scanner',
     tech: { Energy: 15, Kinetics: 0, Propulsion: 10, Construction: 10 },
     mass: 20,
-    cost: { ironium: 10, boranium: 10, germanium: 10, resources: 99999 },
+    cost: { ironium: 10, boranium: 10, germanium: 10, resources: 200000 },
     stats: { planetScanDistance: 120, enemyFleetScanDistance: 220, pen: 0, cargoSteal: true },
     description:
       'Enemy fleets not orbiting a planet can be detected up to 220 light years away. This scanner can determine a planets stats from a distance of 120 light years. This scanner is capable of penetrating the defences of enemy fleets allowing you to steal the cargo.',

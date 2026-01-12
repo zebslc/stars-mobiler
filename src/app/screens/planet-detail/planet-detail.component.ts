@@ -366,7 +366,16 @@ export class PlanetDetailComponent implements OnInit {
     const planet = this.planet();
     if (!player || !game || !planet) return [];
 
-    return this.shipyardService.getAvailableShipOptions(planet, player, game);
+    const options = this.shipyardService.getAvailableShipOptions(planet, player, game);
+
+    // Filter out current starbase design
+    const currentStarbaseFleet = this.starbaseFleet();
+    if (currentStarbaseFleet && currentStarbaseFleet.ships.length > 0) {
+      const currentStarbaseDesignId = currentStarbaseFleet.ships[0].designId;
+      return options.filter((opt) => opt.design.id !== currentStarbaseDesignId);
+    }
+
+    return options;
   });
 
   onShipSelected(option: ShipOption) {
@@ -377,7 +386,7 @@ export class PlanetDetailComponent implements OnInit {
     return this.shipOptions().find((opt) => opt.design.id === this.selectedDesign()) || null;
   });
 
-  selectedDesign = signal('scout');
+  selectedDesign = signal<string | null>('scout');
   buildAmount = signal(1);
   shipBuildAmount = signal(1);
 
@@ -428,6 +437,10 @@ export class PlanetDetailComponent implements OnInit {
       project === 'scanner' ? 1 : project === 'ship' ? this.shipBuildAmount() : this.buildAmount();
 
     this.gs.addToBuildQueue(p.id, item);
+
+    if (project === 'ship') {
+      this.selectedDesign.set(null);
+    }
   }
 
   endTurn() {

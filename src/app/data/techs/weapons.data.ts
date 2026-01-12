@@ -315,16 +315,6 @@ export const WEAPON_COMPONENTS: ComponentStats[] = [
     description: 'Long-range tactical missile.',
   },
   {
-    id: 'weap_omega_torpedo',
-    name: 'Weap Omega Torpedo',
-    type: 'Weapon',
-    tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    mass: 10,
-    cost: { ironium: 5, boranium: 5, germanium: 5, resources: 10 },
-    stats: {},
-    description: 'TODO: Component needs proper configuration.',
-  },
-  {
     id: 'weap_rho_torpedo',
     name: 'Rho Torp',
     type: 'Weapon',
