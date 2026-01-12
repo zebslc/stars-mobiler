@@ -1,9 +1,20 @@
-import { Component, ChangeDetectionStrategy, computed, signal, inject } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  computed,
+  signal,
+  inject,
+  effect,
+  untracked,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game-state.service';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { ShipDesignerComponent } from '../ship-designer/ship-designer.component';
-import { ShipDesignItemComponent, ShipDesignDisplay } from '../../components/ship-design-item/ship-design-item.component';
+import {
+  ShipDesignItemComponent,
+  ShipDesignDisplay,
+} from '../../components/ship-design-item/ship-design-item.component';
 import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { ShipDesign } from '../../models/game.model';
@@ -12,34 +23,10 @@ import {
   FilterRibbonComponent,
   FilterItem,
 } from '../../shared/components/filter-ribbon/filter-ribbon.component';
+import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../shared/constants/ship-roles.const';
 
 type DesignerMode = 'list' | 'designer';
 type DesignTab = 'starbases' | 'ships';
-
-interface CategoryConfig {
-  label: string;
-  icon: string;
-  color?: string;
-}
-
-const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
-  warship: { label: 'Warship', icon: '⚔️', color: 'rgba(244, 67, 54, 0.35)' },
-  freighter: { label: 'Freighter', icon: '⛽', color: 'rgba(255, 193, 7, 0.35)' },
-  utility: { label: 'Utility', icon: '🔧', color: 'rgba(33, 150, 243, 0.35)' },
-  scout: { label: 'Scout', icon: '👁️', color: 'rgba(3, 169, 244, 0.35)' },
-  colonizer: { label: 'Colonizer', icon: '🌱', color: 'rgba(76, 175, 80, 0.35)' },
-  miner: { label: 'Miner', icon: '⛏️', color: 'rgba(121, 85, 72, 0.35)' },
-  starbase: { label: 'Starbase', icon: '🏯', color: 'rgba(96, 125, 139, 0.35)' },
-  bomber: { label: 'Bomber', icon: '💣', color: 'rgba(255, 87, 34, 0.35)' },
-  'mine-layer': { label: 'Mine Layer', icon: '🔆', color: 'rgba(233, 30, 99, 0.35)' },
-};
-
-function getDisplayCategory(type: string): string {
-  if (type === 'freighter' || type === 'colonizer') {
-    return 'utility';
-  }
-  return type;
-}
 
 const MAX_SHIP_DESIGNS = 16;
 const MAX_STARBASE_DESIGNS = 10;
@@ -111,7 +98,7 @@ export class ShipDesignOverviewComponent {
     return Array.from(categories)
       .map((type) => ({
         type,
-        config: CATEGORY_CONFIG[type] || { label: type, icon: '❓' },
+        config: SHIP_ROLE_CONFIG[type] || { label: type, icon: '❓' },
       }))
       .sort((a, b) => a.config.label.localeCompare(b.config.label));
   });
@@ -126,8 +113,25 @@ export class ShipDesignOverviewComponent {
   });
 
   constructor() {
-    // Initialize selected categories with all available ones when they change?
-    // For now, if empty, we assume all are selected in the filter logic
+    // Initialize selected categories with all available ones
+    effect(
+      () => {
+        const all = this.availableCategories().map((c) => c.type);
+        const currentSize = untracked(() => this.selectedCategories().size);
+        if (all.length > 0 && currentSize === 0) {
+          // Only set if not already set (to avoid loop, though signal equality check should handle it)
+          // Actually, we want to initialize it once.
+          // But availableCategories is a computed.
+          // Let's use untracked or just set it if size is 0 and we haven't touched it?
+          // A better way is to set it when availableCategories changes if it's empty?
+          // For now, let's just default to all in the filter logic if empty?
+          // NO, we want consistent behavior where empty = none.
+          // So we must initialize it.
+          this.selectedCategories.set(new Set(all));
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   readonly designDisplays = computed(() => {
@@ -149,8 +153,9 @@ export class ShipDesignOverviewComponent {
         if (tab === 'ships' && isStarbase) return null;
 
         // Filter by category (only for ships tab)
-        // If categories set is empty, show all (or if it has the type)
-        if (tab === 'ships' && categories.size > 0 && !categories.has(type)) return null;
+        if (tab === 'ships') {
+          if (!categories.has(type)) return null;
+        }
 
         return {
           id: design.id,
@@ -218,28 +223,24 @@ export class ShipDesignOverviewComponent {
   }
 
   toggleCategory(category: string | null) {
-    if (!category) {
-      this.selectedCategories.set(new Set());
-      return;
-    }
     const current = new Set(this.selectedCategories());
-    const all = this.availableCategories();
-    const isAll = current.size === 0 || current.size === all.length;
+    const all = this.availableCategories().map((c) => c.type);
 
-    if (isAll) {
-      this.selectedCategories.set(new Set([category]));
+    if (category === null) {
+      // Toggle All
+      const isAllSelected = all.every((c) => current.has(c));
+      if (isAllSelected) {
+        this.selectedCategories.set(new Set()); // Select None
+      } else {
+        this.selectedCategories.set(new Set(all)); // Select All
+      }
     } else {
       if (current.has(category)) {
         current.delete(category);
       } else {
         current.add(category);
       }
-
-      if (current.size === 0 || current.size === all.length) {
-        this.selectedCategories.set(new Set());
-      } else {
-        this.selectedCategories.set(current);
-      }
+      this.selectedCategories.set(current);
     }
   }
 

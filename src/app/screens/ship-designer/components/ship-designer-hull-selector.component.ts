@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  effect,
+  untracked,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HullTemplate } from '../../../data/tech-atlas.types';
 import {
@@ -9,31 +19,7 @@ import {
   ResourceCostComponent,
   Cost,
 } from '../../../shared/components/resource-cost/resource-cost.component';
-
-interface CategoryConfig {
-  label: string;
-  icon: string;
-  color?: string;
-}
-
-const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
-  warship: { label: 'Warship', icon: '⚔️', color: 'rgba(244, 67, 54, 0.35)' },
-  freighter: { label: 'Freighter', icon: '⛽', color: 'rgba(255, 193, 7, 0.35)' },
-  utility: { label: 'Utility', icon: '🔧', color: 'rgba(33, 150, 243, 0.35)' },
-  scout: { label: 'Scout', icon: '👁️', color: 'rgba(3, 169, 244, 0.35)' },
-  colonizer: { label: 'Colonizer', icon: '🌱', color: 'rgba(76, 175, 80, 0.35)' },
-  miner: { label: 'Miner', icon: '⛏️', color: 'rgba(121, 85, 72, 0.35)' },
-  starbase: { label: 'Starbase', icon: '🏯', color: 'rgba(96, 125, 139, 0.35)' },
-  bomber: { label: 'Bomber', icon: '💣', color: 'rgba(255, 87, 34, 0.35)' },
-  'mine-layer': { label: 'Mine Layer', icon: '🔆', color: 'rgba(233, 30, 99, 0.35)' },
-};
-
-function getDisplayCategory(type: string): string {
-  if (type === 'freighter' || type === 'colonizer') {
-    return 'utility';
-  }
-  return type;
-}
+import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../../shared/constants/ship-roles.const';
 
 @Component({
   selector: 'app-ship-designer-hull-selector',
@@ -49,6 +35,7 @@ function getDisplayCategory(type: string): string {
             [items]="ribbonItems()"
             [selected]="selectedCategories()"
             [showAll]="true"
+            [emptyMeansAll]="false"
             (select)="toggleCategory($event)"
           ></app-filter-ribbon>
         </div>
@@ -392,7 +379,7 @@ export class ShipDesignerHullSelectorComponent {
     return Array.from(categories)
       .map((type) => ({
         type,
-        config: CATEGORY_CONFIG[type] || { label: type, icon: '❓' },
+        config: SHIP_ROLE_CONFIG[type] || { label: type, icon: '❓' },
       }))
       .sort((a, b) => a.config.label.localeCompare(b.config.label));
   });
@@ -406,37 +393,46 @@ export class ShipDesignerHullSelectorComponent {
     }));
   });
 
+  constructor() {
+    effect(
+      () => {
+        const all = this.availableCategories().map((c) => c.type);
+        const currentSize = untracked(() => this.selectedCategories().size);
+        if (all.length > 0 && currentSize === 0) {
+          this.selectedCategories.set(new Set(all));
+        }
+      },
+      { allowSignalWrites: true },
+    );
+  }
+
   readonly filteredHulls = computed(() => {
     const all = this.hullsSig();
     const categories = this.selectedCategories();
-    if (categories.size === 0) return all;
+    // if (categories.size === 0) return all; // No longer needed as we init with all, and empty means none
 
     return all.filter((h) => categories.has(getDisplayCategory(h.type || 'warship')));
   });
 
   toggleCategory(category: string | null) {
-    if (!category) {
-      this.selectedCategories.set(new Set());
-      return;
-    }
     const current = new Set(this.selectedCategories());
-    const all = this.availableCategories();
-    const isAll = current.size === 0 || current.size === all.length;
+    const all = this.availableCategories().map((c) => c.type);
 
-    if (isAll) {
-      this.selectedCategories.set(new Set([category]));
+    if (category === null) {
+      // Toggle All
+      const isAllSelected = all.every((c) => current.has(c));
+      if (isAllSelected) {
+        this.selectedCategories.set(new Set()); // Select None
+      } else {
+        this.selectedCategories.set(new Set(all)); // Select All
+      }
     } else {
       if (current.has(category)) {
         current.delete(category);
       } else {
         current.add(category);
       }
-
-      if (current.size === 0 || current.size === all.length) {
-        this.selectedCategories.set(new Set());
-      } else {
-        this.selectedCategories.set(current);
-      }
+      this.selectedCategories.set(current);
     }
   }
 

@@ -13,7 +13,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Stats: { Mass: 8, 'Max Fuel': 50, Armor: 20, Cargo: 0, Initiative: 1 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     id: 'hull-scout',
-    type: 'scout',
+    type: 'warship',
   },
   {
     Name: 'Frigate',
@@ -136,6 +136,7 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Stats: { Mass: 222, 'Max Fuel': 2800, Armor: 2000, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 10 },
     id: 'hull-battleship',
+    type: 'warship',
   },
   {
     Name: 'Dreadnought',
@@ -168,5 +169,6 @@ export const WARSHIP_HULLS: HullTemplate[] = [
     Stats: { Mass: 250, 'Max Fuel': 4500, Armor: 4500, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 13 },
     id: 'hull-dreadnought',
+    type: 'warship',
   },
 ];

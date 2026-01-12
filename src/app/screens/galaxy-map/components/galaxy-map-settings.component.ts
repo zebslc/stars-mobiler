@@ -2,11 +2,16 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../../services/settings.service';
+import {
+  FilterRibbonComponent,
+  FilterItem,
+} from '../../../shared/components/filter-ribbon/filter-ribbon.component';
+import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
 
 @Component({
   selector: 'app-galaxy-map-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FilterRibbonComponent],
   template: `
     <div class="settings-container">
       <button class="settings-toggle" (click)="toggleMenu()" [class.active]="isOpen">
@@ -85,17 +90,14 @@ import { SettingsService } from '../../../services/settings.service';
           <!-- Fleet Controls -->
           <div *ngIf="activeTab === 'fleets'" class="section">
             <div class="control-row">
-              <select
-                [ngModel]="settings.fleetFilter()"
-                (ngModelChange)="settings.setFleetFilter($event)"
-              >
-                <option value="all">All Ship Types</option>
-                <option value="warship">Warships</option>
-                <option value="freighter">Freighters</option>
-                <option value="scout">Scouts</option>
-                <option value="colonizer">Colonizers</option>
-                <option value="miner">Miners</option>
-              </select>
+              <app-filter-ribbon
+                [items]="fleetFilterItems"
+                [selected]="settings.fleetFilter()"
+                [showAll]="true"
+                allLabel="All"
+                [emptyMeansAll]="false"
+                (select)="onFleetFilterSelect($event)"
+              ></app-filter-ribbon>
             </div>
             <div class="control-row">
               <label>
@@ -221,7 +223,8 @@ import { SettingsService } from '../../../services/settings.service';
         position: absolute;
         top: 50px;
         right: 0;
-        width: 250px;
+        width: 300px;
+        max-width: calc(100vw - 3rem);
         max-height: calc(100vh - 200px);
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
@@ -379,6 +382,46 @@ export class GalaxyMapSettingsComponent {
   settings = inject(SettingsService);
   isOpen = false;
   activeTab: 'scanner' | 'fleets' | 'planets' = 'scanner';
+
+  fleetFilterItems: FilterItem<string>[] = Object.entries(SHIP_ROLE_CONFIG)
+    .filter(([key]) => key !== 'starbase')
+    .map(([key, config]) => ({
+      label: config.label,
+      value: key,
+      icon: config.icon,
+      color: config.color,
+    }));
+
+  onFleetFilterSelect(value: string | null) {
+    const current = new Set(this.settings.fleetFilter());
+    const allKeys = this.fleetFilterItems.map((item) => item.value);
+
+    if (value === null) {
+      // Toggle All
+      // If current filter has all available keys, then we deselect all.
+      // Otherwise (some missing or empty), we select all.
+      const isAllSelected = allKeys.every((k) => current.has(k));
+
+      console.log('Toggle All:', {
+        isAllSelected,
+        currentSize: current.size,
+        totalKeys: allKeys.length,
+      });
+
+      if (isAllSelected) {
+        this.settings.setFleetFilter(new Set()); // Select None (Show Nothing)
+      } else {
+        this.settings.setFleetFilter(new Set(allKeys)); // Select All (Show Everything)
+      }
+    } else {
+      if (current.has(value)) {
+        current.delete(value);
+      } else {
+        current.add(value);
+      }
+      this.settings.setFleetFilter(current);
+    }
+  }
 
   toggleMenu() {
     this.isOpen = !this.isOpen;

@@ -54,6 +54,7 @@
         [items]="ribbonItems()"
         [selected]="selectedCategories()"
         [showAll]="true"
+        [emptyMeansAll]="false"
         (select)="toggleCategory($event)"
       ></app-filter-ribbon>
     }

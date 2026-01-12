@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { GovernorType } from '../models/game.model';
+import { SHIP_ROLE_CONFIG } from '../shared/constants/ship-roles.const';
 
 @Injectable({
   providedIn: 'root',
@@ -11,9 +12,7 @@ export class SettingsService {
   readonly scannerRangePct = signal<number>(100);
   readonly viewMode = signal<'normal' | 'minerals' | 'value' | 'habitability'>('normal');
   readonly showLabels = signal<boolean>(true);
-  readonly fleetFilter = signal<'all' | 'warship' | 'freighter' | 'scout' | 'colonizer' | 'miner'>(
-    'all',
-  );
+  readonly fleetFilter = signal<Set<string>>(new Set(Object.keys(SHIP_ROLE_CONFIG)));
   readonly showEnemyFleets = signal<boolean>(false);
   readonly showFleetCounts = signal<boolean>(false);
   readonly showMinefields = signal<boolean>(false);
@@ -44,7 +43,7 @@ export class SettingsService {
     this.showLabels.set(show);
   }
 
-  setFleetFilter(filter: 'all' | 'warship' | 'freighter' | 'scout' | 'colonizer' | 'miner') {
+  setFleetFilter(filter: Set<string>) {
     this.fleetFilter.set(filter);
   }
 

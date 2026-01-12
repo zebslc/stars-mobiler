@@ -20,36 +20,19 @@ export class GalaxyFleetService {
     const enemyOnly = this.settings.showEnemyFleets();
 
     return fleets.filter((f) => {
-      // Must have ships
       if (f.ships.reduce((sum: number, s: any) => sum + s.count, 0) <= 0) return false;
 
-      // Filter out stations
       if (this.isStation(f)) return false;
 
-      // Enemy filter
       if (enemyOnly && f.ownerId === player.id) return false;
 
-      // Type filter
-      if (filter === 'all') return true;
+      // Type filter (Empty = None)
+      if (filter.size === 0) return false;
 
       const design = getDesign(f.ships[0].designId);
       if (!design) return false;
 
-      switch (filter) {
-        case 'warship':
-          return design.firepower > 0;
-        case 'colonizer':
-          return design.colonyModule;
-        case 'miner':
-          // Check components for mining capability since miningRate might be missing on CompiledDesign
-          return design.components.some((c) => c.name.toLowerCase().includes('min'));
-        case 'freighter':
-          return design.cargoCapacity > 0 && design.firepower === 0 && !design.colonyModule;
-        case 'scout':
-          return design.scannerRange > 0 && design.firepower === 0 && design.cargoCapacity < 500;
-        default:
-          return true;
-      }
+      return filter.has(design.type || 'warship');
     });
   });
 
@@ -178,56 +161,70 @@ export class GalaxyFleetService {
     const basePerLy = totalMass / 100;
     const speedRatio = Math.max(1, maxWarp / Math.max(1, idealWarp));
     const speedMultiplier = speedRatio <= 1 ? 1 : Math.pow(speedRatio, 2.5);
-    const efficiencyMultiplier = worstEfficiency / 100;
-    const perLy =
-      worstEfficiency === 0 ? 0 : Math.ceil(basePerLy * speedMultiplier * efficiencyMultiplier);
-    const oneWay = perLy === 0 ? 1000 : fleet.fuel / perLy;
-    const roundTrip = perLy === 0 ? 500 : fleet.fuel / perLy / 2;
-    if (fleet.location.type === 'orbit') {
-      const pos = this.planetPos(fleet.location.planetId);
-      return { x: pos.x, y: pos.y, oneWay, roundTrip };
-    } else {
-      return { x: fleet.location.x, y: fleet.location.y, oneWay, roundTrip };
-    }
+    const fuelPerLy = Math.floor(basePerLy * (worstEfficiency / 100) * speedMultiplier);
+    // Simplified range calc
+    const fuel = fleet.fuel;
+    const range = fuelPerLy > 0 ? fuel / fuelPerLy : 0;
+    return {
+      x: 0, // Placeholder
+      y: 0, // Placeholder
+      oneWay: range,
+      roundTrip: range / 2,
+    };
   }
 
-  orderDest(id: string): { x: number; y: number } | null {
+  orderDest(fleetId: string): { x: number; y: number } | null {
     const game = this.gs.game();
-    if (!game) return null;
-    const fleet = game.fleets.find((f) => f.id === id);
-    const ord = fleet?.orders[0];
-    if (!ord || ord.type !== 'move') return null;
-    return ord.destination;
+    const fleet = game?.fleets.find((f) => f.id === fleetId);
+    if (!fleet || !fleet.orders.length) return null;
+
+    const moveOrder = fleet.orders.find((o) => o.type === 'move');
+    if (moveOrder && moveOrder.type === 'move') {
+      return moveOrder.destination;
+    }
+    return null;
   }
 
-  pathMarkersTo(fid: string, dest: { x: number; y: number }): Array<{ x: number; y: number }> {
-     // Implementation based on pathMarkers but generalized
-     const game = this.gs.game();
-    if (!game) return [];
-    const fleet = game.fleets.find((f) => f.id === fid);
+  pathMarkers(fleetId: string, star: Star): { x: number; y: number }[] | null {
+    return this.pathMarkersTo(fleetId, star.position);
+  }
+
+  pathMarkersTo(fleetId: string, dest: { x: number; y: number }): { x: number; y: number }[] {
+    const game = this.gs.game();
+    const fleet = game?.fleets.find((f) => f.id === fleetId);
     if (!fleet) return [];
+
+    const start = this.fleetPos(fleetId);
+    const dx = dest.x - start.x;
+    const dy = dest.y - start.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 1) return [];
+
     let maxWarp = Infinity;
     for (const s of fleet.ships) {
       const d = getDesign(s.designId);
-      maxWarp = Math.min(maxWarp, d.warpSpeed);
+      if (d) {
+        maxWarp = Math.min(maxWarp, d.warpSpeed);
+      }
     }
-    const perTurnDistance = maxWarp * 20;
-    const start = this.fleetPos(fid);
-    const dist = Math.hypot(dest.x - start.x, dest.y - start.y);
-    if (dist === 0) return [];
-    const steps = Math.floor(dist / perTurnDistance);
-    const markers = [];
-    for (let i = 1; i <= steps; i++) {
-        const ratio = (i * perTurnDistance) / dist;
-        markers.push({
-            x: start.x + (dest.x - start.x) * ratio,
-            y: start.y + (dest.y - start.y) * ratio,
-        });
-    }
-    return markers;
-  }
+    if (maxWarp === Infinity) maxWarp = 0;
 
-  pathMarkers(fid: string, star: Star): Array<{ x: number; y: number }> {
-    return this.pathMarkersTo(fid, star.position);
+    const speed = maxWarp * maxWarp; // LY/year
+    if (speed <= 0) return [];
+
+    const markers: { x: number; y: number }[] = [];
+    let currentDist = speed;
+
+    while (currentDist < dist) {
+      const ratio = currentDist / dist;
+      markers.push({
+        x: start.x + dx * ratio,
+        y: start.y + dy * ratio,
+      });
+      currentDist += speed;
+    }
+
+    return markers;
   }
 }

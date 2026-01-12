@@ -19,7 +19,6 @@ export interface FilterItem<T = any> {
   selector: 'app-filter-ribbon',
   standalone: true,
   imports: [CommonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="filter-ribbon">
       @if (showAll) {
@@ -64,7 +63,7 @@ export interface FilterItem<T = any> {
         border: 1px solid var(--color-border, #ddd);
         color: var(--color-text-secondary, #555);
         padding: 0.1rem 0.3rem;
-        border-radius: 4px;
+        border-radius: 3px;
         cursor: pointer;
         transition: all 0.2s;
         font-size: 0.9rem;
@@ -89,7 +88,7 @@ export interface FilterItem<T = any> {
       }
 
       .btn-icon {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         line-height: 1;
       }
 
@@ -116,6 +115,7 @@ export class FilterRibbonComponent<T = any> {
   @Input() selected: T | Set<T> | T[] | null = null;
   @Input() showAll = false;
   @Input() allLabel = 'All';
+  @Input() emptyMeansAll = true;
 
   @Output() select = new EventEmitter<T | null>();
 
@@ -142,10 +142,12 @@ export class FilterRibbonComponent<T = any> {
 
   isAllSelected(): boolean {
     if (this.selected instanceof Set) {
-      return this.selected.size === 0 || this.selected.size === this.items.length;
+      if (this.selected.size === 0) return this.emptyMeansAll;
+      return this.items.every((i) => (this.selected as Set<T>).has(i.value));
     }
     if (Array.isArray(this.selected)) {
-      return this.selected.length === 0 || this.selected.length === this.items.length;
+      if (this.selected.length === 0) return this.emptyMeansAll;
+      return this.items.every((i) => (this.selected as T[]).includes(i.value));
     }
     return this.selected === null || this.selected === undefined;
   }

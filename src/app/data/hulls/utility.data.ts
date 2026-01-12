@@ -158,7 +158,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Stats: { Mass: 8, 'Max Fuel': 150, Armor: 10, Cargo: 10, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     id: 'hull-mini-colony',
-    type: 'colonizer'
+    type: 'utility'
   },
   {
     Name: 'Colony Ship',
@@ -172,7 +172,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Stats: { Mass: 20, 'Max Fuel': 200, Armor: 20, Cargo: 25, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
     id: 'hull-colony',
-    type: 'colonizer'
+    type: 'utility'
   },
 
   // Bombers
@@ -223,6 +223,7 @@ export const UTILITY_HULLS: HullTemplate[] = [
     Stats: { Mass: 70, 'Max Fuel': 750, Armor: 225, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
     id: 'hull-stealth-bomber',
+    type: 'bomber'
   },
   {
     Name: 'B-52 Bomber',
