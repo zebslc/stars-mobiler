@@ -19,28 +19,42 @@ export class GalaxyVisibilityService {
   }
 
   getFleetScanCapabilities(fleet: Fleet): { scanRange: number; cloakedRange: number } {
-    const designId = fleet.ships[0]?.designId;
-    if (!designId) return { scanRange: 0, cloakedRange: 0 };
+    let totalScanPower4 = 0;
+    let totalCloakedScanPower4 = 0;
 
-    // Check custom designs first
-    const customDesign = this.gs.game()?.shipDesigns.find((d) => d.id === designId);
-    if (customDesign && customDesign.spec) {
-      return {
-        scanRange: customDesign.spec.scanRange,
-        cloakedRange: customDesign.spec.canDetectCloaked ? customDesign.spec.scanRange : 0,
-      };
+    for (const stack of fleet.ships) {
+      const designId = stack.designId;
+      const count = stack.count;
+
+      let scanRange = 0;
+      let cloakedRange = 0;
+
+      // Check custom designs first
+      const customDesign = this.gs.game()?.shipDesigns.find((d) => d.id === designId);
+      if (customDesign && customDesign.spec) {
+        scanRange = customDesign.spec.scanRange;
+        cloakedRange = customDesign.spec.canDetectCloaked ? customDesign.spec.scanRange : 0;
+      } else {
+        // Fallback to legacy/compiled designs
+        const design = getDesign(designId);
+        if (design) {
+          scanRange = design.scannerRange;
+          cloakedRange = design.cloakedRange || 0;
+        }
+      }
+
+      if (scanRange > 0) {
+        totalScanPower4 += count * Math.pow(scanRange, 4);
+      }
+      if (cloakedRange > 0) {
+        totalCloakedScanPower4 += count * Math.pow(cloakedRange, 4);
+      }
     }
 
-    // Fallback to legacy/compiled designs
-    const design = getDesign(designId);
-    if (design) {
-      return {
-        scanRange: design.scannerRange,
-        cloakedRange: design.cloakedRange || 0,
-      };
-    }
-
-    return { scanRange: 0, cloakedRange: 0 };
+    return {
+      scanRange: totalScanPower4 > 0 ? Math.pow(totalScanPower4, 0.25) : 0,
+      cloakedRange: totalCloakedScanPower4 > 0 ? Math.pow(totalCloakedScanPower4, 0.25) : 0,
+    };
   }
 
   // Visibility Logic

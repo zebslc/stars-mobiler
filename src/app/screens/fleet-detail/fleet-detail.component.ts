@@ -17,6 +17,7 @@ import { compileShipStats } from '../../models/ship-design.model';
 import { StarOption } from '../../components/star-selector.component';
 import { TechService } from '../../services/tech.service';
 import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
+import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
 import {
   FleetTransferComponent,
   TransferState,
@@ -33,6 +34,7 @@ import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.com
   imports: [
     CommonModule,
     DesignPreviewButtonComponent,
+    ShipStatsRowComponent,
     FleetTransferComponent,
     FleetCargoComponent,
     FleetOrdersComponent,
@@ -101,8 +103,15 @@ import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.com
               buttonClass="ship-row"
               title="View hull layout"
             >
-              <span class="ship-count" style="margin-right:8px">{{ s.count }}x</span>
-              <span class="ship-name" style="flex:1">{{ getDesignName(s.designId) }}</span>
+              <span class="ship-count" style="margin-right:4px">{{ s.count }}x</span>
+              <span class="ship-name" style="margin-right: 8px; flex: initial">{{
+                getDesignName(s.designId)
+              }}</span>
+
+              <app-ship-stats-row [stats]="getShipDesign(s.designId)"></app-ship-stats-row>
+
+              <span style="flex: 1"></span>
+
               <span *ngIf="s.damage" class="ship-damage" style="color:var(--color-danger)"
                 >{{ s.damage }}% dmg</span
               >
@@ -183,7 +192,7 @@ import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.com
       }
       .ship-count {
         color: var(--color-text-muted);
-        min-width: 30px;
+        min-width: 20px;
         flex-shrink: 0;
       }
       .ship-name {
@@ -197,6 +206,11 @@ import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.com
         color: var(--color-danger);
         font-size: var(--font-size-xs);
         flex-shrink: 0;
+      }
+      ::ng-deep .ship-row {
+        display: flex;
+        align-items: center;
+        width: 100%;
       }
     `,
   ],
@@ -297,7 +311,7 @@ export class FleetDetailComponent implements OnInit {
     return d?.name || 'Unknown Design';
   }
 
-  private getShipDesign(designId: string): any {
+  public getShipDesign(designId: string): any {
     const game = this.gs.game();
     const dynamicDesign = game?.shipDesigns.find((d) => d.id === designId);
 

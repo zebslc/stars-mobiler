@@ -27,7 +27,12 @@ import { ShipDesign } from '../../models/game.model';
       [title]="title || 'View Design'"
       [class]="buttonClass"
     >
-      <span class="ship-icon tech-icon" [ngClass]="iconClass()"></span>
+      <img
+        [src]="hullIcon()"
+        [alt]="title || 'Hull'"
+        class="ship-icon"
+        (error)="onImageError($event)"
+      />
       <ng-content></ng-content>
     </button>
 
@@ -91,23 +96,54 @@ export class DesignPreviewButtonComponent {
   previewTitle = signal<string>('');
   previewStats = signal<any>(null);
 
-  iconClass = computed(() => {
+  hullIcon = computed(() => {
     const designId = this.designId;
     if (!designId) return '';
-    
+
+    let hullName = '';
+
     // Try to find dynamic design first to get hull name
     const playerDesigns = this.gs.game()?.shipDesigns || [];
     const dynamicDesign = playerDesigns.find((d) => d.id === designId);
-    
+
     if (dynamicDesign) {
       const hull = getHull(dynamicDesign.hullId);
-      return hull ? this.techService.getHullImageClass(hull.Name) : '';
+      if (hull && hull.id) {
+        return `/assets/tech-icons/${hull.id}.png`;
+      }
+      hullName = hull?.Name || '';
+    } else {
+      // Fallback to static design
+      const staticDesign = getDesign(designId);
+      hullName = staticDesign?.hullName || '';
     }
 
-    // Fallback to static design
-    const staticDesign = getDesign(designId);
-    return staticDesign ? this.techService.getHullImageClass(staticDesign.hullName) : '';
+    if (!hullName) return '/assets/tech-icons/hull-scout.png';
+
+    // Fallback mapping based on known file names
+    const name = hullName.toLowerCase();
+    if (name.includes('scout')) return '/assets/tech-icons/hull-scout.png';
+    if (name.includes('destroyer')) return '/assets/tech-icons/hull-destroyer.png';
+    if (name.includes('cruiser') && !name.includes('battle'))
+      return '/assets/tech-icons/hull-cruiser.png';
+    if (name.includes('battle cruiser')) return '/assets/tech-icons/hull-battle-cruiser.png';
+    if (name.includes('battleship')) return '/assets/tech-icons/hull-battleship.png';
+    if (name.includes('colony')) return '/assets/tech-icons/hull-colony.png';
+    if (name.includes('freighter')) {
+      if (name.includes('small')) return '/assets/tech-icons/hull-freight-s.png';
+      if (name.includes('medium')) return '/assets/tech-icons/hull-freight-m.png';
+      if (name.includes('large')) return '/assets/tech-icons/hull-freight-l.png';
+      if (name.includes('super')) return '/assets/tech-icons/hull-freight-super.png';
+      return '/assets/tech-icons/hull-freight-s.png';
+    }
+    if (name.includes('miner')) return '/assets/tech-icons/hull-miner.png';
+    // Fallback
+    return '/assets/tech-icons/hull-scout.png';
   });
+
+  onImageError(event: any) {
+    event.target.src = '/assets/tech-icons/hull-scout.png';
+  }
 
   openPreview(event?: MouseEvent): void {
     if (event) {

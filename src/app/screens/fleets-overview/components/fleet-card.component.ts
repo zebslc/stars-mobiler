@@ -17,11 +17,12 @@ import { HullTemplate } from '../../../data/tech-atlas.types';
 import { getHull } from '../../../utils/data-access.util';
 import { compileShipStats } from '../../../models/ship-design.model';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
+import { ShipStatsRowComponent } from '../../../shared/components/ship-stats-row/ship-stats-row.component';
 
 @Component({
   selector: 'app-fleet-card',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, DesignPreviewButtonComponent],
+  imports: [CommonModule, DecimalPipe, DesignPreviewButtonComponent, ShipStatsRowComponent],
   template: `
     <div class="fleet-card">
       <div class="fleet-header">
@@ -50,8 +51,15 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
               buttonClass="ship-row"
               title="View hull layout"
             >
-              <span class="ship-count">{{ ship.count }}x</span>
-              <span class="ship-name">{{ getDesignName(ship.designId) }}</span>
+              <span class="ship-count" style="margin-right:4px">{{ ship.count }}x</span>
+              <span class="ship-name" style="margin-right: 8px; flex: initial">{{
+                getDesignName(ship.designId)
+              }}</span>
+
+              <app-ship-stats-row [stats]="getDesignDetails(ship.designId)"></app-ship-stats-row>
+
+              <span style="flex: 1"></span>
+
               @if (ship.damage > 0) {
                 <span class="ship-damage">{{ ship.damage }}% dmg</span>
               }
@@ -191,11 +199,12 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
         gap: var(--space-xs);
       }
 
-      .ship-row {
+      ::ng-deep .ship-row {
         display: flex;
         align-items: center;
         gap: var(--space-sm);
         font-size: var(--font-size-sm);
+        width: 100%;
       }
 
       .ship-icon {
@@ -204,7 +213,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
 
       .ship-count {
         color: var(--color-text-muted);
-        min-width: 30px;
+        min-width: 20px;
       }
 
       .ship-name {
@@ -318,7 +327,7 @@ export class FleetCardComponent {
   });
 
   // Helper to get design from GameState first, then static data
-  private getDesignDetails(designId: string) {
+  getDesignDetails(designId: string) {
     // 1. Try to find in player designs (dynamic)
     const playerDesigns = this.gs.game()?.shipDesigns || [];
     const dynamicDesign = playerDesigns.find((d) => d.id === designId);
@@ -353,6 +362,9 @@ export class FleetCardComponent {
           cargoCapacity: stats.cargoCapacity,
           fuelCapacity: stats.fuelCapacity,
           mass: stats.mass,
+          firepower: stats.firepower,
+          armor: stats.armor,
+          shields: stats.shields,
           // Add other props as needed by the template
         };
       }

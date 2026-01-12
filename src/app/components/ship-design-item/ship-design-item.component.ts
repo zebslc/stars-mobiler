@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
+import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
 import { CompiledShipStats, ShipDesign } from '../../models/game.model';
 import { getHull } from '../../utils/data-access.util';
 
@@ -14,7 +15,7 @@ export interface ShipDesignDisplay {
 @Component({
   selector: 'app-ship-design-item',
   standalone: true,
-  imports: [CommonModule, ResourceCostComponent],
+  imports: [CommonModule, ResourceCostComponent, ShipStatsRowComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -43,74 +44,78 @@ export interface ShipDesignDisplay {
       </div>
 
       <div class="design-stats">
-        @if (!design.stats.isStarbase) {
-          <div class="stat-row" title="Mass">
-            <span class="stat-icon">⚖️</span>
-            <span>{{ design.stats.mass }}kt</span>
+        @if (mode === 'list') {
+          <app-ship-stats-row [stats]="design.stats"></app-ship-stats-row>
+        } @else {
+          @if (!design.stats.isStarbase) {
+            <div class="stat-row" title="Mass">
+              <span class="stat-icon">⚖️</span>
+              <span>{{ design.stats.mass }}kt</span>
+            </div>
+          }
+          <div class="stat-row" title="Armor">
+            <span class="stat-icon">🛡️</span>
+            <span>{{ design.stats.armor }}dp</span>
+          </div>
+          @if (design.stats.shields > 0) {
+            <div class="stat-row" title="Shields">
+              <span class="stat-icon">🔵</span>
+              <span>{{ design.stats.shields }}dp</span>
+            </div>
+          }
+          @if (design.stats.firepower > 0) {
+            <div class="stat-row" title="Firepower">
+              <span class="stat-icon">⚔️</span>
+              <span>{{ design.stats.firepower }}</span>
+            </div>
+          }
+          @if (!design.stats.isStarbase) {
+            <div class="stat-row" title="Speed">
+              <span class="stat-icon">🚀</span>
+              <span>W{{ design.stats.warpSpeed }}</span>
+            </div>
+          }
+          @if (design.stats.initiative > 0) {
+            <div class="stat-row" title="Initiative">
+              <span class="stat-icon">⏱️</span>
+              <span>{{ design.stats.initiative }}</span>
+            </div>
+          }
+          @if (design.stats.scanRange > 0) {
+            <div class="stat-row" title="Scan Range">
+              <span class="stat-icon">📡</span>
+              <span>{{ design.stats.scanRange }}ly</span>
+            </div>
+          }
+          @if (design.stats.penScanRange > 0) {
+            <div class="stat-row" title="Penetrating Scan Range">
+              <span class="stat-icon">👁️</span>
+              <span>{{ design.stats.penScanRange }}ly</span>
+            </div>
+          }
+          @if (design.stats.fuelCapacity > 0) {
+            <div class="stat-row" title="Fuel">
+              <span class="stat-icon">⛽</span>
+              <span>{{ design.stats.fuelCapacity }}mg</span>
+            </div>
+          }
+          @if (design.stats.cargoCapacity > 0) {
+            <div class="stat-row" title="Cargo">
+              <span class="stat-icon">📦</span>
+              <span>{{ design.stats.cargoCapacity }}kt</span>
+            </div>
+          }
+          @if (design.stats.colonistCapacity > 0) {
+            <div class="stat-row" title="Colonists">
+              <span class="stat-icon">👥</span>
+              <span>{{ design.stats.colonistCapacity }}</span>
+            </div>
+          }
+          <div class="stat-row full-width" title="Cost">
+            <span class="stat-icon">💰</span>
+            <app-resource-cost [cost]="design.stats.cost" [inline]="true"></app-resource-cost>
           </div>
         }
-        <div class="stat-row" title="Armor">
-          <span class="stat-icon">🛡️</span>
-          <span>{{ design.stats.armor }}dp</span>
-        </div>
-        @if (design.stats.shields > 0) {
-          <div class="stat-row" title="Shields">
-            <span class="stat-icon">🔵</span>
-            <span>{{ design.stats.shields }}dp</span>
-          </div>
-        }
-        @if (design.stats.firepower > 0) {
-          <div class="stat-row" title="Firepower">
-            <span class="stat-icon">⚔️</span>
-            <span>{{ design.stats.firepower }}</span>
-          </div>
-        }
-        @if (!design.stats.isStarbase) {
-          <div class="stat-row" title="Speed">
-            <span class="stat-icon">🚀</span>
-            <span>W{{ design.stats.warpSpeed }}</span>
-          </div>
-        }
-        @if (design.stats.initiative > 0) {
-          <div class="stat-row" title="Initiative">
-            <span class="stat-icon">⏱️</span>
-            <span>{{ design.stats.initiative }}</span>
-          </div>
-        }
-        @if (design.stats.scanRange > 0) {
-          <div class="stat-row" title="Scan Range">
-            <span class="stat-icon">📡</span>
-            <span>{{ design.stats.scanRange }}ly</span>
-          </div>
-        }
-        @if (design.stats.penScanRange > 0) {
-          <div class="stat-row" title="Penetrating Scan Range">
-            <span class="stat-icon">👁️</span>
-            <span>{{ design.stats.penScanRange }}ly</span>
-          </div>
-        }
-        @if (design.stats.fuelCapacity > 0) {
-          <div class="stat-row" title="Fuel">
-            <span class="stat-icon">⛽</span>
-            <span>{{ design.stats.fuelCapacity }}mg</span>
-          </div>
-        }
-        @if (design.stats.cargoCapacity > 0) {
-          <div class="stat-row" title="Cargo">
-            <span class="stat-icon">📦</span>
-            <span>{{ design.stats.cargoCapacity }}kt</span>
-          </div>
-        }
-        @if (design.stats.colonistCapacity > 0) {
-          <div class="stat-row" title="Colonists">
-            <span class="stat-icon">👥</span>
-            <span>{{ design.stats.colonistCapacity }}</span>
-          </div>
-        }
-        <div class="stat-row full-width" title="Cost">
-          <span class="stat-icon">💰</span>
-          <app-resource-cost [cost]="design.stats.cost" [inline]="true"></app-resource-cost>
-        </div>
       </div>
 
       @if (mode === 'card') {

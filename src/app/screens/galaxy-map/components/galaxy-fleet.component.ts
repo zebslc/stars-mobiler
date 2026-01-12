@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject
 import { CommonModule } from '@angular/common';
 import { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game-state.service';
+import { SettingsService } from '../../../services/settings.service';
 
 @Component({
   selector: 'g[app-galaxy-fleet]',
@@ -22,6 +23,18 @@ import { GameStateService } from '../../../services/game-state.service';
       (contextmenu)="fleetContext.emit($event)"
       style="cursor: pointer"
     />
+    @if (showCount()) {
+      <svg:text
+        [attr.x]="position.x"
+        [attr.y]="position.y - 8"
+        text-anchor="middle"
+        fill="#ecf0f1"
+        font-size="10px"
+        style="pointer-events: none; text-shadow: 1px 1px 1px black;"
+      >
+        {{ shipCount() }}
+      </svg:text>
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -35,8 +48,15 @@ export class GalaxyFleetComponent {
   @Output() fleetContext = new EventEmitter<MouseEvent>();
 
   private gs = inject(GameStateService);
+  private settings = inject(SettingsService);
 
   isOwner = computed(() => this.fleet.ownerId === this.gs.player()?.id);
+
+  showCount = computed(() => this.settings.showFleetCounts());
+
+  shipCount = computed(() => {
+    return this.fleet.ships.reduce((acc, stack) => acc + stack.count, 0);
+  });
 
   rotation = computed(() => {
     if (this.isOrbit) {

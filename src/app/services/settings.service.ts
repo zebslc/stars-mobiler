@@ -14,9 +14,9 @@ export class SettingsService {
   readonly showLabels = signal<boolean>(true);
   readonly fleetFilter = signal<Set<string>>(new Set(Object.keys(SHIP_ROLE_CONFIG)));
   readonly showEnemyFleets = signal<boolean>(false);
-  readonly showFleetCounts = signal<boolean>(false);
-  readonly showMinefields = signal<boolean>(false);
-  readonly showRemoteMining = signal<boolean>(false);
+  readonly showFleetCounts = signal<boolean>(true);
+  readonly showMinefields = signal<boolean>(true);
+  readonly showRemoteMining = signal<boolean>(true);
   readonly defaultGovernor = signal<GovernorType>('balanced');
 
   toggleMapControls(show: boolean) {
