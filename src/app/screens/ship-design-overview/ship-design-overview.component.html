@@ -50,18 +50,12 @@
 
     <!-- Filters (Only for Ships Tab) -->
     @if (activeTab() === 'ships') {
-      <div class="filter-ribbon">
-        @for (category of availableCategories(); track category.type) {
-          <button 
-            class="ribbon-btn"
-            [class.active]="selectedCategories().has(category.type)"
-            (click)="toggleCategory(category.type)"
-            [title]="category.config.label"
-          >
-            {{ category.config.icon }} <span class="btn-label">{{ category.config.label }}</span>
-          </button>
-        }
-      </div>
+      <app-filter-ribbon
+        [items]="ribbonItems()"
+        [selected]="selectedCategories()"
+        [showAll]="true"
+        (select)="toggleCategory($event)"
+      ></app-filter-ribbon>
     }
 
     <div class="designs-grid">

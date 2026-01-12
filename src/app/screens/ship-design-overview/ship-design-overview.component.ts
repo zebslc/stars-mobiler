@@ -8,6 +8,10 @@ import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { ShipDesign } from '../../models/game.model';
 import { HullPreviewModalComponent } from '../../shared/components/hull-preview-modal.component';
+import {
+  FilterRibbonComponent,
+  FilterItem,
+} from '../../shared/components/filter-ribbon/filter-ribbon.component';
 
 type DesignerMode = 'list' | 'designer';
 type DesignTab = 'starbases' | 'ships';
@@ -15,19 +19,27 @@ type DesignTab = 'starbases' | 'ships';
 interface CategoryConfig {
   label: string;
   icon: string;
+  color?: string;
 }
 
 const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
-  warship: { label: 'Warship', icon: '⚔️' },
-  freighter: { label: 'Freighter', icon: '⛽' },
-  utility: { label: 'Utility', icon: '🔧' },
-  scout: { label: 'Scout', icon: '👁️' },
-  colonizer: { label: 'Colonizer', icon: '🌱' },
-  miner: { label: 'Miner', icon: '⛏️' },
-  starbase: { label: 'Starbase', icon: '🏯' },
-  bomber: { label: 'Bomber', icon: '💣' },
-  'mine-layer': { label: 'Mine Layer', icon: '🕸️' },
+  warship: { label: 'Warship', icon: '⚔️', color: 'rgba(244, 67, 54, 0.35)' },
+  freighter: { label: 'Freighter', icon: '⛽', color: 'rgba(255, 193, 7, 0.35)' },
+  utility: { label: 'Utility', icon: '🔧', color: 'rgba(33, 150, 243, 0.35)' },
+  scout: { label: 'Scout', icon: '👁️', color: 'rgba(3, 169, 244, 0.35)' },
+  colonizer: { label: 'Colonizer', icon: '🌱', color: 'rgba(76, 175, 80, 0.35)' },
+  miner: { label: 'Miner', icon: '⛏️', color: 'rgba(121, 85, 72, 0.35)' },
+  starbase: { label: 'Starbase', icon: '🏯', color: 'rgba(96, 125, 139, 0.35)' },
+  bomber: { label: 'Bomber', icon: '💣', color: 'rgba(255, 87, 34, 0.35)' },
+  'mine-layer': { label: 'Mine Layer', icon: '🕸️', color: 'rgba(233, 30, 99, 0.35)' },
 };
+
+function getDisplayCategory(type: string): string {
+  if (type === 'freighter' || type === 'colonizer') {
+    return 'utility';
+  }
+  return type;
+}
 
 const MAX_SHIP_DESIGNS = 16;
 const MAX_STARBASE_DESIGNS = 10;
@@ -40,6 +52,7 @@ const MAX_STARBASE_DESIGNS = 10;
     ShipDesignerComponent,
     ShipDesignItemComponent,
     HullPreviewModalComponent,
+    FilterRibbonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './ship-design-overview.component.html',
@@ -71,13 +84,15 @@ export class ShipDesignOverviewComponent {
     const designs = this.gameState.game()?.shipDesigns || [];
     const techLevels = this.techLevels();
 
-    return designs.map((design) => {
-      const hull = getHull(design.hullId);
-      if (!hull) return null;
+    return designs
+      .map((design) => {
+        const hull = getHull(design.hullId);
+        if (!hull) return null;
 
-      const stats = compileShipStats(hull, design.slots, techLevels);
-      return { design, hull, stats };
-    }).filter(Boolean);
+        const stats = compileShipStats(hull, design.slots, techLevels);
+        return { design, hull, stats };
+      })
+      .filter(Boolean);
   });
 
   readonly availableCategories = computed(() => {
@@ -88,7 +103,8 @@ export class ShipDesignOverviewComponent {
       // Skip starbases if we are not in starbase tab logic (but here we want all non-starbase categories)
       if (hull.isStarbase || hull.type === 'starbase') return;
 
-      const type = hull.type || 'warship';
+      let type: string = hull.type || 'warship';
+      type = getDisplayCategory(type);
       categories.add(type);
     });
 
@@ -98,6 +114,15 @@ export class ShipDesignOverviewComponent {
         config: CATEGORY_CONFIG[type] || { label: type, icon: '❓' },
       }))
       .sort((a, b) => a.config.label.localeCompare(b.config.label));
+  });
+
+  readonly ribbonItems = computed(() => {
+    return this.availableCategories().map((cat) => ({
+      label: cat.config.label,
+      icon: cat.config.icon,
+      value: cat.type,
+      color: cat.config.color,
+    }));
   });
 
   constructor() {
@@ -113,10 +138,11 @@ export class ShipDesignOverviewComponent {
     return compiledDesigns
       .map((compiled) => {
         if (!compiled) return null;
-        
+
         const { design, hull, stats } = compiled;
         const isStarbase = hull.isStarbase || hull.type === 'starbase';
-        const type = hull.type || 'warship';
+        const rawType = hull.type || 'warship';
+        const type = getDisplayCategory(rawType);
 
         // Filter by tab
         if (tab === 'starbases' && !isStarbase) return null;
@@ -191,7 +217,11 @@ export class ShipDesignOverviewComponent {
     this.startNewDesign();
   }
 
-  toggleCategory(category: string) {
+  toggleCategory(category: string | null) {
+    if (!category) {
+      this.selectedCategories.set(new Set());
+      return;
+    }
     const current = new Set(this.selectedCategories());
     if (current.has(category)) {
       current.delete(category);

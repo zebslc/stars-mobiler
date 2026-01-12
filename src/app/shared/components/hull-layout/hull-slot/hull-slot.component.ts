@@ -410,14 +410,14 @@ export class HullSlotComponent implements OnChanges {
 
   getSlotTypeDisplay(allowedTypes: string[]): string {
     const typeMap: Record<string, string> = {
-      engine: '⚙️',
+      engine: '🚀',
       weapon: '🗡️',
       shield: '☔',
       armor: '🛡️',
-      electronics: '📡',
-      elect: '📡',
-      computer: '📡',
-      scanner: '🔭',
+      electronics: '⚡',
+      elect: '⚡',
+      computer: '⚡',
+      scanner: '📡',
       mech: '⚙️',
       mechanical: '⚙️',
       general: '🛠️',

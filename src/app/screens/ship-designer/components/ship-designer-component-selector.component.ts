@@ -275,14 +275,19 @@ export class ShipDesignerComponentSelectorComponent {
 
   getSlotTypeDisplay(allowedTypes: string[]): string {
     const typeMap: Record<string, string> = {
-      engine: '⚙️',
+      engine: '🚀',
       weapon: '🗡️',
       shield: '🛡️',
-      electronics: '📡',
+      electronics: '⚡',
+      elect: '⚡',
+      computer: '⚡',
       general: '🛠️',
       bomb: '💣',
       cargo: '📦',
       armor: '🛡️',
+      mech: '⚙️',
+      mechanical: '⚙️',
+      scanner: '📡',
     };
     return allowedTypes.map((t) => typeMap[t.toLowerCase()] || '?').join('');
   }

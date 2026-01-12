@@ -144,6 +144,13 @@ export class ShipDesignerComponent implements OnInit {
     this.hullSelectOpen.set(false);
   }
 
+  onHullSelectorClose() {
+    this.hullSelectOpen.set(false);
+    if (this.openHullSelectorOnInit) {
+      this.cancelDesign();
+    }
+  }
+
   selectSlot(slotId: string) {
     this.selectedSlotId.set(slotId);
     this.componentSelectOpen.set(true);

@@ -116,7 +116,7 @@
       [hulls]="availableHulls()"
       (hullSelected)="selectHull($event)"
       (previewHull)="previewHullName.set($event)"
-      (close)="hullSelectOpen.set(false)"
+      (close)="onHullSelectorClose()"
     ></app-ship-designer-hull-selector>
   }
 
