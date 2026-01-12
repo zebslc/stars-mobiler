@@ -51,6 +51,7 @@
           "options": {
             "polyfills": [],
             "tsConfig": "tsconfig.spec.json",
+            "browsers": "ChromeHeadless",
             "assets": [
               "src/favicon.ico",
               "src/assets"

@@ -11,7 +11,11 @@
       "Bash(if [ -f code_review.md ])",
       "Bash(then mv code_review.md docs/code-reviews/code-review-2026-01-10.md)",
       "Bash(else echo \"No code_review.md found\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(npm run test:ci:*)",
+      "Bash(npm test)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(findstr:*)"
     ]
   }
 }
