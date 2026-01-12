@@ -25,7 +25,7 @@ const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
   miner: { label: 'Miner', icon: '⛏️', color: 'rgba(121, 85, 72, 0.35)' },
   starbase: { label: 'Starbase', icon: '🏯', color: 'rgba(96, 125, 139, 0.35)' },
   bomber: { label: 'Bomber', icon: '💣', color: 'rgba(255, 87, 34, 0.35)' },
-  'mine-layer': { label: 'Mine Layer', icon: '🕸️', color: 'rgba(233, 30, 99, 0.35)' },
+  'mine-layer': { label: 'Mine Layer', icon: '🔆', color: 'rgba(233, 30, 99, 0.35)' },
 };
 
 function getDisplayCategory(type: string): string {
@@ -47,9 +47,9 @@ function getDisplayCategory(type: string): string {
 
           <app-filter-ribbon
             [items]="ribbonItems()"
-            [selected]="selectedCategory()"
+            [selected]="selectedCategories()"
             [showAll]="true"
-            (select)="selectCategory($event)"
+            (select)="toggleCategory($event)"
           ></app-filter-ribbon>
         </div>
 
@@ -377,7 +377,7 @@ export class ShipDesignerHullSelectorComponent {
   @Output() previewHull = new EventEmitter<string>();
   @Output() close = new EventEmitter<void>();
 
-  readonly selectedCategory = signal<string | null>(null);
+  readonly selectedCategories = signal<Set<string>>(new Set());
   readonly selectedHullId = signal<string | null>(null);
 
   readonly availableCategories = computed(() => {
@@ -408,14 +408,36 @@ export class ShipDesignerHullSelectorComponent {
 
   readonly filteredHulls = computed(() => {
     const all = this.hullsSig();
-    const category = this.selectedCategory();
-    if (!category) return all;
+    const categories = this.selectedCategories();
+    if (categories.size === 0) return all;
 
-    return all.filter((h) => getDisplayCategory(h.type || 'warship') === category);
+    return all.filter((h) => categories.has(getDisplayCategory(h.type || 'warship')));
   });
 
-  selectCategory(category: string | null) {
-    this.selectedCategory.set(category);
+  toggleCategory(category: string | null) {
+    if (!category) {
+      this.selectedCategories.set(new Set());
+      return;
+    }
+    const current = new Set(this.selectedCategories());
+    const all = this.availableCategories();
+    const isAll = current.size === 0 || current.size === all.length;
+
+    if (isAll) {
+      this.selectedCategories.set(new Set([category]));
+    } else {
+      if (current.has(category)) {
+        current.delete(category);
+      } else {
+        current.add(category);
+      }
+
+      if (current.size === 0 || current.size === all.length) {
+        this.selectedCategories.set(new Set());
+      } else {
+        this.selectedCategories.set(current);
+      }
+    }
   }
 
   onSelect(hullId: string) {

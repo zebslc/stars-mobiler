@@ -31,7 +31,7 @@ const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
   miner: { label: 'Miner', icon: '⛏️', color: 'rgba(121, 85, 72, 0.35)' },
   starbase: { label: 'Starbase', icon: '🏯', color: 'rgba(96, 125, 139, 0.35)' },
   bomber: { label: 'Bomber', icon: '💣', color: 'rgba(255, 87, 34, 0.35)' },
-  'mine-layer': { label: 'Mine Layer', icon: '🕸️', color: 'rgba(233, 30, 99, 0.35)' },
+  'mine-layer': { label: 'Mine Layer', icon: '🔆', color: 'rgba(233, 30, 99, 0.35)' },
 };
 
 function getDisplayCategory(type: string): string {
@@ -223,12 +223,24 @@ export class ShipDesignOverviewComponent {
       return;
     }
     const current = new Set(this.selectedCategories());
-    if (current.has(category)) {
-      current.delete(category);
+    const all = this.availableCategories();
+    const isAll = current.size === 0 || current.size === all.length;
+
+    if (isAll) {
+      this.selectedCategories.set(new Set([category]));
     } else {
-      current.add(category);
+      if (current.has(category)) {
+        current.delete(category);
+      } else {
+        current.add(category);
+      }
+
+      if (current.size === 0 || current.size === all.length) {
+        this.selectedCategories.set(new Set());
+      } else {
+        this.selectedCategories.set(current);
+      }
     }
-    this.selectedCategories.set(current);
   }
 
   startNewDesign(hullId?: string) {

@@ -128,6 +128,9 @@ export class FilterRibbonComponent<T = any> {
   }
 
   isSelected(value: T): boolean {
+    if (this.isAllSelected()) {
+      return true;
+    }
     if (this.selected instanceof Set) {
       return this.selected.has(value);
     }
@@ -139,10 +142,10 @@ export class FilterRibbonComponent<T = any> {
 
   isAllSelected(): boolean {
     if (this.selected instanceof Set) {
-      return this.selected.size === 0;
+      return this.selected.size === 0 || this.selected.size === this.items.length;
     }
     if (Array.isArray(this.selected)) {
-      return this.selected.length === 0;
+      return this.selected.length === 0 || this.selected.length === this.items.length;
     }
     return this.selected === null || this.selected === undefined;
   }

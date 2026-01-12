@@ -370,7 +370,7 @@ export class GalaxyMapComponent implements OnInit {
       const stars = this.stars();
       const homeStar = stars.find((s) => s.planets.some((p) => p.ownerId === this.gs.player()?.id));
       if (homeStar) {
-        this.state.scale.set(3.4);
+        this.state.scale.set(6);
         this.centerOnStar(homeStar);
       }
     });

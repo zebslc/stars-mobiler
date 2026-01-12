@@ -4,6 +4,11 @@ import { CommandExecutorService } from './command-executor.service';
 import { GameCommand, GameCommandWithResult } from './game-command.interface';
 import { GameState } from '../../models/game.model';
 
+declare const describe: any;
+declare const it: any;
+declare const expect: any;
+declare const beforeEach: any;
+
 // Mock command implementations for testing
 class MockCommand implements GameCommand {
   constructor(private newTurn: number) {}
@@ -46,30 +51,30 @@ describe('CommandExecutorService', () => {
             growthRate: 1.0,
             miningRate: 1.0,
             researchRate: 1.0,
-            shipCost: 1.0
+            shipCost: 1.0,
           },
           habitability: {
             temperature: { min: 0, max: 100 },
-            atmosphere: { min: 0, max: 100 }
-          }
+            atmosphere: { min: 0, max: 100 },
+          },
         },
         techLevels: {
           Energy: 1,
           Kinetics: 1,
           Propulsion: 1,
-          Construction: 1
+          Construction: 1,
         },
         researchField: 'Energy',
-        shipDesigns: []
+        shipDesigns: [],
       },
       playerEconomy: {
         resources: 1000,
         ironium: 500,
         boranium: 500,
         germanium: 500,
-        researchPoints: 100
-      }
-    } as GameState;
+        researchPoints: 100,
+      },
+    } as unknown as GameState;
   });
 
   it('should be created', () => {
