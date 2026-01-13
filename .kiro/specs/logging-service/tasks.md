@@ -101,7 +101,7 @@ This implementation plan creates a comprehensive logging service for Stellar Rem
     - **Property 11: Application Insights Failure Handling**
     - **Validates: Requirements 5.4**
 
-- [x] 6. Extend SettingsService with developer mode
+- [ ] 6. Extend SettingsService with developer mode
   - [x] 6.1 Add developer mode signal to SettingsService
     - Add developerMode signal with boolean type
     - Implement toggleDeveloperMode method
@@ -116,14 +116,14 @@ This implementation plan creates a comprehensive logging service for Stellar Rem
     - **Property 8: Settings Persistence**
     - **Validates: Requirements 3.3**
 
-- [ ] 7. Update settings screen UI
-  - [ ] 7.1 Add developer mode checkbox to settings component
+- [x] 7. Update settings screen UI
+  - [x] 7.1 Add developer mode checkbox to settings component
     - Add checkbox input with proper labeling
     - Bind to SettingsService developerMode signal
     - Follow existing UI patterns and styling
     - _Requirements: 3.2, 3.5_
 
-  - [ ] 7.2 Write unit test for settings screen developer mode checkbox
+  - [x] 7.2 Write unit test for settings screen developer mode checkbox
     - Test checkbox rendering and interaction
     - Verify integration with SettingsService
     - _Requirements: 3.2_

@@ -64,6 +64,24 @@ import { FormsModule } from '@angular/forms';
             </p>
           </div>
         </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:var(--space-lg)">Developer</h3>
+          <label style="display:flex;gap:var(--space-md);align-items:center;cursor:pointer">
+            <input
+              type="checkbox"
+              [ngModel]="settings.developerMode()"
+              (ngModelChange)="settings.toggleDeveloperMode($event)"
+            />
+            <span class="font-medium">Developer Mode</span>
+          </label>
+          <p
+            class="text-small text-muted"
+            style="margin-top:var(--space-sm);margin-left:calc(var(--touch-target-min) + var(--space-md))"
+          >
+            Enable enhanced debugging features and real-time error display
+          </p>
+        </div>
       </section>
     </main>
   `,
