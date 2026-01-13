@@ -6,7 +6,7 @@ import {
   LogLevel,
   DeveloperPanelConfig
 } from '../../models/logging.model';
-import { SettingsService } from '../settings.service';
+import { SettingsService } from '../core/settings.service';
 
 /**
  * Developer panel destination for logging service

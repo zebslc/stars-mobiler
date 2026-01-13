@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { Planet, ShipDesign } from '../../../models/game.model';
-import { GameStateService } from '../../../services/game-state.service';
+import { GameStateService } from '../../../services/game/game-state.service';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 
 @Component({

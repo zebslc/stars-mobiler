@@ -4,7 +4,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { BrowserContextProvider } from './browser-context.provider';
 import { GameContextProvider } from './game-context.provider';
 import { AngularContextProvider } from './angular-context.provider';
-import { GameStateService } from '../game-state.service';
+import { GameStateService } from '../game/game-state.service';
 import { LogContext, BrowserContext, GameContext, AngularContext } from '../../models/logging.model';
 import { GameState } from '../../models/game.model';
 import { of } from 'rxjs';

@@ -1,6 +1,6 @@
 import { Injectable, inject, computed } from '@angular/core';
-import { GameStateService } from '../../../services/game-state.service';
-import { SettingsService } from '../../../services/settings.service';
+import { GameStateService } from '../../../services/game/game-state.service';
+import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetService } from './galaxy-fleet.service';
 import { Fleet } from '../../../models/game.model';
 import { getDesign } from '../../../data/ships.data';

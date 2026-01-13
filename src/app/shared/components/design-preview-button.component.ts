@@ -7,8 +7,8 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameStateService } from '../../services/game-state.service';
-import { TechService } from '../../services/tech.service';
+import { GameStateService } from '../../services/game/game-state.service';
+import { TechService } from '../../services/tech/tech.service';
 import { HullPreviewModalComponent } from './hull-preview-modal.component';
 import { HullTemplate } from '../../data/tech-atlas.types';
 import { getHull } from '../../utils/data-access.util';

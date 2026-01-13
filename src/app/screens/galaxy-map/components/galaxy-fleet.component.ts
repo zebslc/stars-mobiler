@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Fleet } from '../../../models/game.model';
-import { GameStateService } from '../../../services/game-state.service';
-import { SettingsService } from '../../../services/settings.service';
+import { GameStateService } from '../../../services/game/game-state.service';
+import { SettingsService } from '../../../services/core/settings.service';
 
 @Component({
   selector: 'g[app-galaxy-fleet]',

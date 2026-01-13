@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { GameStateService } from '../services/game-state.service';
+import { GameStateService } from '../services/game/game-state.service';
 
 @Component({
   standalone: true,

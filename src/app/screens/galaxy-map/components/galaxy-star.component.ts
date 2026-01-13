@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Star } from '../../../models/game.model';
-import { GameStateService } from '../../../services/game-state.service';
+import { GameStateService } from '../../../services/game/game-state.service';
 
 @Component({
   selector: 'g[app-galaxy-star]',

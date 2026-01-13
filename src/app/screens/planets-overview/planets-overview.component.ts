@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { GameStateService } from '../../services/game-state.service';
-import { TechService } from '../../services/tech.service';
+import { GameStateService } from '../../services/game/game-state.service';
+import { TechService } from '../../services/tech/tech.service';
 import { Planet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';

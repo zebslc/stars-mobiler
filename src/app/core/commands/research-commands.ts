@@ -1,7 +1,7 @@
 import { GameCommand } from './game-command.interface';
 import { GameState } from '../../models/game.model';
 import { TechField } from '../../data/tech-tree.data';
-import { ResearchService } from '../../services/research.service';
+import { ResearchService } from '../../services/tech/research.service';
 
 /**
  * Command to set the current research field.

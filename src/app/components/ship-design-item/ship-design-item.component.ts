@@ -14,7 +14,7 @@ import { ResourceCostComponent } from '../../shared/components/resource-cost/res
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
 import { CompiledShipStats, ShipDesign } from '../../models/game.model';
 import { getHull } from '../../utils/data-access.util';
-import { GameStateService } from '../../services/game-state.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { getDesign } from '../../data/ships.data';
 
 export interface ShipDesignDisplay {

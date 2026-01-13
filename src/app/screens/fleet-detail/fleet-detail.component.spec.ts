@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FleetDetailComponent } from './fleet-detail.component';
-import { GameStateService } from '../../services/game-state.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastService } from '../../services/toast.service';
-import { TechService } from '../../services/tech.service';
+import { ToastService } from '../../services/core/toast.service';
+import { TechService } from '../../services/tech/tech.service';
 import { signal } from '@angular/core';
 
 // Declare Jasmine globals

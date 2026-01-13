@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { SettingsService } from '../../services/settings.service';
-import { GameStateService } from '../../services/game-state.service';
+import { SettingsService } from '../../services/core/settings.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({

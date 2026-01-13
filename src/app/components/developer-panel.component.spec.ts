@@ -1,8 +1,8 @@
 import * as fc from 'fast-check';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DeveloperPanelComponent } from './developer-panel.component';
-import { LoggingService } from '../services/logging.service';
-import { SettingsService } from '../services/settings.service';
+import { LoggingService } from '../services/core/logging.service';
+import { SettingsService } from '../services/core/settings.service';
 import { LogLevel, LogEntry, LogContext } from '../models/logging.model';
 import { Subject } from 'rxjs';
 import { signal } from '@angular/core';

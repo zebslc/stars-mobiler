@@ -12,7 +12,7 @@ import { ApplicationInsightsDestination } from './application-insights.destinati
 import { DeveloperPanelDestination } from './developer-panel.destination';
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { SettingsService } from '../settings.service';
+import { SettingsService } from '../core/settings.service';
 import { signal } from '@angular/core';
 
 describe('LogDestinations', () => {

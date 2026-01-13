@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { GameStateService } from '../../../services/game-state.service';
-import { LoggingService } from '../../../services/logging.service';
+import { GameStateService } from '../../../services/game/game-state.service';
+import { LoggingService } from '../../../services/core/logging.service';
 import { GalaxyFleetService } from './galaxy-fleet.service';
 import { 
   Fleet, 

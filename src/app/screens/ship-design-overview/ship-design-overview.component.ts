@@ -8,8 +8,8 @@ import {
   untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameStateService } from '../../services/game-state.service';
-import { ShipDesignerService } from '../../services/ship-designer.service';
+import { GameStateService } from '../../services/game/game-state.service';
+import { ShipDesignerService } from '../../services/ship-design/ship-designer.service';
 import { ShipDesignerComponent } from '../ship-designer/ship-designer.component';
 import {
   ShipDesignItemComponent,

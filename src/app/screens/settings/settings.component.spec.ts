@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SettingsComponent } from './settings.component';
-import { SettingsService } from '../../services/settings.service';
-import { GameStateService } from '../../services/game-state.service';
+import { SettingsService } from '../../services/core/settings.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { Router } from '@angular/router';
 import { signal } from '@angular/core';
 

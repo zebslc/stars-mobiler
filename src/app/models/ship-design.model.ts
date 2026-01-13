@@ -1,7 +1,7 @@
 import { HullTemplate, ComponentStats, SlotType, SlotDefinition, getSlotTypeForComponentType } from '../data/tech-atlas.types';
 import { getMiniaturizedMass, getMiniaturizedCost } from '../utils/miniaturization.util';
 import { SlotAssignment, CompiledShipStats, PlayerTech } from '../models/game.model';
-import { validateShipDesign } from '../services/validation.service';
+import { validateShipDesign } from '../services/core/validation.service';
 import { getComponentsLookup } from '../utils/data-access.util';
 
 /**

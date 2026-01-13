@@ -17,7 +17,7 @@ import {
   createEmptyDesign,
 } from '../models/ship-design.model';
 import { miniaturizeComponent, MiniaturizedComponent } from '../utils/miniaturization.util';
-import { LoggingService } from './logging.service';
+import { LoggingService } from './core/logging.service';
 import { LogContext } from '../models/service-interfaces.model';
 
 /**

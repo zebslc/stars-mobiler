@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { GalaxyVisibilityService } from './galaxy-visibility.service';
-import { GameStateService } from '../../../services/game-state.service';
-import { SettingsService } from '../../../services/settings.service';
+import { GameStateService } from '../../../services/game/game-state.service';
+import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetService } from './galaxy-fleet.service';
 import { Fleet, GameState, Planet, Player, ShipDesign, Star } from '../../../models/game.model';
 import { signal } from '@angular/core';

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TechService } from '../../../services/tech.service';
-import { GameStateService } from '../../../services/game-state.service';
+import { TechService } from '../../../services/tech/tech.service';
+import { GameStateService } from '../../../services/game/game-state.service';
 import { HullTemplate, ComponentStats, TechRequirement } from '../../../data/tech-atlas.types';
 import { TechField } from '../../../data/tech-tree.data';
 import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.component';

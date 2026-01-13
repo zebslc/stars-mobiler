@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameStateService } from '../../../services/game-state.service';
-import { TechService } from '../../../services/tech.service';
+import { GameStateService } from '../../../services/game/game-state.service';
+import { TechService } from '../../../services/tech/tech.service';
 import { TECH_FIELDS, TechField, TechLevel } from '../../../data/tech-tree.data';
 import { TechRequirement } from '../../../data/tech-atlas.data';
 

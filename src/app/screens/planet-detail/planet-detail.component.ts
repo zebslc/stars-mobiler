@@ -8,10 +8,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameStateService } from '../../services/game-state.service';
-import { HabitabilityService } from '../../services/habitability.service';
-import { ShipyardService } from '../../services/shipyard.service';
-import { TechService } from '../../services/tech.service';
+import { GameStateService } from '../../services/game/game-state.service';
+import { HabitabilityService } from '../../services/colony/habitability.service';
+import { ShipyardService } from '../../services/ship-design/shipyard.service';
+import { TechService } from '../../services/tech/tech.service';
 import { getDesign } from '../../data/ships.data';
 import { BUILD_COSTS } from '../../data/costs.data';
 import { getHull } from '../../utils/data-access.util';

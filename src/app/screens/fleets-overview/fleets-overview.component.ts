@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { GameStateService } from '../../services/game-state.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { Fleet } from '../../models/game.model';
 import { FleetCardComponent } from './components/fleet-card.component';
 import { getDesign } from '../../data/ships.data';

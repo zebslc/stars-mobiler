@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 import { Planet } from '../../../models/game.model';
 import { ShipSelectorComponent, ShipOption } from '../../../components/ship-selector.component';
 import { getDesign } from '../../../data/ships.data';
-import { GameStateService } from '../../../services/game-state.service';
+import { GameStateService } from '../../../services/game/game-state.service';
 import { BUILD_COSTS, Cost } from '../../../data/costs.data';
 
 export type BuildProject =

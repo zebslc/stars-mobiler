@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoggingService } from '../services/logging.service';
-import { SettingsService } from '../services/settings.service';
+import { LoggingService } from '../services/core/logging.service';
+import { SettingsService } from '../services/core/settings.service';
 import { LogEntry, LogLevel } from '../models/logging.model';
 import { Subscription } from 'rxjs';
 

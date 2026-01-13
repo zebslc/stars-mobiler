@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { EndTurnCommand } from './turn-commands';
-import { TurnService } from '../../services/turn.service';
+import { TurnService } from '../../services/game/turn.service';
 import { GameState } from '../../models/game.model';
 
 declare const describe: any;

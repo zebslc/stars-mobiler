@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { GameStateService } from '../../../services/game-state.service';
-import { LoggingService } from '../../../services/logging.service';
+import { GameStateService } from '../../../services/game/game-state.service';
+import { LoggingService } from '../../../services/core/logging.service';
 import { GalaxyMapStateService } from './galaxy-map-state.service';
 import { GalaxyCoordinateService } from './galaxy-coordinate.service';
 import { 

@@ -10,8 +10,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { GameStateService } from '../../services/game-state.service';
-import { SettingsService } from '../../services/settings.service';
+import { GameStateService } from '../../services/game/game-state.service';
+import { SettingsService } from '../../services/core/settings.service';
 import { Star, Fleet } from '../../models/game.model';
 import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';

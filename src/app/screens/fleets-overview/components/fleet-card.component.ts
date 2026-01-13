@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Fleet } from '../../../models/game.model';
-import { GameStateService } from '../../../services/game-state.service';
+import { GameStateService } from '../../../services/game/game-state.service';
 import { getDesign } from '../../../data/ships.data';
 import { getHull } from '../../../utils/data-access.util';
 import { compileShipStats } from '../../../models/ship-design.model';

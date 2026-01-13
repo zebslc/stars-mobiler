@@ -8,8 +8,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameStateService } from '../../services/game-state.service';
-import { ToastService } from '../../services/toast.service';
+import { GameStateService } from '../../services/game/game-state.service';
+import { ToastService } from '../../services/core/toast.service';
 import { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';

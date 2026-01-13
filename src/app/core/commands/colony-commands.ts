@@ -1,6 +1,6 @@
 import { GameCommand } from './game-command.interface';
 import { GameState, BuildItem, Planet } from '../../models/game.model';
-import { ColonyService } from '../../services/colony.service';
+import { ColonyService } from '../../services/colony/colony.service';
 
 /**
  * Command to add an item to a planet's build queue.

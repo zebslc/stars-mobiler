@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { NavBarComponent } from './components/nav-bar.component';
 import { ToastContainerComponent } from './components/toast-container.component';
 import { DeveloperPanelComponent } from './components/developer-panel.component';
-import { GameStateService } from './services/game-state.service';
+import { GameStateService } from './services/game/game-state.service';
 
 @Component({
   selector: 'app-root',

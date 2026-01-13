@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { GridSlot } from '../hull-layout.types';
 import { HullSlotComponentData, ComponentActionEvent, SlotTouchEvent } from '../hull-slot.types';
-import { HullSlotOperationsService } from '../../../../services/hull-slot-operations.service';
+import { HullSlotOperationsService } from '../../../../services/ship-design/hull-slot-operations.service';
 
 @Component({
   selector: 'app-hull-slot',

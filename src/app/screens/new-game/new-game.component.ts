@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { GameStateService } from '../../services/game-state.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { SPECIES } from '../../data/species.data';
 
 @Component({

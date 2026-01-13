@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameStateService } from '../../services/game-state.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { TechField } from '../../data/tech-tree.data';
 import { ResearchCurrentComponent } from './components/research-current.component';
 import { ResearchFieldSelectorComponent } from './components/research-field-selector.component';

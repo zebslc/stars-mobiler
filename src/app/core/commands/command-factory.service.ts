@@ -3,11 +3,11 @@ import { GameState, BuildItem, Planet, FleetOrder, ShipDesign } from '../../mode
 import { TechField } from '../../data/tech-tree.data';
 
 // Import services
-import { ColonyService } from '../../services/colony.service';
-import { FleetService } from '../../services/fleet.service';
-import { ResearchService } from '../../services/research.service';
-import { ShipyardService } from '../../services/shipyard.service';
-import { TurnService } from '../../services/turn.service';
+import { ColonyService } from '../../services/colony/colony.service';
+import { FleetService } from '../../services/fleet/fleet.service';
+import { ResearchService } from '../../services/tech/research.service';
+import { ShipyardService } from '../../services/ship-design/shipyard.service';
+import { TurnService } from '../../services/game/turn.service';
 
 // Import command classes
 import {

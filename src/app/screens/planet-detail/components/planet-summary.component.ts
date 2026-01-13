@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Planet } from '../../../models/game.model';
-import { GameStateService } from '../../../services/game-state.service';
+import { GameStateService } from '../../../services/game/game-state.service';
 import { inject } from '@angular/core';
 
 @Component({

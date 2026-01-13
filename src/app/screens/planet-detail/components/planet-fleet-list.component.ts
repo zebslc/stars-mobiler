@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, output, inject } from '@angu
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Fleet } from '../../../models/game.model';
-import { GameStateService } from '../../../services/game-state.service';
+import { GameStateService } from '../../../services/game/game-state.service';
 import { getDesign } from '../../../data/ships.data';
 import { getHull } from '../../../utils/data-access.util';
 import { compileShipStats } from '../../../models/ship-design.model';

@@ -11,8 +11,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ShipDesignerService } from '../../services/ship-designer.service';
-import { GameStateService } from '../../services/game-state.service';
+import { ShipDesignerService } from '../../services/ship-design/ship-designer.service';
+import { GameStateService } from '../../services/game/game-state.service';
 import { ShipDesignerStatsComponent } from './components/ship-designer-stats.component';
 import { ShipDesignerSlotsComponent } from './components/ship-designer-slots.component';
 import { ShipDesignerHullSelectorComponent } from './components/ship-designer-hull-selector.component';

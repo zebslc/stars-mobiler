@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { LoggingService } from '../../../services/logging.service';
+import { LoggingService } from '../../../services/core/logging.service';
 import { 
   IGalaxyContextMenuService,
   ScreenCoordinate,
