@@ -11,6 +11,10 @@ This document defines testing standards and best practices for the Stars Mobile 
 3. **Test Behavior, Not Implementation** - Focus on observable outcomes, not internal details
 4. **Proper Isolation** - Tests should be independent and properly cleaned up
 5. **Minimal Setup Overhead** - Use the lightest-weight setup that works
+6. **Function Size Alignment** - Small functions (15 lines max) are easier to test and isolate
+   - Test individual helper methods when they contain business logic
+   - Mock dependencies cleanly with smaller function interfaces
+   - Use focused tests for focused functions
 
 ## Service Testing
 

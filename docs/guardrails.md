@@ -77,6 +77,20 @@
   - Avoid manual signals synchronized with `ngOnChanges`.
   - Use `computed()` for derived state from inputs.
 
+## Function Size & Complexity
+- **Maximum Function Length**: 15 lines per function (excluding empty lines and single-brace closing lines)
+- **Single Responsibility**: Each function should do one thing well
+- **Break down large functions** into smaller, focused helper methods:
+  - Use meaningful function names that describe what they do
+  - Extract validation logic into separate functions
+  - Separate business logic from infrastructure concerns
+- **Function naming**: Use descriptive verbs that clearly indicate the function's purpose
+  - `validate...()` for validation operations
+  - `create...()` for object creation
+  - `transfer...()` for data movement
+  - `execute...()` for complex operations
+- **Private helper methods**: Use private methods liberally to keep public interfaces clean and focused
+
 ## Logging
 - **NEVER use `console.log`, `console.warn`, `console.error`, or any console methods**
 - Use the `LoggingService` for all logging needs

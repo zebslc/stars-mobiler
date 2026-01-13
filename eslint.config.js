@@ -19,4 +19,13 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
+  {
+    files: ['src/**/*.service.ts'],
+    rules: {
+      'max-lines-per-function': [
+        'error',
+        { max: 20, skipBlankLines: true, skipComments: true, IIFEs: true },
+      ],
+    },
+  },
 ];

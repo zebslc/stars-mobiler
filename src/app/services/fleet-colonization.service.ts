@@ -18,47 +18,169 @@ export class FleetColonizationService {
   ) {}
 
   colonizeNow(game: GameState, fleetId: string): [GameState, string | null] {
-    const context: LogContext = {
-      service: 'FleetColonizationService',
-      operation: 'colonizeNow',
-      entityId: fleetId,
-      entityType: 'fleet'
-    };
-
+    const context = this.createContext('colonizeNow', fleetId);
     this.logging.debug(`Attempting colonization with fleet ${fleetId}`, context);
 
+    const validationResult = this.validateColonizationRequest(game, fleetId, context);
+    if (!validationResult.isValid) {
+      return [game, null];
+    }
+
+    const { fleet, planet } = validationResult;
+    const colonyShip = this.findColonyShip(game, fleet, context);
+    if (!colonyShip.ship) {
+      return [game, null];
+    }
+
+    return this.executeColonization(game, fleet, planet, colonyShip.ship, colonyShip.design, context);
+  }
+
+  canColonize(game: GameState, fleetId: string): { canColonize: boolean; reason?: string } {
+    const context = this.createContext('canColonize', fleetId);
+
+    const fleetValidation = this.validateFleetForColonization(game, fleetId);
+    if (!fleetValidation.isValid) {
+      return { canColonize: false, reason: fleetValidation.reason };
+    }
+
+    const planetValidation = this.validatePlanetForColonization(game, fleetValidation.fleet!, game.humanPlayer.id);
+    if (!planetValidation.isValid) {
+      return { canColonize: false, reason: planetValidation.reason };
+    }
+
+    const hasColonyShips = this.checkForColonyShips(game, fleetValidation.fleet!);
+    if (!hasColonyShips) {
+      return { canColonize: false, reason: 'No colony ships in fleet' };
+    }
+
+    this.logSuccessfulValidation(fleetValidation.fleet!, planetValidation.planet!, context);
+    return { canColonize: true };
+  }
+
+  private validateFleetForColonization(
+    game: GameState, 
+    fleetId: string
+  ): { isValid: boolean; reason?: string; fleet?: Fleet } {
+    const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    if (!fleet) {
+      return { isValid: false, reason: 'Fleet not found' };
+    }
+
+    if (fleet.location.type !== 'orbit') {
+      return { isValid: false, reason: 'Fleet must be in orbit' };
+    }
+
+    return { isValid: true, fleet };
+  }
+
+  private validatePlanetForColonization(
+    game: GameState, 
+    fleet: Fleet, 
+    playerId: string
+  ): { isValid: boolean; reason?: string; planet?: Planet } {
+    const planetIndex = this.buildPlanetIndex(game);
+    const planet = planetIndex.get(
+      (fleet.location as { type: 'orbit'; planetId: string }).planetId
+    );
+    
+    if (!planet) {
+      return { isValid: false, reason: 'Planet not found' };
+    }
+
+    if (planet.ownerId && planet.ownerId !== playerId) {
+      return { isValid: false, reason: 'Planet already colonized by another player' };
+    }
+
+    if (planet.ownerId === playerId) {
+      return { isValid: false, reason: 'Planet already colonized by you' };
+    }
+
+    return { isValid: true, planet };
+  }
+
+  private checkForColonyShips(game: GameState, fleet: Fleet): boolean {
+    return fleet.ships.some((s) => {
+      const design = game.shipDesigns.find((d) => d.id === s.designId);
+      return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
+    });
+  }
+
+  private logSuccessfulValidation(fleet: Fleet, planet: Planet, context: LogContext): void {
+    this.logging.debug(`Colonization check passed for fleet ${fleet.name}`, {
+      ...context,
+      additionalData: { 
+        planetId: planet.id,
+        planetName: planet.name,
+        fleetName: fleet.name
+      }
+    });
+  }
+
+  private createContext(operation: string, entityId: string): LogContext {
+    return {
+      service: 'FleetColonizationService',
+      operation,
+      entityId,
+      entityType: 'fleet'
+    };
+  }
+
+  private validateColonizationRequest(
+    game: GameState, 
+    fleetId: string, 
+    context: LogContext
+  ): { isValid: boolean; fleet?: Fleet; planet?: Planet } {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     if (!fleet || fleet.location.type !== 'orbit') {
       this.logging.error('Fleet not found or not in orbit for colonization', context);
-      return [game, null];
+      return { isValid: false };
     }
 
     const planetIndex = this.buildPlanetIndex(game);
     const planet = planetIndex.get(
-      (fleet.location as { type: 'orbit'; planetId: string }).planetId,
+      (fleet.location as { type: 'orbit'; planetId: string }).planetId
     );
     
     if (!planet) {
       this.logging.error('Planet not found for colonization', context);
-      return [game, null];
+      return { isValid: false };
     }
 
-    // Find colony ship
+    return { isValid: true, fleet, planet };
+  }
+
+  private findColonyShip(
+    game: GameState, 
+    fleet: Fleet, 
+    context: LogContext
+  ): { ship: any | null; design: any | null } {
     const colonyStack = fleet.ships.find((s) => {
       const design = game.shipDesigns.find((d) => d.id === s.designId);
       return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
     });
 
-    const hasColony = !!colonyStack;
-    if (!hasColony) {
-      this.logging.warn('No colony ships available for colonization', {
-        ...context,
-        additionalData: { planetId: planet.id, planetName: planet.name }
-      });
-      return [game, null];
+    if (!colonyStack) {
+      this.logging.warn('No colony ships available for colonization', context);
+      return { ship: null, design: null };
     }
 
-    // Calculate habitability
+    const design = game.shipDesigns.find((d) => d.id === colonyStack.designId);
+    if (!design) {
+      this.logging.error('Colony ship design not found', context);
+      return { ship: null, design: null };
+    }
+
+    return { ship: colonyStack, design };
+  }
+
+  private executeColonization(
+    game: GameState, 
+    fleet: Fleet, 
+    planet: Planet, 
+    colonyStack: any, 
+    design: any, 
+    context: LogContext
+  ): [GameState, string | null] {
     const hab = this.habitability.calculate(planet, game.humanPlayer.species);
     
     this.logging.info(`Colonizing planet ${planet.name} (habitability: ${hab}%)`, {
@@ -71,125 +193,82 @@ export class FleetColonizationService {
       }
     });
 
-    const design = game.shipDesigns.find((d) => d.id === colonyStack!.designId);
-    if (!design) {
-      this.logging.error('Colony ship design not found', context);
-      return [game, null];
-    }
+    this.consumeColonyShip(fleet, colonyStack);
+    this.initializeColony(planet, hab, game.humanPlayer.id);
+    this.transferResourcesToColony(planet, fleet, design);
+    
+    return this.finalizeColonization(game, fleet, planet, context);
+  }
 
-    // Consume one colony ship
-    colonyStack!.count -= 1;
-    if (colonyStack!.count <= 0) {
+  private consumeColonyShip(fleet: Fleet, colonyStack: any): void {
+    colonyStack.count -= 1;
+    if (colonyStack.count <= 0) {
       fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
     }
+  }
 
-    // Absorb ship cargo into the new colony
-    planet.ownerId = game.humanPlayer.id;
-    
-    // Apply default governor from settings
+  private initializeColony(planet: Planet, habitability: number, playerId: string): void {
+    planet.ownerId = playerId;
     planet.governor = { type: this.settings.defaultGovernor() };
-    
-    // Initialize build queue
     planet.buildQueue = [];
+    planet.maxPopulation = habitability > 0 
+      ? Math.floor(1_000_000 * (habitability / 100)) 
+      : 1000;
+  }
 
-    // Set Max Population based on habitability
-    planet.maxPopulation = hab > 0 ? Math.floor(1_000_000 * (hab / 100)) : 1000; // Allow small pop on hostile worlds
-
-    const addedColonists = Math.max(0, fleet.cargo.colonists);
-    planet.population = addedColonists;
+  private transferResourcesToColony(planet: Planet, fleet: Fleet, design: any): void {
+    // Transfer population
+    planet.population = Math.max(0, fleet.cargo.colonists);
     
     // Transfer minerals from cargo
     planet.surfaceMinerals.ironium += fleet.cargo.minerals.ironium;
     planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
     planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
     
-    // Broken-down ship parts contribute minerals based on its build cost
+    // Add resources from broken-down ship
     const cost = this.shipyard.getShipCost(design);
     planet.resources += cost.resources;
     planet.surfaceMinerals.ironium += cost.ironium ?? 0;
     planet.surfaceMinerals.boranium += cost.boranium ?? 0;
     planet.surfaceMinerals.germanium += cost.germanium ?? 0;
+  }
+
+  private finalizeColonization(
+    game: GameState, 
+    fleet: Fleet, 
+    planet: Planet, 
+    context: LogContext
+  ): [GameState, string | null] {
+    this.clearFleetCargo(fleet);
+    this.logColonyEstablishment(planet, context);
+    this.removeEmptyFleet(game, fleet, context);
     
-    // Clear cargo after colonization
+    return [{ ...game, stars: [...game.stars], fleets: [...game.fleets] }, planet.id];
+  }
+
+  private clearFleetCargo(fleet: Fleet): void {
     fleet.cargo.minerals = { ironium: 0, boranium: 0, germanium: 0 };
     fleet.cargo.colonists = 0;
     fleet.orders = [];
-    
+  }
+
+  private logColonyEstablishment(planet: Planet, context: LogContext): void {
     this.logging.info(`Colony established on ${planet.name}`, {
       ...context,
       additionalData: { 
         planetId: planet.id,
         planetName: planet.name,
         population: planet.population,
-        maxPopulation: planet.maxPopulation,
-        habitability: hab
+        maxPopulation: planet.maxPopulation
       }
     });
+  }
 
-    // Remove empty fleets
+  private removeEmptyFleet(game: GameState, fleet: Fleet, context: LogContext): void {
     if (fleet.ships.length === 0) {
       game.fleets = game.fleets.filter((f) => f.id !== fleet.id);
       this.logging.debug(`Removed empty fleet after colonization`, context);
     }
-    
-    const newGame = { ...game, stars: [...game.stars], fleets: [...game.fleets] };
-    return [newGame, planet.id];
-  }
-
-  canColonize(game: GameState, fleetId: string): { canColonize: boolean; reason?: string } {
-    const context: LogContext = {
-      service: 'FleetColonizationService',
-      operation: 'canColonize',
-      entityId: fleetId,
-      entityType: 'fleet'
-    };
-
-    const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
-    if (!fleet) {
-      return { canColonize: false, reason: 'Fleet not found' };
-    }
-
-    if (fleet.location.type !== 'orbit') {
-      return { canColonize: false, reason: 'Fleet must be in orbit' };
-    }
-
-    const planetIndex = this.buildPlanetIndex(game);
-    const planet = planetIndex.get(
-      (fleet.location as { type: 'orbit'; planetId: string }).planetId,
-    );
-    
-    if (!planet) {
-      return { canColonize: false, reason: 'Planet not found' };
-    }
-
-    if (planet.ownerId && planet.ownerId !== game.humanPlayer.id) {
-      return { canColonize: false, reason: 'Planet already colonized by another player' };
-    }
-
-    if (planet.ownerId === game.humanPlayer.id) {
-      return { canColonize: false, reason: 'Planet already colonized by you' };
-    }
-
-    // Check for colony ships
-    const hasColonyShip = fleet.ships.some((s) => {
-      const design = game.shipDesigns.find((d) => d.id === s.designId);
-      return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
-    });
-
-    if (!hasColonyShip) {
-      return { canColonize: false, reason: 'No colony ships in fleet' };
-    }
-
-    this.logging.debug(`Colonization check passed for fleet ${fleet.name}`, {
-      ...context,
-      additionalData: { 
-        planetId: planet.id,
-        planetName: planet.name,
-        fleetName: fleet.name
-      }
-    });
-
-    return { canColonize: true };
   }
 
   private buildPlanetIndex(game: GameState): Map<string, Planet> {
