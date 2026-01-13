@@ -24,6 +24,7 @@ describe('FleetDetailComponent', () => {
       player: signal<any>(null),
       turn: signal(1),
       stars: signal([]),
+      planetIndex: signal(new Map()),
       habitabilityFor: () => 0,
       issueFleetOrder: jasmine.createSpy('issueFleetOrder'),
     };

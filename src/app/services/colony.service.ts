@@ -14,8 +14,21 @@ export class ColonyService {
     private fleet: FleetService,
   ) {}
 
+  /**
+   * Build planet index for O(1) lookups.
+   */
+  private buildPlanetIndex(game: GameState): Map<string, Planet> {
+    const index = new Map<string, Planet>();
+    for (const star of game.stars) {
+      for (const planet of star.planets) {
+        index.set(planet.id, planet);
+      }
+    }
+    return index;
+  }
+
   addToBuildQueue(game: GameState, planetId: string, item: BuildItem): GameState {
-    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    const planet = this.buildPlanetIndex(game).get(planetId);
     if (!planet || planet.ownerId !== game.humanPlayer.id) return game;
 
     // We don't spend resources here anymore. They are spent during turn processing.
@@ -272,14 +285,14 @@ export class ColonyService {
   }
 
   setGovernor(game: GameState, planetId: string, governor: Planet['governor']): GameState {
-    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    const planet = this.buildPlanetIndex(game).get(planetId);
     if (!planet || planet.ownerId !== game.humanPlayer.id) return game;
     planet.governor = governor ?? { type: 'manual' };
     return { ...game, stars: [...game.stars] };
   }
 
   removeFromQueue(game: GameState, planetId: string, index: number): GameState {
-    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    const planet = this.buildPlanetIndex(game).get(planetId);
     if (!planet || !planet.buildQueue) return game;
     planet.buildQueue = planet.buildQueue.filter((_, i) => i !== index);
     return { ...game, stars: [...game.stars] };

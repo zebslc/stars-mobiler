@@ -73,13 +73,15 @@ export class GameInitializerService {
       settings.seed,
     );
     // Fill starId in planets and set ownership/homeworlds
+    const planetMap = new Map<string, Planet>();
     for (const star of stars) {
       for (const planet of star.planets) {
         planet.starId = star.id;
+        planetMap.set(planet.name, planet);
       }
     }
-    const humanHome = stars.flatMap((s) => s.planets).find((p) => p.name === 'Home');
-    const aiHome = stars.flatMap((s) => s.planets).find((p) => p.name === 'Enemy Home');
+    const humanHome = planetMap.get('Home');
+    const aiHome = planetMap.get('Enemy Home');
     if (humanHome) {
       humanHome.ownerId = human.id;
       humanHome.resources = 100;

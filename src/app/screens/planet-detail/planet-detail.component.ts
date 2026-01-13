@@ -169,11 +169,8 @@ export class PlanetDetailComponent implements OnInit {
   planet = computed(() => {
     this.gs.turn();
     const id = this.planetIdSignal();
-    const p =
-      this.gs
-        .stars()
-        .flatMap((s) => s.planets)
-        .find((p) => p.id === id) || null;
+    if (!id) return null;
+    const p = this.gs.planetIndex().get(id) || null;
     return p ? { ...p } : null;
   });
 

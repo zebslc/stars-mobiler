@@ -254,10 +254,9 @@ export class FleetDetailComponent implements OnInit {
 
   planetOnSurface = computed(() => {
     const f = this.fleet();
-    const game = this.gs.game();
-    if (!f || !game || f.location.type !== 'orbit') return null;
+    if (!f || f.location.type !== 'orbit') return null;
     const planetId = (f.location as any).planetId;
-    return game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId) || null;
+    return this.gs.planetIndex().get(planetId) || null;
   });
 
   // Transfer State

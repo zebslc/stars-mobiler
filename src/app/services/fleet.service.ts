@@ -16,6 +16,19 @@ export class FleetService {
     private shipyard: ShipyardService,
   ) {}
 
+  /**
+   * Build planet index for O(1) lookups.
+   */
+  private buildPlanetIndex(game: GameState): Map<string, Planet> {
+    const index = new Map<string, Planet>();
+    for (const star of game.stars) {
+      for (const planet of star.planets) {
+        index.set(planet.id, planet);
+      }
+    }
+    return index;
+  }
+
   addShipToFleet(game: GameState, planet: Planet, shipDesignId: string, count: number): void {
     const designId = shipDesignId ?? 'scout';
     const shipDesign = game.shipDesigns.find((d) => d.id === designId);
@@ -349,9 +362,8 @@ export class FleetService {
   colonizeNow(game: GameState, fleetId: string): [GameState, string | null] {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     if (!fleet || fleet.location.type !== 'orbit') return [game, null];
-    const planet = game.stars
-      .flatMap((s) => s.planets)
-      .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
+    const planetIndex = this.buildPlanetIndex(game);
+    const planet = planetIndex.get((fleet.location as { type: 'orbit'; planetId: string }).planetId);
     if (!planet) return [game, null];
     const colonyStack = fleet.ships.find((s) => {
       const design = game.shipDesigns.find((d) => d.id === s.designId);
@@ -427,7 +439,7 @@ export class FleetService {
     },
   ): GameState {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
-    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    const planet = this.buildPlanetIndex(game).get(planetId);
     if (!fleet || !planet) return game;
     const capacity = this.fleetCargoCapacity(game, fleet);
     let used = this.fleetCargoUsed(fleet);
@@ -492,7 +504,7 @@ export class FleetService {
     },
   ): GameState {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
-    const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+    const planet = this.buildPlanetIndex(game).get(planetId);
     if (!fleet || !planet) return game;
     const giveMineral = (key: 'ironium' | 'boranium' | 'germanium', req?: number | 'all') => {
       if (!req) return;
@@ -539,6 +551,7 @@ export class FleetService {
   }
 
   processFleets(game: GameState) {
+    const planetIndex = this.buildPlanetIndex(game);
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== game.humanPlayer.id) continue;
       // Calculate total fuel capacity
@@ -549,9 +562,7 @@ export class FleetService {
 
       // Refuel logic
       if (fleet.location.type === 'orbit') {
-        const planet = game.stars
-          .flatMap((s) => s.planets)
-          .find((p) => p.id === (fleet.location as { type: 'orbit'; planetId: string }).planetId);
+        const planet = planetIndex.get((fleet.location as { type: 'orbit'; planetId: string }).planetId);
 
         if (planet && planet.ownerId === fleet.ownerId) {
           // Check for stardock in orbit
@@ -615,7 +626,7 @@ export class FleetService {
           fleet.location = { type: 'space', x: nx, y: ny };
         }
       } else if (order.type === 'colonize') {
-        const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === order.planetId);
+        const planet = planetIndex.get(order.planetId);
         if (!planet) continue;
         const colonyStack = fleet.ships.find((s) => {
           return this.getShipDesign(game, s.designId).colonyModule && s.count > 0;

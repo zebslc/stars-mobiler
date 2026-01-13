@@ -133,12 +133,13 @@ export class PlanetsOverviewComponent {
     if (!game) return map;
 
     const playerId = this.gs.player()?.id;
+    const planetIndex = this.gs.planetIndex();
 
     for (const fleet of game.fleets) {
       // Debug logging for starbase detection
       if (fleet.location.type === 'orbit') {
         const planetId = (fleet.location as any).planetId;
-        const planet = game.stars.flatMap((s) => s.planets).find((p) => p.id === planetId);
+        const planet = planetIndex.get(planetId);
         if (planet?.name === 'Home') {
           console.log('Checking fleet at Home:', fleet);
           console.log('Ships:', fleet.ships);

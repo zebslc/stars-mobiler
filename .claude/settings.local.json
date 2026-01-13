@@ -15,7 +15,8 @@
       "Bash(npm run test:ci:*)",
       "Bash(npm test)",
       "Bash(timeout /t 5 /nobreak)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

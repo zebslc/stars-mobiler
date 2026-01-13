@@ -33,6 +33,7 @@ export class GameStateService {
   readonly player = computed(() => this.game()?.humanPlayer);
   readonly playerSpecies = computed(() => this.player()?.species);
   readonly playerEconomy = computed(() => this.game()?.playerEconomy);
+  readonly planetIndex = computed(() => this.commandExecutor.planetIndex());
 
   constructor(
     private gameInitializer: GameInitializerService,
@@ -49,9 +50,7 @@ export class GameStateService {
 
   habitabilityFor(planetId: string): number {
     const species = this.playerSpecies();
-    const planet = this.stars()
-      .flatMap((s) => s.planets)
-      .find((p) => p.id === planetId);
+    const planet = this.commandExecutor.planetIndex().get(planetId);
     if (!species || !planet) return 0;
     return this.hab.calculate(planet, species);
   }

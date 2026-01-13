@@ -131,10 +131,7 @@ export class PlanetColonizationComponent {
 
   getFleetLocationName(fleet: Fleet): string {
     if (fleet.location.type === 'orbit') {
-      const p = this.gs
-        .stars()
-        .flatMap((s) => s.planets)
-        .find((p) => p.id === (fleet.location as any).planetId);
+      const p = this.gs.planetIndex().get((fleet.location as any).planetId);
       return p ? p.name : 'Unknown Orbit';
     }
     return 'Deep Space';
