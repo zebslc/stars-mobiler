@@ -2,7 +2,6 @@ import {
   Component,
   Output,
   EventEmitter,
-  ChangeDetectionStrategy,
   signal,
   computed,
   input,
@@ -304,8 +303,12 @@ export class HullLayoutComponent {
     }
   }
 
-  private parseStructure(structure: string[], slots: SlotDefinition[], hull: HullTemplate): GridSlot[] {
-    const grid = structure.map((row) => row.split(','));
+  private parseStructure(
+    structure: string[],
+    slots: SlotDefinition[],
+    hull: HullTemplate,
+  ): GridSlot[] {
+    const grid = this.convertStructureToGrid(structure);
     const rows = grid.length;
     const cols = grid[0].length;
     const visited = new Set<string>();
@@ -319,55 +322,117 @@ export class HullLayoutComponent {
         const cell = grid[r][c];
         if (cell === '.') continue;
 
-        let width = 1;
-        while (c + width < cols && grid[r][c + width] === cell) {
-          width++;
-        }
-
-        let height = 1;
-        let isRect = true;
-        while (r + height < rows) {
-          for (let w = 0; w < width; w++) {
-            if (grid[r + height][c + w] !== cell) {
-              isRect = false;
-              break;
-            }
-          }
-          if (!isRect) break;
-          height++;
-        }
-
-        for (let h = 0; h < height; h++) {
-          for (let w = 0; w < width; w++) {
-            visited.add(`${r + h},${c + w}`);
-          }
-        }
+        const dimensions = this.calculateSlotDimensions(grid, r, c, cell);
+        this.markVisitedCells(visited, r, c, dimensions.width, dimensions.height);
 
         const slotDef = slots.find((s: SlotDefinition) => s.Code === cell);
         if (slotDef) {
-          let capacity: number | 'Unlimited' | undefined = undefined;
-          if (typeof slotDef.Size === 'number') {
-            capacity = slotDef.Size;
-          } else if (
-            (cell.startsWith('SD') || cell.toUpperCase().includes('SD')) &&
-            hull?.Stats?.DockCapacity === 'Unlimited'
-          ) {
-            capacity = 'Unlimited';
-          }
-          result.push({
-            id: cell,
-            row: r + 1,
-            col: c + 1,
-            width,
-            height,
+          const gridSlot = this.createGridSlot(
+            cell,
+            r + 1, // Convert to 1-based
+            c + 1, // Convert to 1-based
+            dimensions.width,
+            dimensions.height,
             slotDef,
-            editable: slotDef.Editable !== false,
-            capacity,
-          });
+            hull,
+          );
+          result.push(gridSlot);
         }
       }
     }
     return result;
+  }
+
+  private convertStructureToGrid(structure: string[]): string[][] {
+    return structure.map((row) => row.split(','));
+  }
+
+  private calculateSlotDimensions(
+    grid: string[][],
+    startRow: number,
+    startCol: number,
+    cellValue: string,
+  ): { width: number; height: number } {
+    const rows = grid.length;
+    const cols = grid[0].length;
+
+    // Calculate width
+    let width = 1;
+    while (startCol + width < cols && grid[startRow][startCol + width] === cellValue) {
+      width++;
+    }
+
+    // Calculate height
+    let height = 1;
+    let isRect = true;
+    while (startRow + height < rows) {
+      for (let w = 0; w < width; w++) {
+        if (grid[startRow + height][startCol + w] !== cellValue) {
+          isRect = false;
+          break;
+        }
+      }
+      if (!isRect) break;
+      height++;
+    }
+
+    return { width, height };
+  }
+
+  private markVisitedCells(
+    visited: Set<string>,
+    startRow: number,
+    startCol: number,
+    width: number,
+    height: number,
+  ): void {
+    for (let h = 0; h < height; h++) {
+      for (let w = 0; w < width; w++) {
+        visited.add(`${startRow + h},${startCol + w}`);
+      }
+    }
+  }
+
+  private calculateSlotCapacity(
+    cellValue: string,
+    slotDef: SlotDefinition,
+    hull: HullTemplate,
+  ): number | 'Unlimited' | undefined {
+    if (typeof slotDef.Size === 'number') {
+      return slotDef.Size;
+    }
+
+    if (
+      (cellValue.startsWith('SD') || cellValue.toUpperCase().includes('SD')) &&
+      hull?.Stats?.DockCapacity === 'Unlimited'
+    ) {
+      return 'Unlimited';
+    }
+
+    return undefined;
+  }
+
+  private createGridSlot(
+    cellValue: string,
+    row: number,
+    col: number,
+    width: number,
+    height: number,
+    slotDef: SlotDefinition,
+    hull: HullTemplate,
+  ): GridSlot {
+    const capacity = this.calculateSlotCapacity(cellValue, slotDef, hull);
+
+    return {
+      id: cellValue,
+      row,
+      col,
+      width,
+      height,
+      slotDef,
+      editable: slotDef.Editable !== false,
+      capacity,
+    };
   }
 
   onSlotClick(slotId: string) {
@@ -443,7 +508,7 @@ export class HullLayoutComponent {
     }, 500);
   }
 
-  onTouchEnd(event: SlotTouchEvent): void {
+  onTouchEnd(_event: SlotTouchEvent): void {
     if (this.longPressTimer) {
       clearTimeout(this.longPressTimer);
       this.longPressTimer = null;
