@@ -16,24 +16,24 @@ This implementation plan creates a comprehensive logging service for Stellar Rem
   - **Property 1: Structured Log Data Acceptance**
   - **Validates: Requirements 1.2**
 
-- [ ] 2. Implement core LoggingService
-  - [ ] 2.1 Create LoggingService with dependency injection setup
+- [-] 2. Implement core LoggingService
+  - [x] 2.1 Create LoggingService with dependency injection setup
     - Implement basic service structure with Angular DI
     - Add signal-based configuration management
     - Set up service registration in root
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 2.2 Write property test for log level support
+  - [x] 2.2 Write property test for log level support
     - **Property 2: Log Level Support**
     - **Validates: Requirements 1.3**
 
-  - [ ] 2.3 Implement automatic metadata inclusion
+  - [x] 2.3 Implement automatic metadata inclusion
     - Add timestamp generation for all log entries
     - Implement source context capture
     - Create unique ID generation for log entries
     - _Requirements: 1.4_
 
-  - [ ] 2.4 Write property test for automatic metadata inclusion
+  - [x] 2.4 Write property test for automatic metadata inclusion
     - **Property 3: Automatic Metadata Inclusion**
     - **Validates: Requirements 1.4**
 
