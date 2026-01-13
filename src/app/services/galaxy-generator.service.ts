@@ -1,17 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Planet, Species, Star } from '../models/game.model';
 import { mulberry32, randInt, choice } from './util/random.util';
+import { GALAXY_PADDING } from '../core/constants/galaxy.constants';
 
 @Injectable({ providedIn: 'root' })
 export class GalaxyGeneratorService {
-  generateGalaxy(starCount: number, seed: number): Star[] {
+  generateGalaxy(starCount: number, seed: number, width: number, height: number): Star[] {
     const rng = mulberry32(seed);
     const positions: Array<{ x: number; y: number }> = [];
-    const minDistance = (2000 / Math.sqrt(starCount)) * 0.6;
+    const minDistance = (width / Math.sqrt(starCount)) * 0.6;
     let attempts = 0;
     while (positions.length < starCount && attempts < starCount * 2000) {
       attempts++;
-      const candidate = { x: randInt(rng, 50, 1950), y: randInt(rng, 50, 1950) };
+      const candidate = {
+        x: randInt(rng, GALAXY_PADDING, width - GALAXY_PADDING),
+        y: randInt(rng, GALAXY_PADDING, height - GALAXY_PADDING),
+      };
       if (positions.every((p) => this.distance(p, candidate) >= minDistance)) {
         positions.push(candidate);
       }
@@ -111,9 +115,26 @@ export class GalaxyGeneratorService {
 
   private starName(seed: number, index: number): string {
     const names = [
-      'Oxygen', 'No Vacancy', 'Mozart', 'Wallaby', 'Mohlodi', 'Slime', 'Hiho',
-      'Hacker', 'Prune', 'Stove Top', 'Shaggy Dog', 'Alexander', '90210',
-      'Sea Squared', 'Red Storm', 'Mobius', 'Castle', 'Dwarte', 'Kalamazoo', 'Bloop'
+      'Oxygen',
+      'No Vacancy',
+      'Mozart',
+      'Wallaby',
+      'Mohlodi',
+      'Slime',
+      'Hiho',
+      'Hacker',
+      'Prune',
+      'Stove Top',
+      'Shaggy Dog',
+      'Alexander',
+      '90210',
+      'Sea Squared',
+      'Red Storm',
+      'Mobius',
+      'Castle',
+      'Dwarte',
+      'Kalamazoo',
+      'Bloop',
     ];
 
     // Use predefined names first

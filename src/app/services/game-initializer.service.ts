@@ -8,6 +8,7 @@ import {
   ShipDesign,
   Fleet,
 } from '../models/game.model';
+import { GALAXY_SIZES } from '../core/constants/galaxy.constants';
 import { GalaxyGeneratorService } from './galaxy-generator.service';
 import { SPECIES } from '../data/species.data';
 import { getHull } from '../utils/data-access.util';
@@ -20,7 +21,13 @@ export class GameInitializerService {
   initializeGame(settings: GameSettings): GameState {
     const starCount =
       settings.galaxySize === 'small' ? 16 : settings.galaxySize === 'medium' ? 24 : 36;
-    const stars = this.galaxy.generateGalaxy(starCount, settings.seed);
+    const sizeConfig = GALAXY_SIZES[settings.galaxySize];
+    const stars = this.galaxy.generateGalaxy(
+      starCount,
+      settings.seed,
+      sizeConfig.width,
+      sizeConfig.height,
+    );
     const playerSpecies = SPECIES.find((s) => s.id === settings.speciesId)!;
     const aiSpecies = SPECIES.find((s) => s.id !== settings.speciesId)!;
 

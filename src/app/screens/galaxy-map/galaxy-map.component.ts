@@ -23,6 +23,7 @@ import { GalaxyMapSettingsComponent } from './components/galaxy-map-settings.com
 import { GalaxyMapStateService } from './services/galaxy-map-state.service';
 import { GalaxyVisibilityService } from './services/galaxy-visibility.service';
 import { GalaxyFleetService } from './services/galaxy-fleet.service';
+import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
 
 @Component({
   standalone: true,
@@ -47,7 +48,7 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
         >
           <svg
             #galaxySvg
-            [attr.viewBox]="'0 0 2000 2000'"
+            [attr.viewBox]="'0 0 ' + width() + ' ' + height()"
             preserveAspectRatio="xMidYMid meet"
             style="width:100%;height:100%;touch-action:none;background:#02030a"
             (contextmenu)="onMapRightClick($event)"
@@ -81,12 +82,18 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
 
             <g [attr.transform]="state.transformString()">
               <!-- Background Layer -->
-              <rect x="0" y="0" width="2000" height="2000" fill="url(#galaxyBgGradient)"></rect>
               <rect
                 x="0"
                 y="0"
-                width="2000"
-                height="2000"
+                [attr.width]="width()"
+                [attr.height]="height()"
+                fill="url(#galaxyBgGradient)"
+              ></rect>
+              <rect
+                x="0"
+                y="0"
+                [attr.width]="width()"
+                [attr.height]="height()"
                 filter="url(#galaxyNoise)"
                 opacity="0.55"
               ></rect>
@@ -94,25 +101,25 @@ import { GalaxyFleetService } from './services/galaxy-fleet.service';
               <!-- Nebulae -->
               <g style="mix-blend-mode: screen; opacity: 0.9;">
                 <circle
-                  cx="500"
-                  cy="520"
-                  r="240"
+                  [attr.cx]="width() * 0.25"
+                  [attr.cy]="height() * 0.26"
+                  [attr.r]="width() * 0.12"
                   fill="#2b3bff"
                   opacity="0.08"
                   filter="url(#galaxyNebulaBlur)"
                 ></circle>
                 <circle
-                  cx="1840"
-                  cy="840"
-                  r="320"
+                  [attr.cx]="width() * 0.8"
+                  [attr.cy]="height() * 0.4"
+                  [attr.r]="width() * 0.16"
                   fill="#ff2bd6"
                   opacity="0.05"
                   filter="url(#galaxyNebulaBlur)"
                 ></circle>
                 <circle
-                  cx="1300"
-                  cy="380"
-                  r="280"
+                  [attr.cx]="width() * 0.6"
+                  [attr.cy]="height() * 0.75"
+                  [attr.r]="width() * 0.14"
                   fill="#2bffd5"
                   opacity="0.04"
                   filter="url(#galaxyNebulaBlur)"
@@ -449,6 +456,13 @@ export class GalaxyMapComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   settings = inject(SettingsService);
+
+  readonly galaxySize = computed(() => {
+    const size = this.gs.game()?.settings.galaxySize || 'small';
+    return GALAXY_SIZES[size];
+  });
+  readonly width = computed(() => this.galaxySize().width);
+  readonly height = computed(() => this.galaxySize().height);
 
   // Injected Services
   readonly state = inject(GalaxyMapStateService);
