@@ -86,18 +86,18 @@ This implementation plan creates a comprehensive logging service for Stellar Rem
     - **Property 5: Destination Failure Isolation**
     - **Validates: Requirements 2.5**
 
-- [ ] 5. Implement LogDestinationManager
-  - [ ] 5.1 Create destination management service
+- [x] 5. Implement LogDestinationManager
+  - [x] 5.1 Create destination management service
     - Implement destination registration and routing
     - Add configuration-based destination enabling/disabling
     - Handle destination failures with isolation
     - _Requirements: 2.4, 2.5_
 
-  - [ ] 5.2 Write property test for Application Insights integration
+  - [x] 5.2 Write property test for Application Insights integration
     - **Property 10: Application Insights Integration**
     - **Validates: Requirements 5.1, 5.2, 5.3**
 
-  - [ ] 5.3 Write property test for Application Insights failure handling
+  - [x] 5.3 Write property test for Application Insights failure handling
     - **Property 11: Application Insights Failure Handling**
     - **Validates: Requirements 5.4**
 

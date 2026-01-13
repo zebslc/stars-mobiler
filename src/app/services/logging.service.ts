@@ -9,13 +9,16 @@ import {
   LogContext,
   BrowserContext,
   GameContext,
-  AngularContext
+  AngularContext,
 } from '../models/logging.model';
+import { LogDestinationManager } from './log-destination-manager.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoggingService {
+  private readonly destinationManager = inject(LogDestinationManager);
+
   // Configuration signal for reactive updates
   private readonly _configuration = signal<LoggingConfiguration>(DEFAULT_LOGGING_CONFIG);
   readonly configuration = this._configuration.asReadonly();
@@ -33,6 +36,8 @@ export class LoggingService {
 
   constructor() {
     this._isInitialized.set(true);
+    // Configure the destination manager with initial configuration
+    this.destinationManager.configure(DEFAULT_LOGGING_CONFIG);
   }
 
   /**
@@ -42,6 +47,9 @@ export class LoggingService {
     const currentConfig = this._configuration();
     const newConfig = { ...currentConfig, ...config };
     this._configuration.set(newConfig);
+
+    // Update destination manager configuration
+    this.destinationManager.configure(newConfig);
   }
 
   /**
@@ -55,7 +63,7 @@ export class LoggingService {
    * Main logging method - accepts structured log data
    * Automatically includes timestamp, unique ID, and enriched context
    */
-  log(entry: LogEntryWithoutId): void {
+  async log(entry: LogEntryWithoutId): Promise<void> {
     // Check if log level meets minimum threshold
     if (entry.level < this.currentLogLevel()) {
       return;
@@ -66,11 +74,11 @@ export class LoggingService {
       ...entry,
       id: this.generateLogId(),
       timestamp: new Date(),
-      context: this.enrichContext(entry.context)
+      context: this.enrichContext(entry.context),
     };
 
-    // Route to destinations (will be implemented in later tasks)
-    this.routeToDestinations(completeEntry);
+    // Route to destinations using destination manager
+    await this.routeToDestinations(completeEntry);
 
     // Emit to developer panel if enabled (will be implemented in later tasks)
     this.emitToDeveloperPanel(completeEntry);
@@ -79,39 +87,55 @@ export class LoggingService {
   /**
    * Convenience methods for different log levels
    */
-  debug(message: string, metadata?: Record<string, any>, context?: Partial<LogContext>): void {
-    this.log({
+  async debug(
+    message: string,
+    metadata?: Record<string, any>,
+    context?: Partial<LogContext>,
+  ): Promise<void> {
+    await this.log({
       level: LogLevel.DEBUG,
       message,
       metadata,
-      context: this.createBaseContext(context)
+      context: this.createBaseContext(context),
     });
   }
 
-  info(message: string, metadata?: Record<string, any>, context?: Partial<LogContext>): void {
-    this.log({
+  async info(
+    message: string,
+    metadata?: Record<string, any>,
+    context?: Partial<LogContext>,
+  ): Promise<void> {
+    await this.log({
       level: LogLevel.INFO,
       message,
       metadata,
-      context: this.createBaseContext(context)
+      context: this.createBaseContext(context),
     });
   }
 
-  warn(message: string, metadata?: Record<string, any>, context?: Partial<LogContext>): void {
-    this.log({
+  async warn(
+    message: string,
+    metadata?: Record<string, any>,
+    context?: Partial<LogContext>,
+  ): Promise<void> {
+    await this.log({
       level: LogLevel.WARN,
       message,
       metadata,
-      context: this.createBaseContext(context)
+      context: this.createBaseContext(context),
     });
   }
 
-  error(message: string, metadata?: Record<string, any>, context?: Partial<LogContext>): void {
-    this.log({
+  async error(
+    message: string,
+    metadata?: Record<string, any>,
+    context?: Partial<LogContext>,
+  ): Promise<void> {
+    await this.log({
       level: LogLevel.ERROR,
       message,
       metadata,
-      context: this.createBaseContext(context)
+      context: this.createBaseContext(context),
     });
   }
 
@@ -133,18 +157,18 @@ export class LoggingService {
       userAgent: navigator.userAgent,
       viewport: {
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
       },
       url: window.location.href,
       timestamp: Date.now(),
-      performance: this.getPerformanceData()
+      performance: this.getPerformanceData(),
     };
 
     return {
       browser: browserContext,
       game: partialContext?.game,
       angular: partialContext?.angular,
-      custom: partialContext?.custom
+      custom: partialContext?.custom,
     };
   }
 
@@ -154,18 +178,18 @@ export class LoggingService {
   private enrichContext(context: LogContext): LogContext {
     // Capture source context from call stack if available
     const sourceContext = this.captureSourceContext();
-    
+
     return {
       ...context,
       browser: {
         ...context.browser,
         timestamp: Date.now(),
-        performance: this.getPerformanceData()
+        performance: this.getPerformanceData(),
       },
       custom: {
         ...context.custom,
-        sourceContext
-      }
+        sourceContext,
+      },
     };
   }
 
@@ -176,15 +200,19 @@ export class LoggingService {
     if (typeof performance !== 'undefined') {
       const memory = (performance as any).memory;
       return {
-        memory: memory ? {
-          usedJSHeapSize: memory.usedJSHeapSize,
-          totalJSHeapSize: memory.totalJSHeapSize,
-          jsHeapSizeLimit: memory.jsHeapSizeLimit
-        } : undefined,
-        timing: performance.timing ? {
-          navigationStart: performance.timing.navigationStart,
-          loadEventEnd: performance.timing.loadEventEnd
-        } : undefined
+        memory: memory
+          ? {
+              usedJSHeapSize: memory.usedJSHeapSize,
+              totalJSHeapSize: memory.totalJSHeapSize,
+              jsHeapSizeLimit: memory.jsHeapSizeLimit,
+            }
+          : undefined,
+        timing: performance.timing
+          ? {
+              navigationStart: performance.timing.navigationStart,
+              loadEventEnd: performance.timing.loadEventEnd,
+            }
+          : undefined,
       };
     }
     return undefined;
@@ -197,35 +225,38 @@ export class LoggingService {
     try {
       const error = new Error();
       const stack = error.stack;
-      
+
       if (stack) {
         const stackLines = stack.split('\n');
         // Skip the first few lines (Error constructor, this method, log method)
-        const relevantLine = stackLines.find((line, index) => 
-          index > 3 && 
-          !line.includes('LoggingService') && 
-          !line.includes('node_modules')
+        const relevantLine = stackLines.find(
+          (line, index) =>
+            index > 3 && !line.includes('LoggingService') && !line.includes('node_modules'),
         );
-        
+
         return {
           stack: stack,
-          caller: relevantLine?.trim()
+          caller: relevantLine?.trim(),
         };
       }
     } catch (error) {
       // Silently fail if stack capture is not available
     }
-    
+
     return {};
   }
 
   /**
-   * Route log entry to configured destinations (placeholder for later implementation)
+   * Route log entry to configured destinations using the destination manager
    */
-  private routeToDestinations(entry: LogEntry): void {
-    // TODO: Implement in task 4 - destination routing
-    // For now, just log to console as fallback
-    console.log(`[${LogLevel[entry.level]}] ${entry.message}`, entry);
+  private async routeToDestinations(entry: LogEntry): Promise<void> {
+    try {
+      await this.destinationManager.routeLogEntry(entry);
+    } catch (error) {
+      // Log routing failures to console as fallback
+      console.error('LoggingService: Failed to route log entry to destinations:', error);
+      console.log(`[FALLBACK] [${LogLevel[entry.level]}] ${entry.message}`, entry);
+    }
   }
 
   /**
