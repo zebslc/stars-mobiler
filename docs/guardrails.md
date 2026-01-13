@@ -64,6 +64,10 @@
 - Use simple boundary components per feature to present errors
 - Do not throw from render paths; signal state and render accordingly
 - Commands should handle errors gracefully and return valid game state
+- **Use LoggingService for error tracking**: Always log errors with structured context
+  - Include error details, component/service context, and game state when relevant
+  - Use `logger.error()` instead of throwing exceptions where appropriate
+  - Provide actionable metadata to help with debugging
 
 ## Code Style
 - ESLint + Prettier enforced
@@ -72,4 +76,30 @@
 - **Component Inputs**: Use `input()` and `input.required()` signals instead of `@Input()` decorator.
   - Avoid manual signals synchronized with `ngOnChanges`.
   - Use `computed()` for derived state from inputs.
+
+## Logging
+- **NEVER use `console.log`, `console.warn`, `console.error`, or any console methods**
+- Use the `LoggingService` for all logging needs
+- **Logging methods available:**
+  - `loggingService.debug(message, metadata?, context?)` - for debugging information
+  - `loggingService.info(message, metadata?, context?)` - for general information
+  - `loggingService.warn(message, metadata?, context?)` - for warnings
+  - `loggingService.error(message, metadata?, context?)` - for errors
+- **Structured logging**: Include relevant metadata and context for better debugging
+  - Game context: gameId, turn, playerId, currentScreen, etc.
+  - Angular context: component, route, routeParams, etc.
+  - Custom context: any additional relevant data
+- **Example usage:**
+  ```typescript
+  // Inject the service
+  private readonly logger = inject(LoggingService);
+  
+  // Log with context
+  await this.logger.info('Fleet movement calculated', 
+    { fleetId: fleet.id, destination: coords },
+    { game: { gameId: this.gameId, turn: this.currentTurn } }
+  );
+  ```
+- Use appropriate log levels based on severity and audience
+- The logging service automatically handles browser context and performance data
 
