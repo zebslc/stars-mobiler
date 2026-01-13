@@ -222,28 +222,34 @@ import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
                 }
               }
 
-              @if (state.selectedFleetId(); as fid) {
-                @if (fleetService.fleetRange(fid); as fr) {
-                  <circle
-                    [attr.cx]="fr.x"
-                    [attr.cy]="fr.y"
-                    [attr.r]="fr.roundTrip"
-                    fill="rgba(46,204,113,0.08)"
-                    stroke="#2ecc71"
-                    stroke-dasharray="4,3"
-                    [attr.stroke-width]="1"
-                    style="pointer-events: none"
-                  />
-                  <circle
-                    [attr.cx]="fr.x"
-                    [attr.cy]="fr.y"
-                    [attr.r]="fr.oneWay"
-                    fill="rgba(241,196,15,0.06)"
-                    stroke="#f1c40f"
-                    stroke-dasharray="4,3"
-                    [attr.stroke-width]="1"
-                    style="pointer-events: none"
-                  />
+              @if (selectedFleet(); as fleet) {
+                @if (fleetService.getFleetPosition(fleet); as pos) {
+                  @if (visibility.getFleetScanCapabilities(fleet); as caps) {
+                    @if (caps.scanRange > 0) {
+                      <circle
+                        [attr.cx]="pos.x"
+                        [attr.cy]="pos.y"
+                        [attr.r]="caps.scanRange"
+                        fill="rgba(52, 152, 219, 0.1)"
+                        stroke="#3498db"
+                        stroke-dasharray="4,3"
+                        [attr.stroke-width]="1"
+                        style="pointer-events: none"
+                      />
+                    }
+                    @if (caps.cloakedRange > 0) {
+                      <circle
+                        [attr.cx]="pos.x"
+                        [attr.cy]="pos.y"
+                        [attr.r]="caps.cloakedRange"
+                        fill="none"
+                        stroke="#9b59b6"
+                        stroke-dasharray="4,3"
+                        [attr.stroke-width]="1"
+                        style="pointer-events: none"
+                      />
+                    }
+                  }
                 }
               }
 
@@ -1111,7 +1117,7 @@ export class GalaxyMapComponent implements OnInit {
     // User requested: "If I drag and drop a waypoint then come out of waypoint movement by closing the x
     // it should consider that as the destination and start moving there from the next turn"
     this.finalizeWaypoint();
-    
+
     this.navigationModeFleetId.set(null);
     this.draggedWaypoint.set(null);
     this.snapTarget.set(null);

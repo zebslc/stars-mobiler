@@ -12,12 +12,14 @@ import {
   AngularContext,
 } from '../models/logging.model';
 import { LogDestinationManager } from './log-destination-manager.service';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoggingService {
   private readonly destinationManager = inject(LogDestinationManager);
+  private readonly settingsService = inject(SettingsService);
 
   // Configuration signal for reactive updates
   private readonly _configuration = signal<LoggingConfiguration>(DEFAULT_LOGGING_CONFIG);
@@ -260,11 +262,12 @@ export class LoggingService {
   }
 
   /**
-   * Emit to developer panel if enabled (placeholder for later implementation)
+   * Emit to developer panel if developer mode is enabled
    */
   private emitToDeveloperPanel(entry: LogEntry): void {
-    // TODO: Implement in task 8 - developer panel integration
-    // For now, emit all events (will be filtered by developer mode later)
-    this._developerEvents.next(entry);
+    // Only emit events when developer mode is enabled
+    if (this.settingsService.developerMode()) {
+      this._developerEvents.next(entry);
+    }
   }
 }
