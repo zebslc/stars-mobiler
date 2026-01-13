@@ -128,7 +128,7 @@ This implementation plan creates a comprehensive logging service for Stellar Rem
     - Verify integration with SettingsService
     - _Requirements: 3.2_
 
-- [ ] 8. Create developer panel component
+- [-] 8. Create developer panel component
   - [ ] 8.1 Implement DeveloperPanelComponent
     - Create standalone component with OnPush strategy
     - Display real-time error stream from logging service
