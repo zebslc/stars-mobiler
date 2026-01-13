@@ -76,11 +76,58 @@ This is **Stellar Remnants**, a modernized Stars! 4X strategy game built with An
 - Place in `docs/specs/`
 
 ## Testing Requirements
-- Configure TestBed with `provideZonelessChangeDetection()`
-- Prefer interaction-driven tests
-- Avoid `fixture.detectChanges()` unless necessary
-- **Command testing**: Test commands in isolation with mock services
-- Test command execution through CommandExecutorService for integration tests
+
+### Core Testing Principles
+
+- **Fast Execution**: Tests should run in milliseconds, not seconds
+- **No Brittleness**: Tests should not break when refactoring internal implementation
+- **Test Behavior, Not Implementation**: Focus on observable outcomes, not internal details
+- **Proper Isolation**: Tests should be independent and properly cleaned up
+- **Minimal Setup Overhead**: Use the lightest-weight setup that works
+
+### Service Testing Rules
+
+- **Direct instantiation**: Use `new ServiceName()` for services with `providedIn: 'root'` and no dependencies
+- **NEVER use `provideZonelessChangeDetection()`**: Tests run outside Angular's change detection system
+- **Use TestBed only when necessary**: For services with dependencies, Angular-specific behavior, or components
+- **Mock dependencies**: Use `jasmine.createSpyObj()` for service dependencies
+
+### Property-Based Testing
+
+- **Use fast-check**: For testing universal properties across many inputs
+- **Optimize test runs**: Use minimum `numRuns` needed (10 for simple logic, 20 for complex, 50+ for critical)
+- **Type annotations**: Always explicitly type property test callback parameters
+- **Tag format**: `**Feature: {feature_name}, Property {number}: {property_text}**`
+
+### Test Organization
+
+- **Suite-level mocking**: Mock console and globals in `beforeEach`, not inside test iterations
+- **Always clean up**: Use `afterEach` to reset spies and unsubscribe from observables
+- **Avoid fragile assertions**: Don't test implementation details, time-based logic, or internal formats
+- **Test public contracts**: Focus on public methods, observable emissions, and side effects
+
+### Performance Targets
+
+- **Service test suite**: < 1 second
+- **Component test suite**: < 3 seconds  
+- **Individual unit test**: < 50ms
+- **Property-based test (10 runs)**: < 200ms
+
+### Command Testing
+
+- **Test commands in isolation**: Use mock services for command dependencies
+- **Test command execution**: Use CommandExecutorService for integration tests
+- **Avoid testing internals**: Focus on command results and side effects
+
+### Anti-Patterns to Avoid
+
+- ❌ TestBed for simple services with no dependencies
+- ❌ `provideZonelessChangeDetection()` in test setup
+- ❌ Spying on private methods
+- ❌ Testing implementation details
+- ❌ Time-based assertions
+- ❌ Manual console mocking in property test loops
+- ❌ Excessive `fixture.detectChanges()` calls
 
 ## Performance Guidelines
 - Avoid global listeners - use component-bound listeners
@@ -165,3 +212,4 @@ const command = this.commandFactory.createSetSelectedPlanetCommand(planetId);
 - Architecture overview: `ARCHITECTURE.md`
 - Contributing guide: `CONTRIBUTING.md`
 - Current specs: `docs/specs/README.md`
+- **Testing guidelines**: `docs/testing-guidelines.md` - Comprehensive testing standards and best practices

@@ -165,9 +165,10 @@ export class GalaxyFleetService {
     // Simplified range calc
     const fuel = fleet.fuel;
     const range = fuelPerLy > 0 ? fuel / fuelPerLy : 0;
+    const pos = this.fleetPos(id);
     return {
-      x: 0, // Placeholder
-      y: 0, // Placeholder
+      x: pos.x,
+      y: pos.y,
       oneWay: range,
       roundTrip: range / 2,
     };
