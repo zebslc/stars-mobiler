@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, FleetOrder, Planet } from '../models/game.model';
+import { GameState, Fleet, FleetOrder, Planet, ShipDesign } from '../models/game.model';
 import { getDesign } from '../data/ships.data';
+import { ENGINE_COMPONENTS } from '../data/techs/engines.data';
 import { SettingsService } from './settings.service';
 import { HabitabilityService } from './habitability.service';
 import { ShipyardService } from './shipyard.service';
@@ -363,7 +364,9 @@ export class FleetService {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     if (!fleet || fleet.location.type !== 'orbit') return [game, null];
     const planetIndex = this.buildPlanetIndex(game);
-    const planet = planetIndex.get((fleet.location as { type: 'orbit'; planetId: string }).planetId);
+    const planet = planetIndex.get(
+      (fleet.location as { type: 'orbit'; planetId: string }).planetId,
+    );
     if (!planet) return [game, null];
     const colonyStack = fleet.ships.find((s) => {
       const design = game.shipDesigns.find((d) => d.id === s.designId);
@@ -562,7 +565,9 @@ export class FleetService {
 
       // Refuel logic
       if (fleet.location.type === 'orbit') {
-        const planet = planetIndex.get((fleet.location as { type: 'orbit'; planetId: string }).planetId);
+        const planet = planetIndex.get(
+          (fleet.location as { type: 'orbit'; planetId: string }).planetId,
+        );
 
         if (planet && planet.ownerId === fleet.ownerId) {
           // Check for stardock in orbit
@@ -602,37 +607,31 @@ export class FleetService {
         const requestedSpeed = order.warpSpeed ?? stats.maxWarp;
         const maxPossibleSpeed = Math.min(requestedSpeed, stats.maxWarp);
         let travelWarp = maxPossibleSpeed;
-        // Only iterate down to idealWarp because speeds below idealWarp don't improve fuel efficiency per LY
-        const minCheck = Math.min(maxPossibleSpeed, stats.idealWarp);
 
-        for (let w = maxPossibleSpeed; w >= minCheck; w--) {
-          const cost = this.fuelCostPerLightYearSpec(
-            stats.totalMass,
-            w,
-            stats.worstEfficiency,
-            stats.idealWarp,
-          );
-          // If we can reach the destination with current fuel, or we've reached the most efficient speed, use this warp
-          if (cost * dist <= fleet.fuel || w === minCheck) {
+        // Iterate down to 1 to ensure we can reach the destination if fuel is tight
+        // We start at maxPossibleSpeed and go down.
+        // We stop if we find a speed that works.
+        for (let w = maxPossibleSpeed; w >= 1; w--) {
+          const cost = this.calculateFleetFuelCostPerLy(game, fleet, w);
+
+          // Check if this speed allows us to reach the destination with current fuel
+          // OR if we are at the minimum possible speed (1), we have to take it (and run out of fuel)
+          if (cost * dist <= fleet.fuel || w === 1) {
             travelWarp = w;
             break;
           }
         }
 
-        const perLy = this.fuelCostPerLightYearSpec(
-          stats.totalMass,
-          travelWarp,
-          stats.worstEfficiency,
-          stats.idealWarp,
-        );
+        const perLy = this.calculateFleetFuelCostPerLy(game, fleet, travelWarp);
         const maxLyFromFuel = perLy > 0 ? fleet.fuel / perLy : 1000;
         const perTurnDistance = travelWarp * 20;
         const step = Math.min(dist, maxLyFromFuel, perTurnDistance);
         const ratio = dist > 0 ? step / dist : 0;
         const nx = curr.x + (dest.x - curr.x) * ratio;
         const ny = curr.y + (dest.y - curr.y) * ratio;
-        fleet.fuel = Math.max(0, fleet.fuel - perLy * step);
-        if (step >= dist) {
+        fleet.fuel = Math.max(0, fleet.fuel - Math.ceil(perLy * step));
+        // Use a small epsilon to handle floating point inaccuracies
+        if (step >= dist - 0.001) {
           const targetStar = game.stars.find(
             (s) => Math.hypot(s.position.x - dest.x, s.position.y - dest.y) < 2,
           );
@@ -743,6 +742,112 @@ export class FleetService {
       totalFuel,
       worstEfficiency: Math.max(0, worstEfficiency),
     };
+  }
+
+  private calculateFleetFuelCostPerLy(game: GameState, fleet: Fleet, warp: number): number {
+    let totalCost = 0;
+    let totalShipMass = 0;
+    let weightedEngineFactorSum = 0;
+
+    // 1. Calculate cost for ships
+    for (const stack of fleet.ships) {
+      const design = game.shipDesigns.find((d) => d.id === stack.designId);
+      if (!design) {
+        // Fallback for static/legacy designs (e.g. initial scout)
+        const legacySpec = this.getShipDesign(game, stack.designId);
+        const factor = this.calculateLegacyEngineFactor(legacySpec, warp);
+        const mass = legacySpec.mass || 10; // Fallback mass
+
+        totalCost += (mass * stack.count * factor) / 2000;
+        weightedEngineFactorSum += factor * mass * stack.count;
+        totalShipMass += mass * stack.count;
+        continue;
+      }
+
+      // Find engine component
+      let engineStat: any = null;
+      if (design.slots) {
+        for (const slot of design.slots) {
+          if (slot.components) {
+            for (const compAssignment of slot.components) {
+              const comp = ENGINE_COMPONENTS.find((c: any) => c.id === compAssignment.componentId);
+              if (comp && comp.type === 'Engine') {
+                // Ensure it's an engine
+                engineStat = comp;
+                break;
+              } else if (comp && !engineStat) {
+                if (comp.stats && comp.stats.fuelUsage) {
+                  engineStat = comp;
+                  break;
+                }
+              }
+            }
+          }
+          if (engineStat) break;
+        }
+      }
+
+      // Fallback: Check if design.spec has engine info (for tests/legacy)
+      if (!engineStat && design.spec && (design.spec as any).engine) {
+        const engId = (design.spec as any).engine.id;
+        engineStat = ENGINE_COMPONENTS.find((c) => c.id === engId);
+      }
+
+      let factor = 0;
+      if (engineStat) {
+        const key = `warp${warp}` as keyof typeof engineStat.stats.fuelUsage;
+        factor = engineStat.stats.fuelUsage[key] || 0;
+      } else {
+        // Fallback to legacy formula
+        factor = this.calculateLegacyEngineFactor(design.spec, warp);
+      }
+
+      const mass = design.spec?.mass || 10;
+      totalCost += (mass * stack.count * factor) / 2000;
+
+      weightedEngineFactorSum += factor * mass * stack.count;
+      totalShipMass += mass * stack.count;
+    }
+
+    // 2. Calculate cost for cargo
+    // Cargo mass: minerals + colonists
+    const cargoMass =
+      fleet.cargo.minerals.ironium +
+      fleet.cargo.minerals.boranium +
+      fleet.cargo.minerals.germanium +
+      Math.floor(fleet.cargo.colonists / 1000) +
+      fleet.cargo.resources; // Resources also have mass? Usually 0 in Stars! but let's check.
+    // Resources in Stars! don't weigh? Wait. "Fuel, minerals and colonists have mass". Resources usually don't.
+    // But let's check calculateMovementStats:
+    // totalMass += ... fleet.cargo.resources? No.
+    // It sums minerals + colonists.
+
+    // Average engine factor for the fleet
+    const averageFactor = totalShipMass > 0 ? weightedEngineFactorSum / totalShipMass : 0;
+
+    totalCost += (cargoMass * averageFactor) / 2000;
+
+    return totalCost;
+  }
+
+  private calculateLegacyEngineFactor(spec: any, warp: number): number {
+    if (!spec) return 0;
+    const efficiency = spec.fuelEfficiency || 100;
+    const idealWarp = spec.idealWarp || 6;
+    if (efficiency === 0) return 0;
+
+    // Formula to approximate factor:
+    // Base Factor roughly 100?
+    // Let's use the logic from fuelCostPerLightYearSpec:
+    // cost = (mass/100) * speedMult * effMult
+    // cost = (mass * factor) / 2000
+    // => factor = (2000 / 100) * speedMult * effMult = 20 * speedMult * effMult
+
+    const speedRatio = warp / idealWarp;
+    const speedMultiplier = speedRatio <= 1 ? 1 : Math.pow(speedRatio, 2.5);
+    const efficiencyMultiplier = efficiency / 100;
+
+    return 20 * speedMultiplier * efficiencyMultiplier;
   }
 
   private fuelCostPerLightYearSpec(

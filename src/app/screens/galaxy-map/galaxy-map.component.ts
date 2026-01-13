@@ -536,6 +536,26 @@ export class GalaxyMapComponent implements OnInit {
     y: number;
   } | null>(null);
 
+  private potentialDragFleet: Fleet | null = null;
+  private potentialDragStart: { x: number; y: number } | null = null;
+
+  private startDrag(fleet: Fleet) {
+    const fw = this.fleetWaypoints().find((f) => f.fleetId === fleet.id);
+    const startPos = fw?.lastPos || this.fleetService.fleetPos(fleet.id);
+
+    this.draggedWaypoint.set({
+      startX: startPos.x,
+      startY: startPos.y,
+      currentX: startPos.x,
+      currentY: startPos.y,
+      fleetId: fleet.id,
+    });
+
+    // Enter navigation mode for this fleet automatically
+    this.navigationModeFleetId.set(fleet.id);
+    this.state.endPan();
+  }
+
   navigationModeFleetId = signal<string | null>(null);
 
   fleetWaypoints = computed(() => {
@@ -659,6 +679,12 @@ export class GalaxyMapComponent implements OnInit {
   onFleetDown(event: { originalEvent: MouseEvent | TouchEvent }, fleet: Fleet) {
     if (event.originalEvent instanceof MouseEvent && event.originalEvent.button !== 0) return;
 
+    if (event.originalEvent instanceof MouseEvent) {
+      this.potentialDragFleet = fleet;
+      this.potentialDragStart = { x: event.originalEvent.clientX, y: event.originalEvent.clientY };
+      return;
+    }
+
     this.isLongPressing = true;
     const clientX =
       (event.originalEvent as any).clientX || (event.originalEvent as any).touches[0].clientX;
@@ -669,21 +695,7 @@ export class GalaxyMapComponent implements OnInit {
 
     this.longPressTimer = setTimeout(() => {
       if (this.isLongPressing) {
-        const fw = this.fleetWaypoints().find((f) => f.fleetId === fleet.id);
-        const startPos = fw?.lastPos || this.fleetService.fleetPos(fleet.id);
-
-        this.draggedWaypoint.set({
-          startX: startPos.x,
-          startY: startPos.y,
-          currentX: startPos.x,
-          currentY: startPos.y,
-          fleetId: fleet.id,
-        });
-
-        // Enter navigation mode for this fleet automatically
-        this.navigationModeFleetId.set(fleet.id);
-
-        this.state.endPan();
+        this.startDrag(fleet);
       }
     }, 500);
   }
@@ -700,6 +712,18 @@ export class GalaxyMapComponent implements OnInit {
   onMouseMove(event: MouseEvent) {
     if (this.draggedWaypoint()) {
       this.handleMove(event.clientX, event.clientY);
+    } else if (this.potentialDragFleet && this.potentialDragStart) {
+      const dist = Math.hypot(
+        event.clientX - this.potentialDragStart.x,
+        event.clientY - this.potentialDragStart.y,
+      );
+      if (dist > 5) {
+        this.startDrag(this.potentialDragFleet);
+        this.potentialDragFleet = null;
+        this.potentialDragStart = null;
+        // Immediately update position
+        this.handleMove(event.clientX, event.clientY);
+      }
     } else {
       this.checkLongPressMove(event.clientX, event.clientY);
       this.state.pan(event.clientX, event.clientY);
@@ -707,6 +731,8 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   onMouseUp() {
+    this.potentialDragFleet = null;
+    this.potentialDragStart = null;
     this.isLongPressing = false;
     clearTimeout(this.longPressTimer);
     this.state.endPan();
@@ -1082,6 +1108,10 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   exitNavigationMode() {
+    // User requested: "If I drag and drop a waypoint then come out of waypoint movement by closing the x
+    // it should consider that as the destination and start moving there from the next turn"
+    this.finalizeWaypoint();
+    
     this.navigationModeFleetId.set(null);
     this.draggedWaypoint.set(null);
     this.snapTarget.set(null);
@@ -1134,8 +1164,6 @@ export class GalaxyMapComponent implements OnInit {
     const fid = this.state.selectedFleetId();
     if (fid) {
       this.gs.issueFleetOrder(fid, { type: 'move', destination: star.position });
-      this.state.selectedFleetId.set(null);
-      this.state.selectedStarId.set(null);
     }
     this.closeContextMenus();
   }
