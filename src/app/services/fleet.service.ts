@@ -597,14 +597,36 @@ export class FleetService {
             ? this.planetPosition(game, fleet.location.planetId)
             : { x: fleet.location.x, y: fleet.location.y };
         const dist = Math.hypot(dest.x - curr.x, dest.y - curr.y);
+
+        // Determine optimal warp speed to reach destination
+        const requestedSpeed = order.warpSpeed ?? stats.maxWarp;
+        const maxPossibleSpeed = Math.min(requestedSpeed, stats.maxWarp);
+        let travelWarp = maxPossibleSpeed;
+        // Only iterate down to idealWarp because speeds below idealWarp don't improve fuel efficiency per LY
+        const minCheck = Math.min(maxPossibleSpeed, stats.idealWarp);
+
+        for (let w = maxPossibleSpeed; w >= minCheck; w--) {
+          const cost = this.fuelCostPerLightYearSpec(
+            stats.totalMass,
+            w,
+            stats.worstEfficiency,
+            stats.idealWarp,
+          );
+          // If we can reach the destination with current fuel, or we've reached the most efficient speed, use this warp
+          if (cost * dist <= fleet.fuel || w === minCheck) {
+            travelWarp = w;
+            break;
+          }
+        }
+
         const perLy = this.fuelCostPerLightYearSpec(
           stats.totalMass,
-          stats.maxWarp,
+          travelWarp,
           stats.worstEfficiency,
           stats.idealWarp,
         );
         const maxLyFromFuel = perLy > 0 ? fleet.fuel / perLy : 1000;
-        const perTurnDistance = stats.maxWarp * 20;
+        const perTurnDistance = travelWarp * 20;
         const step = Math.min(dist, maxLyFromFuel, perTurnDistance);
         const ratio = dist > 0 ? step / dist : 0;
         const nx = curr.x + (dest.x - curr.x) * ratio;
