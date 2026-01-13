@@ -130,7 +130,7 @@ export class ShipDesignOverviewComponent {
           this.selectedCategories.set(new Set(all));
         }
       },
-      { allowSignalWrites: true },
+
     );
   }
 

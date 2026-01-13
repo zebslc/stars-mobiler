@@ -402,7 +402,7 @@ export class ShipDesignerHullSelectorComponent {
           this.selectedCategories.set(new Set(all));
         }
       },
-      { allowSignalWrites: true },
+
     );
   }
 

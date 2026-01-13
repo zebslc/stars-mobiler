@@ -78,6 +78,29 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
     };
   });
 
+  // Add additional design entries for backward compatibility with tests
+  // Scout design should be available as both 'hull-scout' and 'scout'
+  if (designs['hull-scout']) {
+    designs['scout'] = { ...designs['hull-scout'], id: 'scout' };
+  }
+
+  // Starbase designs should be available with simpler names for mapping
+  if (designs['hull-orbital-fort']) {
+    designs['orbital_fort'] = { ...designs['hull-orbital-fort'], id: 'orbital_fort' };
+  }
+  if (designs['hull-space-dock']) {
+    designs['space_dock'] = { ...designs['hull-space-dock'], id: 'space_dock' };
+  }
+  if (designs['hull-space-station']) {
+    designs['space_station'] = { ...designs['hull-space-station'], id: 'space_station' };
+  }
+  if (designs['hull-ultra-station']) {
+    designs['ultra_station'] = { ...designs['hull-ultra-station'], id: 'ultra_station' };
+  }
+  if (designs['hull-death-star']) {
+    designs['death_star'] = { ...designs['hull-death-star'], id: 'death_star' };
+  }
+
   return designs;
 };
 
