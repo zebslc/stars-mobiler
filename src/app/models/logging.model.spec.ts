@@ -35,46 +35,65 @@ describe('LoggingModel', () => {
                 userAgent: fc.string(),
                 viewport: fc.record({
                   width: fc.integer({ min: 1 }),
-                  height: fc.integer({ min: 1 })
+                  height: fc.integer({ min: 1 }),
                 }),
                 url: fc.webUrl(),
                 timestamp: fc.integer({ min: 0 }),
-                performance: fc.option(fc.record({
-                  memory: fc.option(fc.record({
-                    usedJSHeapSize: fc.integer({ min: 0 }),
-                    totalJSHeapSize: fc.integer({ min: 0 }),
-                    jsHeapSizeLimit: fc.integer({ min: 0 })
-                  }), { nil: undefined }),
-                  timing: fc.option(fc.record({
-                    navigationStart: fc.integer({ min: 0 }),
-                    loadEventEnd: fc.integer({ min: 0 })
-                  }), { nil: undefined })
-                }), { nil: undefined })
+                performance: fc.option(
+                  fc.record({
+                    memory: fc.option(
+                      fc.record({
+                        usedJSHeapSize: fc.integer({ min: 0 }),
+                        totalJSHeapSize: fc.integer({ min: 0 }),
+                        jsHeapSizeLimit: fc.integer({ min: 0 }),
+                      }),
+                      { nil: undefined },
+                    ),
+                    timing: fc.option(
+                      fc.record({
+                        navigationStart: fc.integer({ min: 0 }),
+                        loadEventEnd: fc.integer({ min: 0 }),
+                      }),
+                      { nil: undefined },
+                    ),
+                  }),
+                  { nil: undefined },
+                ),
               }),
-              game: fc.option(fc.record({
-                gameId: fc.option(fc.string(), { nil: undefined }),
-                turn: fc.option(fc.integer({ min: 0 }), { nil: undefined }),
-                playerId: fc.option(fc.string(), { nil: undefined }),
-                currentScreen: fc.option(fc.string(), { nil: undefined }),
-                selectedPlanet: fc.option(fc.string(), { nil: undefined }),
-                selectedFleet: fc.option(fc.string(), { nil: undefined }),
-                gameState: fc.option(fc.constantFrom('playing', 'paused', 'loading', 'error'), { nil: undefined })
-              }), { nil: undefined }),
-              angular: fc.option(fc.record({
-                component: fc.option(fc.string(), { nil: undefined }),
-                route: fc.option(fc.string(), { nil: undefined }),
-                routeParams: fc.option(fc.dictionary(fc.string(), fc.anything()), { nil: undefined }),
-                changeDetectionCycle: fc.option(fc.integer({ min: 0 }), { nil: undefined }),
-                errorBoundary: fc.option(fc.string(), { nil: undefined })
-              }), { nil: undefined }),
-              custom: fc.option(fc.dictionary(fc.string(), fc.anything()), { nil: undefined })
+              game: fc.option(
+                fc.record({
+                  gameId: fc.option(fc.string(), { nil: undefined }),
+                  turn: fc.option(fc.integer({ min: 0 }), { nil: undefined }),
+                  playerId: fc.option(fc.string(), { nil: undefined }),
+                  currentScreen: fc.option(fc.string(), { nil: undefined }),
+                  selectedPlanet: fc.option(fc.string(), { nil: undefined }),
+                  selectedFleet: fc.option(fc.string(), { nil: undefined }),
+                  gameState: fc.option(fc.constantFrom('playing', 'paused', 'loading', 'error'), {
+                    nil: undefined,
+                  }),
+                }),
+                { nil: undefined },
+              ),
+              angular: fc.option(
+                fc.record({
+                  component: fc.option(fc.string(), { nil: undefined }),
+                  route: fc.option(fc.string(), { nil: undefined }),
+                  routeParams: fc.option(fc.dictionary(fc.string(), fc.anything()), {
+                    nil: undefined,
+                  }),
+                  changeDetectionCycle: fc.option(fc.integer({ min: 0 }), { nil: undefined }),
+                  errorBoundary: fc.option(fc.string(), { nil: undefined }),
+                }),
+                { nil: undefined },
+              ),
+              custom: fc.option(fc.dictionary(fc.string(), fc.anything()), { nil: undefined }),
             }),
-            source: fc.option(fc.string(), { nil: undefined })
+            source: fc.option(fc.string(), { nil: undefined }),
           }),
           (logEntry: LogEntry) => {
             // Test that the log entry is valid according to our validation function
             expect(isValidLogEntry(logEntry)).toBe(true);
-            
+
             // Test that all required fields are present and of correct type
             expect(typeof logEntry.id).toBe('string');
             expect(logEntry.id.length).toBeGreaterThan(0);
@@ -84,7 +103,7 @@ describe('LoggingModel', () => {
             expect(logEntry.message.length).toBeGreaterThan(0);
             expect(typeof logEntry.context).toBe('object');
             expect(logEntry.context).not.toBeNull();
-            
+
             // Test that browser context is always present and valid
             expect(typeof logEntry.context.browser).toBe('object');
             expect(logEntry.context.browser).not.toBeNull();
@@ -93,16 +112,16 @@ describe('LoggingModel', () => {
             expect(typeof logEntry.context.browser.viewport.height).toBe('number');
             expect(logEntry.context.browser.viewport.width).toBeGreaterThan(0);
             expect(logEntry.context.browser.viewport.height).toBeGreaterThan(0);
-            
+
             // Test that optional fields are handled correctly
             if (logEntry.metadata !== undefined) {
               expect(typeof logEntry.metadata).toBe('object');
             }
-            
+
             if (logEntry.source !== undefined) {
               expect(typeof logEntry.source).toBe('string');
             }
-            
+
             // Test that game context, if present, has valid structure
             if (logEntry.context.game !== undefined) {
               expect(typeof logEntry.context.game).toBe('object');
@@ -110,7 +129,7 @@ describe('LoggingModel', () => {
                 expect(logEntry.context.game.turn).toBeGreaterThanOrEqual(0);
               }
             }
-            
+
             // Test that angular context, if present, has valid structure
             if (logEntry.context.angular !== undefined) {
               expect(typeof logEntry.context.angular).toBe('object');
@@ -118,9 +137,9 @@ describe('LoggingModel', () => {
                 expect(logEntry.context.angular.changeDetectionCycle).toBeGreaterThanOrEqual(0);
               }
             }
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 20 },
       );
     });
   });

@@ -18,6 +18,7 @@ Key principles:
 - **Specifications**: @docs/specs/ - Feature and project specifications (source of truth)
 - **Architecture Decision Records**: @docs/adr/ - Key architectural decisions and trade-offs
 - **Guardrails**: @docs/guardrails.md - Formal engineering conventions
+- **Testing Guidelines**: @docs/testing-guidelines.md - Comprehensive testing standards and best practices
 
 ## Architecture Overview
 

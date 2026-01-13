@@ -43,7 +43,10 @@
 - Replace NgZone observables with `afterNextRender`/`afterEveryRender` when needed
 
 ## Testing
-- Configure TestBed with `provideZonelessChangeDetection()`
+- **See @docs/testing-guidelines.md for comprehensive testing standards**
+- Use direct instantiation for services without dependencies (faster than TestBed)
+- NEVER use `provideZonelessChangeDetection()` in tests (unnecessary overhead)
+- Test observable behavior, not private implementation details
 - Prefer interaction-driven tests; avoid `fixture.detectChanges()` unless necessary
 - **Command testing**: Test commands in isolation with mock services
 - Test command execution through CommandExecutorService for integration tests

@@ -16,7 +16,7 @@ This implementation plan creates a comprehensive logging service for Stellar Rem
   - **Property 1: Structured Log Data Acceptance**
   - **Validates: Requirements 1.2**
 
-- [-] 2. Implement core LoggingService
+- [ ] 2. Implement core LoggingService
   - [x] 2.1 Create LoggingService with dependency injection setup
     - Implement basic service structure with Angular DI
     - Add signal-based configuration management
