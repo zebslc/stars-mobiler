@@ -21,6 +21,8 @@ import { getHull } from '../../utils/data-access.util';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
+import { HullTemplate, SlotDefinition } from '../../data/tech-atlas.types';
+import { ComponentData } from '../../models/service-interfaces.model';
 
 @Component({
   selector: 'app-ship-designer',
@@ -75,7 +77,7 @@ export class ShipDesignerComponent implements OnInit {
     const slotId = this.selectedSlotId();
     const hull = this.hull();
     if (!slotId || !hull) return null;
-    return hull.Slots.find((s: any) => s.Code === slotId) || null;
+    return hull.Slots.find((s: SlotDefinition) => s.Code === slotId) || null;
   });
 
   readonly availableComponentsForSlot = computed(() => {
@@ -96,10 +98,10 @@ export class ShipDesignerComponent implements OnInit {
   readonly hullSelectOpen = signal(false);
   readonly componentSelectOpen = signal(false);
   readonly designNameEditing = signal(false);
-  readonly hoveredItem = signal<any>(null);
+  readonly hoveredItem = signal<ComponentData | null>(null);
 
-  private isStarbaseHull(hull: any): boolean {
-    const name = hull?.name ?? hull?.Name ?? '';
+  private isStarbaseHull(hull: HullTemplate): boolean {
+    const name = hull?.Name ?? '';
     return (
       !!hull?.isStarbase || hull?.type === 'starbase' || STARBASE_HULLS.some((h) => h.Name === name)
     );
@@ -190,7 +192,7 @@ export class ShipDesignerComponent implements OnInit {
     this.designer.clearSlot(slotId);
   }
 
-  onSlotHover(item: any) {
+  onSlotHover(item: ComponentData | null) {
     this.hoveredItem.set(item);
   }
 

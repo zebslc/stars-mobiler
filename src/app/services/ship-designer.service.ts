@@ -1,7 +1,15 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { HullTemplate, ComponentStats, getSlotTypeForComponentType } from '../data/tech-atlas.types';
+import { Injectable, computed, signal, inject } from '@angular/core';
+import {
+  HullTemplate,
+  getSlotTypeForComponentType,
+} from '../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../data/tech-atlas.data';
-import { getHull, getComponent, getPrimaryTechField, getRequiredTechLevel } from '../utils/data-access.util';
+import {
+  getHull,
+  getComponent,
+  getPrimaryTechField,
+  getRequiredTechLevel,
+} from '../utils/data-access.util';
 import { PlayerTech, ShipDesign, SlotAssignment, Species } from '../models/game.model';
 import {
   compileShipStats,
@@ -9,6 +17,8 @@ import {
   createEmptyDesign,
 } from '../models/ship-design.model';
 import { miniaturizeComponent, MiniaturizedComponent } from '../utils/miniaturization.util';
+import { LoggingService } from './logging.service';
+import { LogContext } from '../models/service-interfaces.model';
 
 /**
  * Ship Designer Service
@@ -19,6 +29,8 @@ import { miniaturizeComponent, MiniaturizedComponent } from '../utils/miniaturiz
   providedIn: 'root',
 })
 export class ShipDesignerService {
+  private readonly loggingService = inject(LoggingService);
+
   private _currentDesign = signal<ShipDesign | null>(null);
   private _techLevels = signal<PlayerTech>({
     Energy: 0,
@@ -68,20 +80,46 @@ export class ShipDesignerService {
    * Start designing a new ship from a hull
    */
   startNewDesign(hullId: string, playerId: string, turn: number): void {
+    const context: LogContext = {
+      service: 'ShipDesignerService',
+      operation: 'startNewDesign',
+      entityId: hullId,
+      entityType: 'Hull',
+      additionalData: { playerId, turn },
+    };
+
+    this.loggingService.debug('Starting new ship design', context);
+
     const hull = getHull(hullId);
     if (!hull) {
-      console.error(`Hull ${hullId} not found`);
+      const error = `Hull ${hullId} not found`;
+      this.loggingService.error(error, context);
       return;
     }
 
     const design = createEmptyDesign(hull, playerId, turn);
     this._currentDesign.set(design);
+
+    this.loggingService.debug('New ship design started successfully', {
+      ...context,
+      additionalData: { ...context.additionalData, designId: design.id },
+    });
   }
 
   /**
    * Load an existing design for editing
    */
   loadDesign(design: ShipDesign): void {
+    const context: LogContext = {
+      service: 'ShipDesignerService',
+      operation: 'loadDesign',
+      entityId: design.id,
+      entityType: 'ShipDesign',
+      additionalData: { hullId: design.hullId },
+    };
+
+    this.loggingService.debug('Loading existing design for editing', context);
+
     const hull = getHull(design.hullId);
     let slots: SlotAssignment[];
 
@@ -108,7 +146,7 @@ export class ShipDesignerService {
       });
     } else {
       // Fallback if hull not found (shouldn't happen)
-      console.warn(`Hull ${design.hullId} not found during loadDesign`);
+      this.loggingService.warn(`Hull ${design.hullId} not found during loadDesign`, context);
       slots = design.slots.map((slot) => ({
         ...slot,
         components: slot.components ? slot.components.map((c) => ({ ...c })) : [],
@@ -119,6 +157,8 @@ export class ShipDesignerService {
       ...design,
       slots,
     });
+
+    this.loggingService.debug('Design loaded successfully', context);
   }
 
   /**
@@ -138,21 +178,34 @@ export class ShipDesignerService {
    * Set a component in a slot (replaces any existing components)
    */
   setSlotComponent(slotId: string, componentId: string, count: number = 1): boolean {
+    const context: LogContext = {
+      service: 'ShipDesignerService',
+      operation: 'setSlotComponent',
+      entityId: componentId,
+      entityType: 'Component',
+      additionalData: { slotId, count },
+    };
+
     const design = this._currentDesign();
     const hull = this.currentHull();
-    if (!design || !hull) return false;
+    if (!design || !hull) {
+      this.loggingService.warn('No design or hull available for slot component setting', context);
+      return false;
+    }
 
     // Find the slot
     const hullSlot = hull.Slots.find((s, index) => (s.Code || `slot_${index}`) === slotId);
     if (!hullSlot) {
-      console.error(`Slot ${slotId} not found in hull`);
+      const error = `Slot ${slotId} not found in hull`;
+      this.loggingService.error(error, context);
       return false;
     }
 
     // Get the component
     const component = getComponent(componentId);
     if (!component) {
-      console.error(`Component ${componentId} not found`);
+      const error = `Component ${componentId} not found`;
+      this.loggingService.error(error, context);
       return false;
     }
 
@@ -169,9 +222,15 @@ export class ShipDesignerService {
     // Check if component can be installed
     const canInstall = canInstallComponent(component, convertedSlot);
     if (!canInstall) {
-      console.error(
-        `Component ${component.name} (${component.type}) cannot be installed in slot ${slotId} (Allowed: ${convertedSlot.allowedTypes})`,
-      );
+      const error = `Component ${component.name} (${component.type}) cannot be installed in slot ${slotId} (Allowed: ${convertedSlot.allowedTypes})`;
+      this.loggingService.error(error, {
+        ...context,
+        additionalData: {
+          ...context.additionalData,
+          componentType: component.type,
+          allowedTypes: convertedSlot.allowedTypes,
+        },
+      });
       return false;
     }
 
@@ -180,7 +239,18 @@ export class ShipDesignerService {
     const maxCount = hullSlot.Max || 1;
     const finalCount = Math.min(count, maxCount);
 
-    console.log(`Setting slot ${slotId} to component ${component.name} (count: ${finalCount})`);
+    this.loggingService.debug(
+      `Setting slot ${slotId} to component ${component.name} (count: ${finalCount})`,
+      {
+        ...context,
+        additionalData: {
+          ...context.additionalData,
+          componentName: component.name,
+          finalCount,
+          maxCount,
+        },
+      },
+    );
 
     const newSlots = design.slots.map((slot) => {
       if (slot.slotId !== slotId) return slot;
@@ -191,7 +261,10 @@ export class ShipDesignerService {
       };
     });
 
-    console.log('New slots:', JSON.stringify(newSlots));
+    this.loggingService.debug('Slot component set successfully', {
+      ...context,
+      additionalData: { ...context.additionalData, slotCount: newSlots.length },
+    });
 
     this._currentDesign.set({
       ...design,
@@ -205,14 +278,26 @@ export class ShipDesignerService {
    * Add a component to a slot (or increment if already present)
    */
   addComponent(slotId: string, componentId: string, count: number = 1): boolean {
+    const context: LogContext = {
+      service: 'ShipDesignerService',
+      operation: 'addComponent',
+      entityId: componentId,
+      entityType: 'Component',
+      additionalData: { slotId, count },
+    };
+
     const design = this._currentDesign();
     const hull = this.currentHull();
-    if (!design || !hull) return false;
+    if (!design || !hull) {
+      this.loggingService.warn('No design or hull available for component addition', context);
+      return false;
+    }
 
     // Find the slot
     const hullSlotDef = hull.Slots.find((s, index) => (s.Code || `slot_${index}`) === slotId);
     if (!hullSlotDef) {
-      console.error(`Slot ${slotId} not found in hull`);
+      const error = `Slot ${slotId} not found in hull`;
+      this.loggingService.error(error, context);
       return false;
     }
 
@@ -229,13 +314,18 @@ export class ShipDesignerService {
     // Get the component
     const component = getComponent(componentId);
     if (!component) {
-      console.error(`Component ${componentId} not found`);
+      const error = `Component ${componentId} not found`;
+      this.loggingService.error(error, context);
       return false;
     }
 
     // Check if component can be installed
     if (!canInstallComponent(component, hullSlot)) {
-      console.error(`Component ${component.name} cannot be installed in slot ${slotId}`);
+      const error = `Component ${component.name} cannot be installed in slot ${slotId}`;
+      this.loggingService.error(error, {
+        ...context,
+        additionalData: { ...context.additionalData, componentName: component.name },
+      });
       return false;
     }
 
@@ -259,6 +349,11 @@ export class ShipDesignerService {
           components: [...slot.components, { componentId, count }],
         };
       }
+    });
+
+    this.loggingService.debug('Component added successfully', {
+      ...context,
+      additionalData: { ...context.additionalData, componentName: component.name },
     });
 
     this._currentDesign.set({
