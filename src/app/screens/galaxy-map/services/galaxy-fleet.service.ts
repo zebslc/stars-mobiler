@@ -104,7 +104,11 @@ export class GalaxyFleetService {
     if (!game) return { x: 0, y: 0 };
     const fleet = game.fleets.find((f) => f.id === id);
     if (!fleet) return { x: 0, y: 0 };
-    if (fleet.location.type === 'orbit') return this.planetPos(fleet.location.planetId);
+    if (fleet.location.type === 'orbit') {
+      const orbitPos = this.fleetOrbitPosition(fleet);
+      if (orbitPos) return orbitPos;
+      return this.planetPos(fleet.location.planetId);
+    }
     return { x: fleet.location.x, y: fleet.location.y };
   }
 

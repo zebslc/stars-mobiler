@@ -1,9 +1,21 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, computed } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
 import { CompiledShipStats, ShipDesign } from '../../models/game.model';
 import { getHull } from '../../utils/data-access.util';
+import { GameStateService } from '../../services/game-state.service';
+import { getDesign } from '../../data/ships.data';
 
 export interface ShipDesignDisplay {
   id: string;
@@ -15,7 +27,7 @@ export interface ShipDesignDisplay {
 @Component({
   selector: 'app-ship-design-item',
   standalone: true,
-  imports: [CommonModule, ResourceCostComponent, ShipStatsRowComponent],
+  imports: [CommonModule, FormsModule, ResourceCostComponent, ShipStatsRowComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -119,6 +131,30 @@ export interface ShipDesignDisplay {
       </div>
 
       @if (mode === 'card') {
+        <div class="build-controls">
+          <select
+            [ngModel]="selectedPlanetId()"
+            (ngModelChange)="selectedPlanetId.set($event)"
+            class="planet-select"
+          >
+            <option value="" disabled selected>Build at...</option>
+            @for (planet of capablePlanets(); track planet.id) {
+              <option [value]="planet.id">{{ planet.name }}</option>
+            }
+            @if (capablePlanets().length === 0) {
+              <option value="" disabled>No Capable Docks</option>
+            }
+          </select>
+          <button
+            type="button"
+            class="btn-small btn-build"
+            [disabled]="!selectedPlanetId()"
+            (click)="addToQueue()"
+          >
+            Add
+          </button>
+        </div>
+
         <div class="design-actions">
           @if (!count) {
             <button type="button" class="btn-small" (click)="edit.emit(design.id)">Edit</button>
@@ -227,9 +263,43 @@ export interface ShipDesignDisplay {
       .design-actions {
         display: flex;
         gap: var(--space-sm);
+        margin-top: var(--space-sm);
+        padding-top: 0;
+        border-top: none;
+      }
+
+      .build-controls {
+        display: flex;
+        gap: var(--space-sm);
         margin-top: auto;
         padding-top: var(--space-md);
         border-top: 1px solid var(--color-border);
+      }
+
+      .planet-select {
+        flex: 1;
+        padding: var(--space-xs);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-primary);
+        color: var(--color-text-primary);
+        font-size: var(--font-size-sm);
+        max-width: 100%;
+      }
+
+      .btn-build {
+        flex: 0 0 auto;
+        background: var(--color-primary);
+        color: white;
+        border: none;
+      }
+      .btn-build:hover {
+        background: var(--color-primary-dark);
+      }
+      .btn-build:disabled {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-tertiary);
+        cursor: not-allowed;
       }
 
       .btn-small {
@@ -269,6 +339,75 @@ export class ShipDesignItemComponent {
   @Output() delete = new EventEmitter<string>();
   @Output() clone = new EventEmitter<string>();
   @Output() preview = new EventEmitter<string>();
+
+  private gameState = inject(GameStateService);
+  readonly selectedPlanetId = signal<string>('');
+
+  readonly capablePlanets = computed(() => {
+    const game = this.gameState.game();
+    if (!game) return [];
+
+    const designMass = this.design.stats.mass;
+    const player = game.humanPlayer;
+
+    // Find planets owned by player
+    const planets = game.stars.flatMap((s) => s.planets).filter((p) => p.ownerId === player.id);
+
+    return planets
+      .filter((planet) => {
+        // Check for starbase in orbit
+        const orbitFleets = game.fleets.filter(
+          (f) =>
+            f.ownerId === player.id &&
+            f.location.type === 'orbit' &&
+            (f.location as any).planetId === planet.id,
+        );
+
+        // Find if any fleet has a starbase
+        const hasCapableStarbase = orbitFleets.some((fleet) => {
+          return fleet.ships.some((ship) => {
+            let shipDesign = game.shipDesigns.find((d) => d.id === ship.designId);
+
+            if (!shipDesign) {
+              const legacy = getDesign(ship.designId);
+              if (legacy) {
+                shipDesign = { hullId: legacy.hullId } as any;
+              }
+            }
+
+            if (!shipDesign) return false;
+
+            const hull = getHull(shipDesign.hullId);
+            if (!hull) return false;
+
+            if (!hull.Stats?.CanBuildShips) return false;
+
+            const capacity = hull.Stats.DockCapacity;
+            if (capacity === 'Unlimited') return true;
+            if (typeof capacity === 'number' && capacity >= designMass) return true;
+
+            return false;
+          });
+        });
+
+        return hasCapableStarbase;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  addToQueue() {
+    const planetId = this.selectedPlanetId();
+    if (!planetId) return;
+
+    this.gameState.addToBuildQueue(planetId, {
+      project: 'ship',
+      cost: this.design.stats.cost,
+      shipDesignId: this.design.id,
+      count: 1,
+    });
+
+    this.selectedPlanetId.set('');
+  }
 
   get hullName(): string {
     const hull = getHull(this.design.hullId);
