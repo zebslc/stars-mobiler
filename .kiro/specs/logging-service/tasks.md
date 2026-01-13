@@ -101,18 +101,18 @@ This implementation plan creates a comprehensive logging service for Stellar Rem
     - **Property 11: Application Insights Failure Handling**
     - **Validates: Requirements 5.4**
 
-- [ ] 6. Extend SettingsService with developer mode
-  - [ ] 6.1 Add developer mode signal to SettingsService
+- [x] 6. Extend SettingsService with developer mode
+  - [x] 6.1 Add developer mode signal to SettingsService
     - Add developerMode signal with boolean type
     - Implement toggleDeveloperMode method
     - Follow existing settings service patterns
     - _Requirements: 3.1, 3.3_
 
-  - [ ] 6.2 Write property test for developer mode signal behavior
+  - [x] 6.2 Write property test for developer mode signal behavior
     - **Property 7: Developer Mode Signal Behavior**
     - **Validates: Requirements 3.1**
 
-  - [ ] 6.3 Write property test for settings persistence
+  - [x] 6.3 Write property test for settings persistence
     - **Property 8: Settings Persistence**
     - **Validates: Requirements 3.3**
 

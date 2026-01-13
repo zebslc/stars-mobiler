@@ -18,6 +18,7 @@ export class SettingsService {
   readonly showMinefields = signal<boolean>(true);
   readonly showRemoteMining = signal<boolean>(true);
   readonly defaultGovernor = signal<GovernorType>('balanced');
+  readonly developerMode = signal<boolean>(false);
 
   toggleMapControls(show: boolean) {
     this.showMapControls.set(show);
@@ -65,5 +66,9 @@ export class SettingsService {
 
   setDefaultGovernor(type: GovernorType) {
     this.defaultGovernor.set(type);
+  }
+
+  toggleDeveloperMode(enabled: boolean) {
+    this.developerMode.set(enabled);
   }
 }
