@@ -27,12 +27,13 @@ export class FleetColonizationService {
     }
 
     const { fleet, planet } = validationResult;
-    const colonyShip = this.findColonyShip(game, fleet, context);
+    // fleet and planet are guaranteed to exist due to validation above
+    const colonyShip = this.findColonyShip(game, fleet!, context);
     if (!colonyShip.ship) {
       return [game, null];
     }
 
-    return this.executeColonization(game, fleet, planet, colonyShip.ship, colonyShip.design, context);
+    return this.executeColonization(game, fleet!, planet!, colonyShip.ship, colonyShip.design, context);
   }
 
   canColonize(game: GameState, fleetId: string): { canColonize: boolean; reason?: string } {
@@ -193,8 +194,20 @@ export class FleetColonizationService {
       }
     });
 
+    return this.performColonization(game, fleet, planet, colonyStack, design, hab, context);
+  }
+
+  private performColonization(
+    game: GameState,
+    fleet: Fleet,
+    planet: Planet,
+    colonyStack: any,
+    design: any,
+    habitability: number,
+    context: LogContext
+  ): [GameState, string | null] {
     this.consumeColonyShip(fleet, colonyStack);
-    this.initializeColony(planet, hab, game.humanPlayer.id);
+    this.initializeColony(planet, habitability, game.humanPlayer.id);
     this.transferResourcesToColony(planet, fleet, design);
     
     return this.finalizeColonization(game, fleet, planet, context);

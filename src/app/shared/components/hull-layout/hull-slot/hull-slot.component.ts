@@ -9,11 +9,14 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GridSlot } from '../hull-layout.types';
+import { HullSlotComponentData, ComponentActionEvent, SlotTouchEvent } from '../hull-slot.types';
+import { HullSlotOperationsService } from '../../../../services/hull-slot-operations.service';
 
 @Component({
   selector: 'app-hull-slot',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="slot"
@@ -341,7 +344,7 @@ import { GridSlot } from '../hull-layout.types';
 })
 export class HullSlotComponent implements OnChanges {
   @Input({ required: true }) slot!: GridSlot;
-  @Input() componentData: { component: any; count: number } | null | undefined = null;
+  @Input() componentData: HullSlotComponentData | null | undefined = null;
   @Input() maxCount: number = 1;
   @Input() editable: boolean = false;
   @Input() selected: boolean = false;
@@ -351,14 +354,13 @@ export class HullSlotComponent implements OnChanges {
   @Output() slotClick = new EventEmitter<void>();
   @Output() slotHover = new EventEmitter<void>();
   @Output() slotLeave = new EventEmitter<void>();
-  @Output() componentRemove = new EventEmitter<Event>();
-  @Output() componentIncrement = new EventEmitter<Event>();
-  @Output() slotClear = new EventEmitter<Event>();
-  @Output() slotTouchStart = new EventEmitter<TouchEvent>();
-  @Output() slotTouchEnd = new EventEmitter<TouchEvent>();
-  @Output() componentInfoClick = new EventEmitter<void>();
+  @Output() componentAction = new EventEmitter<ComponentActionEvent>();
+  @Output() slotTouchStart = new EventEmitter<SlotTouchEvent>();
+  @Output() slotTouchEnd = new EventEmitter<SlotTouchEvent>();
 
-  ngOnChanges(changes: SimpleChanges): void {
+  constructor(private hullSlotOperationsService: HullSlotOperationsService) {}
+
+  ngOnChanges(_changes: SimpleChanges): void {
     // Change detection tracking - ngOnChanges kept for future debugging if needed
     // No console logging in production
   }
@@ -376,72 +378,74 @@ export class HullSlotComponent implements OnChanges {
   }
 
   onRemoveComponent(event: Event) {
-    this.componentRemove.emit(event);
+    if (!this.componentData) return;
+
+    const actionEvent: ComponentActionEvent = {
+      slotId: this.slot.id,
+      componentId: this.componentData.component.id,
+      action: 'decrement',
+      originalEvent: event,
+    };
+    this.componentAction.emit(actionEvent);
   }
 
   onIncrementComponent(event: Event) {
-    this.componentIncrement.emit(event);
+    if (!this.componentData) return;
+
+    const actionEvent: ComponentActionEvent = {
+      slotId: this.slot.id,
+      componentId: this.componentData.component.id,
+      action: 'increment',
+      originalEvent: event,
+    };
+    this.componentAction.emit(actionEvent);
   }
 
   onClearSlot(event: Event) {
-    this.slotClear.emit(event);
+    if (!this.componentData) return;
+
+    const actionEvent: ComponentActionEvent = {
+      slotId: this.slot.id,
+      componentId: this.componentData.component.id,
+      action: 'clear',
+      originalEvent: event,
+    };
+    this.componentAction.emit(actionEvent);
   }
 
   onTouchStart(event: TouchEvent) {
-    this.slotTouchStart.emit(event);
+    const touchEvent: SlotTouchEvent = {
+      slotId: this.slot.id,
+      touchEvent: event,
+      editable: this.editable && this.slot.editable,
+    };
+    this.slotTouchStart.emit(touchEvent);
   }
 
   onComponentInfoClick(event: Event) {
     event.stopPropagation();
-    this.componentInfoClick.emit();
+    if (!this.componentData) return;
+
+    const actionEvent: ComponentActionEvent = {
+      slotId: this.slot.id,
+      componentId: this.componentData.component.id,
+      action: 'info',
+      originalEvent: event,
+    };
+    this.componentAction.emit(actionEvent);
   }
 
   onTouchEnd(event: TouchEvent) {
-    this.slotTouchEnd.emit(event);
+    const touchEvent: SlotTouchEvent = {
+      slotId: this.slot.id,
+      touchEvent: event,
+      editable: this.editable && this.slot.editable,
+    };
+    this.slotTouchEnd.emit(touchEvent);
   }
 
   getSlotTypeDisplay(allowedTypes: string[]): string {
-    const typeMap: Record<string, string> = {
-      engine: '🚀',
-      weapon: '🗡️',
-      shield: '☔',
-      armor: '🛡️',
-      electronics: '⚡',
-      elect: '⚡',
-      computer: '⚡',
-      scanner: '📡',
-      mech: '⚙️',
-      mechanical: '⚙️',
-      general: '🛠️',
-      bomb: '💣',
-      mining: '⛏️',
-      mine: '🔆',
-      cargo: '📦',
-      dock: '⚓',
-      orb: '🛞',
-      orbital: '🛞',
-    };
-
-    let icons = '';
-    // Use a Set to avoid duplicate icons if multiple types map to the same icon
-    const addedIcons = new Set<string>();
-
-    for (const t of allowedTypes) {
-      const key = t.toLowerCase();
-      let icon = '';
-
-      if (key.includes('orbital')) {
-        icon = typeMap['orb'];
-      } else if (typeMap[key]) {
-        icon = typeMap[key];
-      }
-
-      if (icon && !addedIcons.has(icon)) {
-        icons += icon;
-        addedIcons.add(icon);
-      }
-    }
-
-    return icons || '⚡';
+    // Delegate to the operations service for business logic
+    return this.hullSlotOperationsService.getSlotTypeDisplay(allowedTypes);
   }
 }

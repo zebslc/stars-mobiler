@@ -15,6 +15,7 @@ import { ShipDesign } from '../../../models/game.model';
 import { getComponent } from '../../../utils/data-access.util';
 import { GridSlot } from './hull-layout.types';
 import { HullSlotComponent } from './hull-slot/hull-slot.component';
+import { SlotTouchEvent } from './hull-slot.types';
 
 @Component({
   selector: 'app-hull-layout',
@@ -435,14 +436,14 @@ export class HullLayoutComponent {
     this.showClearButton.set(null);
   }
 
-  onTouchStart(_event: TouchEvent, slotId: string): void {
+  onTouchStart(event: SlotTouchEvent, slotId: string): void {
     if (!this.editable() || !this.getComponentInSlot(slotId)) return;
     this.longPressTimer = setTimeout(() => {
       this.showClearButton.set(slotId);
     }, 500);
   }
 
-  onTouchEnd(_event: TouchEvent): void {
+  onTouchEnd(event: SlotTouchEvent): void {
     if (this.longPressTimer) {
       clearTimeout(this.longPressTimer);
       this.longPressTimer = null;
