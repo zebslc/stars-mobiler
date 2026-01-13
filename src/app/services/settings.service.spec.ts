@@ -26,7 +26,8 @@ describe('SettingsService', () => {
         fc.property(
           fc.boolean(),
           (enabled: boolean) => {
-            // Test initial state
+            // Reset to initial state for each test run
+            service.toggleDeveloperMode(false);
             expect(service.developerMode()).toBe(false);
 
             // Toggle developer mode
@@ -49,7 +50,8 @@ describe('SettingsService', () => {
         fc.property(
           fc.array(fc.boolean(), { minLength: 1, maxLength: 10 }),
           (toggleSequence: boolean[]) => {
-            // Start with known state
+            // Reset to known state for each test run
+            service.toggleDeveloperMode(false);
             expect(service.developerMode()).toBe(false);
 
             // Apply each toggle in sequence

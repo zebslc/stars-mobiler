@@ -1,17 +1,52 @@
 import * as fc from 'fast-check';
+import { TestBed } from '@angular/core/testing';
 import { LoggingService } from './logging.service';
 import { LogLevel, LogContext, LogEntry } from '../models/logging.model';
+import { LogDestinationManager } from './log-destination-manager.service';
+import { ConsoleDestination } from './destinations/console.destination';
+import { ApplicationInsightsDestination } from './destinations/application-insights.destination';
+import { DeveloperPanelDestination } from './destinations/developer-panel.destination';
 
 describe('LoggingService', () => {
   let service: LoggingService;
   let consoleLogSpy: jasmine.Spy;
+  let mockDestinationManager: jasmine.SpyObj<LogDestinationManager>;
 
   beforeEach(() => {
-    // Direct instantiation - much faster than TestBed
-    service = new LoggingService();
-
-    // Mock console at suite level for performance
+    // Mock console at suite level for performance - do this first
     consoleLogSpy = spyOn(console, 'log');
+
+    // Create spy for LogDestinationManager with correct method name
+    mockDestinationManager = jasmine.createSpyObj('LogDestinationManager', [
+      'configure',
+      'routeLogEntry',
+    ]);
+    // Make routeLogEntry return a resolved promise and call console.log for test compatibility
+    mockDestinationManager.routeLogEntry.and.callFake((entry: any) => {
+      console.log(entry);
+      return Promise.resolve();
+    });
+
+    TestBed.configureTestingModule({
+      providers: [
+        LoggingService,
+        { provide: LogDestinationManager, useValue: mockDestinationManager },
+        {
+          provide: ConsoleDestination,
+          useValue: jasmine.createSpyObj('ConsoleDestination', ['log', 'isEnabled']),
+        },
+        {
+          provide: ApplicationInsightsDestination,
+          useValue: jasmine.createSpyObj('ApplicationInsightsDestination', ['log', 'isEnabled']),
+        },
+        {
+          provide: DeveloperPanelDestination,
+          useValue: jasmine.createSpyObj('DeveloperPanelDestination', ['log', 'isEnabled']),
+        },
+      ],
+    });
+
+    service = TestBed.inject(LoggingService);
   });
 
   afterEach(() => {
@@ -150,13 +185,13 @@ describe('LoggingService', () => {
      * - Timestamp generation
      * - Source context capture
      */
-    it('should automatically include metadata for any log entry', () => {
-      fc.assert(
-        fc.property(
+    it('should automatically include metadata for any log entry', async () => {
+      await fc.assert(
+        fc.asyncProperty(
           fc.constantFrom(LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR),
           fc.string({ minLength: 1 }),
           fc.option(fc.dictionary(fc.string(), fc.anything()), { nil: undefined }),
-          (level: LogLevel, message: string, metadata: Record<string, any> | undefined) => {
+          async (level: LogLevel, message: string, metadata: Record<string, any> | undefined) => {
             // Set service to accept all log levels
             service.setLogLevel(LogLevel.DEBUG);
             consoleLogSpy.calls.reset();
@@ -178,7 +213,8 @@ describe('LoggingService', () => {
             });
 
             try {
-              service.log({
+              // Log and wait for completion
+              await service.log({
                 level,
                 message,
                 metadata,
@@ -218,11 +254,11 @@ describe('LoggingService', () => {
       );
     });
 
-    it('should generate unique IDs for concurrent log entries', () => {
-      fc.assert(
-        fc.property(
+    it('should generate unique IDs for concurrent log entries', async () => {
+      await fc.assert(
+        fc.asyncProperty(
           fc.array(fc.string({ minLength: 1 }), { minLength: 2, maxLength: 10 }),
-          (messages: string[]) => {
+          async (messages: string[]) => {
             // Set service to accept all log levels
             service.setLogLevel(LogLevel.DEBUG);
 
@@ -242,14 +278,16 @@ describe('LoggingService', () => {
             });
 
             try {
-              // Log all messages
-              messages.forEach((message) => {
-                service.log({
-                  level: LogLevel.INFO,
-                  message,
-                  context,
-                });
-              });
+              // Log all messages and await completion
+              await Promise.all(
+                messages.map((message) =>
+                  service.log({
+                    level: LogLevel.INFO,
+                    message,
+                    context,
+                  }),
+                ),
+              );
 
               // Verify all IDs are unique
               const ids = capturedEntries.map((entry) => entry.id);
