@@ -3,11 +3,6 @@ import { TechService } from './tech.service';
 import { Player } from '../models/game.model';
 import { ComponentStats, PrimaryRacialTrait, LesserRacialTrait } from '../data/tech-atlas.types';
 
-declare const describe: any;
-declare const it: any;
-declare const expect: any;
-declare const beforeEach: any;
-
 describe('TechService', () => {
   let service: TechService;
 

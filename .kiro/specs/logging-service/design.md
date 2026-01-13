@@ -266,15 +266,9 @@ The logging service will be validated through both unit tests and property-based
 - Error boundary behavior
 - Configuration loading
 
-**Property Tests**: Verify universal properties across all inputs using fast-check
-- Each property test will run minimum 100 iterations
-- Tests will generate random log data, configurations, and error scenarios
-- Each test will be tagged with: **Feature: logging-service, Property {number}: {property_text}**
-
 ### Testing Configuration
 
 - **Framework**: Jasmine with Angular Testing Utilities
-- **Property Testing Library**: fast-check for TypeScript
 - **Mock Strategy**: Mock where it makes sense. Most things should be injectable anyway.
 - **Test Environment**: Configured with `provideZonelessChangeDetection()`
 

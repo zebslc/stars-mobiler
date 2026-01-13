@@ -5,13 +5,6 @@ import { HabitabilityService } from './habitability.service';
 import { ShipyardService } from './shipyard.service';
 import { GameState, Player, Planet, Fleet, ShipDesign } from '../models/game.model';
 
-// Declare Jasmine globals to satisfy linter
-declare const describe: any;
-declare const it: any;
-declare const expect: any;
-declare const beforeEach: any;
-declare const jasmine: any;
-
 describe('FleetService', () => {
   let service: FleetService;
   let mockSettingsService: any;
