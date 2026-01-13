@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game-state.service';
 import { HabitabilityService } from '../../services/habitability.service';
-import { ToastService } from '../../services/toast.service';
 import { ShipyardService } from '../../services/shipyard.service';
 import { TechService } from '../../services/tech.service';
 import { getDesign } from '../../data/ships.data';
@@ -149,7 +148,6 @@ export class PlanetDetailComponent implements OnInit {
   private router = inject(Router);
   readonly gs = inject(GameStateService);
   private hab = inject(HabitabilityService);
-  private toast = inject(ToastService);
   private shipyardService = inject(ShipyardService);
   private techService = inject(TechService);
 

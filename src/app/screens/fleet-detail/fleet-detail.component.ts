@@ -15,7 +15,6 @@ import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { StarOption } from '../../components/star-selector.component';
-import { TechService } from '../../services/tech.service';
 import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
 import {
@@ -221,7 +220,6 @@ export class FleetDetailComponent implements OnInit {
   private router = inject(Router);
   readonly gs = inject(GameStateService);
   private toast = inject(ToastService);
-  private techService = inject(TechService);
 
   private fleetId = this.route.snapshot.paramMap.get('id');
 

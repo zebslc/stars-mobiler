@@ -16,7 +16,12 @@
       "Bash(npm test)",
       "Bash(timeout /t 5 /nobreak)",
       "Bash(findstr:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(claude skills:*)",
+      "Bash(claude --version:*)",
+      "WebSearch",
+      "Bash(python3:*)",
+      "Skill(code-review)"
     ]
   }
 }

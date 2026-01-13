@@ -6,14 +6,11 @@ import {
   ChangeDetectionStrategy,
   inject,
   computed,
-  signal,
 } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { Fleet, ShipDesign } from '../../../models/game.model';
+import { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game-state.service';
-import { TechService } from '../../../services/tech.service';
 import { getDesign } from '../../../data/ships.data';
-import { HullTemplate } from '../../../data/tech-atlas.types';
 import { getHull } from '../../../utils/data-access.util';
 import { compileShipStats } from '../../../models/ship-design.model';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
@@ -295,7 +292,6 @@ export class FleetCardComponent {
   @Output() viewDetails = new EventEmitter<void>();
 
   private gs = inject(GameStateService);
-  private techService = inject(TechService);
 
   orders = computed(() => this.fleet.orders || []);
 
