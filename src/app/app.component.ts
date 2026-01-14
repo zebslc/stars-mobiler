@@ -17,7 +17,9 @@ import { GameStateService } from './services/game/game-state.service';
     DeveloperPanelComponent,
   ],
   template: `
-    <app-nav-bar *ngIf="showNav()"></app-nav-bar>
+    @if (showNav()) {
+      <app-nav-bar></app-nav-bar>
+    }
     <div
       style="flex: 1; overflow: hidden; display: flex; flex-direction: column; position: relative;"
     >

@@ -6,32 +6,34 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div
-      *ngIf="visible"
-      class="context-menu"
-      [style.left.px]="x"
-      [style.top.px]="y"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="menu-item" (click)="onMove()">
-        <span>📍</span> Move Waypoint
+    @if (visible) {
+      <div
+        class="context-menu"
+        [style.left.px]="x"
+        [style.top.px]="y"
+        (click)="$event.stopPropagation()"
+        (touchstart)="$event.stopPropagation()"
+        (touchmove)="$event.stopPropagation()"
+      >
+        <div class="menu-item" (click)="onMove()">
+          <span>📍</span> Move Waypoint
+        </div>
+        <div class="menu-item" (click)="onSetSpeed()">
+          <span>🚀</span> Set Warp Speed
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item delete" (click)="onDelete()">
+          <span>🗑️</span> Delete Waypoint
+        </div>
       </div>
-      <div class="menu-item" (click)="onSetSpeed()">
-        <span>🚀</span> Set Warp Speed
-      </div>
-      <div class="menu-divider"></div>
-      <div class="menu-item delete" (click)="onDelete()">
-        <span>🗑️</span> Delete Waypoint
-      </div>
-    </div>
-    
-    <!-- Overlay to close menu when clicking outside -->
-    <div
-      *ngIf="visible"
-      class="menu-overlay"
-      (click)="close.emit()"
-      (contextmenu)="$event.preventDefault(); close.emit()"
-    ></div>
+      
+      <!-- Overlay to close menu when clicking outside -->
+      <div
+        class="menu-overlay"
+        (click)="close.emit()"
+        (contextmenu)="$event.preventDefault(); close.emit()"
+      ></div>
+    }
   `,
   styles: [`
     .context-menu {

@@ -90,7 +90,7 @@ export class FleetOperationsService implements IFleetOperationsService {
 
     const designId = shipDesignId ?? 'scout';
     const shipDesign = game.shipDesigns.find((d) => d.id === designId);
-    const legacyDesign = getDesign(designId);
+    const legacyDesign = !shipDesign ? getDesign(designId) : null;
 
     const isNewShipStarbase = shipDesign?.spec?.isStarbase ?? legacyDesign?.isStarbase ?? false;
 
@@ -109,7 +109,7 @@ export class FleetOperationsService implements IFleetOperationsService {
       fleet = orbitFleets.find((f) =>
         f.ships.some((s) => {
           const d = game.shipDesigns.find((sd) => sd.id === s.designId);
-          const ld = getDesign(s.designId);
+          const ld = !d ? getDesign(s.designId) : null;
           return d?.spec?.isStarbase ?? ld?.isStarbase;
         }),
       );
@@ -119,7 +119,7 @@ export class FleetOperationsService implements IFleetOperationsService {
         (f) =>
           !f.ships.some((s) => {
             const d = game.shipDesigns.find((sd) => sd.id === s.designId);
-            const ld = getDesign(s.designId);
+            const ld = !d ? getDesign(s.designId) : null;
             return d?.spec?.isStarbase ?? ld?.isStarbase;
           }),
       );

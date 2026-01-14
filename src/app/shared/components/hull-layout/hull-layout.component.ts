@@ -15,21 +15,21 @@ import { getComponent } from '../../../utils/data-access.util';
 import { GridSlot } from './hull-layout.types';
 import { HullSlotComponent } from './hull-slot/hull-slot.component';
 import { SlotTouchEvent } from './hull-slot.types';
+import { PanZoomDirective, PanEvent, PanZoomEvent } from '../../directives';
 
 @Component({
   selector: 'app-hull-layout',
   standalone: true,
-  imports: [CommonModule, HullSlotComponent],
+  imports: [CommonModule, HullSlotComponent, PanZoomDirective],
   template: `
     @if (hull()) {
       <div
         class="slots-container interactive-canvas"
-        (pointerdown)="onPointerDown($event)"
-        (pointermove)="onPointerMove($event)"
-        (pointerup)="onPointerUp($event)"
-        (pointercancel)="onPointerUp($event)"
-        (touchmove)="onTouchMove($event)"
-        (wheel)="onWheel($event)"
+        appPanZoom
+        [enablePan]="true"
+        [enableZoom]="true"
+        (pan)="onPan($event)"
+        (zoom)="onZoom($event)"
       >
         @if (gridDimensions(); as dims) {
           <div
@@ -136,14 +136,8 @@ export class HullLayoutComponent {
   imageErrors = signal<Set<string>>(new Set());
   showClearButton = signal<string | null>(null);
   longPressTimer: any;
-  private isPanning = signal(false);
-  private hasPanned = false;
-  private panButton = 1; // middle mouse
-  private lastPointerX = 0;
-  private lastPointerY = 0;
-  private activePointers = new Map<number, { x: number; y: number }>();
-  private initialPinchDistance = 0;
-  private initialScale = 1;
+  
+  // Pan/zoom state - now managed by PanZoomDirective
   zoom = signal(1);
   offsetX = signal(0);
   offsetY = signal(0);
@@ -210,96 +204,17 @@ export class HullLayoutComponent {
     return `translate(${this.offsetX()}px, ${this.offsetY()}px) scale(${this.zoom()})`;
   }
 
-  onPointerDown(event: PointerEvent) {
-    (event.target as Element).setPointerCapture?.(event.pointerId);
-    this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-
-    const isPanStart =
-      (event.pointerType === 'mouse' && (event.button === 0 || event.button === this.panButton)) ||
-      event.pointerType === 'touch' ||
-      event.pointerType === 'pen';
-
-    if (isPanStart) {
-      this.isPanning.set(true);
-      this.hasPanned = false;
-      this.lastPointerX = event.clientX;
-      this.lastPointerY = event.clientY;
-    }
-
-    if (this.activePointers.size === 2) {
-      const pts = Array.from(this.activePointers.values());
-      const dx = pts[0].x - pts[1].x;
-      const dy = pts[0].y - pts[1].y;
-      this.initialPinchDistance = Math.hypot(dx, dy);
-      this.initialScale = this.zoom();
-    }
+  onPan(event: PanEvent) {
+    const dx = event.delta.x;
+    const dy = event.delta.y;
+    this.offsetX.set(this.offsetX() + dx);
+    this.offsetY.set(this.offsetY() + dy);
   }
 
-  onPointerMove(event: PointerEvent) {
-    this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (this.activePointers.size === 2) {
-      const pts = Array.from(this.activePointers.values());
-      const dx = pts[0].x - pts[1].x;
-      const dy = pts[0].y - pts[1].y;
-      const dist = Math.hypot(dx, dy);
-      if (this.initialPinchDistance > 0) {
-        const scale = this.initialScale * (dist / this.initialPinchDistance);
-        this.zoom.set(Math.min(3, Math.max(0.5, scale)));
-        event.preventDefault();
-      }
-      return;
-    }
-    if (this.isPanning()) {
-      const dx = event.clientX - this.lastPointerX;
-      const dy = event.clientY - this.lastPointerY;
-
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-        this.hasPanned = true;
-      }
-
-      this.lastPointerX = event.clientX;
-      this.lastPointerY = event.clientY;
-      this.offsetX.set(this.offsetX() + dx);
-      this.offsetY.set(this.offsetY() + dy);
-      event.preventDefault();
-    }
-  }
-
-  onPointerUp(event: PointerEvent) {
-    this.activePointers.delete(event.pointerId);
-    if (this.activePointers.size < 2) {
-      this.initialPinchDistance = 0;
-    }
-
-    if (this.activePointers.size === 1 && this.isPanning()) {
-      const remaining = this.activePointers.values().next().value;
-      if (remaining) {
-        this.lastPointerX = remaining.x;
-        this.lastPointerY = remaining.y;
-      }
-    }
-
-    const isPanEnd =
-      (event.pointerType === 'mouse' && (event.button === 0 || event.button === this.panButton)) ||
-      (event.pointerType !== 'mouse' && this.activePointers.size === 0);
-
-    if (isPanEnd) {
-      this.isPanning.set(false);
-    }
-  }
-
-  onWheel(event: WheelEvent) {
-    event.preventDefault();
-    const delta = -event.deltaY;
-    const zoomFactor = delta > 0 ? 1.1 : 0.9;
-    const currentZoom = this.zoom();
-    const newZoom = Math.min(3, Math.max(0.5, currentZoom * zoomFactor));
-    this.zoom.set(newZoom);
-  }
-
-  onTouchMove(_event: TouchEvent) {
-    if (_event.touches.length >= 2) {
-      _event.preventDefault();
+  onZoom(event: PanZoomEvent) {
+    if (event.scale) {
+      const newZoom = Math.min(3, Math.max(0.5, event.scale));
+      this.zoom.set(newZoom);
     }
   }
 
@@ -436,20 +351,23 @@ export class HullLayoutComponent {
   }
 
   onSlotClick(slotId: string) {
-    if (this.hasPanned) return;
     this.slotSelected.emit(slotId);
   }
 
-  incrementComponent(event: Event, slotId: string) {
-    event.stopPropagation();
+  incrementComponent(event: any, slotId: string) {
+    if (event instanceof Event) {
+      event.stopPropagation();
+    }
     const comp = this.getComponentInSlot(slotId);
     if (comp) {
       this.componentIncremented.emit({ slotId, componentId: comp });
     }
   }
 
-  removeComponent(event: Event, slotId: string) {
-    event.stopPropagation();
+  removeComponent(event: any, slotId: string) {
+    if (event instanceof Event) {
+      event.stopPropagation();
+    }
     const comp = this.getComponentInSlot(slotId);
     if (comp) {
       this.componentRemoved.emit({ slotId, componentId: comp });
@@ -515,8 +433,10 @@ export class HullLayoutComponent {
     }
   }
 
-  clearSlot(event: Event, slotId: string): void {
-    event.stopPropagation();
+  clearSlot(event: any, slotId: string): void {
+    if (event instanceof Event) {
+      event.stopPropagation();
+    }
     this.slotCleared.emit(slotId);
     this.showClearButton.set(null);
   }

@@ -10,6 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TouchClickDirective } from '../../../shared/directives';
 import { HullTemplate } from '../../../data/tech-atlas.types';
 import {
   FilterRibbonComponent,
@@ -24,7 +25,7 @@ import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../../shared/constants/
 @Component({
   selector: 'app-ship-designer-hull-selector',
   standalone: true,
-  imports: [CommonModule, ResourceCostComponent, FilterRibbonComponent],
+  imports: [CommonModule, TouchClickDirective, ResourceCostComponent, FilterRibbonComponent],
   template: `
     <div class="modal-overlay" (click)="onClose()">
       <div class="modal-content" (click)="$event.stopPropagation()">
@@ -46,6 +47,8 @@ import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../../shared/constants/
               <div
                 class="hull-option"
                 [class.selected]="selectedHullId() === (hull.id || hull.Name)"
+                appTouchClick
+                (touchClick)="onSelect(hull.id || hull.Name)"
                 (click)="onSelect(hull.id || hull.Name)"
                 (dblclick)="onConfirm()"
               >
@@ -116,8 +119,8 @@ import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../../shared/constants/
         </div>
 
         <div class="modal-footer">
-          <button class="btn-text" (click)="onClose()">Close</button>
-          <button class="btn-primary" [disabled]="!selectedHullId()" (click)="onConfirm()">
+          <button class="btn-text" appTouchClick (touchClick)="onClose()" (click)="onClose()">Close</button>
+          <button class="btn-primary" [disabled]="!selectedHullId()" appTouchClick (touchClick)="onConfirm()" (click)="onConfirm()">
             Choose
           </button>
         </div>

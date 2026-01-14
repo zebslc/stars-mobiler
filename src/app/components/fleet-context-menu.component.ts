@@ -15,28 +15,30 @@ export interface FleetContextMenuOption {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ng-container *ngIf="visible()">
+    @if (visible()) {
       <div
         class="context-menu"
         [style.left.px]="x()"
         [style.top.px]="y()"
         (click)="$event.stopPropagation()"
+        (touchstart)="$event.stopPropagation()"
+        (touchmove)="$event.stopPropagation()"
       >
-        <div
-          *ngFor="let option of options()"
-          [class.divider]="option.divider"
-        >
-          <div
-            *ngIf="!option.divider"
-            class="context-menu-item"
-            [class.disabled]="option.disabled"
-            (click)="selectOption(option)"
-          >
-            {{ option.label }}
+        @for (option of options(); track $index) {
+          <div [class.divider]="option.divider">
+            @if (!option.divider) {
+              <div
+                class="context-menu-item"
+                [class.disabled]="option.disabled"
+                (click)="selectOption(option)"
+              >
+                {{ option.label }}
+              </div>
+            }
           </div>
-        </div>
+        }
       </div>
-    </ng-container>
+    }
   `,
   styles: [`
     .context-menu {

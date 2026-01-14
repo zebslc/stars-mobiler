@@ -35,7 +35,7 @@ import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
     >
       @if (stars().length > 0) {
         <section
-          style="border:1px solid #ccc; position: relative; flex-grow: 1; overflow: hidden;"
+          style="border:1px solid #ccc; position: relative; flex-grow: 1; overflow: hidden; touch-action: none;"
           (mousedown)="onMouseDown($event)"
           (mousemove)="onMouseMove($event)"
           (mouseup)="onMouseUp()"
@@ -233,7 +233,7 @@ import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
                         fill="rgba(52, 152, 219, 0.1)"
                         stroke="#3498db"
                         stroke-dasharray="4,3"
-                        [attr.stroke-width]="1"
+                        [attr.stroke-width]="2"
                         style="pointer-events: none"
                       />
                     }
@@ -345,6 +345,8 @@ import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
                       class="waypoint-marker"
                       style="pointer-events: auto; cursor: context-menu;"
                       (contextmenu)="onWaypointRightClick($event, fleet.fleetId, $index)"
+                      (touchstart)="onWaypointTouchStart($event, fleet.fleetId, $index)"
+                      (touchend)="onWaypointTouchEnd()"
                     />
                   }
                 }
@@ -526,6 +528,14 @@ export class GalaxyMapComponent implements OnInit {
   private touchHoldStartPos: { x: number; y: number } | null = null;
   private isTouchHolding = false;
 
+  // Waypoint hold state
+  private waypointHoldTimer: any;
+  private waypointHoldStartPos: { x: number; y: number } | null = null;
+  private isWaypointHolding = false;
+
+  // Fleet Drag state
+  private pressedFleet: Fleet | null = null;
+
   // Waypoint Creation State
   draggedWaypoint = signal<{
     startX: number;
@@ -692,6 +702,7 @@ export class GalaxyMapComponent implements OnInit {
     }
 
     this.isLongPressing = true;
+    this.pressedFleet = fleet;
     const clientX =
       (event.originalEvent as any).clientX || (event.originalEvent as any).touches[0].clientX;
     const clientY =
@@ -702,6 +713,8 @@ export class GalaxyMapComponent implements OnInit {
     this.longPressTimer = setTimeout(() => {
       if (this.isLongPressing) {
         this.startDrag(fleet);
+        this.isLongPressing = false; // Reset flag as we are now dragging
+        this.pressedFleet = null;
       }
     }, 500);
   }
@@ -754,6 +767,36 @@ export class GalaxyMapComponent implements OnInit {
     this.state.handleWheel(delta, event.clientX, event.clientY, rect.left, rect.top);
   }
 
+  // Waypoint Touch Handlers
+  onWaypointTouchStart(event: TouchEvent, fleetId: string, waypointIndex: number) {
+    event.stopPropagation();
+    if (event.touches.length !== 1) return;
+
+    this.isWaypointHolding = true;
+    this.waypointHoldStartPos = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+
+    this.waypointHoldTimer = setTimeout(() => {
+      if (this.isWaypointHolding) {
+        const mouseEvent = {
+          preventDefault: () => {},
+          stopPropagation: () => {},
+          clientX: event.touches[0].clientX,
+          clientY: event.touches[0].clientY,
+        } as unknown as MouseEvent;
+
+        this.onWaypointRightClick(mouseEvent, fleetId, waypointIndex);
+        this.isWaypointHolding = false;
+        this.waypointHoldStartPos = null;
+      }
+    }, 500);
+  }
+
+  onWaypointTouchEnd() {
+    this.isWaypointHolding = false;
+    this.waypointHoldStartPos = null;
+    clearTimeout(this.waypointHoldTimer);
+  }
+
   // Touch Handlers
   onTouchStart(event: TouchEvent) {
     if (event.touches.length === 1) {
@@ -784,13 +827,60 @@ export class GalaxyMapComponent implements OnInit {
       return;
     }
 
+    // Check Waypoint Hold
+    if (this.isWaypointHolding && this.waypointHoldStartPos) {
+      const dist = Math.hypot(
+        event.touches[0].clientX - this.waypointHoldStartPos.x,
+        event.touches[0].clientY - this.waypointHoldStartPos.y,
+      );
+      if (dist > 10) {
+        this.isWaypointHolding = false;
+        clearTimeout(this.waypointHoldTimer);
+      }
+      return;
+    }
+
+    // Check Fleet Hold / Drag (Press and Drag support)
+    if (this.isLongPressing && this.longPressStartPos) {
+      const dist = Math.hypot(
+        event.touches[0].clientX - this.longPressStartPos.x,
+        event.touches[0].clientY - this.longPressStartPos.y,
+      );
+
+      if (dist > 10) {
+        if (this.pressedFleet) {
+          this.startDrag(this.pressedFleet);
+          this.isLongPressing = false;
+          this.pressedFleet = null;
+          clearTimeout(this.longPressTimer);
+
+          // Immediately move
+          this.handleMove(event.touches[0].clientX, event.touches[0].clientY);
+        } else {
+          this.isLongPressing = false;
+          clearTimeout(this.longPressTimer);
+        }
+      }
+      return;
+    }
+
     if (this.isTouchHolding && this.touchHoldStartPos) {
       const dist = Math.hypot(
         event.touches[0].clientX - this.touchHoldStartPos.x,
         event.touches[0].clientY - this.touchHoldStartPos.y,
       );
-      if (dist > 10) {
+      if (dist > 20) {
         this.cancelTouchHold();
+      }
+    }
+
+    if (this.isWaypointHolding && this.waypointHoldStartPos) {
+      const dist = Math.hypot(
+        event.touches[0].clientX - this.waypointHoldStartPos.x,
+        event.touches[0].clientY - this.waypointHoldStartPos.y,
+      );
+      if (dist > 20) {
+        this.cancelWaypointHold();
       }
     }
 
@@ -808,8 +898,10 @@ export class GalaxyMapComponent implements OnInit {
   onTouchEnd() {
     this.state.endTouch();
     this.cancelTouchHold();
+    this.cancelWaypointHold();
 
     this.isLongPressing = false;
+    this.pressedFleet = null;
     clearTimeout(this.longPressTimer);
     if (this.draggedWaypoint()) {
       this.finalizeWaypoint();
@@ -825,13 +917,22 @@ export class GalaxyMapComponent implements OnInit {
     this.touchHoldStartPos = null;
   }
 
+  private cancelWaypointHold() {
+    this.isWaypointHolding = false;
+    if (this.waypointHoldTimer) {
+      clearTimeout(this.waypointHoldTimer);
+      this.waypointHoldTimer = null;
+    }
+    this.waypointHoldStartPos = null;
+  }
+
   checkLongPressMove(clientX: number, clientY: number) {
     if (this.isLongPressing && this.longPressStartPos) {
       const dist = Math.hypot(
         clientX - this.longPressStartPos.x,
         clientY - this.longPressStartPos.y,
       );
-      if (dist > 10) {
+      if (dist > 20) {
         this.isLongPressing = false;
         clearTimeout(this.longPressTimer);
       }
@@ -1007,8 +1108,27 @@ export class GalaxyMapComponent implements OnInit {
   // Waypoint Interaction
   onWaypointDown(event: MouseEvent | TouchEvent, fleetId: string, orderIndex: number) {
     event.stopPropagation();
-    // Potential drag-to-move implementation could start here
-    // For now, we just ensure it doesn't trigger map pan
+
+    // Handle touch long press for context menu
+    if (window.TouchEvent && event instanceof TouchEvent) {
+      const touch = event.touches[0];
+      this.waypointHoldStartPos = { x: touch.clientX, y: touch.clientY };
+      this.isWaypointHolding = true;
+
+      this.waypointHoldTimer = setTimeout(() => {
+        if (this.isWaypointHolding) {
+          // Create a fake MouseEvent for onWaypointRightClick
+          const fakeEvent = {
+            preventDefault: () => {},
+            stopPropagation: () => {},
+            clientX: touch.clientX,
+            clientY: touch.clientY,
+          } as unknown as MouseEvent;
+          this.onWaypointRightClick(fakeEvent, fleetId, orderIndex);
+          this.isWaypointHolding = false; // Reset after triggering
+        }
+      }, 500);
+    }
   }
 
   onWaypointRightClick(event: MouseEvent, fleetId: string, orderIndex: number) {

@@ -36,10 +36,8 @@ export interface TransferState {
           }}
         </h3>
 
-        <div
-          *ngIf="transferMode === 'split'"
-          style="display:flex;gap:var(--space-md);margin-bottom:var(--space-md)"
-        >
+        @if (transferMode === 'split') {
+          <div style="display:flex;gap:var(--space-md);margin-bottom:var(--space-md)">
           <button
             class="btn-small"
             [class.btn-primary]="splitMode === 'custom'"
@@ -55,12 +53,15 @@ export interface TransferState {
             Separate All
           </button>
         </div>
+        }
 
-        <div class="transfer-grid" *ngIf="transferMode === 'transfer' || splitMode === 'custom'">
+        @if (transferMode === 'transfer' || splitMode === 'custom') {
+          <div class="transfer-grid">
           <!-- Ships -->
           <div class="transfer-section">
             <h4>Ships</h4>
-            <div *ngFor="let item of transferState.ships" class="transfer-row">
+            @for (item of transferState.ships; track item.designId) {
+              <div class="transfer-row">
               <app-design-preview-button
                 [designId]="item.designId"
                 buttonClass="transfer-ship-btn"
@@ -78,11 +79,12 @@ export interface TransferState {
                 [max]="item.max"
                 class="qty-input"
               />
-            </div>
+              </div>
+            }
           </div>
-
           <!-- Cargo -->
-          <div class="transfer-section" *ngIf="transferMode === 'transfer'">
+          @if (transferMode === 'transfer') {
+            <div class="transfer-section">
             <h4>Cargo & Fuel</h4>
             <div class="transfer-row">
               <span>Fuel</span>
@@ -151,14 +153,15 @@ export interface TransferState {
               />
             </div>
           </div>
+        }
         </div>
+        }
 
-        <div
-          *ngIf="transferMode === 'split' && splitMode === 'separate'"
-          style="padding:var(--space-lg);text-align:center"
-        >
-          <p>Separate this fleet into {{ totalShipCount }} individual fleets?</p>
-        </div>
+        @if (transferMode === 'split' && splitMode === 'separate') {
+          <div style="padding:var(--space-lg);text-align:center">
+            <p>Separate this fleet into {{ totalShipCount }} individual fleets?</p>
+          </div>
+        }
 
         <div class="transfer-actions">
           <button (click)="onCancel()" class="btn-secondary">Cancel</button>

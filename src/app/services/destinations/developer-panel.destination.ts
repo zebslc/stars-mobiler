@@ -1,5 +1,4 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
 import {
   LogDestination,
   LogEntry,
@@ -28,9 +27,9 @@ export class DeveloperPanelDestination implements LogDestination {
     logLevel: LogLevel.DEBUG
   };
 
-  // Real-time event stream for developer panel
-  private readonly _eventStream = new Subject<LogEntry>();
-  readonly events$: Observable<LogEntry> = this._eventStream.asObservable();
+  // Real-time event signal for developer panel
+  private readonly _lastEntry = signal<LogEntry | null>(null);
+  readonly lastEntry = this._lastEntry.asReadonly();
 
   // In-memory storage for developer panel display
   private readonly _entries = signal<LogEntry[]>([]);
@@ -82,8 +81,8 @@ export class DeveloperPanelDestination implements LogDestination {
       // Add to in-memory storage
       this.addEntry(entry);
 
-      // Emit to real-time stream
-      this._eventStream.next(entry);
+      // Update last entry signal
+      this._lastEntry.set(entry);
 
       // Update statistics
       this.updateStats(entry);
@@ -240,10 +239,9 @@ export class DeveloperPanelDestination implements LogDestination {
   }
 
   /**
-   * Cleanup method to complete the event stream
+   * Cleanup method
    */
   destroy(): void {
-    this._eventStream.complete();
     this.clearEntries();
   }
 }

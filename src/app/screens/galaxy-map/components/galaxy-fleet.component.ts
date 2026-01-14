@@ -54,6 +54,7 @@ export class GalaxyFleetComponent {
   private settings = inject(SettingsService);
 
   onDown(event: MouseEvent | TouchEvent) {
+    event.stopPropagation();
     this.fleetDown.emit({ originalEvent: event });
   }
 

@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, HostListener, ElementRef, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Star } from '../models/game.model';
+import { ClickOutsideDirective } from '../shared/directives';
 
 export interface StarOption {
   star: Star;
@@ -16,7 +17,7 @@ export interface StarOption {
 @Component({
   selector: 'app-star-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ClickOutsideDirective],
   template: `
     <div class="star-selector">
       <button
@@ -25,67 +26,79 @@ export interface StarOption {
         (click)="toggleDropdown()"
         [class.open]="isOpen()"
       >
-        <span *ngIf="selectedStar" class="selected-content">
-          <span class="star-icon">{{ getIcon(selectedStar) }}</span>
-          <span class="star-name">{{ selectedStar.star.name }}</span>
-          <span class="star-distance text-xs text-muted">{{ selectedStar.turnsAway }}T</span>
-        </span>
-        <span *ngIf="!selectedStar" class="placeholder">Select destination...</span>
+        @if (selectedStar) {
+          <span class="selected-content">
+            <span class="star-icon">{{ getIcon(selectedStar) }}</span>
+            <span class="star-name">{{ selectedStar.star.name }}</span>
+            <span class="star-distance text-xs text-muted">{{ selectedStar.turnsAway }}T</span>
+          </span>
+        } @else {
+          <span class="placeholder">Select destination...</span>
+        }
         <span class="dropdown-arrow">▼</span>
       </button>
 
-      <div class="dropdown-panel" *ngIf="isOpen()" (click)="$event.stopPropagation()">
-        <div class="options-list" *ngIf="options.length > 0; else noOptions">
-          <button
-            type="button"
-            *ngFor="let option of options"
-            class="star-option"
-            [class.selected]="option.star.id === selectedStar?.star?.id"
-            [class.out-of-range]="!option.isInRange"
-            (click)="selectStar(option)"
-          >
-            <div class="option-main">
-              <span class="star-icon">{{ getIcon(option) }}</span>
-              <div class="star-info">
-                <div class="star-name">{{ option.star.name }}</div>
-                <div class="star-meta text-xs">
-                  <span class="distance">{{ option.distance | number: '1.0-0' }} ly</span>
-                  <span class="separator">•</span>
-                  <span class="turns" [class.warning]="!option.isInRange">
-                    {{ option.turnsAway }} turn{{ option.turnsAway !== 1 ? 's' : '' }}
-                  </span>
-                  <span *ngIf="!option.isInRange" class="fuel-warning">⛽</span>
-                </div>
-              </div>
+      @if (isOpen()) {
+        <div class="dropdown-panel" (click)="$event.stopPropagation()" appClickOutside (clickOutside)="isOpen.set(false)">
+          @if (options.length > 0) {
+            <div class="options-list">
+              @for (option of options; track option.star.id) {
+                <button
+                  type="button"
+                  class="star-option"
+                  [class.selected]="option.star.id === selectedStar?.star?.id"
+                  [class.out-of-range]="!option.isInRange"
+                  (click)="selectStar(option)"
+                >
+                  <div class="option-main">
+                    <span class="star-icon">{{ getIcon(option) }}</span>
+                    <div class="star-info">
+                      <div class="star-name">{{ option.star.name }}</div>
+                      <div class="star-meta text-xs">
+                        <span class="distance">{{ option.distance | number: '1.0-0' }} ly</span>
+                        <span class="separator">•</span>
+                        <span class="turns" [class.warning]="!option.isInRange">
+                          {{ option.turnsAway }} turn{{ option.turnsAway !== 1 ? 's' : '' }}
+                        </span>
+                        @if (!option.isInRange) {
+                          <span class="fuel-warning">⛽</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <div class="option-status">
+                    @if (option.isHome) {
+                      <span
+                        class="status-badge home"
+                        title="Home System"
+                      >🏠</span>
+                    }
+                    @if (option.isEnemy) {
+                      <span
+                        class="status-badge enemy"
+                        title="Enemy Territory"
+                      >⚔️</span>
+                    }
+                    @if (option.isUnoccupied) {
+                      <span
+                        class="habitability-indicator"
+                        [class.hab-good]="option.habitability > 0"
+                        [class.hab-terraformable]="option.habitability === 0"
+                        [class.hab-poor]="option.habitability < 0"
+                        [title]="'Habitability: ' + option.habitability + '%'"
+                      >●</span>
+                    }
+                  </div>
+                </button>
+              }
             </div>
-            <div class="option-status">
-              <span
-                *ngIf="option.isHome"
-                class="status-badge home"
-                title="Home System"
-              >🏠</span>
-              <span
-                *ngIf="option.isEnemy"
-                class="status-badge enemy"
-                title="Enemy Territory"
-              >⚔️</span>
-              <span
-                *ngIf="option.isUnoccupied"
-                class="habitability-indicator"
-                [class.hab-good]="option.habitability > 0"
-                [class.hab-terraformable]="option.habitability === 0"
-                [class.hab-poor]="option.habitability < 0"
-                [title]="'Habitability: ' + option.habitability + '%'"
-              >●</span>
+          } @else {
+            <div class="no-options">
+              <span class="text-muted">No star systems available</span>
             </div>
-          </button>
+          }
         </div>
-        <ng-template #noOptions>
-          <div class="no-options">
-            <span class="text-muted">No star systems available</span>
-          </div>
-        </ng-template>
-      </div>
+      }
     </div>
   `,
   styles: [`
@@ -291,15 +304,9 @@ export class StarSelectorComponent {
   @Input() selectedStar: StarOption | null = null;
   @Output() starSelected = new EventEmitter<StarOption>();
 
-  private elementRef = inject(ElementRef);
   isOpen = signal(false);
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.isOpen.set(false);
-    }
-  }
+
 
   toggleDropdown() {
     this.isOpen.update(val => !val);

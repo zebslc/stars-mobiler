@@ -11,14 +11,15 @@ import {
   Cost,
 } from '../resource-cost/resource-cost.component';
 import { getHull } from '../../../utils/data-access.util';
+import { TouchClickDirective, ClickOutsideDirective } from '../../directives';
 
 @Component({
   selector: 'app-research-unlock-details',
   standalone: true,
-  imports: [CommonModule, FuelUsageGraphComponent, HullLayoutComponent, ResourceCostComponent],
+  imports: [CommonModule, FuelUsageGraphComponent, HullLayoutComponent, ResourceCostComponent, TouchClickDirective, ClickOutsideDirective],
   template: `
-    <div class="modal-overlay" (click)="onClose()">
-      <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-overlay">
+      <div class="modal-content modal-small" appClickOutside (clickOutside)="onClose()" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <div class="modal-title-group">
             <div
@@ -29,7 +30,7 @@ import { getHull } from '../../../utils/data-access.util';
             ></div>
             <h3>{{ displayName() }}</h3>
           </div>
-          <button class="modal-close" (click)="onClose()">✕</button>
+          <button class="modal-close" appTouchClick (touchClick)="onClose()">✕</button>
         </div>
         <div class="modal-body">
           @if (details(); as details) {

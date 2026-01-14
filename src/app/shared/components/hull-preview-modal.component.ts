@@ -13,6 +13,7 @@ import { ShipDesign } from '../../models/game.model';
 import { HullLayoutComponent } from './hull-layout/hull-layout.component';
 import { ResourceCostComponent, Cost } from './resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from './research-unlock-details/research-unlock-details.component';
+import { TouchClickDirective, ClickOutsideDirective } from '../directives';
 
 @Component({
   selector: 'app-hull-preview-modal',
@@ -22,13 +23,15 @@ import { ResearchUnlockDetailsComponent } from './research-unlock-details/resear
     HullLayoutComponent,
     ResourceCostComponent,
     ResearchUnlockDetailsComponent,
+    TouchClickDirective,
+    ClickOutsideDirective,
   ],
   template: `
-    <div class="modal-overlay" (click)="close.emit()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-overlay">
+      <div class="modal-content" appClickOutside (clickOutside)="close.emit()" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3>{{ title || hull?.Name || 'Hull Preview' }}</h3>
-          <button class="btn-text" (click)="close.emit()">Close</button>
+          <button class="btn-text" appTouchClick (touchClick)="close.emit()">Close</button>
         </div>
         <div class="modal-body">
           <div class="hull-info">

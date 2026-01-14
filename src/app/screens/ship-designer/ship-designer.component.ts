@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { TouchClickDirective } from '../../shared/directives';
 import { ShipDesignerService } from '../../services/ship-design/ship-designer.service';
 import { GameStateService } from '../../services/game/game-state.service';
 import { ShipDesignerStatsComponent } from './components/ship-designer-stats.component';
@@ -29,6 +30,7 @@ import { ComponentData } from '../../models/service-interfaces.model';
   standalone: true,
   imports: [
     CommonModule,
+    TouchClickDirective,
     ShipDesignerStatsComponent,
     ShipDesignerSlotsComponent,
     ShipDesignerHullSelectorComponent,

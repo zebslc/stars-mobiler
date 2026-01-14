@@ -4,7 +4,6 @@ import { DeveloperPanelComponent } from './developer-panel.component';
 import { LoggingService } from '../services/core/logging.service';
 import { SettingsService } from '../services/core/settings.service';
 import { LogLevel, LogEntry, LogContext } from '../models/logging.model';
-import { Subject } from 'rxjs';
 import { signal } from '@angular/core';
 
 describe('DeveloperPanelComponent', () => {
@@ -12,16 +11,16 @@ describe('DeveloperPanelComponent', () => {
   let fixture: ComponentFixture<DeveloperPanelComponent>;
   let mockLoggingService: jasmine.SpyObj<LoggingService>;
   let mockSettingsService: any;
-  let developerEventsSubject: Subject<LogEntry>;
+  let developerEventsSignal: any;
   let developerModeSignal: any;
 
   beforeEach(async () => {
-    developerEventsSubject = new Subject<LogEntry>();
+    developerEventsSignal = signal<LogEntry | null>(null);
     developerModeSignal = signal(true);
     
     mockLoggingService = jasmine.createSpyObj('LoggingService', ['log']);
-    Object.defineProperty(mockLoggingService, 'developerEvents$', {
-      value: developerEventsSubject.asObservable()
+    Object.defineProperty(mockLoggingService, 'developerEvents', {
+      value: developerEventsSignal
     });
 
     mockSettingsService = {
@@ -74,7 +73,7 @@ describe('DeveloperPanelComponent', () => {
             };
 
             // Emit the log entry
-            developerEventsSubject.next(logEntry);
+            developerEventsSignal.set(logEntry);
             fixture.detectChanges();
 
             // Verify the entry appears in the component's log entries
@@ -207,7 +206,7 @@ describe('DeveloperPanelComponent', () => {
         }
       };
 
-      developerEventsSubject.next(logEntry);
+      developerEventsSignal.set(logEntry);
       fixture.detectChanges();
 
       expect(component.logEntries().length).toBe(1);
@@ -258,13 +257,13 @@ describe('DeveloperPanelComponent', () => {
       };
 
       // Emit first entry
-      developerEventsSubject.next(logEntry1);
+      developerEventsSignal.set(logEntry1);
       fixture.detectChanges();
       expect(component.logEntries().length).toBe(1);
       expect(component.logEntries()[0].message).toBe('First error');
 
       // Emit second entry
-      developerEventsSubject.next(logEntry2);
+      developerEventsSignal.set(logEntry2);
       fixture.detectChanges();
       expect(component.logEntries().length).toBe(2);
       expect(component.logEntries()[1].message).toBe('Second warning');
@@ -287,7 +286,7 @@ describe('DeveloperPanelComponent', () => {
             }
           }
         };
-        developerEventsSubject.next(logEntry);
+        developerEventsSignal.set(logEntry);
       }
 
       fixture.detectChanges();

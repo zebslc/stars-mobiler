@@ -1,9 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoggingService } from '../services/core/logging.service';
 import { SettingsService } from '../services/core/settings.service';
 import { LogEntry, LogLevel } from '../models/logging.model';
-import { Subscription } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -286,14 +285,13 @@ import { Subscription } from 'rxjs';
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeveloperPanelComponent implements OnDestroy {
+export class DeveloperPanelComponent {
   private readonly loggingService = inject(LoggingService);
   private readonly settingsService = inject(SettingsService);
 
   // Component state
   private readonly _logEntries = signal<LogEntry[]>([]);
   private readonly _isExpanded = signal<boolean>(false);
-  private subscription?: Subscription;
 
   // Computed properties
   readonly logEntries = this._logEntries.asReadonly();
@@ -303,17 +301,13 @@ export class DeveloperPanelComponent implements OnDestroy {
   readonly isVisible = computed(() => this.settingsService.developerMode());
 
   constructor() {
-    // Subscribe to developer events when component initializes
-    this.subscription = this.loggingService.developerEvents$.subscribe((entry: LogEntry) => {
-      // Only add entries when developer mode is enabled
-      if (this.settingsService.developerMode()) {
-        this.addLogEntry(entry);
+    // Watch for new log entries from the logging service
+    effect(() => {
+      const latestEntry = this.loggingService.developerEvents();
+      if (latestEntry && this.settingsService.developerMode()) {
+        this.addLogEntry(latestEntry);
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
   }
 
   /**

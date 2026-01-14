@@ -60,10 +60,8 @@ export interface CargoTransferRequest {
             <div class="font-medium">{{ orbitTransferState.colonists | number }}</div>
           </div>
         </div>
-        <div
-          *ngIf="fleet.location.type === 'orbit'"
-          style="background:var(--color-bg-secondary);padding:var(--space-lg);border-radius:var(--radius-md);margin-top:var(--space-md)"
-        >
+        @if (fleet.location.type === 'orbit') {
+          <div style="background:var(--color-bg-secondary);padding:var(--space-lg);border-radius:var(--radius-md);margin-top:var(--space-md)">
           <div class="font-bold" style="margin-bottom:var(--space-md)">Transfer Cargo</div>
           <div style="display:grid; gap:var(--space-md); margin-bottom:var(--space-md)">
             <!-- Resources -->
@@ -172,6 +170,7 @@ export interface CargoTransferRequest {
             <button (click)="unloadAll.emit()" class="btn-danger">Unload All</button>
           </div>
         </div>
+        }
       </div>
     </section>
   `,

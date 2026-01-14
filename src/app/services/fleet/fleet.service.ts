@@ -61,7 +61,7 @@ export class FleetService {
   addShipToFleet(game: GameState, planet: Planet, shipDesignId: string, count: number): void {
     const designId = shipDesignId ?? 'scout';
     const shipDesign = game.shipDesigns.find((d) => d.id === designId);
-    const legacyDesign = getDesign(designId);
+    const legacyDesign = !shipDesign ? getDesign(designId) : null;
     const isStarbase = shipDesign?.spec?.isStarbase ?? legacyDesign?.isStarbase ?? false;
 
     let fleet = this.findTargetFleet(game, planet, isStarbase);
@@ -99,7 +99,7 @@ export class FleetService {
   private hasStarbase(game: GameState, fleet: Fleet): boolean {
     return fleet.ships.some((s) => {
       const d = game.shipDesigns.find((sd) => sd.id === s.designId);
-      const ld = getDesign(s.designId);
+      const ld = !d ? getDesign(s.designId) : null;
       return d?.spec?.isStarbase ?? ld?.isStarbase;
     });
   }
@@ -175,7 +175,8 @@ export class FleetService {
     const userDesign = baseNameSource
       ? game.shipDesigns.find((d) => d.id === baseNameSource)
       : null;
-    const legacyDesign = baseNameSource ? getDesign(baseNameSource) : null;
+    // Only check legacy designs if no user design found
+    const legacyDesign = !userDesign && baseNameSource ? getDesign(baseNameSource) : null;
     const baseName = userDesign?.name || legacyDesign?.name || 'Fleet';
 
     return this.findNextAvailableName(game, ownerId, baseName);

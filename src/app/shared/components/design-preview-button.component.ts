@@ -15,14 +15,16 @@ import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { getDesign } from '../../data/ships.data';
 import { ShipDesign } from '../../models/game.model';
+import { TouchClickDirective, TouchClickEvent } from '../directives';
 
 @Component({
   selector: 'app-design-preview-button',
   standalone: true,
-  imports: [CommonModule, HullPreviewModalComponent],
+  imports: [CommonModule, HullPreviewModalComponent, TouchClickDirective],
   template: `
     <button
-      (click)="openPreview($event)"
+      appTouchClick
+      (touchClick)="openPreview($event)"
       class="btn-small"
       [title]="title || 'View Design'"
       [class]="buttonClass"
@@ -145,9 +147,13 @@ export class DesignPreviewButtonComponent {
     event.target.src = '/assets/tech-icons/hull-scout.png';
   }
 
-  openPreview(event?: MouseEvent): void {
+  openPreview(event?: TouchClickEvent | MouseEvent): void {
     if (event) {
-      event.stopPropagation();
+      if ('stopPropagation' in event) {
+        event.stopPropagation();
+      } else if (event.originalEvent && 'stopPropagation' in event.originalEvent) {
+        event.originalEvent.stopPropagation();
+      }
     }
 
     const designId = this.designId;

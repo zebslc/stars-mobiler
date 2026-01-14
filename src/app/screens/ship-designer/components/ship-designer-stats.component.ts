@@ -1,5 +1,6 @@
 import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { TouchClickDirective } from '../../../shared/directives';
 import { CompiledShipStats } from '../../../models/game.model';
 import { HullTemplate } from '../../../data/tech-atlas.types';
 import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-stats.component';
@@ -8,13 +9,13 @@ import { ResourceCostComponent } from '../../../shared/components/resource-cost/
 @Component({
   selector: 'app-ship-designer-stats',
   standalone: true,
-  imports: [CommonModule, TechStatsComponent, ResourceCostComponent],
+  imports: [CommonModule, TouchClickDirective, TechStatsComponent, ResourceCostComponent],
   template: `
     <div class="tabs">
-      <button class="tab" [class.active]="selectedTab() === 'summary'" (click)="setTab('summary')">
+      <button class="tab" [class.active]="selectedTab() === 'summary'" appTouchClick (touchClick)="setTab('summary')" (click)="setTab('summary')">
         Summary
       </button>
-      <button class="tab" [class.active]="selectedTab() === 'details'" (click)="setTab('details')">
+      <button class="tab" [class.active]="selectedTab() === 'details'" appTouchClick (touchClick)="setTab('details')" (click)="setTab('details')">
         Details
       </button>
     </div>

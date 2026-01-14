@@ -81,7 +81,14 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
   // Add additional design entries for backward compatibility with tests
   // Scout design should be available as both 'hull-scout' and 'scout'
   if (designs['hull-scout']) {
-    designs['scout'] = { ...designs['hull-scout'], id: 'scout' };
+    designs['scout'] = {
+      ...designs['hull-scout'],
+      id: 'scout',
+      scannerRange: 50,
+      components: [
+        { id: 'scan_rhino', name: 'Rhino Scanner', quantity: 1 }
+      ]
+    };
   }
 
   // Starbase designs should be available with simpler names for mapping
@@ -137,7 +144,10 @@ export function getDesign(designId: string): CompiledDesign {
   }
 
   if (!design) {
-    console.warn(`Design not found: ${designId}`);
+    // Only warn if this looks like a legacy design ID, not a user-created one
+    if (!designId.startsWith('design_')) {
+      console.warn(`Design not found: ${designId}`);
+    }
     // Return a default design to prevent crashes
     return {
       id: designId,

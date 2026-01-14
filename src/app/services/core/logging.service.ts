@@ -1,5 +1,4 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
 import {
   LogEntry,
   LogLevel,
@@ -28,9 +27,9 @@ export class LoggingService {
   // Current log level computed from configuration
   readonly currentLogLevel = computed(() => this._configuration().level);
 
-  // Developer mode events stream for real-time display
-  private readonly _developerEvents = new Subject<LogEntry>();
-  readonly developerEvents$: Observable<LogEntry> = this._developerEvents.asObservable();
+  // Developer mode events signal for real-time display
+  private readonly _developerEvents = signal<LogEntry | null>(null);
+  readonly developerEvents = this._developerEvents.asReadonly();
 
   // Internal state for tracking
   private readonly _isInitialized = signal<boolean>(false);
@@ -267,7 +266,7 @@ export class LoggingService {
   private emitToDeveloperPanel(entry: LogEntry): void {
     // Only emit events when developer mode is enabled
     if (this.settingsService.developerMode()) {
-      this._developerEvents.next(entry);
+      this._developerEvents.set(entry);
     }
   }
 }

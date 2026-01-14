@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TouchClickDirective } from '../../../shared/directives';
 import { MiniaturizedComponent } from '../../../utils/miniaturization.util';
 import { SlotDefinition } from '../../../data/tech-atlas.types';
 import { getComponent } from '../../../utils/data-access.util';
@@ -7,7 +8,7 @@ import { getComponent } from '../../../utils/data-access.util';
 @Component({
   selector: 'app-ship-designer-component-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TouchClickDirective],
   template: `
     <div class="modal-overlay" (click)="onClose()">
       <div class="modal-content" (click)="$event.stopPropagation()">
@@ -18,7 +19,7 @@ import { getComponent } from '../../../utils/data-access.util';
         @if (currentComponentId) {
           <div class="current-component">
             <strong>Currently installed</strong>
-            <button (click)="onRemove()" class="btn-danger">Remove Component</button>
+            <button appTouchClick (touchClick)="onRemove()" class="btn-danger">Remove Component</button>
           </div>
         }
 
@@ -27,7 +28,8 @@ import { getComponent } from '../../../utils/data-access.util';
             <div
               class="component-option"
               [class.selected]="currentComponentId === component.id"
-              (click)="onSelect(component.id)"
+              appTouchClick
+              (touchClick)="onSelect(component.id)"
             >
               <div class="component-icon">
                 <img
@@ -56,7 +58,7 @@ import { getComponent } from '../../../utils/data-access.util';
             </div>
           }
         </div>
-        <button (click)="onClose()" class="btn-text">Close</button>
+        <button appTouchClick (touchClick)="onClose()" class="btn-text">Close</button>
       </div>
     </div>
   `,

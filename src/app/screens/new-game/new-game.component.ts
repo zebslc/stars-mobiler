@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { SPECIES } from '../../data/species.data';
+import { TouchClickDirective } from '../../shared/directives';
 
 @Component({
   standalone: true,
+  imports: [CommonModule, TouchClickDirective],
   selector: 'app-new-game',
   template: `
     <main class="new-game-container">
@@ -61,7 +63,14 @@ import { SPECIES } from '../../data/species.data';
               }
             </div>
           }
-          <button (click)="start()" class="btn-primary start-button">Start Game</button>
+          <button 
+            appTouchClick 
+            (touchClick)="start()"
+            (click)="startFallback($event)"
+            class="btn-primary start-button"
+          >
+            Start Game
+          </button>
         </div>
       </div>
     </main>
@@ -168,7 +177,6 @@ import { SPECIES } from '../../data/species.data';
       color: var(--color-text-main, #333);
     }
   `],
-  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewGameComponent {
@@ -210,5 +218,10 @@ export class NewGameComponent {
       speciesId: this.speciesId()
     });
     this.router.navigateByUrl('/map');
+  }
+
+  startFallback(_event: MouseEvent) {
+    // Fallback for direct click events when TouchClickDirective doesn't work
+    this.start();
   }
 }

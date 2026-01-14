@@ -11,11 +11,12 @@ import { CommonModule } from '@angular/common';
 import { GridSlot } from '../hull-layout.types';
 import { HullSlotComponentData, ComponentActionEvent, SlotTouchEvent } from '../hull-slot.types';
 import { HullSlotOperationsService } from '../../../../services/ship-design/hull-slot-operations.service';
+import { TouchClickDirective, TouchClickEvent } from '../../../directives';
 
 @Component({
   selector: 'app-hull-slot',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TouchClickDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -24,11 +25,10 @@ import { HullSlotOperationsService } from '../../../../services/ship-design/hull
       [class.selected]="selected"
       [class.show-clear]="showClear"
       [class.non-editable]="!editable || !slot.editable"
-      (click)="editable && slot.editable && onSlotClick()"
+      appTouchClick
+      (touchClick)="onSlotClick($event)"
       (mouseenter)="editable && slot.editable && onSlotHover()"
       (mouseleave)="editable && slot.editable && onSlotLeave()"
-      (touchstart)="editable && slot.editable && onTouchStart($event)"
-      (touchend)="editable && slot.editable && onTouchEnd($event)"
     >
       @if (componentData) {
         <div class="installed-component">
@@ -38,7 +38,8 @@ import { HullSlotOperationsService } from '../../../../services/ship-design/hull
               'url(/assets/tech-icons/' + (componentData.component.id || 'placeholder') + '.png)'
             "
             [title]="componentData.component.name"
-            (click)="onComponentInfoClick($event)"
+            appTouchClick
+            (touchClick)="onComponentInfoClick($event)"
           ></div>
           @if (maxCount > 1) {
             <div class="slot-controls-overlay">
@@ -46,7 +47,8 @@ import { HullSlotOperationsService } from '../../../../services/ship-design/hull
                 <div class="qty-controls">
                   <button
                     class="qty-button remove"
-                    (click)="onRemoveComponent($event)"
+                    appTouchClick
+                    (touchClick)="onRemoveComponent($event)"
                     [disabled]="componentData.count <= 1"
                     title="Decrease quantity"
                   >
@@ -54,7 +56,8 @@ import { HullSlotOperationsService } from '../../../../services/ship-design/hull
                   </button>
                   <button
                     class="qty-button add"
-                    (click)="onIncrementComponent($event)"
+                    appTouchClick
+                    (touchClick)="onIncrementComponent($event)"
                     [disabled]="componentData.count >= maxCount"
                     title="Increase quantity"
                   >
@@ -68,7 +71,8 @@ import { HullSlotOperationsService } from '../../../../services/ship-design/hull
           @if (editable && slot.editable) {
             <button
               class="clear-button"
-              (click)="onClearSlot($event)"
+              appTouchClick
+              (touchClick)="onClearSlot($event)"
               [title]="'Clear ' + componentData.component.name"
             >
               ×
@@ -355,6 +359,10 @@ export class HullSlotComponent implements OnChanges {
   @Output() slotHover = new EventEmitter<void>();
   @Output() slotLeave = new EventEmitter<void>();
   @Output() componentAction = new EventEmitter<ComponentActionEvent>();
+  @Output() componentRemove = new EventEmitter<ComponentActionEvent>();
+  @Output() componentIncrement = new EventEmitter<ComponentActionEvent>();
+  @Output() slotClear = new EventEmitter<ComponentActionEvent>();
+  @Output() componentInfoClick = new EventEmitter<ComponentActionEvent>();
   @Output() slotTouchStart = new EventEmitter<SlotTouchEvent>();
   @Output() slotTouchEnd = new EventEmitter<SlotTouchEvent>();
 
@@ -365,7 +373,9 @@ export class HullSlotComponent implements OnChanges {
     // No console logging in production
   }
 
-  onSlotClick() {
+  onSlotClick(event?: TouchClickEvent) {
+    console.log('🎯 Slot clicked:', this.slot.id, event);
+    if (!this.editable || !this.slot.editable) return;
     this.slotClick.emit();
   }
 
@@ -377,71 +387,63 @@ export class HullSlotComponent implements OnChanges {
     this.slotLeave.emit();
   }
 
-  onRemoveComponent(event: Event) {
+  onRemoveComponent(event: TouchClickEvent | Event) {
     if (!this.componentData) return;
 
+    const originalEvent = 'originalEvent' in event ? event.originalEvent : event;
     const actionEvent: ComponentActionEvent = {
       slotId: this.slot.id,
       componentId: this.componentData.component.id,
       action: 'decrement',
-      originalEvent: event,
+      originalEvent: originalEvent,
     };
     this.componentAction.emit(actionEvent);
+    this.componentRemove.emit(actionEvent);
   }
 
-  onIncrementComponent(event: Event) {
+  onIncrementComponent(event: TouchClickEvent | Event) {
     if (!this.componentData) return;
 
+    const originalEvent = 'originalEvent' in event ? event.originalEvent : event;
     const actionEvent: ComponentActionEvent = {
       slotId: this.slot.id,
       componentId: this.componentData.component.id,
       action: 'increment',
-      originalEvent: event,
+      originalEvent: originalEvent,
     };
     this.componentAction.emit(actionEvent);
+    this.componentIncrement.emit(actionEvent);
   }
 
-  onClearSlot(event: Event) {
+  onClearSlot(event: TouchClickEvent | Event) {
     if (!this.componentData) return;
 
+    const originalEvent = 'originalEvent' in event ? event.originalEvent : event;
     const actionEvent: ComponentActionEvent = {
       slotId: this.slot.id,
       componentId: this.componentData.component.id,
       action: 'clear',
-      originalEvent: event,
+      originalEvent: originalEvent,
     };
     this.componentAction.emit(actionEvent);
+    this.slotClear.emit(actionEvent);
   }
 
-  onTouchStart(event: TouchEvent) {
-    const touchEvent: SlotTouchEvent = {
-      slotId: this.slot.id,
-      touchEvent: event,
-      editable: this.editable && this.slot.editable,
-    };
-    this.slotTouchStart.emit(touchEvent);
-  }
 
-  onComponentInfoClick(event: Event) {
-    event.stopPropagation();
+
+  onComponentInfoClick(event: TouchClickEvent | Event) {
+    const originalEvent = 'originalEvent' in event ? event.originalEvent : event;
+    originalEvent.stopPropagation();
     if (!this.componentData) return;
 
     const actionEvent: ComponentActionEvent = {
       slotId: this.slot.id,
       componentId: this.componentData.component.id,
       action: 'info',
-      originalEvent: event,
+      originalEvent: originalEvent,
     };
     this.componentAction.emit(actionEvent);
-  }
-
-  onTouchEnd(event: TouchEvent) {
-    const touchEvent: SlotTouchEvent = {
-      slotId: this.slot.id,
-      touchEvent: event,
-      editable: this.editable && this.slot.editable,
-    };
-    this.slotTouchEnd.emit(touchEvent);
+    this.componentInfoClick.emit(actionEvent);
   }
 
   getSlotTypeDisplay(allowedTypes: string[]): string {

@@ -25,7 +25,6 @@ import {
   FleetCargoComponent,
   CargoTransferRequest,
 } from './components/fleet-cargo/fleet-cargo.component';
-import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.component';
 
 @Component({
   standalone: true,
@@ -35,54 +34,54 @@ import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.com
     DesignPreviewButtonComponent,
     ShipStatsRowComponent,
     FleetTransferComponent,
-    FleetCargoComponent,
-    FleetOrdersComponent,
   ],
   template: `
-    <main style="padding:var(--space-lg)" *ngIf="fleet(); else missing">
-      <header
-        class="card-header"
-        style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap;margin-bottom:var(--space-lg)"
-      >
-        <div style="display:flex;gap:var(--space-md);align-items:center">
-          <button
-            (click)="back()"
-            class="btn-small"
-            style="background:rgba(255,255,255,0.2);color:#fff;border:none"
-          >
-            ← Back
-          </button>
-          <h2>{{ fleet()!.name || 'Fleet' }}</h2>
-        </div>
-        <div class="text-small" style="opacity:0.9">
-          Owner: {{ fleet()!.ownerId === gs.player()?.id ? 'You' : 'Enemy' }}
-        </div>
-      </header>
+    @if (fleet()) {
+      <main style="padding:var(--space-lg)">
+        <header
+          class="card-header"
+          style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-lg);flex-wrap:wrap;margin-bottom:var(--space-lg)"
+        >
+          <div style="display:flex;gap:var(--space-md);align-items:center">
+            <button
+              (click)="back()"
+              class="btn-small"
+              style="background:rgba(255,255,255,0.2);color:#fff;border:none"
+            >
+              ← Back
+            </button>
+            <h2>{{ fleet()!.name || 'Fleet' }}</h2>
+          </div>
+          <div class="text-small" style="opacity:0.9">
+            Owner: {{ fleet()!.ownerId === gs.player()?.id ? 'You' : 'Enemy' }}
+          </div>
+        </header>
 
-      <!-- Transfer Overlay -->
-      <app-fleet-transfer
-        *ngIf="transferTarget()"
-        [fleet]="fleet()!"
-        [targetName]="getTransferTargetName()"
-        [transferMode]="transferMode"
-        [splitMode]="splitMode"
-        [designNameResolver]="getDesignNameBound"
-        (cancel)="cancelTransfer()"
-        (confirm)="onTransferConfirm($event)"
-        (splitModeChange)="setSplitMode($event)"
-      ></app-fleet-transfer>
+        <!-- Transfer Overlay -->
+        @if (transferTarget()) {
+          <app-fleet-transfer
+            [fleet]="fleet()!"
+            [targetName]="getTransferTargetName()"
+            [transferMode]="transferMode"
+            [splitMode]="splitMode"
+            [designNameResolver]="getDesignNameBound"
+            (cancel)="cancelTransfer()"
+            (confirm)="onTransferConfirm($event)"
+            (splitModeChange)="setSplitMode($event)"
+          ></app-fleet-transfer>
+        }
 
-      <section class="card" style="display:grid;gap:var(--space-md)">
+        <section class="card" style="display:grid;gap:var(--space-md)">
         <div>
           <div class="text-small text-muted">Location</div>
           <div class="font-medium">
-            <span *ngIf="fleet()!.location.type === 'orbit'"
-              >Orbiting planet {{ $any(fleet()!.location).planetId }}</span
-            >
-            <span *ngIf="fleet()!.location.type === 'space'"
-              >In space ({{ $any(fleet()!.location).x | number: '1.0-0' }},
-              {{ $any(fleet()!.location).y | number: '1.0-0' }})</span
-            >
+            @if (fleet()!.location.type === 'orbit') {
+              <span>Orbiting planet {{ $any(fleet()!.location).planetId }}</span>
+            }
+            @if (fleet()!.location.type === 'space') {
+              <span>In space ({{ $any(fleet()!.location).x | number: '1.0-0' }},
+              {{ $any(fleet()!.location).y | number: '1.0-0' }})</span>
+            }
           </div>
         </div>
         <div>
@@ -96,12 +95,12 @@ import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.com
           <div
             style="display:flex;flex-direction:column;gap:var(--space-xs);margin-top:var(--space-xs)"
           >
-            <app-design-preview-button
-              *ngFor="let s of fleet()!.ships"
-              [designId]="s.designId"
-              buttonClass="ship-row"
-              title="View hull layout"
-            >
+            @for (s of fleet()!.ships; track s.designId) {
+              <app-design-preview-button
+                [designId]="s.designId"
+                buttonClass="ship-row"
+                title="View hull layout"
+              >
               <span class="ship-count" style="margin-right:4px">{{ s.count }}x</span>
               <span class="ship-name" style="margin-right: 8px; flex: initial">{{
                 getDesignName(s.designId)
@@ -111,71 +110,54 @@ import { FleetOrdersComponent } from './components/fleet-orders/fleet-orders.com
 
               <span style="flex: 1"></span>
 
-              <span *ngIf="s.damage" class="ship-damage" style="color:var(--color-danger)"
-                >{{ s.damage }}% dmg</span
-              >
+              @if (s.damage) {
+                <span class="ship-damage" style="color:var(--color-danger)"
+                  >{{ s.damage }}% dmg</span
+                >
+              }
             </app-design-preview-button>
+            }
           </div>
         </div>
 
         <!-- Fleet Actions -->
         <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-sm)">
-          <button (click)="startSplit()" class="btn-secondary" *ngIf="totalShipCount() > 1">
-            Split Fleet
-          </button>
+          @if (totalShipCount() > 1) {
+            <button (click)="startSplit()" class="btn-secondary">
+              Split Fleet
+            </button>
+          }
         </div>
       </section>
 
       <!-- Other Fleets Section -->
-      <section *ngIf="otherFleets().length > 0" class="card" style="margin-top:var(--space-xl)">
-        <h3 style="margin-bottom:var(--space-md)">Other Fleets Here</h3>
-        <div style="display:grid; gap:var(--space-sm)">
-          <div
-            *ngFor="let f of otherFleets()"
-            style="display:flex; justify-content:space-between; align-items:center; background:var(--color-bg-tertiary); padding:var(--space-md); border-radius:var(--radius-sm)"
-          >
-            <div>
-              <div class="font-medium">{{ f.name }}</div>
-              <div class="text-small text-muted">{{ f.ships.length }} ship stacks</div>
-            </div>
-            <div style="display:flex; gap:var(--space-xs)">
-              <button (click)="startTransfer(f)" class="btn-small">Transfer</button>
-              <button (click)="mergeInto(f)" class="btn-small btn-warning">Merge Into</button>
-            </div>
+      @if (otherFleets().length > 0) {
+        <section class="card" style="margin-top:var(--space-xl)">
+          <h3 style="margin-bottom:var(--space-md)">Other Fleets Here</h3>
+          <div style="display:grid; gap:var(--space-sm)">
+            @for (f of otherFleets(); track f.id) {
+              <div
+                style="display:flex; justify-content:space-between; align-items:center; background:var(--color-bg-tertiary); padding:var(--space-md); border-radius:var(--radius-sm)"
+              >
+                <div>
+                  <div class="font-medium">{{ f.name }}</div>
+                  <div class="text-small text-muted">{{ f.ships.length }} ship stacks</div>
+                </div>
+                <div style="display:flex; gap:var(--space-xs)">
+                  <button (click)="startTransfer(f)" class="btn-small">Transfer</button>
+                  <button (click)="mergeInto(f)" class="btn-small btn-warning">Merge Into</button>
+                </div>
+              </div>
+            }
           </div>
-        </div>
-      </section>
-
-      <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
-
-      <app-fleet-orders
-        [fleet]="fleet()!"
-        [starOptions]="starOptions()"
-        [selectedStarOption]="selectedStarOption()"
-        [showAll]="showAll"
-        [canColonize]="canColonize()"
-        (starSelected)="onStarSelected($event)"
-        (moveOrder)="move()"
-        (colonizeOrder)="colonize()"
-        (showAllChange)="showAll = $event"
-      ></app-fleet-orders>
-
-      <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--space-xl) 0" />
-
-      <app-fleet-cargo
-        [fleet]="fleet()!"
-        [planet]="planetOnSurface()"
-        [cargoCapacity]="cargoCapacity()"
-        (transferCargo)="onCargoTransfer($event)"
-        (loadFill)="loadFill()"
-        (unloadAll)="unloadAll()"
-      ></app-fleet-cargo>
+        </section>
+      }
     </main>
-    <ng-template #missing>
+    } @else {
       <main style="padding:var(--space-lg)">
         <h2>Fleet not found</h2>
       </main>
-    </ng-template>
+    }
   `,
   styles: [
     `

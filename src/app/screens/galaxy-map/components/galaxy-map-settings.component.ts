@@ -14,24 +14,27 @@ import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
   imports: [CommonModule, FormsModule, FilterRibbonComponent],
   template: `
     <div class="settings-container">
-      <button
-        *ngIf="!navigationMode"
-        class="settings-toggle"
-        (click)="toggleMenu()"
-        [class.active]="isOpen"
-      >
-        <span style="font-size: 20px;">👁️</span>
-      </button>
-      <button
-        *ngIf="navigationMode"
-        class="settings-toggle"
-        style="background: #e74c3c; color: white;"
-        (click)="exitNavigation.emit()"
-      >
-        <span style="font-size: 20px;">✕</span>
-      </button>
+      @if (!navigationMode) {
+        <button
+          class="settings-toggle"
+          (click)="toggleMenu()"
+          [class.active]="isOpen"
+        >
+          <span style="font-size: 20px;">👁️</span>
+        </button>
+      }
+      @if (navigationMode) {
+        <button
+          class="settings-toggle"
+          style="background: #e74c3c; color: white;"
+          (click)="exitNavigation.emit()"
+        >
+          <span style="font-size: 20px;">✕</span>
+        </button>
+      }
 
-      <div class="dropdown-menu" *ngIf="isOpen && !navigationMode">
+      @if (isOpen && !navigationMode) {
+        <div class="dropdown-menu">
         <!-- Tabs -->
         <div class="tabs">
           <button
@@ -65,7 +68,8 @@ import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
 
         <div class="tab-content">
           <!-- Scanner Controls -->
-          <div *ngIf="activeTab === 'scanner'" class="section">
+          @if (activeTab === 'scanner') {
+            <div class="section">
             <div class="control-row">
               <label>
                 <input
@@ -98,10 +102,12 @@ import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
               />
               <div class="range-visual" [style.width.%]="settings.scannerRangePct()"></div>
             </div>
-          </div>
+            </div>
+          }
 
           <!-- Fleet Controls -->
-          <div *ngIf="activeTab === 'fleets'" class="section">
+          @if (activeTab === 'fleets') {
+            <div class="section">
             <div class="control-row">
               <app-filter-ribbon
                 [items]="fleetFilterItems"
@@ -152,10 +158,12 @@ import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
                 Remote Mining
               </label>
             </div>
-          </div>
+            </div>
+          }
 
           <!-- Planetary View -->
-          <div *ngIf="activeTab === 'planets'" class="section">
+          @if (activeTab === 'planets') {
+            <div class="section">
             <div class="control-group">
               <button
                 [class.active]="settings.viewMode() === 'normal'"
@@ -192,9 +200,11 @@ import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
                 Show Labels
               </label>
             </div>
-          </div>
+            </div>
+          }
         </div>
       </div>
+      }
     </div>
   `,
   styles: [

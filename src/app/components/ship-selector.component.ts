@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, HostListener, ElementRef, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CompiledDesign } from '../data/ships.data';
 import {
@@ -6,6 +6,7 @@ import {
   ShipDesignDisplay,
 } from './ship-design-item/ship-design-item.component';
 import { CompiledShipStats } from '../models/game.model';
+import { ClickOutsideDirective } from '../shared/directives';
 
 export interface ShipOption {
   design: CompiledDesign;
@@ -23,7 +24,7 @@ export interface ShipOption {
 @Component({
   selector: 'app-ship-selector',
   standalone: true,
-  imports: [CommonModule, ShipDesignItemComponent],
+  imports: [CommonModule, ShipDesignItemComponent, ClickOutsideDirective],
   template: `
     <div class="ship-selector">
       <button
@@ -32,60 +33,76 @@ export interface ShipOption {
         (click)="toggleDropdown()"
         [class.open]="isOpen()"
       >
-        <span *ngIf="selectedShip" class="selected-content">
-          <app-ship-design-item
-            [design]="toDisplay(selectedShip.design)"
-            [count]="selectedShip.existingCount"
-            mode="selector"
-            class="flex-grow"
-          ></app-ship-design-item>
-          <div class="selected-cost">{{ selectedShip.cost.resources }}R</div>
-        </span>
-        <span *ngIf="!selectedShip" class="placeholder">Select ship design...</span>
+        @if (selectedShip) {
+          <span class="selected-content">
+            <app-ship-design-item
+              [design]="toDisplay(selectedShip.design)"
+              [count]="selectedShip.existingCount"
+              mode="selector"
+              class="flex-grow"
+            ></app-ship-design-item>
+            <div class="selected-cost">{{ selectedShip.cost.resources }}R</div>
+          </span>
+        }
+        @if (!selectedShip) {
+          <span class="placeholder">Select ship design...</span>
+        }
         <span class="dropdown-arrow">▼</span>
       </button>
 
-      <div class="dropdown-panel" *ngIf="isOpen()" (click)="$event.stopPropagation()">
-        <div class="options-list" *ngIf="options.length > 0; else noOptions">
-          <button
-            type="button"
-            *ngFor="let option of options"
-            class="ship-option"
-            [class.selected]="option.design.id === selectedShip?.design?.id"
-            [class.cannot-afford]="!option.canAfford"
-            (click)="selectShip(option)"
-          >
-            <div class="option-row">
-              <div class="design-wrapper">
-                <app-ship-design-item
-                  [design]="toDisplay(option.design)"
-                  [count]="option.existingCount"
-                  mode="selector"
-                ></app-ship-design-item>
-              </div>
+      @if (isOpen()) {
+        <div class="dropdown-panel" (click)="$event.stopPropagation()" appClickOutside (clickOutside)="isOpen.set(false)">
+          @if (options.length > 0) {
+            <div class="options-list">
+              @for (option of options; track option.design.id) {
+                <button
+                  type="button"
+                  class="ship-option"
+                  [class.selected]="option.design.id === selectedShip?.design?.id"
+                  [class.cannot-afford]="!option.canAfford"
+                  (click)="selectShip(option)"
+                >
+                  <div class="option-row">
+                    <div class="design-wrapper">
+                      <app-ship-design-item
+                        [design]="toDisplay(option.design)"
+                        [count]="option.existingCount"
+                        mode="selector"
+                      ></app-ship-design-item>
+                    </div>
 
-              <div class="option-meta">
-                <div class="option-cost">
-                  <div class="cost-main">{{ option.cost.resources }}R</div>
-                  <div class="cost-minerals text-xs">
-                    <span *ngIf="option.cost.ironium">{{ option.cost.ironium }}Fe</span>
-                    <span *ngIf="option.cost.boranium">{{ option.cost.boranium }}Bo</span>
-                    <span *ngIf="option.cost.germanium">{{ option.cost.germanium }}Ge</span>
+                    <div class="option-meta">
+                      <div class="option-cost">
+                        <div class="cost-main">{{ option.cost.resources }}R</div>
+                        <div class="cost-minerals text-xs">
+                          @if (option.cost.ironium) {
+                            <span>{{ option.cost.ironium }}Fe</span>
+                          }
+                          @if (option.cost.boranium) {
+                            <span>{{ option.cost.boranium }}Bo</span>
+                          }
+                          @if (option.cost.germanium) {
+                            <span>{{ option.cost.germanium }}Ge</span>
+                          }
+                        </div>
+                      </div>
+                      @if (!option.canAfford) {
+                        <div class="cannot-afford-warning">
+                          <span class="text-xs">⚠️ Insufficient resources</span>
+                        </div>
+                      }
+                    </div>
                   </div>
-                </div>
-                <div *ngIf="!option.canAfford" class="cannot-afford-warning">
-                  <span class="text-xs">⚠️ Insufficient resources</span>
-                </div>
-              </div>
+                </button>
+              }
             </div>
-          </button>
+          } @else {
+            <div class="no-options">
+              <span class="text-muted">No ship designs available</span>
+            </div>
+          }
         </div>
-        <ng-template #noOptions>
-          <div class="no-options">
-            <span class="text-muted">No ship designs available</span>
-          </div>
-        </ng-template>
-      </div>
+      }
     </div>
   `,
   styles: [
@@ -267,7 +284,6 @@ export class ShipSelectorComponent {
   @Input() selectedShip: ShipOption | null = null;
   @Output() shipSelected = new EventEmitter<ShipOption>();
 
-  private elementRef = inject(ElementRef);
   isOpen = signal(false);
 
   toggleDropdown() {
@@ -283,12 +299,6 @@ export class ShipSelectorComponent {
     this.isOpen.set(false);
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.isOpen.set(false);
-    }
-  }
 
   toDisplay(design: CompiledDesign): ShipDesignDisplay {
     return {
