@@ -87,7 +87,9 @@ describe('TurnService', () => {
     // Default mock returns
     mockEconomy.calculateProduction.and.returnValue({
       resources: 50,
-      extraction: { ironium: 10, boranium: 8, germanium: 5 }
+      extraction: { ironium: 10, boranium: 8, germanium: 5 },
+      operableFactories: 10,
+      operableMines: 10
     });
     mockEconomy.logisticGrowth.and.returnValue(1000);
     mockHab.calculate.and.returnValue(75);
@@ -173,7 +175,9 @@ describe('TurnService', () => {
       const planet = createPlanet({ resources: 100 });
       mockEconomy.calculateProduction.and.returnValue({
         resources: 50,
-        extraction: { ironium: 0, boranium: 0, germanium: 0 }
+        extraction: { ironium: 0, boranium: 0, germanium: 0 },
+        operableFactories: 10,
+        operableMines: 10
       });
 
       service.processPlanetProduction(planet);

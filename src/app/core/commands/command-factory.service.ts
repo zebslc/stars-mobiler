@@ -24,7 +24,8 @@ import {
   SplitFleetCommand,
   SeparateFleetCommand,
   MergeFleetsCommand,
-  TransferFleetCargoCommand
+  TransferFleetCargoCommand,
+  DecommissionFleetCommand,
 } from './fleet-commands';
 import { SetResearchFieldCommand } from './research-commands';
 import { SaveShipDesignCommand, DeleteShipDesignCommand } from './shipyard-commands';
@@ -139,6 +140,10 @@ export class CommandFactoryService {
     }
   ): TransferFleetCargoCommand {
     return new TransferFleetCargoCommand(this.fleetService, sourceId, targetId, transferSpec);
+  }
+
+  createDecommissionFleetCommand(fleetId: string): DecommissionFleetCommand {
+    return new DecommissionFleetCommand(this.fleetService, fleetId);
   }
 
   // Research commands

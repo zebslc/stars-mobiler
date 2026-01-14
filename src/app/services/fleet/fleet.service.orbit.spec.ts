@@ -163,4 +163,35 @@ describe('FleetService Orbit Order', () => {
     expect(fleet.location.type).toBe('orbit');
     expect((fleet.location as any).planetId).toBe('planet1');
   });
+
+  it('should inject colonize order if already at planet with action=colonize', () => {
+    const game = createGameWithPlanet(0);
+    const fleet = game.fleets[0];
+    const planet = game.stars[0].planets[0];
+
+    fleet.location = { type: 'orbit', planetId: planet.id };
+    fleet.orders = [{ type: 'orbit', planetId: planet.id, action: 'colonize' }];
+
+    service.processFleets(game);
+
+    expect(fleet.orders.length).toBe(1);
+    expect(fleet.orders[0].type).toBe('colonize');
+    expect((fleet.orders[0] as any).planetId).toBe(planet.id);
+  });
+
+  it('should inject colonize order upon arriving at planet with action=colonize', () => {
+    const game = createGameWithPlanet(10);
+    const fleet = game.fleets[0];
+    const planet = game.stars[0].planets[0];
+
+    fleet.orders = [{ type: 'orbit', planetId: planet.id, action: 'colonize', warpSpeed: 9 }];
+
+    service.processFleets(game);
+
+    expect(fleet.location.type).toBe('orbit');
+    expect((fleet.location as any).planetId).toBe(planet.id);
+
+    expect(fleet.orders.length).toBe(1);
+    expect(fleet.orders[0].type).toBe('colonize');
+  });
 });

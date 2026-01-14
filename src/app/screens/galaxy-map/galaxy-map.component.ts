@@ -12,6 +12,8 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { SettingsService } from '../../services/core/settings.service';
+import { LoggingService } from '../../services/core/logging.service';
+import { LogContext } from '../../models/logging.model';
 import { Star, Fleet } from '../../models/game.model';
 import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
@@ -24,6 +26,7 @@ import { GalaxyMapStateService } from './services/galaxy-map-state.service';
 import { GalaxyVisibilityService } from './services/galaxy-visibility.service';
 import { GalaxyFleetService } from './services/galaxy-fleet.service';
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
+import { getDesign } from '../../data/ships.data';
 
 @Component({
   standalone: true,
@@ -434,10 +437,12 @@ import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
           [visible]="waypointContextMenu().visible"
           [x]="waypointContextMenu().x"
           [y]="waypointContextMenu().y"
+          [canColonize]="canColonizeWaypoint()"
           (close)="closeContextMenus()"
           (delete)="onDeleteWaypoint()"
           (move)="onMoveWaypoint()"
           (setSpeed)="onSetWaypointSpeed()"
+          (colonize)="onColonizeWaypoint()"
         ></app-waypoint-context-menu>
       } @else {
         <div style="padding: 2rem; text-align: center;">
@@ -464,6 +469,7 @@ export class GalaxyMapComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   settings = inject(SettingsService);
+  private logging = inject(LoggingService);
 
   readonly galaxySize = computed(() => {
     const size = this.gs.game()?.settings.galaxySize || 'small';
@@ -554,6 +560,7 @@ export class GalaxyMapComponent implements OnInit {
 
   private potentialDragFleet: Fleet | null = null;
   private potentialDragStart: { x: number; y: number } | null = null;
+  private waypointDropScreenPos: { x: number; y: number } | null = null;
 
   private startDrag(fleet: Fleet) {
     const fw = this.fleetWaypoints().find((f) => f.fleetId === fleet.id);
@@ -945,6 +952,8 @@ export class GalaxyMapComponent implements OnInit {
     const worldX = (clientX - rect.left - this.state.translateX()) / this.state.scale();
     const worldY = (clientY - rect.top - this.state.translateY()) / this.state.scale();
 
+    this.waypointDropScreenPos = { x: clientX, y: clientY };
+
     this.draggedWaypoint.update((dw) =>
       dw ? { ...dw, currentX: worldX, currentY: worldY } : null,
     );
@@ -952,7 +961,8 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   checkSnap(x: number, y: number) {
-    const threshold = 20 / this.state.scale();
+    const threshold = 10 / this.state.scale();
+    let snapResult: any = null;
 
     // Check stars
     const stars = this.stars();
@@ -962,12 +972,14 @@ export class GalaxyMapComponent implements OnInit {
         const dx = pPos.x - x;
         const dy = pPos.y - y;
         if (dx * dx + dy * dy < threshold * threshold) {
-          this.snapTarget.set({
+          snapResult = {
             type: 'planet',
             id: p.id,
             x: pPos.x,
             y: pPos.y,
-          });
+          };
+          this.snapTarget.set(snapResult);
+          this.logSnapCheck(x, y, snapResult);
           return;
         }
       }
@@ -982,12 +994,15 @@ export class GalaxyMapComponent implements OnInit {
       const dx = fPos.x - x;
       const dy = fPos.y - y;
       if (dx * dx + dy * dy < threshold * threshold) {
-        this.snapTarget.set({ type: 'fleet', id: fleet.id, x: fPos.x, y: fPos.y });
+        snapResult = { type: 'fleet', id: fleet.id, x: fPos.x, y: fPos.y };
+        this.snapTarget.set(snapResult);
+        this.logSnapCheck(x, y, snapResult);
         return;
       }
     }
 
     this.snapTarget.set(null);
+    this.logSnapCheck(x, y, null);
   }
 
   finalizeWaypoint() {
@@ -998,18 +1013,16 @@ export class GalaxyMapComponent implements OnInit {
       const fleet = this.gs.game()?.fleets.find((f) => f.id === wp.fleetId);
       if (fleet) {
         let newOrder: any = null;
-        // Preserve existing order properties if editing
         const existingOrder =
           wp.orderIndex !== undefined && fleet.orders ? fleet.orders[wp.orderIndex] : {};
+        let orderIndex: number | null = null;
 
         if (snap) {
           if (snap.type === 'planet' && snap.id) {
             newOrder = { ...existingOrder, type: 'orbit', planetId: snap.id };
-            // Remove destination if switching to orbit
             delete newOrder.destination;
           } else if (snap.type === 'fleet' && snap.id) {
             newOrder = { ...existingOrder, type: 'move', destination: { x: snap.x, y: snap.y } };
-            // TODO: Handle merge/attack types specifically if needed
             delete newOrder.planetId;
           }
         } else {
@@ -1024,19 +1037,32 @@ export class GalaxyMapComponent implements OnInit {
         if (newOrder) {
           const currentOrders = [...(fleet.orders || [])];
           if (wp.orderIndex !== undefined && wp.orderIndex >= 0) {
-            // Update existing order
             currentOrders[wp.orderIndex] = newOrder;
+            orderIndex = wp.orderIndex;
           } else {
-            // Append new order
             currentOrders.push(newOrder);
+            orderIndex = currentOrders.length - 1;
           }
           this.gs.setFleetOrders(wp.fleetId, currentOrders);
+
+          if (this.waypointDropScreenPos && orderIndex !== null) {
+            this.closeContextMenus(false);
+            this.waypointContextMenu.set({
+              visible: true,
+              x: this.waypointDropScreenPos.x,
+              y: this.waypointDropScreenPos.y,
+              fleetId: wp.fleetId,
+              orderIndex,
+              order: newOrder,
+            });
+          }
         }
       }
     }
 
     this.draggedWaypoint.set(null);
     this.snapTarget.set(null);
+    this.waypointDropScreenPos = null;
   }
 
   // Interaction Logic
@@ -1108,6 +1134,9 @@ export class GalaxyMapComponent implements OnInit {
   onWaypointDown(event: MouseEvent | TouchEvent, fleetId: string, orderIndex: number) {
     event.stopPropagation();
 
+    // Log waypoint selection
+    this.logWaypointSelection(fleetId, orderIndex, event);
+
     // Handle touch long press for context menu
     if (window.TouchEvent && event instanceof TouchEvent) {
       const touch = event.touches[0];
@@ -1145,6 +1174,12 @@ export class GalaxyMapComponent implements OnInit {
       orderIndex: orderIndex,
       order: fleet.orders[orderIndex],
     });
+    this.logMenuOpen('waypoint', {
+      reason: 'right-click',
+      fleetId,
+      orderIndex,
+      order: fleet.orders[orderIndex],
+    });
 
     this.closeContextMenus(false);
   }
@@ -1164,6 +1199,12 @@ export class GalaxyMapComponent implements OnInit {
       visible: true,
       x: event.clientX,
       y: event.clientY,
+      fleetId,
+      orderIndex: index,
+      order,
+    });
+    this.logMenuOpen('waypoint', {
+      reason: 'click',
       fleetId,
       orderIndex: index,
       order,
@@ -1202,6 +1243,124 @@ export class GalaxyMapComponent implements OnInit {
       }
     }
     this.closeContextMenus();
+  }
+
+  readonly canColonizeWaypoint = computed(() => {
+    const ctx = this.waypointContextMenu();
+    if (!ctx.visible || !ctx.fleetId || !ctx.order) return false;
+
+    const game = this.gs.game();
+    if (!game) return false;
+
+    const fleet = game.fleets.find((f) => f.id === ctx.fleetId);
+    if (!fleet) return false;
+
+    const order = ctx.order;
+    let targetPlanetId: string | undefined;
+
+    if (order.type === 'orbit' || order.type === 'colonize') {
+      targetPlanetId = order.planetId;
+    } else if (order.type === 'move' && order.destination) {
+      const threshold = 10 / this.state.scale();
+      targetPlanetId = this.findClosestPlanet(order.destination.x, order.destination.y, threshold);
+    }
+
+    const hasColonyModule = this.hasColonyShipForFleet(game, fleet);
+    const canColonize = !!targetPlanetId && hasColonyModule;
+
+    let targetStarId: string | undefined;
+    let targetStarName: string | undefined;
+    let targetPlanetName: string | undefined;
+
+    if (targetPlanetId) {
+      const star = this.stars().find((s) => s.planets.some((p) => p.id === targetPlanetId));
+      if (star) {
+        targetStarId = star.id;
+        targetStarName = star.name;
+        const planet = star.planets.find((p) => p.id === targetPlanetId);
+        targetPlanetName = planet?.name;
+      }
+    }
+
+    if (this.settings.developerMode()) {
+      this.logging.debug('Colonize check', {
+        service: 'GalaxyMap',
+        operation: 'canColonizeWaypoint',
+        additionalData: {
+          fleetId: ctx.fleetId,
+          hasColonyModule,
+          orderType: order.type,
+          orderDest: order.destination,
+          orderPlanetId: order.planetId,
+          targetPlanetId,
+          targetStarId,
+          targetStarName,
+          targetPlanetName,
+          canColonize,
+        },
+      });
+    }
+
+    return canColonize;
+  });
+
+  onColonizeWaypoint() {
+    const ctx = this.waypointContextMenu();
+    if (!ctx.visible || !ctx.fleetId || ctx.orderIndex == null || ctx.orderIndex < 0) return;
+
+    const game = this.gs.game();
+    if (!game) return;
+
+    const fleet = game.fleets.find((f) => f.id === ctx.fleetId);
+    if (!fleet || !fleet.orders) return;
+
+    const order = fleet.orders[ctx.orderIndex];
+    let planetId: string | undefined;
+
+    if (order.type === 'orbit' || order.type === 'colonize') {
+      planetId = order.planetId;
+    } else if (order.type === 'move' && order.destination) {
+      const threshold = 10 / this.state.scale();
+      planetId = this.findClosestPlanet(order.destination.x, order.destination.y, threshold);
+    }
+
+    if (planetId) {
+      const newOrders = [...fleet.orders];
+      // Use orbit order with colonize action to preserve movement semantics/speed if needed,
+      // or convert to colonize order. 'colonize' order type is explicit.
+      // However, 'orbit' with action='colonize' is also valid and preserves warpSpeed if present.
+      // Let's use 'colonize' type as it's more direct for "Colonise" action.
+      // But we need to make sure we don't lose warpSpeed if the user set it.
+      // 'colonize' order doesn't have warpSpeed in the interface I saw earlier.
+      // Let's re-check the interface in game.model.ts.
+      // | { type: 'colonize'; planetId: string } -> No warpSpeed.
+      // | { type: 'orbit'; planetId: string; warpSpeed?: number; action?: ... } -> Has warpSpeed.
+      // So 'orbit' with action='colonize' is safer to preserve speed.
+      newOrders[ctx.orderIndex] = {
+        type: 'orbit',
+        planetId,
+        warpSpeed: (order as any).warpSpeed,
+        action: 'colonize',
+      };
+      this.gs.setFleetOrders(ctx.fleetId, newOrders);
+      this.closeContextMenus();
+    }
+  }
+
+  private findClosestPlanet(x: number, y: number, threshold = 5): string | undefined {
+    // Check stars
+    const stars = this.stars();
+    for (const star of stars) {
+      for (const p of star.planets) {
+        const pPos = (p as any).position || star.position;
+        const dx = pPos.x - x;
+        const dy = pPos.y - y;
+        if (dx * dx + dy * dy < threshold * threshold) {
+          return p.id;
+        }
+      }
+    }
+    return undefined;
   }
 
   onSetWaypointSpeed() {
@@ -1258,6 +1417,11 @@ export class GalaxyMapComponent implements OnInit {
       star: star,
     });
     this.fleetContextMenu.update((v) => ({ ...v, visible: false }));
+    this.logMenuOpen('planet', {
+      starId: star.id,
+      starName: star.name,
+      availableActions: this.getPlanetMenuActions(star),
+    });
   }
 
   onFleetRightClick(event: MouseEvent, fleet: Fleet) {
@@ -1270,13 +1434,84 @@ export class GalaxyMapComponent implements OnInit {
       fleet: fleet,
     });
     this.planetContextMenu.update((v) => ({ ...v, visible: false }));
+    this.logMenuOpen('fleet', {
+      fleetId: fleet.id,
+      fleetName: fleet.name,
+      availableActions: this.getFleetMenuActions(fleet),
+    });
+  }
+
+  private getPlanetMenuActions(star: Star): any[] {
+    const actions = [{ action: 'viewPlanet', available: true, reason: 'Always available' }];
+
+    if (this.state.selectedFleetId()) {
+      actions.push({ action: 'sendFleetToStar', available: true, reason: 'Fleet selected' });
+    } else {
+      actions.push({ action: 'sendFleetToStar', available: false, reason: 'No fleet selected' });
+    }
+    return actions;
+  }
+
+  private getFleetMenuActions(fleet: Fleet): any[] {
+    const actions = [
+      { action: 'viewFleet', available: true, reason: 'Always available' },
+      { action: 'decommission', available: true, reason: 'Always available' },
+    ];
+
+    const isOrbit = fleet.location.type === 'orbit';
+    if (isOrbit) {
+      actions.push({ action: 'loadCargo', available: true, reason: 'In orbit' });
+      actions.push({ action: 'unloadCargo', available: true, reason: 'In orbit' });
+
+      // Narrowing to orbit type to access planetId
+      const loc = fleet.location as { type: 'orbit'; planetId: string };
+      const hab = this.gs.habitabilityFor(loc.planetId);
+      if (hab > 0) {
+        actions.push({ action: 'colonize', available: true, reason: 'In orbit and habitable' });
+      } else {
+        actions.push({
+          action: 'colonize',
+          available: true,
+          reason: 'In orbit (warning: inhospitable)',
+        });
+      }
+    } else {
+      actions.push({ action: 'loadCargo', available: false, reason: 'Not in orbit' });
+      actions.push({ action: 'unloadCargo', available: false, reason: 'Not in orbit' });
+      actions.push({ action: 'colonize', available: false, reason: 'Not in orbit' });
+    }
+
+    return actions;
+  }
+
+  private hasColonyShipForFleet(game: any, fleet: Fleet): boolean {
+    return fleet.ships.some((s) => {
+      const dynamicDesign = game.shipDesigns.find((d: any) => d.id === s.designId);
+      if (dynamicDesign?.spec?.hasColonyModule && s.count > 0) {
+        return true;
+      }
+      const compiled = getDesign(s.designId);
+      return !!compiled?.colonyModule && s.count > 0;
+    });
   }
 
   closeContextMenus(closeAll = true) {
+    const wasVisible =
+      this.planetContextMenu().visible ||
+      this.fleetContextMenu().visible ||
+      (closeAll && this.waypointContextMenu().visible);
+
     this.planetContextMenu.update((v) => ({ ...v, visible: false }));
     this.fleetContextMenu.update((v) => ({ ...v, visible: false }));
     if (closeAll) {
       this.waypointContextMenu.update((v) => ({ ...v, visible: false }));
+    }
+
+    if (wasVisible && this.settings.developerMode()) {
+      this.logging.info('Context menus closed', {
+        service: 'GalaxyMap',
+        operation: 'MenuClose',
+      });
     }
   }
 
@@ -1299,25 +1534,267 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   onColonize(fleetId: string) {
-    this.gs.colonizeNow(fleetId);
+    const game = this.gs.game();
+    if (!game) {
+      this.closeContextMenus();
+      return;
+    }
+    const fleet = game.fleets.find((f) => f.id === fleetId);
+    if (!fleet || fleet.location.type !== 'orbit') {
+      this.closeContextMenus();
+      return;
+    }
+    const planetId = fleet.location.planetId;
+    const hab = this.gs.habitabilityFor(planetId);
+    if (hab <= 0) {
+      const ok = confirm(
+        'Warning: This world is inhospitable. Colonists will die each turn. Proceed?',
+      );
+      if (!ok) {
+        this.closeContextMenus();
+        return;
+      }
+    }
+    const pid = this.gs.colonizeNow(fleetId);
+    if (pid) {
+      this.router.navigateByUrl(`/planet/${pid}`);
+    } else {
+      this.gs.issueFleetOrder(fleetId, { type: 'colonize', planetId });
+      this.router.navigateByUrl('/map');
+    }
     this.closeContextMenus();
   }
 
   onLoadCargo(fleetId: string) {
-    // TODO: Implement load cargo dialog
-    console.log('Load Cargo for fleet', fleetId);
+    const game = this.gs.game();
+    if (!game) {
+      this.closeContextMenus();
+      return;
+    }
+    const fleet = game.fleets.find((f) => f.id === fleetId);
+    if (!fleet || fleet.location.type !== 'orbit') {
+      this.closeContextMenus();
+      return;
+    }
+    const planetId = fleet.location.planetId;
+    this.gs.loadCargo(fleetId, planetId, {
+      resources: 'fill',
+      ironium: 'fill',
+      boranium: 'fill',
+      germanium: 'fill',
+      colonists: 'fill',
+    });
     this.closeContextMenus();
   }
 
   onUnloadCargo(fleetId: string) {
-    // TODO: Implement unload cargo dialog
-    console.log('Unload Cargo for fleet', fleetId);
+    const game = this.gs.game();
+    if (!game) {
+      this.closeContextMenus();
+      return;
+    }
+    const fleet = game.fleets.find((f) => f.id === fleetId);
+    if (!fleet || fleet.location.type !== 'orbit') {
+      this.closeContextMenus();
+      return;
+    }
+    const planetId = fleet.location.planetId;
+    this.gs.unloadCargo(fleetId, planetId, {
+      ironium: 'all',
+      boranium: 'all',
+      germanium: 'all',
+      colonists: 'all',
+    });
     this.closeContextMenus();
   }
 
   onDecommission(fleetId: string) {
-    // TODO: Implement decommission logic
-    console.log('Decommission fleet', fleetId);
+    const game = this.gs.game();
+    if (!game) {
+      this.closeContextMenus();
+      return;
+    }
+    const fleet = game.fleets.find((f) => f.id === fleetId);
+    if (!fleet) {
+      this.closeContextMenus();
+      return;
+    }
+    const name = fleet.name || `Fleet ${fleet.id.slice(-4)}`;
+    const ok = confirm(`Decommission ${name}? This will scrap all ships and cargo in this fleet.`);
+    if (!ok) {
+      this.closeContextMenus();
+      return;
+    }
+    this.gs.decommissionFleet(fleetId);
     this.closeContextMenus();
+  }
+
+  // =================================================================================================
+  // Debug Logging Implementation
+  // =================================================================================================
+
+  private logWaypointSelection(
+    fleetId: string,
+    orderIndex: number,
+    event: MouseEvent | TouchEvent,
+  ) {
+    if (!this.settings.developerMode()) return;
+
+    const game = this.gs.game();
+    if (!game) return;
+
+    const fleet = game.fleets.find((f) => f.id === fleetId);
+    if (!fleet) return;
+
+    const order = fleet.orders?.[orderIndex];
+    const fw = this.fleetWaypoints().find((f) => f.fleetId === fleetId);
+    const segment = fw?.segments[orderIndex];
+
+    const metadata = {
+      service: 'GalaxyMap',
+      operation: 'WaypointSelection',
+      entityId: fleetId,
+      entityType: 'fleet',
+      additionalData: {
+        orderIndex,
+        fleetName: fleet.name,
+        currentOrder: order,
+        segment: segment
+          ? {
+              x1: segment.x1,
+              y1: segment.y1,
+              x2: segment.x2,
+              y2: segment.y2,
+              distance: segment.distance,
+            }
+          : null,
+      },
+    };
+
+    // Log click coordinates
+    let clickX = 0,
+      clickY = 0;
+    if (event instanceof MouseEvent) {
+      clickX = event.clientX;
+      clickY = event.clientY;
+    } else if (event instanceof TouchEvent && event.touches.length > 0) {
+      clickX = event.touches[0].clientX;
+      clickY = event.touches[0].clientY;
+    }
+
+    this.logging.info('Waypoint selected', {
+      ...metadata,
+      additionalData: {
+        ...metadata.additionalData,
+        clickCoordinates: { x: clickX, y: clickY },
+        availableActions: this.getWaypointActionsStatus(fleet, order),
+      },
+    });
+
+    // Dump arrays as requested
+    this.dumpWaypointDebugData(fleetId);
+  }
+
+  private getWaypointActionsStatus(fleet: Fleet, order: any): any[] {
+    const actions: any[] = [
+      { action: 'move', available: true, reason: 'Always available' },
+      { action: 'delete', available: true, reason: 'Always available' },
+    ];
+
+    // Check colony module
+    const hasColonyModule = fleet.ships.some((s) => {
+      const d = this.gs.game()?.shipDesigns.find((d) => d.id === s.designId);
+      const stock = getDesign(s.designId);
+      return d?.spec?.hasColonyModule || stock?.colonyModule;
+    });
+
+    if (hasColonyModule) {
+      actions.push({ action: 'colonise', available: true, reason: 'Colony module present' });
+    } else {
+      actions.push({ action: 'colonise', available: false, reason: 'No colony module' });
+    }
+
+    return actions;
+  }
+
+  private dumpWaypointDebugData(activeFleetId: string) {
+    const game = this.gs.game();
+    if (!game) return;
+
+    // Waypoint Array
+    const waypoints = this.fleetWaypoints().find((f) => f.fleetId === activeFleetId);
+    this.logging.debug('Debug: Waypoint Array', {
+      service: 'GalaxyMap',
+      operation: 'DebugDump',
+      additionalData: {
+        waypoints: waypoints?.segments.map((s) => ({
+          coordinates: { x: s.x2, y: s.y2 },
+          type: s.type,
+          warning: s.warning,
+          distance: s.distance,
+        })),
+      },
+    });
+
+    // Planet Coordinate Array (nearby planets)
+    const fleet = game.fleets.find((f) => f.id === activeFleetId);
+    if (fleet) {
+      const pos = this.fleetService.fleetPos(fleet.id);
+      const nearbyPlanets = [];
+      const threshold = 100; // Arbitrary large range for debug dump
+
+      for (const star of this.stars()) {
+        for (const p of star.planets) {
+          const pPos = (p as any).position || star.position;
+          const dist = Math.hypot(pPos.x - pos.x, pPos.y - pos.y);
+          if (dist < threshold) {
+            nearbyPlanets.push({
+              name: p.name,
+              id: p.id,
+              coordinates: pPos,
+              distance: dist,
+              ownerId: p.ownerId,
+              selectable: true, // Simplified
+            });
+          }
+        }
+      }
+
+      this.logging.debug('Debug: Nearby Planets', {
+        service: 'GalaxyMap',
+        operation: 'DebugDump',
+        additionalData: { planets: nearbyPlanets },
+      });
+    }
+  }
+
+  private logSnapCheck(x: number, y: number, snapResult: any) {
+    if (!this.settings.developerMode()) return;
+
+    // Throttle or only log on change?
+    // Since checkSnap is called on move, this will spam.
+    // We should only log if snapResult changes or is significant.
+    // For now, let's log only if there is a snap target.
+    if (snapResult) {
+      this.logging.debug('Waypoint snapped', {
+        service: 'GalaxyMap',
+        operation: 'SnapCheck',
+        additionalData: {
+          cursor: { x, y },
+          snapTarget: snapResult,
+        },
+      });
+    }
+  }
+
+  private logMenuOpen(type: 'waypoint' | 'planet' | 'fleet', context: any) {
+    if (!this.settings.developerMode()) return;
+
+    this.logging.info(`Context menu opened: ${type}`, {
+      service: 'GalaxyMap',
+      operation: 'MenuOpen',
+      entityType: type,
+      additionalData: context,
+    });
   }
 }

@@ -7,6 +7,7 @@ import { Planet } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';
 import { PlanetCardComponent } from './components/planet-card.component';
+import { LoggingService } from '../../services/core/logging.service';
 
 @Component({
   standalone: true,
@@ -124,6 +125,7 @@ export class PlanetsOverviewComponent {
   private gs = inject(GameStateService);
   private router = inject(Router);
   private techService = inject(TechService);
+  private logging = inject(LoggingService);
 
   filterMode = signal<'Normal' | 'Starbase'>('Normal');
 
@@ -136,16 +138,6 @@ export class PlanetsOverviewComponent {
     const planetIndex = this.gs.planetIndex();
 
     for (const fleet of game.fleets) {
-      // Debug logging for starbase detection
-      if (fleet.location.type === 'orbit') {
-        const planetId = (fleet.location as any).planetId;
-        const planet = planetIndex.get(planetId);
-        if (planet?.name === 'Home') {
-          console.log('Checking fleet at Home:', fleet);
-          console.log('Ships:', fleet.ships);
-        }
-      }
-
       if (fleet.ownerId !== playerId) continue;
       if (fleet.location.type !== 'orbit') continue;
 

@@ -1,18 +1,15 @@
-import { 
-  Directive, 
-  ElementRef, 
-  OnInit, 
-  OnDestroy, 
-  Output, 
-  EventEmitter, 
-  Input 
+import {
+  Directive,
+  ElementRef,
+  OnInit,
+  OnDestroy,
+  Output,
+  EventEmitter,
+  Input,
 } from '@angular/core';
 import { InputInteractionService } from '../../services/core/input-interaction.service';
-import { 
-  UnifiedInputEvent, 
-  InputServiceConfig, 
-  Point 
-} from '../../models/input-events.model';
+import { UnifiedInputEvent, InputServiceConfig, Point } from '../../models/input-events.model';
+import { LoggingService } from '../../services/core/logging.service';
 
 export interface TouchClickEvent {
   position: Point;
@@ -31,12 +28,13 @@ export interface TouchClickEvent {
 export class TouchClickDirective implements OnInit, OnDestroy {
   @Input() touchClickConfig: Partial<InputServiceConfig> = {};
   @Output() touchClick = new EventEmitter<TouchClickEvent>();
-  
+
   private handlerId: string;
 
   constructor(
     private elementRef: ElementRef<Element>,
-    private inputService: InputInteractionService
+    private inputService: InputInteractionService,
+    private logging: LoggingService,
   ) {
     this.handlerId = `touchclick-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
@@ -49,7 +47,10 @@ export class TouchClickDirective implements OnInit, OnDestroy {
       ...this.touchClickConfig
     };
 
-    console.log('📍 TouchClickDirective initializing on element:', this.elementRef.nativeElement.className, 'handlerId:', this.handlerId);
+    this.logging.debug('TouchClickDirective initializing', {
+      handlerId: this.handlerId,
+      targetClass: this.elementRef.nativeElement.className,
+    });
     this.inputService.attachToElement(
       this.elementRef.nativeElement,
       config,
@@ -66,10 +67,10 @@ export class TouchClickDirective implements OnInit, OnDestroy {
 
   private handleInput(event: UnifiedInputEvent): void {
     if (event.type === 'tap') {
-      console.log('📱 TouchClickDirective tap detected:', {
+      this.logging.debug('TouchClickDirective tap detected', {
         type: event.type,
         position: event.position,
-        target: event.target.className
+        targetClass: event.target.className,
       });
       const touchClickEvent: TouchClickEvent = {
         position: event.position,

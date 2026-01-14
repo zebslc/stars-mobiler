@@ -130,6 +130,11 @@ export class GameStateService {
     this.commandExecutor.execute(command);
   }
 
+  decommissionFleet(fleetId: string) {
+    const command = this.commandFactory.createDecommissionFleetCommand(fleetId);
+    this.commandExecutor.execute(command);
+  }
+
   splitFleet(
     fleetId: string,
     transferSpec: {

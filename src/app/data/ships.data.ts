@@ -91,6 +91,17 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
     };
   }
 
+  // Colony ship aliases
+  if (designs['hull-mini-colony']) {
+    designs['mini_colony_ship'] = { ...designs['hull-mini-colony'], id: 'mini_colony_ship' };
+    // Also add an entry for the raw name if it gets normalized
+    designs['mini_colony'] = { ...designs['hull-mini-colony'], id: 'mini_colony' };
+  }
+  if (designs['hull-colony']) {
+    designs['colony_ship'] = { ...designs['hull-colony'], id: 'colony_ship' };
+    designs['colony'] = { ...designs['hull-colony'], id: 'colony' };
+  }
+
   // Starbase designs should be available with simpler names for mapping
   if (designs['hull-orbital-fort']) {
     designs['orbital_fort'] = { ...designs['hull-orbital-fort'], id: 'orbital_fort' };

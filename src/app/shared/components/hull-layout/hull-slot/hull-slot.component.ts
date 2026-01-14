@@ -12,6 +12,7 @@ import { GridSlot } from '../hull-layout.types';
 import { HullSlotComponentData, ComponentActionEvent, SlotTouchEvent } from '../hull-slot.types';
 import { HullSlotOperationsService } from '../../../../services/ship-design/hull-slot-operations.service';
 import { TouchClickDirective, TouchClickEvent } from '../../../directives';
+import { LoggingService } from '../../../../services/core/logging.service';
 
 @Component({
   selector: 'app-hull-slot',
@@ -366,7 +367,10 @@ export class HullSlotComponent implements OnChanges {
   @Output() slotTouchStart = new EventEmitter<SlotTouchEvent>();
   @Output() slotTouchEnd = new EventEmitter<SlotTouchEvent>();
 
-  constructor(private hullSlotOperationsService: HullSlotOperationsService) {}
+  constructor(
+    private hullSlotOperationsService: HullSlotOperationsService,
+    private logging: LoggingService,
+  ) {}
 
   ngOnChanges(_changes: SimpleChanges): void {
     // Change detection tracking - ngOnChanges kept for future debugging if needed
@@ -374,7 +378,10 @@ export class HullSlotComponent implements OnChanges {
   }
 
   onSlotClick(event?: TouchClickEvent) {
-    console.log('🎯 Slot clicked:', this.slot.id, event);
+    this.logging.debug('HullSlot slot clicked', {
+      slotId: this.slot.id,
+      event,
+    });
     if (!this.editable || !this.slot.editable) return;
     this.slotClick.emit();
   }

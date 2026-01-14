@@ -123,12 +123,7 @@ export class FleetService {
     }
   }
 
-  private addStartingFuel(
-    fleet: Fleet,
-    shipDesign: any,
-    legacyDesign: any,
-    count: number,
-  ): void {
+  private addStartingFuel(fleet: Fleet, shipDesign: any, legacyDesign: any, count: number): void {
     const fuelCap = shipDesign?.spec?.fuelCapacity ?? legacyDesign?.fuelCapacity ?? 0;
     fleet.fuel += fuelCap * count;
   }
@@ -391,6 +386,13 @@ export class FleetService {
     });
   }
 
+  decommissionFleet(game: GameState, fleetId: string): GameState {
+    const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    if (!fleet) return game;
+    game.fleets = game.fleets.filter((f) => f.id !== fleet.id);
+    return { ...game, fleets: [...game.fleets] };
+  }
+
   issueFleetOrder(game: GameState, fleetId: string, order: FleetOrder): GameState {
     return this.setFleetOrders(game, fleetId, [order]);
   }
@@ -407,7 +409,9 @@ export class FleetService {
     if (!fleet || fleet.location.type !== 'orbit') return [game, null];
 
     const planetIndex = this.buildPlanetIndex(game);
-    const planet = planetIndex.get((fleet.location as { type: 'orbit'; planetId: string }).planetId);
+    const planet = planetIndex.get(
+      (fleet.location as { type: 'orbit'; planetId: string }).planetId,
+    );
 
     if (!planet) return [game, null];
 
@@ -433,12 +437,7 @@ export class FleetService {
     const colonistUsed = Math.floor(fleet.cargo.colonists / 1000); // 1 kT per 1000 colonists
     return resourcesUsed + mineralsUsed + colonistUsed;
   }
-  loadCargo(
-    game: GameState,
-    fleetId: string,
-    planetId: string,
-    manifest: LoadManifest,
-  ): GameState {
+  loadCargo(game: GameState, fleetId: string, planetId: string, manifest: LoadManifest): GameState {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     const planet = this.buildPlanetIndex(game).get(planetId);
     if (!fleet || !planet) return game;
@@ -474,8 +473,7 @@ export class FleetService {
     const free = Math.max(0, capacity - used);
 
     const available = planet.surfaceMinerals[key];
-    const wanted =
-      req === 'all' ? available : req === 'fill' ? free : Math.max(0, Math.floor(req));
+    const wanted = req === 'all' ? available : req === 'fill' ? free : Math.max(0, Math.floor(req));
     const take = Math.min(wanted, available, free);
 
     planet.surfaceMinerals[key] -= take;
@@ -579,9 +577,7 @@ export class FleetService {
     if (!manifest.colonists) return;
     const availablePeople = fleet.cargo.colonists;
     const wantedPeople =
-      manifest.colonists === 'all'
-        ? availablePeople
-        : Math.max(0, Math.floor(manifest.colonists));
+      manifest.colonists === 'all' ? availablePeople : Math.max(0, Math.floor(manifest.colonists));
     const givePeople = Math.min(wantedPeople, availablePeople);
 
     fleet.cargo.colonists -= givePeople;
@@ -604,7 +600,7 @@ export class FleetService {
     const planetIndex = this.buildPlanetIndex(game);
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== game.humanPlayer.id) continue;
-      
+
       this.refuelFleet(game, fleet, planetIndex);
 
       const order = fleet.orders[0];
@@ -641,7 +637,9 @@ export class FleetService {
     planetIndex: Map<string, Planet>,
     totalFuelCapacity: number,
   ) {
-    const planet = planetIndex.get((fleet.location as { type: 'orbit'; planetId: string }).planetId);
+    const planet = planetIndex.get(
+      (fleet.location as { type: 'orbit'; planetId: string }).planetId,
+    );
 
     if (planet && planet.ownerId === fleet.ownerId) {
       const hasStardock = this.checkForStardock(game, fleet, planet.id);
@@ -716,6 +714,9 @@ export class FleetService {
       return null;
     }
     if (fleet.location.type === 'orbit' && fleet.location.planetId === order.planetId) {
+      if (order.action === 'colonize') {
+        fleet.orders.splice(1, 0, { type: 'colonize', planetId: order.planetId });
+      }
       fleet.orders.shift();
       return null;
     }
@@ -794,20 +795,32 @@ export class FleetService {
   ): void {
     if (order.type === 'orbit') {
       fleet.location = { type: 'orbit', planetId: order.planetId };
-    } else {
-      const targetStar = game.stars.find(
-        (s) => Math.hypot(s.position.x - dest.x, s.position.y - dest.y) < 2,
-      );
-      if (targetStar) {
-        fleet.location = { type: 'orbit', planetId: targetStar.planets[0].id };
-      } else {
-        fleet.location = { type: 'space', x: dest.x, y: dest.y };
+      if (order.action === 'colonize') {
+        fleet.orders.splice(1, 0, { type: 'colonize', planetId: order.planetId });
       }
+    } else {
+      this.resolveSpaceMovement(game, fleet, dest);
     }
     fleet.orders.shift();
   }
 
-  private processColonizeOrder(game: GameState, fleet: Fleet, order: FleetOrder, planetIndex: Map<string, Planet>) {
+  private resolveSpaceMovement(game: GameState, fleet: Fleet, dest: { x: number; y: number }) {
+    const targetStar = game.stars.find(
+      (s) => Math.hypot(s.position.x - dest.x, s.position.y - dest.y) < 2,
+    );
+    if (targetStar) {
+      fleet.location = { type: 'orbit', planetId: targetStar.planets[0].id };
+    } else {
+      fleet.location = { type: 'space', x: dest.x, y: dest.y };
+    }
+  }
+
+  private processColonizeOrder(
+    game: GameState,
+    fleet: Fleet,
+    order: FleetOrder,
+    planetIndex: Map<string, Planet>,
+  ) {
     if (order.type !== 'colonize' || !order.planetId) return;
     const planet = planetIndex.get(order.planetId);
     if (!planet) return;

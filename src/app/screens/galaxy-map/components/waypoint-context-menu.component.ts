@@ -15,18 +15,20 @@ import { CommonModule } from '@angular/common';
         (touchstart)="$event.stopPropagation()"
         (touchmove)="$event.stopPropagation()"
       >
-        <div class="menu-item" (click)="onMove()">
-          <span>📍</span> Move Waypoint
-        </div>
-        <div class="menu-item" (click)="onSetSpeed()">
-          <span>🚀</span> Set Warp Speed
+        <div class="menu-item" (click)="onMove()"><span>📍</span> Move Waypoint</div>
+        <div class="menu-item" (click)="onSetSpeed()"><span>🚀</span> Set Warp Speed</div>
+        <div
+          class="menu-item"
+          [class.disabled]="!canColonize"
+          (click)="canColonize && onColonize()"
+        >
+          <span>🌱</span>
+          Colonise
         </div>
         <div class="menu-divider"></div>
-        <div class="menu-item delete" (click)="onDelete()">
-          <span>🗑️</span> Delete Waypoint
-        </div>
+        <div class="menu-item delete" (click)="onDelete()"><span>🗑️</span> Delete Waypoint</div>
       </div>
-      
+
       <!-- Overlay to close menu when clicking outside -->
       <div
         class="menu-overlay"
@@ -35,92 +37,111 @@ import { CommonModule } from '@angular/common';
       ></div>
     }
   `,
-  styles: [`
-    .context-menu {
-      position: fixed;
-      z-index: 1000;
-      background: rgba(16, 20, 40, 0.95);
-      border: 1px solid rgba(52, 152, 219, 0.3);
-      border-radius: 8px;
-      padding: 0.5rem 0;
-      min-width: 180px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-      animation: fadeIn 0.1s ease-out;
-    }
+  styles: [
+    `
+      .context-menu {
+        position: fixed;
+        z-index: 1000;
+        background: rgba(16, 20, 40, 0.95);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+        border-radius: 8px;
+        padding: 0.5rem 0;
+        min-width: 180px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.1s ease-out;
+      }
 
-    .menu-item {
-      padding: 0.75rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: #ecf0f1;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 0.9rem;
-    }
+      .menu-item {
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #ecf0f1;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 0.9rem;
+      }
 
-    .menu-item:hover {
-      background: rgba(52, 152, 219, 0.2);
-    }
+      .menu-item:hover {
+        background: rgba(52, 152, 219, 0.2);
+      }
 
-    .menu-item span {
-      font-size: 1.1rem;
-      width: 20px;
-      text-align: center;
-    }
+      .menu-item span {
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+      }
 
-    .menu-item.delete {
-      color: #e74c3c;
-    }
+      .menu-item.disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
 
-    .menu-item.delete:hover {
-      background: rgba(231, 76, 60, 0.2);
-    }
+      .menu-item.disabled:hover {
+        background: transparent;
+      }
 
-    .menu-divider {
-      height: 1px;
-      background: rgba(255, 255, 255, 0.1);
-      margin: 0.25rem 0;
-    }
+      .menu-item.delete {
+        color: #e74c3c;
+      }
 
-    .menu-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 999;
-    }
+      .menu-item.delete:hover {
+        background: rgba(231, 76, 60, 0.2);
+      }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-  `]
+      .menu-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 0.25rem 0;
+      }
+
+      .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    `,
+  ],
 })
 export class WaypointContextMenuComponent {
   @Input() visible = false;
   @Input() x = 0;
   @Input() y = 0;
-  
+  @Input() canColonize = false;
   @Output() close = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
   @Output() move = new EventEmitter<void>();
   @Output() setSpeed = new EventEmitter<void>();
+  @Output() colonize = new EventEmitter<void>();
 
   onDelete() {
     this.delete.emit();
-    this.close.emit();
   }
 
   onMove() {
     this.move.emit();
-    this.close.emit();
   }
 
   onSetSpeed() {
     this.setSpeed.emit();
-    this.close.emit();
+  }
+
+  onColonize() {
+    this.colonize.emit();
   }
 }

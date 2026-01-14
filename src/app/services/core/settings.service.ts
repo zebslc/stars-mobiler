@@ -19,6 +19,7 @@ export class SettingsService {
   readonly showRemoteMining = signal<boolean>(true);
   readonly defaultGovernor = signal<GovernorType>('balanced');
   readonly developerMode = signal<boolean>(false);
+  readonly verboseLogging = signal<boolean>(false);
 
   toggleMapControls(show: boolean) {
     this.showMapControls.set(show);
@@ -70,5 +71,9 @@ export class SettingsService {
 
   toggleDeveloperMode(enabled: boolean) {
     this.developerMode.set(enabled);
+  }
+
+  toggleVerboseLogging(enabled: boolean) {
+    this.verboseLogging.set(enabled);
   }
 }

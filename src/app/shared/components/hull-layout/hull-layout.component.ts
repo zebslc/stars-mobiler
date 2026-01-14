@@ -16,6 +16,7 @@ import { GridSlot } from './hull-layout.types';
 import { HullSlotComponent } from './hull-slot/hull-slot.component';
 import { SlotTouchEvent } from './hull-slot.types';
 import { PanZoomDirective, PanEvent, PanZoomEvent } from '../../directives';
+import { LoggingService } from '../../../services/core/logging.service';
 
 @Component({
   selector: 'app-hull-layout',
@@ -142,7 +143,10 @@ export class HullLayoutComponent {
   offsetX = signal(0);
   offsetY = signal(0);
 
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private logging: LoggingService,
+  ) {
     // Reset zoom and pan when hull changes
     effect(() => {
       this.hull(); // Register dependency
@@ -164,7 +168,9 @@ export class HullLayoutComponent {
 
     const map = new Map<string, { component: any; count: number }>();
 
-    console.log(`HullLayout: design has ${design.slots.length} slots`);
+    this.logging.debug('HullLayout design slots', {
+      slotCount: design.slots.length,
+    });
 
     for (const slot of design.slots) {
       if (slot.components && slot.components.length > 0) {
@@ -173,11 +179,15 @@ export class HullLayoutComponent {
         if (comp) {
           map.set(slot.slotId, { component: comp, count: c.count });
         } else {
-          console.error(`HullLayout: Component ${c.componentId} not found!`);
+          this.logging.error('HullLayout component not found', {
+            componentId: c.componentId,
+          });
         }
       }
     }
-    console.log('Computed slotComponents keys:', Array.from(map.keys()));
+    this.logging.debug('HullLayout slotComponents keys', {
+      keys: Array.from(map.keys()),
+    });
     return map;
   });
 
@@ -185,10 +195,9 @@ export class HullLayoutComponent {
     const hull = this.hull();
     if (!hull || !hull.Structure) return [];
     const slots = this.parseStructure(hull.Structure, hull.Slots, hull);
-    console.log(
-      'Positioned slots IDs:',
-      slots.map((s) => s.id),
-    );
+    this.logging.debug('HullLayout positioned slot ids', {
+      slotIds: slots.map((s) => s.id),
+    });
     return slots;
   });
 

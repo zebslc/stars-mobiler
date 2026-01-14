@@ -144,6 +144,17 @@ export class MergeFleetsCommand implements GameCommand {
   }
 }
 
+export class DecommissionFleetCommand implements GameCommand {
+  constructor(
+    private fleetService: FleetService,
+    private fleetId: string,
+  ) {}
+
+  execute(game: GameState): GameState {
+    return this.fleetService.decommissionFleet(game, this.fleetId);
+  }
+}
+
 /**
  * Command to transfer cargo between fleets.
  */

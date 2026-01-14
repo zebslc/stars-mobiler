@@ -7,6 +7,7 @@ import {
   FilterItem,
 } from '../../../shared/components/filter-ribbon/filter-ribbon.component';
 import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
+import { LoggingService } from '../../../services/core/logging.service';
 
 @Component({
   selector: 'app-galaxy-map-settings',
@@ -403,6 +404,7 @@ import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
 })
 export class GalaxyMapSettingsComponent {
   settings = inject(SettingsService);
+  private logging = inject(LoggingService);
   isOpen = false;
   activeTab: 'scanner' | 'fleets' | 'planets' = 'scanner';
 
@@ -427,8 +429,7 @@ export class GalaxyMapSettingsComponent {
       // If current filter has all available keys, then we deselect all.
       // Otherwise (some missing or empty), we select all.
       const isAllSelected = allKeys.every((k) => current.has(k));
-
-      console.log('Toggle All:', {
+      this.logging.debug('GalaxyMapSettings fleet filter toggle all', {
         isAllSelected,
         currentSize: current.size,
         totalKeys: allKeys.length,
