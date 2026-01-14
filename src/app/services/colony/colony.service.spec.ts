@@ -145,6 +145,7 @@ describe('ColonyService', () => {
         humanPlayer: mockPlayer,
         shipDesigns: [mockDesign],
         fleets: [],
+        stars: [planet],
       } as any;
 
       service.processBuildQueues(game);
@@ -186,6 +187,7 @@ describe('ColonyService', () => {
         humanPlayer: mockPlayer,
         shipDesigns: [mockStarbaseDesign, mockStarbaseDesign2],
         fleets: [existingFleet],
+        stars: [planet],
       } as any;
 
       service.processBuildQueues(game);

@@ -98,147 +98,147 @@ describe('BuildProjectService', () => {
   describe('executeBuildProject', () => {
     describe('mine project', () => {
       it('should increment planet mines by 1', () => {
-        const planet = createStar({ mines: 10 });
-        const game = createGameState(planet);
+        const star = createStar({ mines: 10 });
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'mine' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.mines).toBe(11);
+        expect(star.mines).toBe(11);
       });
     });
 
     describe('factory project', () => {
       it('should increment planet factories by 1', () => {
-        const planet = createStar({ factories: 10 });
-        const game = createGameState(planet);
+        const star = createStar({ factories: 10 });
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'factory' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.factories).toBe(11);
+        expect(star.factories).toBe(11);
       });
     });
 
     describe('defense project', () => {
       it('should increment planet defenses by 1', () => {
-        const planet = createStar({ defenses: 5 });
-        const game = createGameState(planet);
+        const star = createStar({ defenses: 5 });
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'defense' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.defenses).toBe(6);
+        expect(star.defenses).toBe(6);
       });
     });
 
     describe('research project', () => {
       it('should increment planet research by 1', () => {
-        const planet = createStar({ research: 3 });
-        const game = createGameState(planet);
+        const star = createStar({ research: 3 });
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'research' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.research).toBe(4);
+        expect(star.research).toBe(4);
       });
 
       it('should handle undefined research', () => {
-        const planet = createStar();
-        (planet as any).research = undefined;
-        const game = createGameState(planet);
+        const star = createStar();
+        ((star as any)).research = undefined;
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'research' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.research).toBe(1);
+        expect(star.research).toBe(1);
       });
     });
 
     describe('scanner project', () => {
       it('should set scanner to default range with no tech', () => {
-        const planet = createStar({ scanner: 0 });
+        const star = createStar({ scanner: 0 });
         const player = createPlayer({ Energy: 0 });
-        const game = createGameState(planet, player);
+        const game = createGameState(star, player);
         const item = createBuildItem({ project: 'scanner' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.scanner).toBe(50); // Default + Viewer 50 base
+        expect(star.scanner).toBe(50); // Default + Viewer 50 base
       });
 
       it('should set scanner to best available range based on tech', () => {
-        const planet = createStar({ scanner: 0 });
+        const star = createStar({ scanner: 0 });
         const player = createPlayer({ Energy: 3 }); // Unlocks Scoper 150
-        const game = createGameState(planet, player);
+        const game = createGameState(star, player);
         const item = createBuildItem({ project: 'scanner' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.scanner).toBe(150);
+        expect(star.scanner).toBe(150);
       });
     });
 
     describe('terraform project', () => {
       it('should increase temperature when below ideal', () => {
-        const planet = createStar({ temperature: 40, atmosphere: 40 });
+        const star = createStar({ temperature: 40, atmosphere: 40 });
         const player = createPlayer();
         player.species.habitat.idealTemperature = 50;
         player.species.habitat.idealAtmosphere = 50;
-        const game = createGameState(planet, player);
+        const game = createGameState(star, player);
         const item = createBuildItem({ project: 'terraform' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.temperature).toBe(41);
-        expect(planet.atmosphere).toBe(41);
+        expect(star.temperature).toBe(41);
+        expect(star.atmosphere).toBe(41);
       });
 
       it('should decrease temperature when above ideal', () => {
-        const planet = createStar({ temperature: 60, atmosphere: 60 });
+        const star = createStar({ temperature: 60, atmosphere: 60 });
         const player = createPlayer();
         player.species.habitat.idealTemperature = 50;
         player.species.habitat.idealAtmosphere = 50;
-        const game = createGameState(planet, player);
+        const game = createGameState(star, player);
         const item = createBuildItem({ project: 'terraform' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(planet.temperature).toBe(59);
-        expect(planet.atmosphere).toBe(59);
+        expect(star.temperature).toBe(59);
+        expect(star.atmosphere).toBe(59);
       });
     });
 
     describe('ship project', () => {
       it('should call fleet service to add ship with specified design', () => {
-        const planet = createStar();
-        const game = createGameState(planet);
+        const star = createStar();
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'ship', shipDesignId: 'destroyer' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(game, planet, 'destroyer', 1);
+        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(game, star, 'destroyer', 1);
       });
 
       it('should use scout as default ship design', () => {
-        const planet = createStar();
-        const game = createGameState(planet);
+        const star = createStar();
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'ship' });
 
-        service.executeBuildProject(game, planet, item);
+        service.executeBuildProject(game, star, item);
 
-        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(game, planet, 'scout', 1);
+        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(game, star, 'scout', 1);
       });
     });
 
     describe('unknown project', () => {
       it('should handle unknown project types gracefully', () => {
-        const planet = createStar({ mines: 10 });
-        const game = createGameState(planet);
+        const star = createStar({ mines: 10 });
+        const game = createGameState(star);
         const item = createBuildItem({ project: 'unknown' as any });
 
-        expect(() => service.executeBuildProject(game, planet, item)).not.toThrow();
-        expect(planet.mines).toBe(10); // Unchanged
+        expect(() => service.executeBuildProject(game, star, item)).not.toThrow();
+        expect(star.mines).toBe(10); // Unchanged
       });
     });
   });

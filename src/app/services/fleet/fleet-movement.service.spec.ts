@@ -18,7 +18,7 @@ describe('FleetMovementService', () => {
   };
 
   const mockStar: Star = {
-    id: 'star1',
+    id: 'planet1',
     name: 'Sol',
     position: { x: 100, y: 200 },
     temperature: 50,

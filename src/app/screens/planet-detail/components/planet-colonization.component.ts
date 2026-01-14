@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Planet, Fleet } from '../../../models/game.model';
+import { Star, Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { getDesign } from '../../../data/ships.data';
 
@@ -81,7 +81,7 @@ import { getDesign } from '../../../data/ships.data';
 export class PlanetColonizationComponent {
   gs = inject(GameStateService);
 
-  planet = input.required<Planet>();
+  planet = input.required<Star>();
   colonizersInOrbit = input.required<Fleet[]>();
   colonizersEnRoute = input.required<Fleet[]>();
   colonizersIdle = input.required<Fleet[]>();
@@ -90,9 +90,7 @@ export class PlanetColonizationComponent {
   sendColonizer = output<string>();
 
   getEta(fleet: Fleet): number {
-    const p = this.planet();
-    if (!p) return 0;
-    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
+    const star = this.planet();
     if (!star) return 0;
 
     let fx = 0,
@@ -100,7 +98,7 @@ export class PlanetColonizationComponent {
     if (fleet.location.type === 'orbit') {
       const fStar = this.gs
         .stars()
-        .find((s) => s.planets.some((pl) => pl.id === (fleet.location as any).starId));
+        .find((s) => s.id === (fleet.location as any).starId);
       if (fStar) {
         fx = fStar.position.x;
         fy = fStar.position.y;
@@ -131,8 +129,8 @@ export class PlanetColonizationComponent {
 
   getFleetLocationName(fleet: Fleet): string {
     if (fleet.location.type === 'orbit') {
-      const p = this.gs.planetIndex().get((fleet.location as any).starId);
-      return p ? p.name : 'Unknown Orbit';
+      const star = this.gs.stars().find((s) => s.id === (fleet.location as any).starId);
+      return star ? star.name : 'Unknown Orbit';
     }
     return 'Deep Space';
   }

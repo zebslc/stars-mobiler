@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, Planet } from '../../models/game.model';
+import { GameState, Fleet, Star } from '../../models/game.model';
 import { LogContext } from '../../models/service-interfaces.model';
 import { LoggingService } from '../core/logging.service';
 import { HabitabilityService } from '../colony/habitability.service';
@@ -26,14 +26,14 @@ export class FleetColonizationService {
       return [game, null];
     }
 
-    const { fleet, planet } = validationResult;
-    // fleet and planet are guaranteed to exist due to validation above
+    const { fleet, star } = validationResult;
+    // fleet and star are guaranteed to exist due to validation above
     const colonyShip = this.findColonyShip(game, fleet!, context);
     if (!colonyShip.ship) {
       return [game, null];
     }
 
-    return this.executeColonization(game, fleet!, planet!, colonyShip.ship, colonyShip.design, context);
+    return this.executeColonization(game, fleet!, star!, colonyShip.ship, colonyShip.design, context);
   }
 
   canColonize(game: GameState, fleetId: string): { canColonize: boolean; reason?: string } {
@@ -44,9 +44,9 @@ export class FleetColonizationService {
       return { canColonize: false, reason: fleetValidation.reason };
     }
 
-    const planetValidation = this.validatePlanetForColonization(game, fleetValidation.fleet!, game.humanPlayer.id);
-    if (!planetValidation.isValid) {
-      return { canColonize: false, reason: planetValidation.reason };
+    const starValidation = this.validateStarForColonization(game, fleetValidation.fleet!, game.humanPlayer.id);
+    if (!starValidation.isValid) {
+      return { canColonize: false, reason: starValidation.reason };
     }
 
     const hasColonyShips = this.checkForColonyShips(game, fleetValidation.fleet!);
@@ -54,7 +54,7 @@ export class FleetColonizationService {
       return { canColonize: false, reason: 'No colony ships in fleet' };
     }
 
-    this.logSuccessfulValidation(fleetValidation.fleet!, planetValidation.planet!, context);
+    this.logSuccessfulValidation(fleetValidation.fleet!, starValidation.star!, context);
     return { canColonize: true };
   }
 
@@ -74,29 +74,29 @@ export class FleetColonizationService {
     return { isValid: true, fleet };
   }
 
-  private validatePlanetForColonization(
+  private validateStarForColonization(
     game: GameState, 
     fleet: Fleet, 
     playerId: string
-  ): { isValid: boolean; reason?: string; planet?: Planet } {
-    const planetIndex = this.buildPlanetIndex(game);
-    const planet = planetIndex.get(
+  ): { isValid: boolean; reason?: string; star?: Star } {
+    const starIndex = this.buildStarIndex(game);
+    const star = starIndex.get(
       (fleet.location as { type: 'orbit'; starId: string }).starId
     );
     
-    if (!planet) {
-      return { isValid: false, reason: 'Planet not found' };
+    if (!star) {
+      return { isValid: false, reason: 'Star not found' };
     }
 
-    if (planet.ownerId && planet.ownerId !== playerId) {
-      return { isValid: false, reason: 'Planet already colonized by another player' };
+    if (star.ownerId && star.ownerId !== playerId) {
+      return { isValid: false, reason: 'Star already colonized by another player' };
     }
 
-    if (planet.ownerId === playerId) {
-      return { isValid: false, reason: 'Planet already colonized by you' };
+    if (star.ownerId === playerId) {
+      return { isValid: false, reason: 'Star already colonized by you' };
     }
 
-    return { isValid: true, planet };
+    return { isValid: true, star };
   }
 
   private checkForColonyShips(game: GameState, fleet: Fleet): boolean {
@@ -106,12 +106,12 @@ export class FleetColonizationService {
     });
   }
 
-  private logSuccessfulValidation(fleet: Fleet, planet: Planet, context: LogContext): void {
+  private logSuccessfulValidation(fleet: Fleet, star: Star, context: LogContext): void {
     this.logging.debug(`Colonization check passed for fleet ${fleet.name}`, {
       ...context,
       additionalData: { 
-        starId: planet.id,
-        planetName: planet.name,
+        starId: star.id,
+        starName: star.name,
         fleetName: fleet.name
       }
     });
@@ -130,20 +130,20 @@ export class FleetColonizationService {
     game: GameState, 
     fleetId: string, 
     context: LogContext
-  ): { isValid: boolean; fleet?: Fleet; planet?: Planet } {
+  ): { isValid: boolean; fleet?: Fleet; planet?: Star } {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     if (!fleet || fleet.location.type !== 'orbit') {
       this.logging.error('Fleet not found or not in orbit for colonization', context);
       return { isValid: false };
     }
 
-    const planetIndex = this.buildPlanetIndex(game);
-    const planet = planetIndex.get(
+    const starIndex = this.buildStarIndex(game);
+    const planet = starIndex.get(
       (fleet.location as { type: 'orbit'; starId: string }).starId
     );
     
     if (!planet) {
-      this.logging.error('Planet not found for colonization', context);
+      this.logging.error('Star not found for colonization', context);
       return { isValid: false };
     }
 
@@ -177,40 +177,40 @@ export class FleetColonizationService {
   private executeColonization(
     game: GameState, 
     fleet: Fleet, 
-    planet: Planet, 
+    star: Star, 
     colonyStack: any, 
     design: any, 
     context: LogContext
   ): [GameState, string | null] {
-    const hab = this.habitability.calculate(planet, game.humanPlayer.species);
+    const hab = this.habitability.calculate(star, game.humanPlayer.species);
     
-    this.logging.info(`Colonizing planet ${planet.name} (habitability: ${hab}%)`, {
+    this.logging.info(`Colonizing star ${star.name} (habitability: ${hab}%)`, {
       ...context,
       additionalData: { 
-        starId: planet.id, 
-        planetName: planet.name, 
+        starId: star.id, 
+        starName: star.name, 
         habitability: hab,
         fleetName: fleet.name
       }
     });
 
-    return this.performColonization(game, fleet, planet, colonyStack, design, hab, context);
+    return this.performColonization(game, fleet, star, colonyStack, design, hab, context);
   }
 
   private performColonization(
     game: GameState,
     fleet: Fleet,
-    planet: Planet,
+    star: Star,
     colonyStack: any,
     design: any,
     habitability: number,
     context: LogContext
   ): [GameState, string | null] {
     this.consumeColonyShip(fleet, colonyStack);
-    this.initializeColony(planet, habitability, game.humanPlayer.id);
-    this.transferResourcesToColony(planet, fleet, design);
+    this.initializeColony(star, habitability, game.humanPlayer.id);
+    this.transferResourcesToColony(star, fleet, design);
     
-    return this.finalizeColonization(game, fleet, planet, context);
+    return this.finalizeColonization(game, fleet, star, context);
   }
 
   private consumeColonyShip(fleet: Fleet, colonyStack: any): void {
@@ -220,43 +220,43 @@ export class FleetColonizationService {
     }
   }
 
-  private initializeColony(planet: Planet, habitability: number, playerId: string): void {
-    planet.ownerId = playerId;
-    planet.governor = { type: this.settings.defaultGovernor() };
-    planet.buildQueue = [];
-    planet.maxPopulation = habitability > 0 
+  private initializeColony(star: Star, habitability: number, playerId: string): void {
+    star.ownerId = playerId;
+    star.governor = { type: this.settings.defaultGovernor() };
+    star.buildQueue = [];
+    star.maxPopulation = habitability > 0 
       ? Math.floor(1_000_000 * (habitability / 100)) 
       : 1000;
   }
 
-  private transferResourcesToColony(planet: Planet, fleet: Fleet, design: any): void {
+  private transferResourcesToColony(star: Star, fleet: Fleet, design: any): void {
     // Transfer population
-    planet.population = Math.max(0, fleet.cargo.colonists);
+    star.population = Math.max(0, fleet.cargo.colonists);
     
     // Transfer minerals from cargo
-    planet.surfaceMinerals.ironium += fleet.cargo.minerals.ironium;
-    planet.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
-    planet.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
+    star.surfaceMinerals.ironium += fleet.cargo.minerals.ironium;
+    star.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
+    star.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
     
     // Add resources from broken-down ship
     const cost = this.shipyard.getShipCost(design);
-    planet.resources += cost.resources;
-    planet.surfaceMinerals.ironium += cost.ironium ?? 0;
-    planet.surfaceMinerals.boranium += cost.boranium ?? 0;
-    planet.surfaceMinerals.germanium += cost.germanium ?? 0;
+    star.resources += cost.resources;
+    star.surfaceMinerals.ironium += cost.ironium ?? 0;
+    star.surfaceMinerals.boranium += cost.boranium ?? 0;
+    star.surfaceMinerals.germanium += cost.germanium ?? 0;
   }
 
   private finalizeColonization(
     game: GameState, 
     fleet: Fleet, 
-    planet: Planet, 
+    star: Star, 
     context: LogContext
   ): [GameState, string | null] {
     this.clearFleetCargo(fleet);
-    this.logColonyEstablishment(planet, context);
+    this.logColonyEstablishment(star, context);
     this.removeEmptyFleet(game, fleet, context);
     
-    return [{ ...game, stars: [...game.stars], fleets: [...game.fleets] }, planet.id];
+    return [{ ...game, stars: [...game.stars], fleets: [...game.fleets] }, star.id];
   }
 
   private clearFleetCargo(fleet: Fleet): void {
@@ -265,14 +265,14 @@ export class FleetColonizationService {
     fleet.orders = [];
   }
 
-  private logColonyEstablishment(planet: Planet, context: LogContext): void {
-    this.logging.info(`Colony established on ${planet.name}`, {
+  private logColonyEstablishment(star: Star, context: LogContext): void {
+    this.logging.info(`Colony established on ${star.name}`, {
       ...context,
       additionalData: { 
-        starId: planet.id,
-        planetName: planet.name,
-        population: planet.population,
-        maxPopulation: planet.maxPopulation
+        starId: star.id,
+        starName: star.name,
+        population: star.population,
+        maxPopulation: star.maxPopulation
       }
     });
   }
@@ -284,12 +284,10 @@ export class FleetColonizationService {
     }
   }
 
-  private buildPlanetIndex(game: GameState): Map<string, Planet> {
-    const index = new Map<string, Planet>();
+  private buildStarIndex(game: GameState): Map<string, Star> {
+    const index = new Map<string, Star>();
     for (const star of game.stars) {
-      for (const planet of star.planets) {
-        index.set(planet.id, planet);
-      }
+      index.set(star.id, star);
     }
     return index;
   }

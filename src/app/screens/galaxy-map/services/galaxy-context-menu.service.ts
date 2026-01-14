@@ -6,7 +6,7 @@ import {
   Waypoint,
   LogContext 
 } from '../../../models/service-interfaces.model';
-import { Fleet, Star, Planet } from '../../../models/game.model';
+import { Fleet, Star } from '../../../models/game.model';
 
 export interface PlanetContextMenuState {
   visible: boolean;
@@ -61,21 +61,18 @@ export class GalaxyContextMenuService implements IGalaxyContextMenuService {
     order: null,
   });
 
-  showPlanetContextMenu(planet: Planet, position: ScreenCoordinate): void {
+  showPlanetContextMenu(star: Star, position: ScreenCoordinate): void {
     const context: LogContext = {
       service: 'GalaxyContextMenuService',
       operation: 'showPlanetContextMenu',
-      entityId: planet.id,
-      entityType: 'planet',
+      entityId: star.id,
+      entityType: 'star',
       additionalData: { position }
     };
 
     this.logging.debug('Showing planet context menu', context);
 
-    // Find the star that contains this planet
-    // Note: This is a simplified approach - in a real implementation, 
-    // you might want to pass the star directly or have a lookup service
-    const star = this.findStarByPlanetId(planet.id);
+    // Star is passed directly since planets are now part of stars
     
     this.closeAllContextMenus();
     this.planetContextMenu.set({
@@ -255,8 +252,8 @@ export class GalaxyContextMenuService implements IGalaxyContextMenuService {
     this.logging.warn('findStarByPlanetId not fully implemented', {
       service: 'GalaxyContextMenuService',
       operation: 'findStarByPlanetId',
-      entityId: planetId,
-      entityType: 'planet'
+      entityId: starId,
+      entityType: 'star'
     });
     return null;
   }

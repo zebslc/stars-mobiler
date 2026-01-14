@@ -68,7 +68,7 @@ describe('GalaxyVisibilityService', () => {
     id: 'fleet1',
     name: 'Scout Fleet',
     ownerId: 'p1',
-    location: { type: 'orbit', starId: 'planet1' },
+    location: { type: 'orbit', starId: 'star1' },
     ships: [{ designId: 'scout', count: 1, damage: 0 }],
     fuel: 100,
     cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },

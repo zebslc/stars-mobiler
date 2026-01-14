@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Planet } from '../../../models/game.model';
+import { Star } from '../../../models/game.model';
 
 @Component({
   standalone: true,
@@ -41,7 +41,7 @@ import { Planet } from '../../../models/game.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanetResourcesComponent {
-  planet = input.required<Planet>();
+  planet = input.required<Star>();
 
   maxFacilities() {
     return Math.floor(this.planet().population / 10);

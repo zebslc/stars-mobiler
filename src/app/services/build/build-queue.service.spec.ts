@@ -91,53 +91,53 @@ describe('BuildQueueService', () => {
 
   describe('addToBuildQueue', () => {
     it('should add item to empty build queue', () => {
-      const planet = createStar({ buildQueue: [] });
-      const game = createGameState(planet);
+      const star = createStar({ buildQueue: [] });
+      const game = createGameState(star);
       const item = createBuildItem();
 
-      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(star);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.addToBuildQueue(game, 'planet1', item);
 
-      expect(planet.buildQueue).toEqual([item]);
+      expect(star.buildQueue).toEqual([item]);
       expect(mockPlanetUtility.getOwnedStar).toHaveBeenCalledWith(game, 'planet1');
       expect(mockPlanetUtility.updateGameState).toHaveBeenCalled();
     });
 
     it('should append item to existing build queue', () => {
       const existingItem = createBuildItem({ project: 'factory' });
-      const planet = createStar({ buildQueue: [existingItem] });
-      const game = createGameState(planet);
+      const star = createStar({ buildQueue: [existingItem] });
+      const game = createGameState(star);
       const newItem = createBuildItem({ project: 'mine' });
 
-      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(star);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.addToBuildQueue(game, 'planet1', newItem);
 
-      expect(planet.buildQueue!.length).toBe(2);
-      expect(planet.buildQueue![0].project).toBe('factory');
-      expect(planet.buildQueue![1].project).toBe('mine');
+      expect(star.buildQueue!.length).toBe(2);
+      expect(star.buildQueue![0].project).toBe('factory');
+      expect(star.buildQueue![1].project).toBe('mine');
     });
 
     it('should handle undefined build queue', () => {
-      const planet = createStar();
-      delete (planet as any).buildQueue;
-      const game = createGameState(planet);
+      const star = createStar();
+      delete ((star as any)).buildQueue;
+      const game = createGameState(star);
       const item = createBuildItem();
 
-      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(star);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.addToBuildQueue(game, 'planet1', item);
 
-      expect(planet.buildQueue).toEqual([item]);
+      expect(star.buildQueue).toEqual([item]);
     });
 
     it('should return unchanged game when planet not found', () => {
-      const planet = createStar();
-      const game = createGameState(planet);
+      const star = createStar();
+      const game = createGameState(star);
       const item = createBuildItem();
 
       mockPlanetUtility.getOwnedStar.and.returnValue(null);
@@ -154,37 +154,37 @@ describe('BuildQueueService', () => {
       const item1 = createBuildItem({ project: 'mine' });
       const item2 = createBuildItem({ project: 'factory' });
       const item3 = createBuildItem({ project: 'defense' });
-      const planet = createStar({ buildQueue: [item1, item2, item3] });
-      const game = createGameState(planet);
+      const star = createStar({ buildQueue: [item1, item2, item3] });
+      const game = createGameState(star);
 
-      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(star);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.removeFromQueue(game, 'planet1', 1);
 
-      expect(planet.buildQueue!.length).toBe(2);
-      expect(planet.buildQueue![0].project).toBe('mine');
-      expect(planet.buildQueue![1].project).toBe('defense');
+      expect(star.buildQueue!.length).toBe(2);
+      expect(star.buildQueue![0].project).toBe('mine');
+      expect(star.buildQueue![1].project).toBe('defense');
     });
 
     it('should remove first item when index is 0', () => {
       const item1 = createBuildItem({ project: 'mine' });
       const item2 = createBuildItem({ project: 'factory' });
-      const planet = createStar({ buildQueue: [item1, item2] });
-      const game = createGameState(planet);
+      const star = createStar({ buildQueue: [item1, item2] });
+      const game = createGameState(star);
 
-      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(star);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.removeFromQueue(game, 'planet1', 0);
 
-      expect(planet.buildQueue!.length).toBe(1);
-      expect(planet.buildQueue![0].project).toBe('factory');
+      expect(star.buildQueue!.length).toBe(1);
+      expect(star.buildQueue![0].project).toBe('factory');
     });
 
     it('should return unchanged game when planet not found', () => {
-      const planet = createStar();
-      const game = createGameState(planet);
+      const star = createStar();
+      const game = createGameState(star);
 
       mockPlanetUtility.getOwnedStar.and.returnValue(null);
 
@@ -194,11 +194,11 @@ describe('BuildQueueService', () => {
     });
 
     it('should return unchanged game when build queue is undefined', () => {
-      const planet = createStar();
-      delete (planet as any).buildQueue;
-      const game = createGameState(planet);
+      const star = createStar();
+      delete ((star as any)).buildQueue;
+      const game = createGameState(star);
 
-      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(star);
 
       const result = service.removeFromQueue(game, 'planet1', 0);
 

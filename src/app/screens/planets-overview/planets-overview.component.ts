@@ -37,10 +37,10 @@ import { LoggingService } from '../../services/core/logging.service';
       }
 
       <div class="planets-grid">
-        @for (planet of planets(); track planet.id) {
+        @for (planet of planets(); track star.id) {
           <app-planet-card
             [planet]="planet"
-            [starbase]="starbaseMap().get(planet.id) || null"
+            [starbase]="starbaseMap().get(star.id) || null"
             (viewPlanet)="onViewPlanet(planet)"
             (viewOnMap)="onViewOnMap(planet)"
           >
@@ -207,10 +207,10 @@ export class PlanetsOverviewComponent {
   });
 
   onViewPlanet(planet: Star) {
-    this.router.navigate(['/planet', planet.id]);
+    this.router.navigate(['/planet', star.id]);
   }
 
   onViewOnMap(planet: Star) {
-    this.router.navigate(['/map'], { queryParams: { starId: planet.id } });
+    this.router.navigate(['/map'], { queryParams: { starId: star.id } });
   }
 }

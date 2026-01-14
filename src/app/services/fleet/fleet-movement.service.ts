@@ -38,7 +38,7 @@ export class FleetMovementService implements IFleetMovementService {
       type: 'move',
       destination: destination.type === 'space' 
         ? { x: destination.x!, y: destination.y! }
-        : this.getPlanetPosition(game, destination.starId!)
+        : this.getStarPosition(game, destination.starId!)
     };
 
     fleet.orders = [moveOrder];
@@ -164,7 +164,7 @@ export class FleetMovementService implements IFleetMovementService {
     return { x: 0, y: 0 };
   }
 
-  private getPlanetPosition(game: GameState, starId: string): GalaxyCoordinate {
+  private getStarPosition(game: GameState, starId: string): GalaxyCoordinate {
     const star = game.stars.find(s => s.id === starId);
     return star ? star.position : { x: 0, y: 0 };
   }

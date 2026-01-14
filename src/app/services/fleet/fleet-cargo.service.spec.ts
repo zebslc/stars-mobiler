@@ -17,7 +17,7 @@ describe('FleetCargoService', () => {
   };
 
   const mockPlanet: Star = {
-    id: 'planet1',
+    id: 'star1',
     name: 'Earth',
     position: { x: 0, y: 0 },
     ownerId: 'p1',
@@ -38,7 +38,7 @@ describe('FleetCargoService', () => {
   };
 
   const mockStar: Star = {
-    id: 'star1',
+    id: 'planet1',
     name: 'Sol',
     position: { x: 0, y: 0 },
     temperature: 50,
@@ -72,7 +72,7 @@ describe('FleetCargoService', () => {
         id: 'f1',
         ownerId: 'p1',
         name: 'Cargo Fleet',
-        location: { type: 'orbit', starId: 'planet1' },
+        location: { type: 'orbit', starId: 'star1' },
         ships: [{ designId: 'freighter', count: 1, damage: 0 }],
         cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
         fuel: 100,
@@ -108,7 +108,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should load specific amounts of minerals', () => {
-      const result = service.loadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.loadCargo(mockGame, 'f1', 'star1', {
         ironium: 50,
         boranium: 30,
       });
@@ -124,7 +124,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should load all available minerals when requested', () => {
-      const result = service.loadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.loadCargo(mockGame, 'f1', 'star1', {
         ironium: 'all',
       });
 
@@ -136,7 +136,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should respect cargo capacity limits', () => {
-      const result = service.loadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.loadCargo(mockGame, 'f1', 'star1', {
         ironium: 'fill',
       });
 
@@ -148,7 +148,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should load resources', () => {
-      const result = service.loadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.loadCargo(mockGame, 'f1', 'star1', {
         resources: 200,
       });
 
@@ -160,7 +160,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should load colonists', () => {
-      const result = service.loadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.loadCargo(mockGame, 'f1', 'star1', {
         colonists: 50000, // 50 kT worth - but planet only has 10,000
       });
 
@@ -172,7 +172,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should handle non-existent fleet gracefully', () => {
-      const result = service.loadCargo(mockGame, 'nonexistent', 'planet1', {
+      const result = service.loadCargo(mockGame, 'nonexistent', 'star1', {
         ironium: 50,
       });
 
@@ -190,7 +190,7 @@ describe('FleetCargoService', () => {
         id: 'f1',
         ownerId: 'p1',
         name: 'Cargo Fleet',
-        location: { type: 'orbit', starId: 'planet1' },
+        location: { type: 'orbit', starId: 'star1' },
         ships: [{ designId: 'freighter', count: 1, damage: 0 }],
         cargo: {
           resources: 50,
@@ -216,7 +216,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should unload specific amounts of minerals', () => {
-      const result = service.unloadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.unloadCargo(mockGame, 'f1', 'star1', {
         ironium: 20,
         boranium: 10,
       });
@@ -231,7 +231,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should unload all cargo when requested', () => {
-      const result = service.unloadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.unloadCargo(mockGame, 'f1', 'star1', {
         resources: 'all',
         colonists: 'all',
       });
@@ -246,7 +246,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should handle amounts exceeding available cargo', () => {
-      const result = service.unloadCargo(mockGame, 'f1', 'planet1', {
+      const result = service.unloadCargo(mockGame, 'f1', 'star1', {
         ironium: 100, // More than available (30)
       });
 
@@ -258,7 +258,7 @@ describe('FleetCargoService', () => {
     });
 
     it('should log unloading operations', () => {
-      service.unloadCargo(mockGame, 'f1', 'planet1', {
+      service.unloadCargo(mockGame, 'f1', 'star1', {
         resources: 25,
       });
 

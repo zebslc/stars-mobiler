@@ -119,25 +119,25 @@ describe('BuildPaymentService', () => {
 
   describe('calculateAffordablePayment', () => {
     it('should return remaining amount when planet has enough', () => {
-      const planet = createStar({
+      const star = createStar({
         resources: 500,
         surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
       });
       const remaining: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
-      const result = service.calculateAffordablePayment(planet, remaining);
+      const result = service.calculateAffordablePayment(star, remaining);
 
       expect(result).toEqual({ resources: 100, ironium: 50, boranium: 30, germanium: 20 });
     });
 
     it('should return planet resources when less than remaining', () => {
-      const planet = createStar({
+      const star = createStar({
         resources: 50,
         surfaceMinerals: { ironium: 30, boranium: 20, germanium: 10 },
       });
       const remaining: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
-      const result = service.calculateAffordablePayment(planet, remaining);
+      const result = service.calculateAffordablePayment(star, remaining);
 
       expect(result).toEqual({ resources: 50, ironium: 30, boranium: 20, germanium: 10 });
     });
@@ -145,18 +145,18 @@ describe('BuildPaymentService', () => {
 
   describe('deductFromPlanet', () => {
     it('should deduct affordable amounts from planet', () => {
-      const planet = createStar({
+      const star = createStar({
         resources: 500,
         surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
       });
       const affordable: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
-      service.deductFromPlanet(planet, affordable);
+      service.deductFromPlanet(star, affordable);
 
-      expect(planet.resources).toBe(400);
-      expect(planet.surfaceMinerals.ironium).toBe(150);
-      expect(planet.surfaceMinerals.boranium).toBe(120);
-      expect(planet.surfaceMinerals.germanium).toBe(80);
+      expect(star.resources).toBe(400);
+      expect(star.surfaceMinerals.ironium).toBe(150);
+      expect(star.surfaceMinerals.boranium).toBe(120);
+      expect(star.surfaceMinerals.germanium).toBe(80);
     });
   });
 
@@ -217,7 +217,7 @@ describe('BuildPaymentService', () => {
 
   describe('processItemPayment', () => {
     it('should process full payment when planet has enough resources', () => {
-      const planet = createStar({
+      const star = createStar({
         resources: 500,
         surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
       });
@@ -229,15 +229,15 @@ describe('BuildPaymentService', () => {
       const totalCost: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
       const scrapCredit: ResourceAmount = zeroResources();
 
-      const result = service.processItemPayment(planet, item, remaining, totalCost, scrapCredit);
+      const result = service.processItemPayment(star, item, remaining, totalCost, scrapCredit);
 
       expect(result.isComplete).toBe(true);
       expect(result.paid).toEqual({ resources: 100, ironium: 50, boranium: 30, germanium: 20 });
-      expect(planet.resources).toBe(400);
+      expect(star.resources).toBe(400);
     });
 
     it('should process partial payment when planet has insufficient resources', () => {
-      const planet = createStar({
+      const star = createStar({
         resources: 50,
         surfaceMinerals: { ironium: 30, boranium: 20, germanium: 10 },
       });
@@ -249,43 +249,43 @@ describe('BuildPaymentService', () => {
       const totalCost: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
       const scrapCredit: ResourceAmount = zeroResources();
 
-      const result = service.processItemPayment(planet, item, remaining, totalCost, scrapCredit);
+      const result = service.processItemPayment(star, item, remaining, totalCost, scrapCredit);
 
       expect(result.isComplete).toBe(false);
       expect(result.paid).toEqual({ resources: 50, ironium: 30, boranium: 20, germanium: 10 });
-      expect(planet.resources).toBe(0);
+      expect(star.resources).toBe(0);
     });
   });
 
   describe('handleExcessRefunds', () => {
     it('should refund excess minerals from scrap credits', () => {
-      const planet = createStar({
+      const star = createStar({
         surfaceMinerals: { ironium: 100, boranium: 100, germanium: 100 },
       });
       const paid: ResourceAmount = { resources: 100, ironium: 40, boranium: 25, germanium: 15 };
       const scrapCredit: ResourceAmount = { resources: 0, ironium: 20, boranium: 15, germanium: 10 };
       const totalCost: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
-      service.handleExcessRefunds(planet, paid, scrapCredit, totalCost);
+      service.handleExcessRefunds(star, paid, scrapCredit, totalCost);
 
-      expect(planet.surfaceMinerals.ironium).toBe(110); // 100 + (40+20-50)
-      expect(planet.surfaceMinerals.boranium).toBe(110); // 100 + (25+15-30)
-      expect(planet.surfaceMinerals.germanium).toBe(105); // 100 + (15+10-20)
+      expect(star.surfaceMinerals.ironium).toBe(110); // 100 + (40+20-50)
+      expect(star.surfaceMinerals.boranium).toBe(110); // 100 + (25+15-30)
+      expect(star.surfaceMinerals.germanium).toBe(105); // 100 + (15+10-20)
     });
 
     it('should not refund when no excess', () => {
-      const planet = createStar({
+      const star = createStar({
         surfaceMinerals: { ironium: 100, boranium: 100, germanium: 100 },
       });
       const paid: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
       const scrapCredit: ResourceAmount = zeroResources();
       const totalCost: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
-      service.handleExcessRefunds(planet, paid, scrapCredit, totalCost);
+      service.handleExcessRefunds(star, paid, scrapCredit, totalCost);
 
-      expect(planet.surfaceMinerals.ironium).toBe(100);
-      expect(planet.surfaceMinerals.boranium).toBe(100);
-      expect(planet.surfaceMinerals.germanium).toBe(100);
+      expect(star.surfaceMinerals.ironium).toBe(100);
+      expect(star.surfaceMinerals.boranium).toBe(100);
+      expect(star.surfaceMinerals.germanium).toBe(100);
     });
   });
 });

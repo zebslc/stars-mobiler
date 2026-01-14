@@ -126,8 +126,8 @@ describe('BuildProcessorService', () => {
 
     it('should process build queue for planet with items', () => {
       const item = createBuildItem();
-      const planet = createStar({ buildQueue: [item] });
-      const game = createGameState([planet]);
+      const star = createStar({ buildQueue: [item] });
+      const game = createGameState([star]);
 
       const totalCost: ResourceAmount = {
         resources: 100,
@@ -151,7 +151,7 @@ describe('BuildProcessorService', () => {
       });
       // Must shift queue to avoid infinite loop
       mockBuildQueue.handleQueueProgression.and.callFake(() => {
-        planet.buildQueue!.shift();
+        star.buildQueue!.shift();
       });
 
       service.processBuildQueues(game);
@@ -166,8 +166,8 @@ describe('BuildProcessorService', () => {
     it('should stop processing when resources run out', () => {
       const item1 = createBuildItem({ project: 'mine' });
       const item2 = createBuildItem({ project: 'factory' });
-      const planet = createStar({ buildQueue: [item1, item2] });
-      const game = createGameState([planet]);
+      const star = createStar({ buildQueue: [item1, item2] });
+      const game = createGameState([star]);
 
       const totalCost: ResourceAmount = {
         resources: 100,
@@ -200,8 +200,8 @@ describe('BuildProcessorService', () => {
     it('should process multiple items when resources available', () => {
       const item1 = createBuildItem({ project: 'mine' });
       const item2 = createBuildItem({ project: 'factory' });
-      const planet = createStar({ buildQueue: [item1, item2] });
-      const game = createGameState([planet]);
+      const star = createStar({ buildQueue: [item1, item2] });
+      const game = createGameState([star]);
 
       const totalCost: ResourceAmount = {
         resources: 100,
@@ -225,7 +225,7 @@ describe('BuildProcessorService', () => {
       });
       // Simulate queue being emptied after each item
       mockBuildQueue.handleQueueProgression.and.callFake(() => {
-        planet.buildQueue!.shift();
+        star.buildQueue!.shift();
       });
 
       service.processBuildQueues(game);
@@ -235,8 +235,8 @@ describe('BuildProcessorService', () => {
     });
 
     it('should handle empty build queue', () => {
-      const planet = createStar({ buildQueue: [] });
-      const game = createGameState([planet]);
+      const star = createStar({ buildQueue: [] });
+      const game = createGameState([star]);
 
       service.processBuildQueues(game);
 
@@ -245,9 +245,9 @@ describe('BuildProcessorService', () => {
     });
 
     it('should handle undefined build queue', () => {
-      const planet = createStar();
-      delete (planet as any).buildQueue;
-      const game = createGameState([planet]);
+      const star = createStar();
+      delete ((star as any)).buildQueue;
+      const game = createGameState([star]);
 
       expect(() => service.processBuildQueues(game)).not.toThrow();
     });
@@ -258,8 +258,8 @@ describe('BuildProcessorService', () => {
         shipDesignId: 'starbase',
         paid: zeroResources(), // Initialize paid
       });
-      const planet = createStar({ buildQueue: [item] });
-      const game = createGameState([planet]);
+      const star = createStar({ buildQueue: [item] });
+      const game = createGameState([star]);
 
       const totalCost: ResourceAmount = {
         resources: 500,
@@ -293,7 +293,7 @@ describe('BuildProcessorService', () => {
         isComplete: true,
       });
       mockBuildQueue.handleQueueProgression.and.callFake(() => {
-        planet.buildQueue!.shift();
+        star.buildQueue!.shift();
       });
 
       service.processBuildQueues(game);

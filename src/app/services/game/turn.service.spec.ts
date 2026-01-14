@@ -232,7 +232,7 @@ describe('TurnService', () => {
     });
 
     it('should set owner to neutral when population reaches zero', () => {
-      const star = createStar({ population: 10, ownerId: 'human' });
+      const star = createStar({ population: 1, ownerId: 'human' });
 
       service.applyPopulationDecay(star, -100);
 
