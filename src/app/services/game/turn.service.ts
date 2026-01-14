@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState } from '../../models/game.model';
+import { GameState, Planet, Player } from '../../models/game.model';
 import { EconomyService } from '../colony/economy.service';
 import { ResearchService } from '../tech/research.service';
 import { ColonyService } from '../colony/colony.service';
@@ -17,82 +17,141 @@ export class TurnService {
   ) {}
 
   endTurn(game: GameState): GameState {
-    // Production completes - distribute to each planet
+    const ownedPlanets = this.getOwnedPlanets(game);
+
+    const totalResearch = this.processProduction(ownedPlanets, game.humanPlayer);
+    this.processResearch(game, totalResearch);
+    this.processPopulation(ownedPlanets, game.humanPlayer);
+    this.processColonies(game);
+    this.processFleets(game);
+
+    return this.createNextGameState(game);
+  }
+
+  /**
+   * Get all planets owned by the human player.
+   */
+  getOwnedPlanets(game: GameState): Planet[] {
+    return game.stars
+      .flatMap((s) => s.planets)
+      .filter((p) => p.ownerId === game.humanPlayer.id);
+  }
+
+  /**
+   * Process production for all owned planets.
+   * Returns total research points generated.
+   */
+  processProduction(planets: Planet[], player: Player): number {
     let totalResearch = 0;
-    const allPlanets = game.stars.flatMap((s) => s.planets);
-    for (const planet of allPlanets) {
-      if (planet.ownerId !== game.humanPlayer.id) continue;
-      const prod = this.economy.calculateProduction(planet);
-      // Add production directly to this planet
-      planet.resources += prod.resources;
-      // Mining extraction is applied to surface minerals in applyMiningDepletion
-      this.economy.applyMiningDepletion(planet, prod.extraction);
+    const researchModifier = this.getResearchModifier(player);
 
-      // Calculate Research
-      // 1 Lab = 1 RP ? Or depends on resources?
-      // Let's say 1 Lab = 1 RP for now.
-      // Modifiers from species traits could apply here.
-      const researchTrait =
-        game.humanPlayer.species.traits.find((t) => t.type === 'research')?.modifier ?? 0;
-      const baseResearch = planet.research || 0;
-      totalResearch += baseResearch * (1 + researchTrait);
+    for (const planet of planets) {
+      this.processPlanetProduction(planet);
+      totalResearch += this.calculatePlanetResearch(planet, researchModifier);
     }
+
+    return totalResearch;
+  }
+
+  /**
+   * Process production for a single planet.
+   */
+  processPlanetProduction(planet: Planet): void {
+    const prod = this.economy.calculateProduction(planet);
+    planet.resources += prod.resources;
+    this.economy.applyMiningDepletion(planet, prod.extraction);
+  }
+
+  /**
+   * Get research modifier from species traits.
+   */
+  getResearchModifier(player: Player): number {
+    return player.species.traits.find((t) => t.type === 'research')?.modifier ?? 0;
+  }
+
+  /**
+   * Calculate research points from a planet.
+   */
+  calculatePlanetResearch(planet: Planet, modifier: number): number {
+    const baseResearch = planet.research || 0;
+    return baseResearch * (1 + modifier);
+  }
+
+  /**
+   * Process research advancement.
+   */
+  processResearch(game: GameState, totalResearch: number): void {
     game.playerEconomy.research += totalResearch;
-
-    // Distribute research across all tech fields
     this.research.advanceResearch(game, totalResearch);
+  }
 
-    // Population grows or dies
-    for (const planet of allPlanets) {
-      if (planet.ownerId !== game.humanPlayer.id) continue;
-      const habPct = this.hab.calculate(planet, game.humanPlayer.species);
+  /**
+   * Process population growth or die-off for all owned planets.
+   */
+  processPopulation(planets: Planet[], player: Player): void {
+    for (const planet of planets) {
+      const habPct = this.hab.calculate(planet, player.species);
 
       if (habPct > 0) {
-        // Update maxPopulation based on hab
-        planet.maxPopulation = Math.floor(1_000_000 * (habPct / 100));
-
-        // Positive habitability: Logistic Growth
-        const growthRate = (habPct / 100) * 0.1;
-        const growth = this.economy.logisticGrowth(
-          planet.population,
-          planet.maxPopulation,
-          growthRate,
-        );
-        planet.population = Math.min(planet.maxPopulation, planet.population + growth);
+        this.applyPopulationGrowth(planet, habPct);
       } else {
-        // Negative habitability: Die-off
-        // Lose 10% per 10% negative habitability, min 5% loss per turn if occupied
-        const lossRate = Math.min(0.15, Math.abs(habPct / 100) * 0.15);
-        // Example: -45% hab -> 0.45 * 0.15 ~= 6.75% loss
-        // Let's make it clearer: 3 turns to lose all? That's ~33% loss/turn.
-        // User says "lose all in 3 turns" is a bug, implies it's too fast or unexpected.
-        // If hab is negative, they SHOULD die off unless terraformed.
-        // But if user says "it does not show any losses expected", the UI is wrong.
-        // We will fix the logic here to be standard (e.g. 10% per turn max) and ensure UI shows it.
-        const decay = Math.ceil(planet.population * lossRate);
-        planet.population = Math.max(0, planet.population - decay);
-        if (planet.population === 0) {
-          planet.ownerId = 'neutral'; // Colony lost
-        }
+        this.applyPopulationDecay(planet, habPct);
       }
     }
-    // Mining already applied above; increment turn
-    // Process one build item per owned planet (Finish previous work)
+  }
+
+  /**
+   * Apply population growth for positive habitability.
+   */
+  applyPopulationGrowth(planet: Planet, habPct: number): void {
+    planet.maxPopulation = Math.floor(1_000_000 * (habPct / 100));
+    const growthRate = (habPct / 100) * 0.1;
+    const growth = this.economy.logisticGrowth(
+      planet.population,
+      planet.maxPopulation,
+      growthRate,
+    );
+    planet.population = Math.min(planet.maxPopulation, planet.population + growth);
+  }
+
+  /**
+   * Apply population decay for negative habitability.
+   */
+  applyPopulationDecay(planet: Planet, habPct: number): void {
+    const lossRate = Math.min(0.15, Math.abs(habPct / 100) * 0.15);
+    const decay = Math.ceil(planet.population * lossRate);
+    planet.population = Math.max(0, planet.population - decay);
+
+    if (planet.population === 0) {
+      planet.ownerId = 'neutral';
+    }
+  }
+
+  /**
+   * Process colony build queues and governors.
+   */
+  processColonies(game: GameState): void {
     this.colony.processBuildQueues(game);
-
-    // Schedule builds if queue is empty (Prepare for next work)
     this.colony.processGovernors(game);
+  }
 
-    // Movement and colonization
+  /**
+   * Process fleet movement and orders.
+   */
+  processFleets(game: GameState): void {
     this.fleet.processFleets(game);
+  }
+
+  /**
+   * Create the next game state with updated turn and fresh references.
+   */
+  createNextGameState(game: GameState): GameState {
     game.turn++;
-    // Create new array references to ensure signal change detection triggers
-    const nextGame = {
+    return {
       ...game,
       humanPlayer: { ...game.humanPlayer },
       stars: [...game.stars],
       fleets: [...game.fleets],
     };
-    return nextGame;
   }
 }
