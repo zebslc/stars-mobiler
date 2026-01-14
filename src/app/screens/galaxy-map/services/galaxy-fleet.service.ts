@@ -38,27 +38,22 @@ export class GalaxyFleetService {
 
   readonly stationByStarId = computed(() => {
     const fleets = this.gs.game()?.fleets ?? [];
-    const stars = this.gs.stars();
-    const planetToStar = new Map<string, string>();
-    stars.forEach((s) => s.planets.forEach((p) => planetToStar.set(p.id, s.id)));
 
     const stationMap = new Map<string, string>();
 
     fleets.forEach((f) => {
       if (this.isStation(f) && f.location.type === 'orbit') {
-        const starId = planetToStar.get(f.location.planetId);
-        if (starId) {
-          const designId = f.ships[0]?.designId;
-          let designName = 'Unknown Station';
-          const customDesign = this.gs.game()?.shipDesigns.find((d) => d.id === designId);
-          if (customDesign) {
-            designName = customDesign.name;
-          } else {
-            const design = getDesign(designId);
-            if (design) designName = design.name;
-          }
-          stationMap.set(starId, designName);
+        const starId = f.location.starId;
+        const designId = f.ships[0]?.designId;
+        let designName = 'Unknown Station';
+        const customDesign = this.gs.game()?.shipDesigns.find((d) => d.id === designId);
+        if (customDesign) {
+          designName = customDesign.name;
+        } else {
+          const design = getDesign(designId);
+          if (design) designName = design.name;
         }
+        stationMap.set(starId, designName);
       }
     });
     return stationMap;
@@ -86,9 +81,7 @@ export class GalaxyFleetService {
     if (fleet.location.type === 'space') {
       return { x: fleet.location.x, y: fleet.location.y };
     }
-    const star = this.gs.stars().find((s) =>
-      s.planets.some((p) => p.id === (fleet.location as any).planetId),
-    );
+    const star = this.gs.stars().find((s) => s.id === (fleet.location as { starId: string }).starId);
     return star ? { x: star.position.x, y: star.position.y } : null;
   }
 
@@ -107,26 +100,25 @@ export class GalaxyFleetService {
     if (fleet.location.type === 'orbit') {
       const orbitPos = this.fleetOrbitPosition(fleet);
       if (orbitPos) return orbitPos;
-      return this.planetPos(fleet.location.planetId);
+      return this.starPos(fleet.location.starId);
     }
     return { x: fleet.location.x, y: fleet.location.y };
   }
 
   // Helper for fleetPos
-  private planetPos(planetId: string): { x: number; y: number } {
-    const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === planetId));
+  private starPos(starId: string): { x: number; y: number } {
+    const star = this.gs.stars().find((s) => s.id === starId);
     return star ? star.position : { x: 0, y: 0 };
   }
 
   fleetsAtStar(star: Star) {
-    const ids = star.planets.map((p) => p.id);
     const fleets = this.gs.game()?.fleets ?? [];
-    return fleets.filter((f) => f.location.type === 'orbit' && ids.includes(f.location.planetId));
+    return fleets.filter((f) => f.location.type === 'orbit' && (f.location as { starId: string }).starId === star.id);
   }
 
-  fleetOrbitPosition(fleet: any): { x: number; y: number } | null {
+  fleetOrbitPosition(fleet: Fleet): { x: number; y: number } | null {
     if (fleet.location.type !== 'orbit') return null;
-    const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === fleet.location.planetId));
+    const star = this.gs.stars().find((s) => s.id === fleet.location.starId);
     if (!star) return null;
     const fleets = this.fleetsAtStar(star);
     const idx = fleets.findIndex((f) => f.id === fleet.id);

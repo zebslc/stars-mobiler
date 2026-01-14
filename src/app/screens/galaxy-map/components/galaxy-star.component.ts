@@ -312,30 +312,30 @@ export class GalaxyStarComponent {
 
   planetDetails = computed(() => {
     if (!this._isVisible()) return null;
-    const p = this.star.planets[0];
-    if (!p) return null;
+    const s = this.star;
     return {
-      resources: p.resources,
-      ironium: p.mineralConcentrations.ironium,
-      boranium: p.mineralConcentrations.boranium,
-      germanium: p.mineralConcentrations.germanium,
-      surfaceIronium: p.surfaceMinerals.ironium,
-      surfaceBoranium: p.surfaceMinerals.boranium,
-      surfaceGermanium: p.surfaceMinerals.germanium,
-      maxPop: (p.maxPopulation / 1_000_000).toFixed(1),
-      pop: p.population,
-      owner: p.ownerId === this.gs.player()?.id ? 'You' : p.ownerId ? 'Enemy' : 'Unowned',
-      hab: this.gs.habitabilityFor(p.id),
+      resources: s.resources,
+      ironium: s.mineralConcentrations.ironium,
+      boranium: s.mineralConcentrations.boranium,
+      germanium: s.mineralConcentrations.germanium,
+      surfaceIronium: s.surfaceMinerals.ironium,
+      surfaceBoranium: s.surfaceMinerals.boranium,
+      surfaceGermanium: s.surfaceMinerals.germanium,
+      maxPop: (s.maxPopulation / 1_000_000).toFixed(1),
+      pop: s.population,
+      owner: s.ownerId === this.gs.player()?.id ? 'You' : s.ownerId ? 'Enemy' : 'Unowned',
+      hab: this.gs.habitabilityFor(s.id),
     };
   });
 
   colorForStar = computed(() => {
     if (!this._isVisible()) return '#bdc3c7';
-    const owned = this.star.planets.some((p) => p.ownerId === this.gs.player()?.id);
-    const enemy = this.star.planets.some((p) => p.ownerId && p.ownerId !== this.gs.player()?.id);
+    const s = this.star;
+    const owned = s.ownerId === this.gs.player()?.id;
+    const enemy = s.ownerId && s.ownerId !== this.gs.player()?.id;
     if (owned) return '#2e86de';
     if (enemy) return '#d63031';
-    const colonizable = this.star.planets.some((p) => this.gs.habitabilityFor(p.id) > 0);
+    const colonizable = this.gs.habitabilityFor(s.id) > 0;
     return colonizable ? '#2ecc71' : '#bdc3c7';
   });
 

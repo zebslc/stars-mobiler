@@ -1,48 +1,48 @@
 import { GameCommand } from './game-command.interface';
-import { GameState, BuildItem, Planet } from '../../models/game.model';
+import { GameState, BuildItem, Star } from '../../models/game.model';
 import { ColonyService } from '../../services/colony/colony.service';
 
 /**
- * Command to add an item to a planet's build queue.
+ * Command to add an item to a star's build queue.
  */
 export class AddToBuildQueueCommand implements GameCommand {
   constructor(
     private colonyService: ColonyService,
-    private planetId: string,
+    private starId: string,
     private item: BuildItem
   ) {}
 
   execute(game: GameState): GameState {
-    return this.colonyService.addToBuildQueue(game, this.planetId, this.item);
+    return this.colonyService.addToBuildQueue(game, this.starId, this.item);
   }
 }
 
 /**
- * Command to set a planet's governor.
+ * Command to set a star's governor.
  */
 export class SetGovernorCommand implements GameCommand {
   constructor(
     private colonyService: ColonyService,
-    private planetId: string,
-    private governor: Planet['governor']
+    private starId: string,
+    private governor: Star['governor']
   ) {}
 
   execute(game: GameState): GameState {
-    return this.colonyService.setGovernor(game, this.planetId, this.governor);
+    return this.colonyService.setGovernor(game, this.starId, this.governor);
   }
 }
 
 /**
- * Command to remove an item from a planet's build queue.
+ * Command to remove an item from a star's build queue.
  */
 export class RemoveFromQueueCommand implements GameCommand {
   constructor(
     private colonyService: ColonyService,
-    private planetId: string,
+    private starId: string,
     private index: number
   ) {}
 
   execute(game: GameState): GameState {
-    return this.colonyService.removeFromQueue(game, this.planetId, this.index);
+    return this.colonyService.removeFromQueue(game, this.starId, this.index);
   }
 }

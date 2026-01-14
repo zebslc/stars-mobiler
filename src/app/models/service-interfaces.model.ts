@@ -5,7 +5,7 @@
  * during the refactoring process to break up god classes into focused services.
  */
 
-import { GameState, Fleet, Planet, ShipDesign, PlayerTech } from './game.model';
+import { GameState, Fleet, Star, ShipDesign, PlayerTech } from './game.model';
 
 // ============================================================================
 // Fleet Service Decomposition Interfaces
@@ -18,7 +18,7 @@ export interface FleetLocation {
   type: 'space' | 'orbit';
   x?: number;
   y?: number;
-  planetId?: string;
+  starId?: string;
 }
 
 /**
@@ -47,7 +47,7 @@ export interface ValidationResult {
  */
 export interface IFleetOperationsService {
   createFleet(game: GameState, location: FleetLocation, ownerId: string, baseNameSource?: string): Fleet;
-  addShipToFleet(game: GameState, planet: Planet, shipDesignId: string, count: number): void;
+  addShipToFleet(game: GameState, star: Star, shipDesignId: string, count: number): void;
   validateFleetLimits(game: GameState, ownerId: string): boolean;
 }
 
@@ -150,7 +150,7 @@ export interface Waypoint {
  * Galaxy map context menu management service interface
  */
 export interface IGalaxyContextMenuService {
-  showPlanetContextMenu(planet: Planet, position: ScreenCoordinate): void;
+  showStarContextMenu(star: Star, position: ScreenCoordinate): void;
   showFleetContextMenu(fleet: Fleet, position: ScreenCoordinate): void;
   showWaypointContextMenu(waypoint: Waypoint, position: ScreenCoordinate): void;
   closeAllContextMenus(): void;

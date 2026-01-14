@@ -615,7 +615,7 @@ export class GalaxyMapComponent implements OnInit {
           if (order.type === 'move') {
             dest = order.destination;
           } else if (order.type === 'orbit') {
-            const star = stars.find((s) => s.planets.some((p) => p.id === order.planetId));
+            const star = stars.find((s) => s.id === order.starId);
             if (star) dest = star.position;
           } else if (order.type === 'attack') {
             const target = fleets.find((f) => f.id === order.targetFleetId);
@@ -661,7 +661,8 @@ export class GalaxyMapComponent implements OnInit {
       const fleetId = params['fleetId'];
 
       if (planetId) {
-        const star = this.stars().find((s) => s.planets.some((p) => p.id === planetId));
+        // planetId is now starId
+        const star = this.stars().find((s) => s.id === planetId);
         if (star) {
           this.centerOnStar(star);
           this.state.selectedStarId.set(star.id);
@@ -675,8 +676,8 @@ export class GalaxyMapComponent implements OnInit {
           this.state.selectedFleetId.set(fleet.id);
 
           if (fleet.location.type === 'orbit') {
-            const loc = fleet.location as { planetId: string };
-            const star = this.stars().find((s) => s.planets.some((p) => p.id === loc.planetId));
+            const loc = fleet.location as { starId: string };
+            const star = this.stars().find((s) => s.id === loc.starId);
             if (star) {
               this.centerOnStar(star);
             }
@@ -690,7 +691,7 @@ export class GalaxyMapComponent implements OnInit {
 
       // Default behavior: center on home star if no specific planet requested
       const stars = this.stars();
-      const homeStar = stars.find((s) => s.planets.some((p) => p.ownerId === this.gs.player()?.id));
+      const homeStar = stars.find((s) => s.ownerId === this.gs.player()?.id);
       if (homeStar) {
         this.state.scale.set(6);
         this.centerOnStar(homeStar);
@@ -967,21 +968,18 @@ export class GalaxyMapComponent implements OnInit {
     // Check stars
     const stars = this.stars();
     for (const star of stars) {
-      for (const p of star.planets) {
-        const pPos = (p as any).position || star.position;
-        const dx = pPos.x - x;
-        const dy = pPos.y - y;
-        if (dx * dx + dy * dy < threshold * threshold) {
-          snapResult = {
-            type: 'planet',
-            id: p.id,
-            x: pPos.x,
-            y: pPos.y,
-          };
-          this.snapTarget.set(snapResult);
-          this.logSnapCheck(x, y, snapResult);
-          return;
-        }
+      const dx = star.position.x - x;
+      const dy = star.position.y - y;
+      if (dx * dx + dy * dy < threshold * threshold) {
+        snapResult = {
+          type: 'star',
+          id: star.id,
+          x: star.position.x,
+          y: star.position.y,
+        };
+        this.snapTarget.set(snapResult);
+        this.logSnapCheck(x, y, snapResult);
+        return;
       }
     }
 
@@ -1018,12 +1016,12 @@ export class GalaxyMapComponent implements OnInit {
         let orderIndex: number | null = null;
 
         if (snap) {
-          if (snap.type === 'planet' && snap.id) {
-            newOrder = { ...existingOrder, type: 'orbit', planetId: snap.id };
+          if (snap.type === 'star' && snap.id) {
+            newOrder = { ...existingOrder, type: 'orbit', starId: snap.id };
             delete newOrder.destination;
           } else if (snap.type === 'fleet' && snap.id) {
             newOrder = { ...existingOrder, type: 'move', destination: { x: snap.x, y: snap.y } };
-            delete newOrder.planetId;
+            delete newOrder.starId;
           }
         } else {
           newOrder = {
@@ -1031,7 +1029,7 @@ export class GalaxyMapComponent implements OnInit {
             type: 'move',
             destination: { x: wp.currentX, y: wp.currentY },
           };
-          delete newOrder.planetId;
+          delete newOrder.starId;
         }
 
         if (newOrder) {
@@ -1106,10 +1104,8 @@ export class GalaxyMapComponent implements OnInit {
 
   // Navigation & Actions
   openFirstPlanet(star: Star) {
-    const p = star.planets.find((pl) => pl.ownerId === this.gs.player()?.id) ?? star.planets[0];
-    if (p) {
-      this.router.navigateByUrl(`/planet/${p.id}`);
-    }
+    // In the merged model, star IS the planet
+    this.router.navigateByUrl(`/planet/${star.id}`);
   }
 
   openFleet(id: string) {
@@ -1256,29 +1252,24 @@ export class GalaxyMapComponent implements OnInit {
     if (!fleet) return false;
 
     const order = ctx.order;
-    let targetPlanetId: string | undefined;
+    let targetStarId: string | undefined;
 
     if (order.type === 'orbit' || order.type === 'colonize') {
-      targetPlanetId = order.planetId;
+      targetStarId = order.starId;
     } else if (order.type === 'move' && order.destination) {
       const threshold = 10 / this.state.scale();
-      targetPlanetId = this.findClosestPlanet(order.destination.x, order.destination.y, threshold);
+      targetStarId = this.findClosestStar(order.destination.x, order.destination.y, threshold);
     }
 
     const hasColonyModule = this.hasColonyShipForFleet(game, fleet);
-    const canColonize = !!targetPlanetId && hasColonyModule;
+    const canColonize = !!targetStarId && hasColonyModule;
 
-    let targetStarId: string | undefined;
     let targetStarName: string | undefined;
-    let targetPlanetName: string | undefined;
 
-    if (targetPlanetId) {
-      const star = this.stars().find((s) => s.planets.some((p) => p.id === targetPlanetId));
+    if (targetStarId) {
+      const star = this.stars().find((s) => s.id === targetStarId);
       if (star) {
-        targetStarId = star.id;
         targetStarName = star.name;
-        const planet = star.planets.find((p) => p.id === targetPlanetId);
-        targetPlanetName = planet?.name;
       }
     }
 
@@ -1291,11 +1282,9 @@ export class GalaxyMapComponent implements OnInit {
           hasColonyModule,
           orderType: order.type,
           orderDest: order.destination,
-          orderPlanetId: order.planetId,
-          targetPlanetId,
+          orderStarId: order.starId,
           targetStarId,
           targetStarName,
-          targetPlanetName,
           canColonize,
         },
       });
@@ -1315,30 +1304,21 @@ export class GalaxyMapComponent implements OnInit {
     if (!fleet || !fleet.orders) return;
 
     const order = fleet.orders[ctx.orderIndex];
-    let planetId: string | undefined;
+    let starId: string | undefined;
 
     if (order.type === 'orbit' || order.type === 'colonize') {
-      planetId = order.planetId;
+      starId = order.starId;
     } else if (order.type === 'move' && order.destination) {
       const threshold = 10 / this.state.scale();
-      planetId = this.findClosestPlanet(order.destination.x, order.destination.y, threshold);
+      starId = this.findClosestStar(order.destination.x, order.destination.y, threshold);
     }
 
-    if (planetId) {
+    if (starId) {
       const newOrders = [...fleet.orders];
-      // Use orbit order with colonize action to preserve movement semantics/speed if needed,
-      // or convert to colonize order. 'colonize' order type is explicit.
-      // However, 'orbit' with action='colonize' is also valid and preserves warpSpeed if present.
-      // Let's use 'colonize' type as it's more direct for "Colonise" action.
-      // But we need to make sure we don't lose warpSpeed if the user set it.
-      // 'colonize' order doesn't have warpSpeed in the interface I saw earlier.
-      // Let's re-check the interface in game.model.ts.
-      // | { type: 'colonize'; planetId: string } -> No warpSpeed.
-      // | { type: 'orbit'; planetId: string; warpSpeed?: number; action?: ... } -> Has warpSpeed.
-      // So 'orbit' with action='colonize' is safer to preserve speed.
+      // Use orbit order with colonize action to preserve movement semantics/speed if needed
       newOrders[ctx.orderIndex] = {
         type: 'orbit',
-        planetId,
+        starId,
         warpSpeed: (order as any).warpSpeed,
         action: 'colonize',
       };
@@ -1347,17 +1327,13 @@ export class GalaxyMapComponent implements OnInit {
     }
   }
 
-  private findClosestPlanet(x: number, y: number, threshold = 5): string | undefined {
-    // Check stars
+  private findClosestStar(x: number, y: number, threshold = 5): string | undefined {
     const stars = this.stars();
     for (const star of stars) {
-      for (const p of star.planets) {
-        const pPos = (p as any).position || star.position;
-        const dx = pPos.x - x;
-        const dy = pPos.y - y;
-        if (dx * dx + dy * dy < threshold * threshold) {
-          return p.id;
-        }
+      const dx = star.position.x - x;
+      const dy = star.position.y - y;
+      if (dx * dx + dy * dy < threshold * threshold) {
+        return star.id;
       }
     }
     return undefined;
@@ -1463,9 +1439,9 @@ export class GalaxyMapComponent implements OnInit {
       actions.push({ action: 'loadCargo', available: true, reason: 'In orbit' });
       actions.push({ action: 'unloadCargo', available: true, reason: 'In orbit' });
 
-      // Narrowing to orbit type to access planetId
-      const loc = fleet.location as { type: 'orbit'; planetId: string };
-      const hab = this.gs.habitabilityFor(loc.planetId);
+      // Narrowing to orbit type to access starId
+      const loc = fleet.location as { type: 'orbit'; starId: string };
+      const hab = this.gs.habitabilityFor(loc.starId);
       if (hab > 0) {
         actions.push({ action: 'colonize', available: true, reason: 'In orbit and habitable' });
       } else {
@@ -1544,8 +1520,8 @@ export class GalaxyMapComponent implements OnInit {
       this.closeContextMenus();
       return;
     }
-    const planetId = fleet.location.planetId;
-    const hab = this.gs.habitabilityFor(planetId);
+    const starId = fleet.location.starId;
+    const hab = this.gs.habitabilityFor(starId);
     if (hab <= 0) {
       const ok = confirm(
         'Warning: This world is inhospitable. Colonists will die each turn. Proceed?',
@@ -1555,11 +1531,11 @@ export class GalaxyMapComponent implements OnInit {
         return;
       }
     }
-    const pid = this.gs.colonizeNow(fleetId);
-    if (pid) {
-      this.router.navigateByUrl(`/planet/${pid}`);
+    const sid = this.gs.colonizeNow(fleetId);
+    if (sid) {
+      this.router.navigateByUrl(`/planet/${sid}`);
     } else {
-      this.gs.issueFleetOrder(fleetId, { type: 'colonize', planetId });
+      this.gs.issueFleetOrder(fleetId, { type: 'colonize', starId });
       this.router.navigateByUrl('/map');
     }
     this.closeContextMenus();
@@ -1576,8 +1552,8 @@ export class GalaxyMapComponent implements OnInit {
       this.closeContextMenus();
       return;
     }
-    const planetId = fleet.location.planetId;
-    this.gs.loadCargo(fleetId, planetId, {
+    const starId = fleet.location.starId;
+    this.gs.loadCargo(fleetId, starId, {
       resources: 'fill',
       ironium: 'fill',
       boranium: 'fill',
@@ -1598,8 +1574,8 @@ export class GalaxyMapComponent implements OnInit {
       this.closeContextMenus();
       return;
     }
-    const planetId = fleet.location.planetId;
-    this.gs.unloadCargo(fleetId, planetId, {
+    const starId = fleet.location.starId;
+    this.gs.unloadCargo(fleetId, starId, {
       ironium: 'all',
       boranium: 'all',
       germanium: 'all',
@@ -1736,34 +1712,31 @@ export class GalaxyMapComponent implements OnInit {
       },
     });
 
-    // Planet Coordinate Array (nearby planets)
+    // Star Coordinate Array (nearby stars)
     const fleet = game.fleets.find((f) => f.id === activeFleetId);
     if (fleet) {
       const pos = this.fleetService.fleetPos(fleet.id);
-      const nearbyPlanets = [];
+      const nearbyStars = [];
       const threshold = 100; // Arbitrary large range for debug dump
 
       for (const star of this.stars()) {
-        for (const p of star.planets) {
-          const pPos = (p as any).position || star.position;
-          const dist = Math.hypot(pPos.x - pos.x, pPos.y - pos.y);
-          if (dist < threshold) {
-            nearbyPlanets.push({
-              name: p.name,
-              id: p.id,
-              coordinates: pPos,
-              distance: dist,
-              ownerId: p.ownerId,
-              selectable: true, // Simplified
-            });
-          }
+        const dist = Math.hypot(star.position.x - pos.x, star.position.y - pos.y);
+        if (dist < threshold) {
+          nearbyStars.push({
+            name: star.name,
+            id: star.id,
+            coordinates: star.position,
+            distance: dist,
+            ownerId: star.ownerId,
+            selectable: true, // Simplified
+          });
         }
       }
 
-      this.logging.debug('Debug: Nearby Planets', {
+      this.logging.debug('Debug: Nearby Stars', {
         service: 'GalaxyMap',
         operation: 'DebugDump',
-        additionalData: { planets: nearbyPlanets },
+        additionalData: { stars: nearbyStars },
       });
     }
   }

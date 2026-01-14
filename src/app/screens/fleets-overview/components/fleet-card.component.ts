@@ -311,9 +311,9 @@ export class FleetCardComponent {
 
   location = computed(() => {
     if (this.fleet.location.type === 'orbit') {
-      const location = this.fleet.location as { type: 'orbit'; planetId: string };
-      const planet = this.gs.planetIndex().get(location.planetId);
-      return planet ? `Orbiting ${planet.name}` : 'In orbit';
+      const location = this.fleet.location as { type: 'orbit'; starId: string };
+      const star = this.gs.starIndex().get(location.starId);
+      return star ? `Orbiting ${star.name}` : 'In orbit';
     }
     const location = this.fleet.location as { type: 'space'; x: number; y: number };
     return `Space (${location.x.toFixed(0)}, ${location.y.toFixed(0)})`;
@@ -407,8 +407,8 @@ export class FleetCardComponent {
       return `Move to (${order.destination.x.toFixed(0)}, ${order.destination.y.toFixed(0)})`;
     }
     if (order.type === 'colonize') {
-      const planet = this.gs.planetIndex().get(order.planetId);
-      return `Colonize ${planet?.name || 'planet'}`;
+      const star = this.gs.starIndex().get(order.starId);
+      return `Colonize ${star?.name || 'planet'}`;
     }
     return order.type;
   }

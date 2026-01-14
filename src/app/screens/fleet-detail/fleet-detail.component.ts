@@ -232,11 +232,11 @@ export class FleetDetailComponent implements OnInit {
     });
   }
 
-  planetOnSurface = computed(() => {
+  starOnSurface = computed(() => {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return null;
-    const planetId = (f.location as any).planetId;
-    return this.gs.planetIndex().get(planetId) || null;
+    const starId = (f.location as { starId: string }).starId;
+    return this.gs.starIndex().get(starId) || null;
   });
 
   // Transfer State
@@ -254,13 +254,13 @@ export class FleetDetailComponent implements OnInit {
   onCargoTransfer(request: CargoTransferRequest) {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return;
-    const pid = f.location.planetId;
+    const starId = f.location.starId;
 
     if (Object.keys(request.load).length > 0) {
-      this.gs.loadCargo(f.id, pid, request.load);
+      this.gs.loadCargo(f.id, starId, request.load);
     }
     if (Object.keys(request.unload).length > 0) {
-      this.gs.unloadCargo(f.id, pid, request.unload);
+      this.gs.unloadCargo(f.id, starId, request.unload);
     }
 
     if (Object.keys(request.load).length > 0 || Object.keys(request.unload).length > 0) {
@@ -271,7 +271,7 @@ export class FleetDetailComponent implements OnInit {
   isSameLocation(f1: Fleet, f2: Fleet): boolean {
     if (f1.location.type !== f2.location.type) return false;
     if (f1.location.type === 'orbit') {
-      return (f1.location as any).planetId === (f2.location as any).planetId;
+      return (f1.location as { starId: string }).starId === (f2.location as { starId: string }).starId;
     }
     return (
       (f1.location as any).x === (f2.location as any).x &&
@@ -471,11 +471,10 @@ export class FleetDetailComponent implements OnInit {
 
     return visibleStars
       .map((star) => {
-        const planet = star.planets[0];
-        const isHome = planet?.ownerId === playerId;
-        const isEnemy = planet?.ownerId && planet.ownerId !== playerId;
-        const isUnoccupied = !planet?.ownerId;
-        const habitability = planet ? this.gs.habitabilityFor(planet.id) : 0;
+        const isHome = star.ownerId === playerId;
+        const isEnemy = star.ownerId && star.ownerId !== playerId;
+        const isUnoccupied = !star.ownerId;
+        const habitability = this.gs.habitabilityFor(star.id);
 
         const fleetPos = this.getFleetPosition();
         const distance = Math.hypot(star.position.x - fleetPos.x, star.position.y - fleetPos.y);
@@ -504,8 +503,8 @@ export class FleetDetailComponent implements OnInit {
     const f = this.fleet();
     if (!f) return { x: 0, y: 0 };
     if (f.location.type === 'orbit') {
-      const orbitLocation = f.location as { type: 'orbit'; planetId: string };
-      const star = this.stars().find((s) => s.planets.some((p) => p.id === orbitLocation.planetId));
+      const orbitLocation = f.location as { type: 'orbit'; starId: string };
+      const star = this.stars().find((s) => s.id === orbitLocation.starId);
       return star ? star.position : { x: 0, y: 0 };
     }
     const spaceLocation = f.location as { type: 'space'; x: number; y: number };
@@ -549,19 +548,19 @@ export class FleetDetailComponent implements OnInit {
   colonize() {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return;
-    const planetId = f.location.planetId;
-    const hab = this.gs.habitabilityFor(planetId);
+    const starId = f.location.starId;
+    const hab = this.gs.habitabilityFor(starId);
     if (hab <= 0) {
       const ok = confirm(
         'Warning: This world is inhospitable. Colonists will die each turn. Proceed?',
       );
       if (!ok) return;
     }
-    const pid = this.gs.colonizeNow(f.id);
-    if (pid) {
-      this.router.navigateByUrl(`/planet/${pid}`);
+    const sid = this.gs.colonizeNow(f.id);
+    if (sid) {
+      this.router.navigateByUrl(`/planet/${sid}`);
     } else {
-      this.gs.issueFleetOrder(f.id, { type: 'colonize', planetId });
+      this.gs.issueFleetOrder(f.id, { type: 'colonize', starId });
       this.router.navigateByUrl('/map');
     }
   }
@@ -575,8 +574,8 @@ export class FleetDetailComponent implements OnInit {
     if (this.showAll || !f) return this.stars();
     let curr: { x: number; y: number } | undefined;
     if (f.location.type === 'orbit') {
-      const planetId = (f.location as { type: 'orbit'; planetId: string }).planetId;
-      const star = this.gs.stars().find((s) => s.planets.some((p) => p.id === planetId));
+      const starId = (f.location as { type: 'orbit'; starId: string }).starId;
+      const star = this.gs.stars().find((s) => s.id === starId);
       curr = star?.position;
     } else {
       const loc = f.location as { type: 'space'; x: number; y: number };
@@ -601,8 +600,8 @@ export class FleetDetailComponent implements OnInit {
   loadFill() {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return;
-    const pid = f.location.planetId;
-    this.gs.loadCargo(f.id, pid, {
+    const starId = f.location.starId;
+    this.gs.loadCargo(f.id, starId, {
       resources: undefined,
       ironium: 'fill',
       boranium: 'fill',
@@ -614,8 +613,8 @@ export class FleetDetailComponent implements OnInit {
   unloadAll() {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return;
-    const pid = f.location.planetId;
-    this.gs.unloadCargo(f.id, pid, {
+    const starId = f.location.starId;
+    this.gs.unloadCargo(f.id, starId, {
       resources: undefined,
       ironium: 'all',
       boranium: 'all',

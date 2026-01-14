@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Planet } from '../../models/game.model';
+import { BuildItem, GameState, Star } from '../../models/game.model';
 import { BuildQueueService } from '../build/build-queue.service';
 import { BuildProcessorService } from '../build/build-processor.service';
 import { GovernorService } from './governor.service';
@@ -17,17 +17,17 @@ export class ColonyService {
   // ============================
 
   /**
-   * Add an item to a planet's build queue.
+   * Add an item to a star's build queue.
    */
-  addToBuildQueue(game: GameState, planetId: string, item: BuildItem): GameState {
-    return this.buildQueue.addToBuildQueue(game, planetId, item);
+  addToBuildQueue(game: GameState, starId: string, item: BuildItem): GameState {
+    return this.buildQueue.addToBuildQueue(game, starId, item);
   }
 
   /**
-   * Remove an item from a planet's build queue by index.
+   * Remove an item from a star's build queue by index.
    */
-  removeFromQueue(game: GameState, planetId: string, index: number): GameState {
-    return this.buildQueue.removeFromQueue(game, planetId, index);
+  removeFromQueue(game: GameState, starId: string, index: number): GameState {
+    return this.buildQueue.removeFromQueue(game, starId, index);
   }
 
   // ============================
@@ -35,7 +35,7 @@ export class ColonyService {
   // ============================
 
   /**
-   * Process build queues for all owned planets.
+   * Process build queues for all owned stars.
    */
   processBuildQueues(game: GameState): void {
     this.buildProcessor.processBuildQueues(game);
@@ -46,16 +46,16 @@ export class ColonyService {
   // ============================
 
   /**
-   * Process governors for all owned planets.
+   * Process governors for all owned stars.
    */
   processGovernors(game: GameState): void {
     this.governor.processGovernors(game);
   }
 
   /**
-   * Set governor for a planet.
+   * Set governor for a star.
    */
-  setGovernor(game: GameState, planetId: string, governor: Planet['governor']): GameState {
-    return this.governor.setGovernor(game, planetId, governor);
+  setGovernor(game: GameState, starId: string, governor: Star['governor']): GameState {
+    return this.governor.setGovernor(game, starId, governor);
   }
 }

@@ -1,37 +1,33 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Planet } from '../../models/game.model';
+import { GameState, Star } from '../../models/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlanetUtilityService {
-  
+
   /**
-   * Build planet index for O(1) lookups.
+   * Build star index for O(1) lookups.
    */
-  buildPlanetIndex(game: GameState): Map<string, Planet> {
-    const index = new Map<string, Planet>();
+  buildStarIndex(game: GameState): Map<string, Star> {
+    const index = new Map<string, Star>();
     for (const star of game.stars) {
-      for (const planet of star.planets) {
-        index.set(planet.id, planet);
-      }
+      index.set(star.id, star);
     }
     return index;
   }
 
   /**
-   * Get a planet by ID and ensure it's owned by the human player.
+   * Get a star by ID and ensure it's owned by the human player.
    */
-  getOwnedPlanet(game: GameState, planetId: string): Planet | null {
-    const planet = this.buildPlanetIndex(game).get(planetId);
-    return planet && planet.ownerId === game.humanPlayer.id ? planet : null;
+  getOwnedStar(game: GameState, starId: string): Star | null {
+    const star = this.buildStarIndex(game).get(starId);
+    return star && star.ownerId === game.humanPlayer.id ? star : null;
   }
 
   /**
-   * Get all owned planets that can have governors.
+   * Get all owned stars that can have governors.
    */
-  getOwnedPlanets(game: GameState): Planet[] {
-    return game.stars
-      .flatMap((s) => s.planets)
-      .filter((p) => p.ownerId === game.humanPlayer.id);
+  getOwnedStars(game: GameState): Star[] {
+    return game.stars.filter((s) => s.ownerId === game.humanPlayer.id);
   }
 
   /**

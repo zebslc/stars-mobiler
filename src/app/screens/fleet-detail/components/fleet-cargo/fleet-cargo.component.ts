@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Fleet, Planet } from '../../../../models/game.model';
+import { Fleet, Star } from '../../../../models/game.model';
 
 export interface OrbitTransferState {
   resources: number;
@@ -201,7 +201,7 @@ export interface CargoTransferRequest {
 })
 export class FleetCargoComponent implements OnChanges {
   @Input({ required: true }) fleet!: Fleet;
-  @Input() planet: Planet | null = null;
+  @Input() star: Star | null = null;
   @Input() cargoCapacity: number = 0;
 
   @Output() transferCargo = new EventEmitter<CargoTransferRequest>();
@@ -238,7 +238,7 @@ export class FleetCargoComponent implements OnChanges {
   ): number {
     if (!this.fleet) return 0;
     const f = this.fleet;
-    const p = this.planet;
+    const p = this.star;
 
     const fleetVal =
       type === 'colonists'

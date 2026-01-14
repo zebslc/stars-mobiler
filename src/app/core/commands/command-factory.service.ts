@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, BuildItem, Planet, FleetOrder, ShipDesign } from '../../models/game.model';
+import { GameState, BuildItem, Star, FleetOrder, ShipDesign } from '../../models/game.model';
 import { TechField } from '../../data/tech-tree.data';
 
 // Import services
@@ -46,16 +46,16 @@ export class CommandFactoryService {
   ) {}
 
   // Colony commands
-  createAddToBuildQueueCommand(planetId: string, item: BuildItem): AddToBuildQueueCommand {
-    return new AddToBuildQueueCommand(this.colonyService, planetId, item);
+  createAddToBuildQueueCommand(starId: string, item: BuildItem): AddToBuildQueueCommand {
+    return new AddToBuildQueueCommand(this.colonyService, starId, item);
   }
 
-  createSetGovernorCommand(planetId: string, governor: Planet['governor']): SetGovernorCommand {
-    return new SetGovernorCommand(this.colonyService, planetId, governor);
+  createSetGovernorCommand(starId: string, governor: Star['governor']): SetGovernorCommand {
+    return new SetGovernorCommand(this.colonyService, starId, governor);
   }
 
-  createRemoveFromQueueCommand(planetId: string, index: number): RemoveFromQueueCommand {
-    return new RemoveFromQueueCommand(this.colonyService, planetId, index);
+  createRemoveFromQueueCommand(starId: string, index: number): RemoveFromQueueCommand {
+    return new RemoveFromQueueCommand(this.colonyService, starId, index);
   }
 
   // Fleet commands
@@ -73,7 +73,7 @@ export class CommandFactoryService {
 
   createLoadCargoCommand(
     fleetId: string,
-    planetId: string,
+    starId: string,
     manifest: {
       resources?: number | 'all' | 'fill';
       ironium?: number | 'all' | 'fill';
@@ -82,12 +82,12 @@ export class CommandFactoryService {
       colonists?: number | 'all' | 'fill';
     }
   ): LoadCargoCommand {
-    return new LoadCargoCommand(this.fleetService, fleetId, planetId, manifest);
+    return new LoadCargoCommand(this.fleetService, fleetId, starId, manifest);
   }
 
   createUnloadCargoCommand(
     fleetId: string,
-    planetId: string,
+    starId: string,
     manifest: {
       resources?: number | 'all';
       ironium?: number | 'all';
@@ -96,7 +96,7 @@ export class CommandFactoryService {
       colonists?: number | 'all';
     }
   ): UnloadCargoCommand {
-    return new UnloadCargoCommand(this.fleetService, fleetId, planetId, manifest);
+    return new UnloadCargoCommand(this.fleetService, fleetId, starId, manifest);
   }
 
   createSplitFleetCommand(

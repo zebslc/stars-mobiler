@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { GameCommand, GameCommandWithResult } from './game-command.interface';
-import { GameState, Planet } from '../../models/game.model';
+import { GameState, Star } from '../../models/game.model';
 
 /**
  * Service responsible for executing game commands and managing state transitions.
@@ -12,18 +12,16 @@ export class CommandExecutorService {
   readonly game = this._game.asReadonly();
 
   /**
-   * Planet index for O(1) lookups by planet ID.
+   * Star index for O(1) lookups by star ID.
    * Computed signal that rebuilds the index whenever game state changes.
    */
-  readonly planetIndex = computed(() => {
+  readonly starIndex = computed(() => {
     const game = this._game();
-    if (!game) return new Map<string, Planet>();
+    if (!game) return new Map<string, Star>();
 
-    const index = new Map<string, Planet>();
+    const index = new Map<string, Star>();
     for (const star of game.stars) {
-      for (const planet of star.planets) {
-        index.set(planet.id, planet);
-      }
+      index.set(star.id, star);
     }
     return index;
   });

@@ -82,14 +82,11 @@ export class PlanetContextMenuComponent {
     const star = this.star();
     if (!star) return [];
 
-    const planet = star.planets[0];
-    if (!planet) return [];
-
     const opts: PlanetContextMenuOption[] = [];
 
     opts.push({
-      label: `View ${planet.name}`,
-      action: () => this.viewPlanet.emit(planet.id),
+      label: `View ${star.name}`,
+      action: () => this.viewPlanet.emit(star.id),
     });
 
     if (this.selectedFleet() && this.canSendFleet()) {

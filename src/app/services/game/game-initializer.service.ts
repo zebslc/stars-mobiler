@@ -4,9 +4,9 @@ import {
   GameState,
   Player,
   AIPlayer,
-  Planet,
   ShipDesign,
   Fleet,
+  Star,
 } from '../../models/game.model';
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
 import { GalaxyGeneratorService } from './galaxy-generator.service';
@@ -35,7 +35,7 @@ export class GameInitializerService {
       id: 'human',
       name: 'You',
       species: playerSpecies,
-      ownedPlanetIds: [],
+      ownedStarIds: [],
       techLevels: {
         Energy: 1,
         Kinetics: 1,
@@ -54,7 +54,7 @@ export class GameInitializerService {
       id: 'ai-1',
       name: 'AI',
       species: aiSpecies,
-      ownedPlanetIds: [],
+      ownedStarIds: [],
       techLevels: {
         Energy: 1,
         Kinetics: 1,
@@ -79,16 +79,14 @@ export class GameInitializerService {
       aiSpecies,
       settings.seed,
     );
-    // Fill starId in planets and set ownership/homeworlds
-    const planetMap = new Map<string, Planet>();
+
+    // Find homeworlds by name and set ownership
+    const starMap = new Map<string, Star>();
     for (const star of stars) {
-      for (const planet of star.planets) {
-        planet.starId = star.id;
-        planetMap.set(planet.name, planet);
-      }
+      starMap.set(star.name, star);
     }
-    const humanHome = planetMap.get('Home');
-    const aiHome = planetMap.get('Enemy Home');
+    const humanHome = starMap.get('Home');
+    const aiHome = starMap.get('Enemy Home');
     if (humanHome) {
       humanHome.ownerId = human.id;
       humanHome.resources = 100;
@@ -97,7 +95,7 @@ export class GameInitializerService {
       humanHome.surfaceMinerals.germanium += 100;
       humanHome.buildQueue = [];
       humanHome.governor = { type: 'balanced' };
-      human.ownedPlanetIds.push(humanHome.id);
+      human.ownedStarIds.push(humanHome.id);
     }
 
     // Initial Space Station
@@ -187,7 +185,7 @@ export class GameInitializerService {
       id: ssFleetId,
       name: 'Space Station',
       ownerId: human.id,
-      location: { type: 'orbit', planetId: humanHome ? humanHome.id : '' },
+      location: { type: 'orbit', starId: humanHome ? humanHome.id : '' },
       ships: [{ designId: ssDesignId, count: 1, damage: 0 }],
       fuel: 0,
       cargo: {
@@ -200,7 +198,7 @@ export class GameInitializerService {
 
     if (aiHome) {
       aiHome.ownerId = ai.id;
-      ai.ownedPlanetIds.push(aiHome.id);
+      ai.ownedStarIds.push(aiHome.id);
     }
 
     const state: GameState = {

@@ -1,34 +1,34 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Planet } from '../../models/game.model';
+import { BuildItem, GameState } from '../../models/game.model';
 import { PlanetUtilityService } from '../colony/planet-utility.service';
 
 @Injectable({ providedIn: 'root' })
 export class BuildQueueService {
-  
+
   constructor(private planetUtility: PlanetUtilityService) {}
 
   /**
-   * Add an item to a planet's build queue.
+   * Add an item to a star's build queue.
    */
-  addToBuildQueue(game: GameState, planetId: string, item: BuildItem): GameState {
-    const planet = this.planetUtility.getOwnedPlanet(game, planetId);
-    if (!planet) return game;
+  addToBuildQueue(game: GameState, starId: string, item: BuildItem): GameState {
+    const star = this.planetUtility.getOwnedStar(game, starId);
+    if (!star) return game;
 
     // We don't spend resources here anymore. They are spent during turn processing.
     // Just add to queue.
-    planet.buildQueue = [...(planet.buildQueue ?? []), item];
+    star.buildQueue = [...(star.buildQueue ?? []), item];
 
     return this.planetUtility.updateGameState(game);
   }
 
   /**
-   * Remove an item from a planet's build queue by index.
+   * Remove an item from a star's build queue by index.
    */
-  removeFromQueue(game: GameState, planetId: string, index: number): GameState {
-    const planet = this.planetUtility.getOwnedPlanet(game, planetId);
-    if (!planet || !planet.buildQueue) return game;
-    
-    planet.buildQueue = planet.buildQueue.filter((_, i) => i !== index);
+  removeFromQueue(game: GameState, starId: string, index: number): GameState {
+    const star = this.planetUtility.getOwnedStar(game, starId);
+    if (!star || !star.buildQueue) return game;
+
+    star.buildQueue = star.buildQueue.filter((_, i) => i !== index);
     return this.planetUtility.updateGameState(game);
   }
 

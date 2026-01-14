@@ -133,22 +133,22 @@ export interface ShipDesignDisplay {
       @if (mode === 'card') {
         <div class="build-controls">
           <select
-            [ngModel]="selectedPlanetId()"
-            (ngModelChange)="selectedPlanetId.set($event)"
-            class="planet-select"
+            [ngModel]="selectedStarId()"
+            (ngModelChange)="selectedStarId.set($event)"
+            class="star-select"
           >
             <option value="" disabled selected>Build at...</option>
-            @for (planet of capablePlanets(); track planet.id) {
-              <option [value]="planet.id">{{ planet.name }}</option>
+            @for (star of capableStars(); track star.id) {
+              <option [value]="star.id">{{ star.name }}</option>
             }
-            @if (capablePlanets().length === 0) {
+            @if (capableStars().length === 0) {
               <option value="" disabled>No Capable Docks</option>
             }
           </select>
           <button
             type="button"
             class="btn-small btn-build"
-            [disabled]="!selectedPlanetId()"
+            [disabled]="!selectedStarId()"
             (click)="addToQueue()"
           >
             Add
@@ -276,7 +276,7 @@ export interface ShipDesignDisplay {
         border-top: 1px solid var(--color-border);
       }
 
-      .planet-select {
+      .star-select {
         flex: 1;
         padding: var(--space-xs);
         border-radius: var(--radius-md);
@@ -341,26 +341,26 @@ export class ShipDesignItemComponent {
   @Output() preview = new EventEmitter<string>();
 
   private gameState = inject(GameStateService);
-  readonly selectedPlanetId = signal<string>('');
+  readonly selectedStarId = signal<string>('');
 
-  readonly capablePlanets = computed(() => {
+  readonly capableStars = computed(() => {
     const game = this.gameState.game();
     if (!game) return [];
 
     const designMass = this.design.stats.mass;
     const player = game.humanPlayer;
 
-    // Find planets owned by player
-    const planets = game.stars.flatMap((s) => s.planets).filter((p) => p.ownerId === player.id);
+    // Find stars owned by player
+    const ownedStars = game.stars.filter((s) => s.ownerId === player.id);
 
-    return planets
-      .filter((planet) => {
+    return ownedStars
+      .filter((star) => {
         // Check for starbase in orbit
         const orbitFleets = game.fleets.filter(
           (f) =>
             f.ownerId === player.id &&
             f.location.type === 'orbit' &&
-            (f.location as any).planetId === planet.id,
+            (f.location as { starId: string }).starId === star.id,
         );
 
         // Find if any fleet has a starbase
@@ -396,17 +396,17 @@ export class ShipDesignItemComponent {
   });
 
   addToQueue() {
-    const planetId = this.selectedPlanetId();
-    if (!planetId) return;
+    const starId = this.selectedStarId();
+    if (!starId) return;
 
-    this.gameState.addToBuildQueue(planetId, {
+    this.gameState.addToBuildQueue(starId, {
       project: 'ship',
       cost: this.design.stats.cost,
       shipDesignId: this.design.id,
       count: 1,
     });
 
-    this.selectedPlanetId.set('');
+    this.selectedStarId.set('');
   }
 
   get hullName(): string {

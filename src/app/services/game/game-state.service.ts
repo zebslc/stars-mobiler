@@ -2,7 +2,7 @@ import { Injectable, computed } from '@angular/core';
 import {
   GameSettings,
   GameState,
-  Planet,
+  Star,
   BuildItem,
   ShipDesign,
   FleetOrder,
@@ -33,7 +33,7 @@ export class GameStateService {
   readonly player = computed(() => this.game()?.humanPlayer);
   readonly playerSpecies = computed(() => this.player()?.species);
   readonly playerEconomy = computed(() => this.game()?.playerEconomy);
-  readonly planetIndex = computed(() => this.commandExecutor.planetIndex());
+  readonly starIndex = computed(() => this.commandExecutor.starIndex());
 
   constructor(
     private gameInitializer: GameInitializerService,
@@ -48,11 +48,11 @@ export class GameStateService {
     this.commandExecutor.setGame(state);
   }
 
-  habitabilityFor(planetId: string): number {
+  habitabilityFor(starId: string): number {
     const species = this.playerSpecies();
-    const planet = this.commandExecutor.planetIndex().get(planetId);
-    if (!species || !planet) return 0;
-    return this.hab.calculate(planet, species);
+    const star = this.commandExecutor.starIndex().get(starId);
+    if (!species || !star) return 0;
+    return this.hab.calculate(star, species);
   }
 
   // Turn management
@@ -62,25 +62,25 @@ export class GameStateService {
   }
 
   // Colony management
-  addToBuildQueue(planetId: string, item: BuildItem): boolean {
-    const command = this.commandFactory.createAddToBuildQueueCommand(planetId, item);
+  addToBuildQueue(starId: string, item: BuildItem): boolean {
+    const command = this.commandFactory.createAddToBuildQueueCommand(starId, item);
     const currentGame = this.commandExecutor.getCurrentGame();
     if (!currentGame) return false;
-    
+
     const originalGame = currentGame;
     this.commandExecutor.execute(command);
-    
+
     // Check if the game state actually changed
     return this.commandExecutor.getCurrentGame() !== originalGame;
   }
 
-  setGovernor(planetId: string, governor: Planet['governor']) {
-    const command = this.commandFactory.createSetGovernorCommand(planetId, governor);
+  setGovernor(starId: string, governor: Star['governor']) {
+    const command = this.commandFactory.createSetGovernorCommand(starId, governor);
     this.commandExecutor.execute(command);
   }
 
-  removeFromQueue(planetId: string, index: number) {
-    const command = this.commandFactory.createRemoveFromQueueCommand(planetId, index);
+  removeFromQueue(starId: string, index: number) {
+    const command = this.commandFactory.createRemoveFromQueueCommand(starId, index);
     this.commandExecutor.execute(command);
   }
 
@@ -102,7 +102,7 @@ export class GameStateService {
 
   loadCargo(
     fleetId: string,
-    planetId: string,
+    starId: string,
     manifest: {
       resources?: number | 'all' | 'fill';
       ironium?: number | 'all' | 'fill';
@@ -111,13 +111,13 @@ export class GameStateService {
       colonists?: number | 'all' | 'fill';
     },
   ) {
-    const command = this.commandFactory.createLoadCargoCommand(fleetId, planetId, manifest);
+    const command = this.commandFactory.createLoadCargoCommand(fleetId, starId, manifest);
     this.commandExecutor.execute(command);
   }
 
   unloadCargo(
     fleetId: string,
-    planetId: string,
+    starId: string,
     manifest: {
       resources?: number | 'all';
       ironium?: number | 'all';
@@ -126,7 +126,7 @@ export class GameStateService {
       colonists?: number | 'all';
     },
   ) {
-    const command = this.commandFactory.createUnloadCargoCommand(fleetId, planetId, manifest);
+    const command = this.commandFactory.createUnloadCargoCommand(fleetId, starId, manifest);
     this.commandExecutor.execute(command);
   }
 

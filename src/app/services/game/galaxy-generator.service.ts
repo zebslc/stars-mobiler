@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Planet, Species, Star } from '../../models/game.model';
+import { Species, Star } from '../../models/game.model';
 import { mulberry32, randInt, choice } from '../util/random.util';
 import { GALAXY_PADDING } from '../../core/constants/galaxy.constants';
 
@@ -22,14 +22,7 @@ export class GalaxyGeneratorService {
     }
     const stars: Star[] = positions.map((pos, i) => {
       const name = this.starName(seed, i);
-      const planets = this.generatePlanets(1, rng);
-      planets.forEach((p) => (p.name = name));
-      return {
-        id: `star-${i}`,
-        name,
-        position: pos,
-        planets,
-      };
+      return this.generateStar(`star-${i}`, name, pos, rng);
     });
     return stars;
   }
@@ -45,66 +38,56 @@ export class GalaxyGeneratorService {
     const sorted = [...stars].sort((a, b) => a.position.x - b.position.x);
     const homeHuman = sorted[0];
     const homeAI = sorted[sorted.length - 1];
-    homeHuman.planets = [this.createHomeworld(homeHuman.id, playerSpecies, seed, 'Home')];
-    homeAI.planets = [this.createHomeworld(homeAI.id, aiSpecies, seed + 1, 'Enemy Home')];
+    this.makeHomeworld(homeHuman, playerSpecies, 'Home');
+    this.makeHomeworld(homeAI, aiSpecies, 'Enemy Home');
   }
 
-  private generatePlanets(count: number, rng: () => number): Planet[] {
-    const planets: Planet[] = [];
-    for (let i = 0; i < count; i++) {
-      const id = `planet-${Math.floor(rng() * 1e9)}`;
-      planets.push({
-        id,
-        name: `SR-${Math.floor(rng() * 900 + 100)}`,
-        starId: '',
-        temperature: Math.floor(rng() * 201) - 100,
-        atmosphere: Math.floor(rng() * 101),
-        mineralConcentrations: {
-          ironium: randInt(rng, 10, 90),
-          boranium: randInt(rng, 10, 90),
-          germanium: randInt(rng, 5, 50),
-        },
-        surfaceMinerals: { ironium: 0, boranium: 0, germanium: 0 },
-        ownerId: null,
-        population: 0,
-        maxPopulation: 0,
-        mines: 0,
-        factories: 0,
-        defenses: 0,
-        terraformOffset: { temperature: 0, atmosphere: 0 },
-        resources: 0,
-        research: 0,
-        scanner: 0,
-      });
-    }
-    return planets;
-  }
-
-  private createHomeworld(
-    starId: string,
-    species: Species,
-    seed: number,
-    nameLabel: string,
-  ): Planet {
+  private generateStar(
+    id: string,
+    name: string,
+    position: { x: number; y: number },
+    rng: () => number,
+  ): Star {
     return {
-      id: `planet-home-${seed}`,
-      name: nameLabel,
-      starId,
-      temperature: species.habitat.idealTemperature,
-      atmosphere: species.habitat.idealAtmosphere,
-      mineralConcentrations: { ironium: 60, boranium: 60, germanium: 40 },
-      surfaceMinerals: { ironium: 500, boranium: 300, germanium: 200 },
+      id,
+      name,
+      position,
+      temperature: Math.floor(rng() * 201) - 100,
+      atmosphere: Math.floor(rng() * 101),
+      mineralConcentrations: {
+        ironium: randInt(rng, 10, 90),
+        boranium: randInt(rng, 10, 90),
+        germanium: randInt(rng, 5, 50),
+      },
+      surfaceMinerals: { ironium: 0, boranium: 0, germanium: 0 },
       ownerId: null,
-      population: 100_000,
-      maxPopulation: 1_000_000,
-      mines: 10,
-      factories: 15,
+      population: 0,
+      maxPopulation: 0,
+      mines: 0,
+      factories: 0,
       defenses: 0,
       terraformOffset: { temperature: 0, atmosphere: 0 },
       resources: 0,
       research: 0,
-      scanner: 0, // No scanner initially
+      scanner: 0,
     };
+  }
+
+  private makeHomeworld(star: Star, species: Species, nameLabel: string): void {
+    star.name = nameLabel;
+    star.temperature = species.habitat.idealTemperature;
+    star.atmosphere = species.habitat.idealAtmosphere;
+    star.mineralConcentrations = { ironium: 60, boranium: 60, germanium: 40 };
+    star.surfaceMinerals = { ironium: 500, boranium: 300, germanium: 200 };
+    star.population = 100_000;
+    star.maxPopulation = 1_000_000;
+    star.mines = 10;
+    star.factories = 15;
+    star.defenses = 0;
+    star.terraformOffset = { temperature: 0, atmosphere: 0 };
+    star.resources = 0;
+    star.research = 0;
+    star.scanner = 0;
   }
 
   private distance(a: { x: number; y: number }, b: { x: number; y: number }) {

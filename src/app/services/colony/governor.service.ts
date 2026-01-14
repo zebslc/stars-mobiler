@@ -1,65 +1,65 @@
 import { Injectable } from '@angular/core';
-import { GameState, Planet } from '../../models/game.model';
+import { GameState, Star } from '../../models/game.model';
 import { PlanetUtilityService } from './planet-utility.service';
 import { BuildQueueService } from '../build/build-queue.service';
 import { BUILD_COSTS } from '../../data/costs.data';
 
 @Injectable({ providedIn: 'root' })
 export class GovernorService {
-  
+
   constructor(
     private planetUtility: PlanetUtilityService,
     private buildQueue: BuildQueueService
   ) {}
 
   /**
-   * Process governors for all owned planets.
+   * Process governors for all owned stars.
    */
   processGovernors(game: GameState) {
-    const ownedPlanets = this.planetUtility.getOwnedPlanets(game);
-    for (const planet of ownedPlanets) {
-      if (!this.shouldProcessGovernor(planet)) continue;
-      this.processGovernorForPlanet(game, planet);
+    const ownedStars = this.planetUtility.getOwnedStars(game);
+    for (const star of ownedStars) {
+      if (!this.shouldProcessGovernor(star)) continue;
+      this.processGovernorForStar(game, star);
     }
   }
 
   /**
-   * Set governor for a planet.
+   * Set governor for a star.
    */
-  setGovernor(game: GameState, planetId: string, governor: Planet['governor']): GameState {
-    const planet = this.planetUtility.getOwnedPlanet(game, planetId);
-    if (!planet) return game;
-    
-    planet.governor = governor ?? { type: 'manual' };
+  setGovernor(game: GameState, starId: string, governor: Star['governor']): GameState {
+    const star = this.planetUtility.getOwnedStar(game, starId);
+    if (!star) return game;
+
+    star.governor = governor ?? { type: 'manual' };
     return this.planetUtility.updateGameState(game);
   }
 
   /**
-   * Check if a planet should have its governor process.
+   * Check if a star should have its governor process.
    */
-  private shouldProcessGovernor(planet: Planet): boolean {
+  private shouldProcessGovernor(star: Star): boolean {
     return Boolean(
-      planet.governor &&
-      planet.governor.type !== 'manual' &&
-      (planet.buildQueue ?? []).length === 0
+      star.governor &&
+      star.governor.type !== 'manual' &&
+      (star.buildQueue ?? []).length === 0
     );
   }
 
   /**
-   * Process governor logic for a single planet.
+   * Process governor logic for a single star.
    */
-  private processGovernorForPlanet(game: GameState, planet: Planet): void {
-    if (!planet.governor) return;
+  private processGovernorForStar(game: GameState, star: Star): void {
+    if (!star.governor) return;
 
-    switch (planet.governor.type) {
+    switch (star.governor.type) {
       case 'balanced':
-        this.processBalancedGovernor(game, planet);
+        this.processBalancedGovernor(game, star);
         break;
       case 'mining':
       case 'industrial':
       case 'military':
       case 'research':
-        this.processSpecializedGovernor(game, planet, planet.governor.type);
+        this.processSpecializedGovernor(game, star, star.governor.type);
         break;
       default:
         break;
@@ -69,24 +69,24 @@ export class GovernorService {
   /**
    * Process governor logic for balanced type.
    */
-  private processBalancedGovernor(game: GameState, planet: Planet): void {
-    const minesTarget = Math.floor(planet.population / 20);
-    const factoriesTarget = Math.floor(planet.population / 10);
-    
-    if (planet.mines < minesTarget) {
-      this.queueProject(game, planet.id, 'mine');
-    } else if (planet.factories < factoriesTarget) {
-      this.queueProject(game, planet.id, 'factory');
+  private processBalancedGovernor(game: GameState, star: Star): void {
+    const minesTarget = Math.floor(star.population / 20);
+    const factoriesTarget = Math.floor(star.population / 10);
+
+    if (star.mines < minesTarget) {
+      this.queueProject(game, star.id, 'mine');
+    } else if (star.factories < factoriesTarget) {
+      this.queueProject(game, star.id, 'factory');
     } else {
-      this.queueProject(game, planet.id, 'defense');
+      this.queueProject(game, star.id, 'defense');
     }
   }
 
   /**
-   * Queue a specific project for a planet.
+   * Queue a specific project for a star.
    */
-  private queueProject(game: GameState, planetId: string, project: string): void {
-    this.buildQueue.addToBuildQueue(game, planetId, {
+  private queueProject(game: GameState, starId: string, project: string): void {
+    this.buildQueue.addToBuildQueue(game, starId, {
       project: project as any,
       cost: BUILD_COSTS[project],
       isAuto: true,
@@ -96,7 +96,7 @@ export class GovernorService {
   /**
    * Process governor logic for specialized types (mining, industrial, military, research).
    */
-  private processSpecializedGovernor(game: GameState, planet: Planet, governorType: string): void {
+  private processSpecializedGovernor(game: GameState, star: Star, governorType: string): void {
     const projectMap: { [key: string]: string } = {
       mining: 'mine',
       industrial: 'factory',
@@ -106,7 +106,7 @@ export class GovernorService {
 
     const project = projectMap[governorType];
     if (project) {
-      this.queueProject(game, planet.id, project);
+      this.queueProject(game, star.id, project);
     }
   }
 }

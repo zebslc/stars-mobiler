@@ -47,13 +47,13 @@ export class ColonizeNowCommand implements GameCommandWithResult<string | null> 
 }
 
 /**
- * Command to load cargo from a planet to a fleet.
+ * Command to load cargo from a star to a fleet.
  */
 export class LoadCargoCommand implements GameCommand {
   constructor(
     private fleetService: FleetService,
     private fleetId: string,
-    private planetId: string,
+    private starId: string,
     private manifest: {
       resources?: number | 'all' | 'fill';
       ironium?: number | 'all' | 'fill';
@@ -64,18 +64,18 @@ export class LoadCargoCommand implements GameCommand {
   ) {}
 
   execute(game: GameState): GameState {
-    return this.fleetService.loadCargo(game, this.fleetId, this.planetId, this.manifest);
+    return this.fleetService.loadCargo(game, this.fleetId, this.starId, this.manifest);
   }
 }
 
 /**
- * Command to unload cargo from a fleet to a planet.
+ * Command to unload cargo from a fleet to a star.
  */
 export class UnloadCargoCommand implements GameCommand {
   constructor(
     private fleetService: FleetService,
     private fleetId: string,
-    private planetId: string,
+    private starId: string,
     private manifest: {
       resources?: number | 'all';
       ironium?: number | 'all';
@@ -86,7 +86,7 @@ export class UnloadCargoCommand implements GameCommand {
   ) {}
 
   execute(game: GameState): GameState {
-    return this.fleetService.unloadCargo(game, this.fleetId, this.planetId, this.manifest);
+    return this.fleetService.unloadCargo(game, this.fleetId, this.starId, this.manifest);
   }
 }
 

@@ -114,7 +114,7 @@ export interface Player {
   id: string;
   name: string;
   species: Species;
-  ownedPlanetIds: string[];
+  ownedStarIds: string[];
   techLevels: PlayerTech;
   researchProgress: PlayerTech; // Accumulated RP toward next level
   selectedResearchField: 'Energy' | 'Kinetics' | 'Propulsion' | 'Construction';
@@ -131,13 +131,7 @@ export interface Star {
   id: string;
   name: string;
   position: { x: number; y: number };
-  planets: Planet[];
-}
-
-export interface Planet {
-  id: string;
-  name: string;
-  starId: string;
+  // Colony properties (merged from Planet)
   temperature: number;
   atmosphere: number;
   mineralConcentrations: { ironium: number; boranium: number; germanium: number };
@@ -153,7 +147,7 @@ export interface Planet {
   terraformOffset: { temperature: number; atmosphere: number };
   resources: number;
   buildQueue?: BuildItem[];
-  governor?: PlanetGovernor;
+  governor?: StarGovernor;
 }
 
 export interface Species {
@@ -184,18 +178,18 @@ export type FleetOrder =
   | { type: 'move'; destination: { x: number; y: number }; warpSpeed?: number }
   | {
       type: 'orbit';
-      planetId: string;
+      starId: string;
       warpSpeed?: number;
       action?: 'load' | 'unload' | 'colonize' | 'decommission' | 'wait';
     }
-  | { type: 'colonize'; planetId: string }
+  | { type: 'colonize'; starId: string }
   | { type: 'attack'; targetFleetId: string; warpSpeed?: number };
 
 export type Fleet = {
   id: string;
   name: string;
   ownerId: string;
-  location: { type: 'orbit'; planetId: string } | { type: 'space'; x: number; y: number };
+  location: { type: 'orbit'; starId: string } | { type: 'space'; x: number; y: number };
   ships: ShipStack[];
   fuel: number;
   cargo: {
@@ -235,7 +229,7 @@ export type GovernorType =
   | 'military'
   | 'research'
   | 'manual';
-export interface PlanetGovernor {
+export interface StarGovernor {
   type: GovernorType;
   shipDesignId?: string;
   buildLimit?: number;
