@@ -17,7 +17,6 @@ describe('FleetService Movement NEW', () => {
       game: {
         fleets: [],
         designs: [],
-        planets: [],
       },
     });
     mockHabitabilityService = jasmine.createSpyObj('HabitabilityService', ['getGrowthRate']);
@@ -40,9 +39,9 @@ describe('FleetService Movement NEW', () => {
       name: 'Human',
       species: {} as any,
       techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-      ownedPlanetIds: [],
       researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
       selectedResearchField: 'Energy',
+    ownedStarIds: [],
     };
 
     const mockDesign: ShipDesign = {

@@ -83,7 +83,7 @@ import { getDesign } from '../../data/ships.data';
               </filter>
             </defs>
 
-            <g [attr.transform]="state.transformString()">
+            <g #worldGroup [attr.transform]="state.transformString()">
               <!-- Background Layer -->
               <rect
                 x="0"
@@ -485,6 +485,7 @@ export class GalaxyMapComponent implements OnInit {
 
   // SVG element reference
   readonly galaxySvg = viewChild<ElementRef<SVGSVGElement>>('galaxySvg');
+  readonly worldGroup = viewChild<ElementRef<SVGGElement>>('worldGroup');
 
   readonly stars = this.gs.stars;
   readonly turn = this.gs.turn;
@@ -552,7 +553,7 @@ export class GalaxyMapComponent implements OnInit {
     orderIndex?: number;
   } | null>(null);
   snapTarget = signal<{
-    type: 'planet' | 'fleet' | 'space';
+    type: 'star' | 'fleet' | 'space';
     id?: string;
     x: number;
     y: number;
@@ -948,10 +949,22 @@ export class GalaxyMapComponent implements OnInit {
 
   handleMove(clientX: number, clientY: number) {
     const svg = this.galaxySvg()?.nativeElement;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const worldX = (clientX - rect.left - this.state.translateX()) / this.state.scale();
-    const worldY = (clientY - rect.top - this.state.translateY()) / this.state.scale();
+    const group = this.worldGroup()?.nativeElement;
+    if (!svg || !group) return;
+
+    // Use SVG matrix transformation for robust screen-to-world conversion
+    // This handles viewBox, preserveAspectRatio, and current zoom/pan transform
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+
+    const ctm = group.getScreenCTM();
+    if (!ctm) return;
+
+    const inverse = ctm.inverse();
+    const worldPt = pt.matrixTransform(inverse);
+    const worldX = worldPt.x;
+    const worldY = worldPt.y;
 
     this.waypointDropScreenPos = { x: clientX, y: clientY };
 
@@ -1016,7 +1029,7 @@ export class GalaxyMapComponent implements OnInit {
         let orderIndex: number | null = null;
 
         if (snap) {
-          if (snap.type === 'planet' && snap.id) {
+          if (snap.type === 'star' && snap.id) {
             newOrder = { ...existingOrder, type: 'orbit', starId: snap.id };
             delete newOrder.destination;
           } else if (snap.type === 'fleet' && snap.id) {
@@ -1491,8 +1504,8 @@ export class GalaxyMapComponent implements OnInit {
     }
   }
 
-  onViewPlanet(planetId: string) {
-    this.router.navigateByUrl(`/planet/${planetId}`);
+  onViewPlanet(starId: string) {
+    this.router.navigateByUrl(`/planet/${starId}`);
     this.closeContextMenus();
   }
 
@@ -1741,23 +1754,28 @@ export class GalaxyMapComponent implements OnInit {
     }
   }
 
+  private lastSnapLogKey: string | null = null;
+
   private logSnapCheck(x: number, y: number, snapResult: any) {
     if (!this.settings.developerMode()) return;
 
-    // Throttle or only log on change?
-    // Since checkSnap is called on move, this will spam.
-    // We should only log if snapResult changes or is significant.
-    // For now, let's log only if there is a snap target.
-    if (snapResult) {
-      this.logging.debug('Waypoint snapped', {
-        service: 'GalaxyMap',
-        operation: 'SnapCheck',
-        additionalData: {
-          cursor: { x, y },
-          snapTarget: snapResult,
-        },
-      });
+    if (!snapResult) {
+      this.lastSnapLogKey = null;
+      return;
     }
+
+    const key = `${snapResult.type ?? ''}:${snapResult.id ?? ''}`;
+    if (key === this.lastSnapLogKey) return;
+    this.lastSnapLogKey = key;
+
+    this.logging.debug('Waypoint snapped', {
+      service: 'GalaxyMap',
+      operation: 'SnapCheck',
+      additionalData: {
+        cursor: { x, y },
+        snapTarget: snapResult,
+      },
+    });
   }
 
   private logMenuOpen(type: 'waypoint' | 'planet' | 'fleet', context: any) {

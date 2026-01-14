@@ -69,7 +69,7 @@ describe('FleetDetailComponent', () => {
       id: 'fleet1',
       ownerId: 'p1',
       name: 'Fleet 1',
-      location: { type: 'orbit', planetId: 'p1' },
+      location: { type: 'orbit', starId: 'p1' },
       ships: [{ designId: 'scout', count: 1 }],
       cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
       fuel: 100,
@@ -80,7 +80,7 @@ describe('FleetDetailComponent', () => {
       id: 'fleet2',
       ownerId: 'p1',
       name: 'Fleet 2',
-      location: { type: 'orbit', planetId: 'p1' }, // Same location
+      location: { type: 'orbit', starId: 'p1' }, // Same location
       ships: [{ designId: 'scout', count: 1 }],
       cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
       fuel: 100,
@@ -91,7 +91,7 @@ describe('FleetDetailComponent', () => {
       id: 'sb1',
       ownerId: 'p1',
       name: 'Starbase',
-      location: { type: 'orbit', planetId: 'p1' }, // Same location
+      location: { type: 'orbit', starId: 'p1' }, // Same location
       ships: [{ designId: 'sb_design', count: 1 }],
       cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
       fuel: 0,

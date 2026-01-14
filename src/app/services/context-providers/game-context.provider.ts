@@ -139,16 +139,14 @@ export class GameContextProvider {
       return {};
     }
 
-    const playerPlanets = game.stars
-      .flatMap(star => star.planets)
-      .filter(planet => planet.ownerId === player.id);
+    const playerPlanets = game.stars.filter((star) => star.ownerId === player.id);
 
     const playerFleets = game.fleets?.filter(fleet => fleet.ownerId === player.id) || [];
 
     return {
       turn: this.gameState.turn(),
       totalStars: game.stars.length,
-      totalPlanets: game.stars.reduce((sum, star) => sum + star.planets.length, 0),
+      totalPlanets: game.stars.length, // Each star system has one planet
       playerPlanets: playerPlanets.length,
       playerFleets: playerFleets.length,
       playerSpecies: player.species?.name,

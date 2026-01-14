@@ -17,11 +17,11 @@ export class TurnService {
   ) {}
 
   endTurn(game: GameState): GameState {
-    const ownedPlanets = this.getOwnedPlanets(game);
+    const ownedStars = this.getOwnedStars(game);
 
-    const totalResearch = this.processProduction(ownedPlanets, game.humanPlayer);
+    const totalResearch = this.processProduction(ownedStars, game.humanPlayer);
     this.processResearch(game, totalResearch);
-    this.processPopulation(ownedPlanets, game.humanPlayer);
+    this.processPopulation(ownedStars, game.humanPlayer);
     this.processColonies(game);
     this.processFleets(game);
 
@@ -29,9 +29,9 @@ export class TurnService {
   }
 
   /**
-   * Get all planets owned by the human player.
+   * Get all stars owned by the human player.
    */
-  getOwnedPlanets(game: GameState): Star[] {
+  getOwnedStars(game: GameState): Star[] {
     return game.stars
       .map((s) => s)
       .filter((p) => p.ownerId === game.humanPlayer.id);

@@ -76,7 +76,7 @@ import {
           <div class="text-small text-muted">Location</div>
           <div class="font-medium">
             @if (fleet()!.location.type === 'orbit') {
-              <span>Orbiting planet {{ $any(fleet()!.location).planetId }}</span>
+              <span>Orbiting planet {{ $any(fleet()!.location).starId }}</span>
             }
             @if (fleet()!.location.type === 'space') {
               <span>In space ({{ $any(fleet()!.location).x | number: '1.0-0' }},

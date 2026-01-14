@@ -3,7 +3,7 @@ import { GalaxyVisibilityService } from './galaxy-visibility.service';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetService } from './galaxy-fleet.service';
-import { Fleet, GameState, Planet, Player, ShipDesign, Star } from '../../../models/game.model';
+import { Fleet, GameState, Player, ShipDesign, Star } from '../../../models/game.model';
 import { signal } from '@angular/core';
 
 describe('GalaxyVisibilityService', () => {
@@ -17,15 +17,15 @@ describe('GalaxyVisibilityService', () => {
     name: 'Human',
     species: {} as any,
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    ownedPlanetIds: ['planet1'],
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
+    ownedStarIds: [],
   };
 
-  const mockPlanet: Planet = {
-    id: 'planet1',
-    name: 'Earth',
-    starId: 'star1',
+  const createStar = (overrides: Partial<Star> = {}): Star => ({
+    id: 'star1',
+    name: 'Test Star',
+    position: { x: 100, y: 100 },
     ownerId: 'p1',
     population: 10000,
     maxPopulation: 1000000,
@@ -38,17 +38,16 @@ describe('GalaxyVisibilityService', () => {
     temperature: 50,
     atmosphere: 50,
     terraformOffset: { temperature: 0, atmosphere: 0 },
-    buildQueue: [],
-    scanner: 0, // No scanner on planet
+    scanner: 0,
     research: 0,
-  };
+    ...overrides,
+  });
 
-  const mockStar: Star = {
+  const mockStar: Star = createStar({
     id: 'star1',
     name: 'Sol',
     position: { x: 100, y: 100 },
-    planets: [mockPlanet],
-  };
+  });
 
   const mockDesign: ShipDesign = {
     id: 'scout',
@@ -69,7 +68,7 @@ describe('GalaxyVisibilityService', () => {
     id: 'fleet1',
     name: 'Scout Fleet',
     ownerId: 'p1',
-    location: { type: 'orbit', planetId: 'planet1' },
+    location: { type: 'orbit', starId: 'planet1' },
     ships: [{ designId: 'scout', count: 1, damage: 0 }],
     fuel: 100,
     cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },

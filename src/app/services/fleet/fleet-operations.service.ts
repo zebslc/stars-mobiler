@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, Planet, ShipDesign } from '../../models/game.model';
-import { 
-  IFleetOperationsService, 
-  FleetLocation, 
+import { GameState, Fleet, ShipDesign, Star } from '../../models/game.model';
+import {
+  IFleetOperationsService,
+  FleetLocation,
   ValidationResult,
-  LogContext 
+  LogContext,
 } from '../../models/service-interfaces.model';
 import { getDesign } from '../../data/ships.data';
 import { LoggingService } from '../core/logging.service';
@@ -62,31 +62,24 @@ export class FleetOperationsService implements IFleetOperationsService {
     });
   }
 
-  addShipToFleet(game: GameState, planet: Planet, shipDesignId: string, count: number): void {
-    const metadata = this.createAdditionMetadata(planet, shipDesignId, count);
+  addShipToFleet(game: GameState, star: Star, shipDesignId: string, count: number): void {
+    const metadata = this.createAdditionMetadata(star, shipDesignId, count);
     this.logging.debug(`Adding ${count} ships of design ${shipDesignId} to fleet`, metadata);
 
     const context = this.resolveDesignInfo(game, shipDesignId);
-    const fleet = this.ensureFleetExists(game, planet, shipDesignId, context.isNewShipStarbase);
+    const fleet = this.ensureFleetExists(game, star, shipDesignId, context.isNewShipStarbase);
 
     this.validateAdditionOrThrow(fleet, shipDesignId, count, metadata);
-    const hasColony = this.executeShipAddition(
-      fleet,
-      shipDesignId,
-      count,
-      context,
-      planet,
-      metadata,
-    );
+    const hasColony = this.executeShipAddition(fleet, shipDesignId, count, context, star, metadata);
     this.logAdditionSuccess(fleet, shipDesignId, count, context, hasColony, metadata);
   }
 
-  private createAdditionMetadata(planet: Planet, shipDesignId: string, count: number) {
+  private createAdditionMetadata(star: Star, shipDesignId: string, count: number) {
     return {
       service: 'FleetOperationsService',
       operation: 'addShipToFleet',
-      entityId: planet.id,
-      entityType: 'planet',
+      entityId: star.id,
+      entityType: 'star',
       additionalData: { shipDesignId, count },
     };
   }
@@ -118,12 +111,12 @@ export class FleetOperationsService implements IFleetOperationsService {
     designId: string,
     count: number,
     context: any,
-    planet: Planet,
+    star: Star,
     metadata: any,
   ): boolean {
     this.addShipsToFleetStack(fleet, designId, count, metadata);
     this.handleFuelAddition(fleet, context.shipDesign, context.legacyDesign, count);
-    return this.handleColonistLoading(fleet, planet, context, count, metadata);
+    return this.handleColonistLoading(fleet, star, context, count, metadata);
   }
 
   private logAdditionSuccess(
@@ -166,7 +159,7 @@ export class FleetOperationsService implements IFleetOperationsService {
 
   private handleColonistLoading(
     fleet: Fleet,
-    planet: Planet,
+    star: Star,
     context: any,
     count: number,
     metadata: any,
@@ -174,7 +167,7 @@ export class FleetOperationsService implements IFleetOperationsService {
     const { hasColony, colCap } = this.getColonistSpecs(context);
 
     if (hasColony && colCap) {
-      this.transferColonists(fleet, planet, colCap * count, metadata);
+      this.transferColonists(fleet, star, colCap * count, metadata);
     }
     return !!hasColony;
   }
@@ -187,9 +180,9 @@ export class FleetOperationsService implements IFleetOperationsService {
     return { hasColony, colCap };
   }
 
-  private transferColonists(fleet: Fleet, planet: Planet, totalColCap: number, metadata: any) {
-    const amount = Math.min(totalColCap, planet.population);
-    planet.population -= amount;
+  private transferColonists(fleet: Fleet, star: Star, totalColCap: number, metadata: any) {
+    const amount = Math.min(totalColCap, star.population);
+    star.population -= amount;
     fleet.cargo.colonists += amount;
 
     this.logging.debug(`Loaded ${amount} colonists onto colony ship`, {
@@ -200,14 +193,14 @@ export class FleetOperationsService implements IFleetOperationsService {
 
   private findTargetFleet(
     game: GameState,
-    planet: Planet,
+    star: Star,
     isNewShipStarbase: boolean,
   ): Fleet | undefined {
     const orbitFleets = game.fleets.filter(
       (f) =>
         f.ownerId === game.humanPlayer.id &&
         f.location.type === 'orbit' &&
-        (f.location as FleetLocation).planetId === planet.id,
+        (f.location as FleetLocation).starId === star.id,
     );
 
     if (isNewShipStarbase) {
@@ -284,7 +277,7 @@ export class FleetOperationsService implements IFleetOperationsService {
 
   private resolveLocation(location: FleetLocation): Fleet['location'] {
     if (location.type === 'orbit') {
-      return { type: 'orbit', planetId: location.planetId! };
+      return { type: 'orbit', starId: location.starId! };
     }
     return { type: 'space', x: location.x!, y: location.y! };
   }
@@ -299,15 +292,15 @@ export class FleetOperationsService implements IFleetOperationsService {
 
   private ensureFleetExists(
     game: GameState,
-    planet: Planet,
+    star: Star,
     designId: string,
     isNewShipStarbase: boolean,
   ): Fleet {
-    let fleet = this.findTargetFleet(game, planet, isNewShipStarbase);
+    let fleet = this.findTargetFleet(game, star, isNewShipStarbase);
     if (!fleet) {
       fleet = this.createFleet(
         game,
-        { type: 'orbit', planetId: planet.id },
+        { type: 'orbit', starId: star.id },
         game.humanPlayer.id,
         designId,
       );

@@ -38,7 +38,7 @@ export class FleetMovementService implements IFleetMovementService {
       type: 'move',
       destination: destination.type === 'space' 
         ? { x: destination.x!, y: destination.y! }
-        : this.getPlanetPosition(game, destination.planetId!)
+        : this.getPlanetPosition(game, destination.starId!)
     };
 
     fleet.orders = [moveOrder];
@@ -127,7 +127,7 @@ export class FleetMovementService implements IFleetMovementService {
         errors.push('Space destination requires x and y coordinates');
       }
     } else if (destination.type === 'orbit') {
-      if (!destination.planetId) {
+      if (!destination.starId) {
         errors.push('Orbit destination requires planetId');
       }
     }
@@ -164,8 +164,8 @@ export class FleetMovementService implements IFleetMovementService {
     return { x: 0, y: 0 };
   }
 
-  private getPlanetPosition(game: GameState, planetId: string): GalaxyCoordinate {
-    const star = game.stars.find(s => s.planets.some(p => p.id === planetId));
+  private getPlanetPosition(game: GameState, starId: string): GalaxyCoordinate {
+    const star = game.stars.find(s => s.id === starId);
     return star ? star.position : { x: 0, y: 0 };
   }
 

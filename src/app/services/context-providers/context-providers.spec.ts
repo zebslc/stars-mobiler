@@ -91,22 +91,21 @@ describe('Context Providers', () => {
           aiCount: 3,
           aiDifficulty: 'medium',
           seed: 12345,
-          speciesId: 'human'
+          speciesId: 'human',
         },
-        stars: [{ id: 'star1', planets: [] } as any],
         humanPlayer: {
           id: 'player-456',
           name: 'Test Player',
           species: { id: 'human', name: 'Human' } as any,
-          ownedPlanetIds: [],
           techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
           researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-          selectedResearchField: 'Energy' as const
+          selectedResearchField: 'Energy' as const,
+          ownedStarIds: [],
         },
         aiPlayers: [],
         fleets: [],
         playerEconomy: {} as any,
-        shipDesigns: []
+        shipDesigns: [],
       };
       mockGameStateService.game.and.returnValue(mockGame as GameState);
       mockGameStateService.turn.and.returnValue(42);
@@ -154,22 +153,21 @@ describe('Context Providers', () => {
           aiCount: 2,
           aiDifficulty: 'hard',
           seed: 54321,
-          speciesId: 'human'
+          speciesId: 'human',
         },
-        stars: [{ id: 'star1', planets: [] } as any],
         humanPlayer: {
           id: 'player-123',
           name: 'Test Player 2',
           species: { id: 'human', name: 'Human' } as any,
-          ownedPlanetIds: [],
           techLevels: { Energy: 1, Kinetics: 1, Propulsion: 1, Construction: 1 },
           researchProgress: { Energy: 50, Kinetics: 25, Propulsion: 75, Construction: 0 },
-          selectedResearchField: 'Energy' as const
+          selectedResearchField: 'Energy' as const,
+          ownedStarIds: [],
         },
         aiPlayers: [],
         fleets: [],
         playerEconomy: {} as any,
-        shipDesigns: []
+        shipDesigns: [],
       };
       mockGameStateService.game.and.returnValue(mockGame as GameState);
       mockGameStateService.turn.and.returnValue(15);

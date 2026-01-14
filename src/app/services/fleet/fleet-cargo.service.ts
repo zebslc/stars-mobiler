@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, Planet } from '../../models/game.model';
+import { GameState, Fleet, Star } from '../../models/game.model';
 import { LogContext } from '../../models/service-interfaces.model';
 import { LoggingService } from '../core/logging.service';
 
@@ -13,29 +13,25 @@ export interface CargoManifest {
 
 @Injectable({ providedIn: 'root' })
 export class FleetCargoService {
-
   constructor(private logging: LoggingService) {}
 
-  loadCargo(
-    game: GameState,
-    fleetId: string,
-    planetId: string,
-    manifest: CargoManifest,
-  ): GameState {
+  loadCargo(game: GameState, fleetId: string, starId: string, manifest: CargoManifest): GameState {
     const context: LogContext = {
       service: 'FleetCargoService',
       operation: 'loadCargo',
       entityId: fleetId,
       entityType: 'fleet',
-      additionalData: { planetId, manifest }
+      additionalData: { starId, manifest },
     };
 
-    this.logging.debug(`Loading cargo from planet ${planetId}`, context);
+    this.logging.debug(`Loading cargo from planet ${starId}`, context);
 
-    const originalFleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    const originalFleet = game.fleets.find(
+      (f) => f.id === fleetId && f.ownerId === game.humanPlayer.id,
+    );
     const planetIndex = this.buildPlanetIndex(game);
-    const originalPlanet = planetIndex.get(planetId);
-    
+    const originalPlanet = planetIndex.get(starId);
+
     if (!originalFleet || !originalPlanet) {
       this.logging.error('Fleet or planet not found for cargo loading', context);
       return game;
@@ -51,7 +47,7 @@ export class FleetCargoService {
 
     this.logging.debug(`Cargo capacity: ${capacity}, used: ${used}, free: ${free}`, {
       ...context,
-      additionalData: { ...context.additionalData, capacity, used, free }
+      additionalData: { ...context.additionalData, capacity, used, free },
     });
 
     const takeMineral = (
@@ -64,7 +60,7 @@ export class FleetCargoService {
       const wanted =
         req === 'all' ? available : req === 'fill' ? room : Math.max(0, Math.floor(req));
       const take = Math.min(wanted, available, room);
-      
+
       planet.surfaceMinerals[key] -= take;
       fleet.cargo.minerals[key] += take;
       used += take;
@@ -72,7 +68,7 @@ export class FleetCargoService {
       if (take > 0) {
         this.logging.debug(`Loaded ${take} ${key}`, {
           ...context,
-          additionalData: { ...context.additionalData, mineral: key, amount: take }
+          additionalData: { ...context.additionalData, mineral: key, amount: take },
         });
       }
     };
@@ -91,7 +87,7 @@ export class FleetCargoService {
             ? room
             : Math.max(0, Math.floor(manifest.resources));
       const take = Math.min(wanted, available, room);
-      
+
       planet.resources -= take;
       fleet.cargo.resources += take;
       used += take;
@@ -99,7 +95,7 @@ export class FleetCargoService {
       if (take > 0) {
         this.logging.debug(`Loaded ${take} resources`, {
           ...context,
-          additionalData: { ...context.additionalData, resources: take }
+          additionalData: { ...context.additionalData, resources: take },
         });
       }
     }
@@ -115,39 +111,31 @@ export class FleetCargoService {
             ? roomPeople
             : Math.max(0, Math.floor(manifest.colonists));
       const takePeople = Math.min(wantedPeople, availablePeople, roomPeople);
-      
+
       planet.population = Math.max(0, planet.population - takePeople);
       fleet.cargo.colonists += takePeople;
 
       if (takePeople > 0) {
         this.logging.debug(`Loaded ${takePeople} colonists`, {
           ...context,
-          additionalData: { ...context.additionalData, colonists: takePeople }
+          additionalData: { ...context.additionalData, colonists: takePeople },
         });
       }
     }
 
     this.logging.info(`Cargo loading completed for fleet ${fleet.name}`, context);
-    
-    // Create new game state with updated fleet and planet
-    const updatedFleets = game.fleets.map(f => f.id === fleet.id ? fleet : f);
-    const updatedStars = game.stars.map(star => {
-      if (star.id === planet.starId) {
-        return {
-          ...star,
-          planets: star.planets.map(p => p.id === planet.id ? planet : p)
-        };
-      }
-      return star;
-    });
-    
+
+    // Create new game state with updated fleet and star
+    const updatedFleets = game.fleets.map((f) => (f.id === fleet.id ? fleet : f));
+    const updatedStars = game.stars.map((star) => (star.id === planet.id ? planet : star));
+
     return { ...game, stars: updatedStars, fleets: updatedFleets };
   }
 
   unloadCargo(
     game: GameState,
     fleetId: string,
-    planetId: string,
+    starId: string,
     manifest: {
       resources?: number | 'all';
       ironium?: number | 'all';
@@ -161,15 +149,17 @@ export class FleetCargoService {
       operation: 'unloadCargo',
       entityId: fleetId,
       entityType: 'fleet',
-      additionalData: { planetId, manifest }
+      additionalData: { starId, manifest },
     };
 
-    this.logging.debug(`Unloading cargo to planet ${planetId}`, context);
+    this.logging.debug(`Unloading cargo to planet ${starId}`, context);
 
-    const originalFleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
+    const originalFleet = game.fleets.find(
+      (f) => f.id === fleetId && f.ownerId === game.humanPlayer.id,
+    );
     const planetIndex = this.buildPlanetIndex(game);
-    const originalPlanet = planetIndex.get(planetId);
-    
+    const originalPlanet = planetIndex.get(starId);
+
     if (!originalFleet || !originalPlanet) {
       this.logging.error('Fleet or planet not found for cargo unloading', context);
       return game;
@@ -184,14 +174,14 @@ export class FleetCargoService {
       const available = fleet.cargo.minerals[key];
       const wanted = req === 'all' ? available : Math.max(0, Math.floor(req));
       const give = Math.min(wanted, available);
-      
+
       fleet.cargo.minerals[key] -= give;
       planet.surfaceMinerals[key] += give;
 
       if (give > 0) {
         this.logging.debug(`Unloaded ${give} ${key}`, {
           ...context,
-          additionalData: { ...context.additionalData, mineral: key, amount: give }
+          additionalData: { ...context.additionalData, mineral: key, amount: give },
         });
       }
     };
@@ -203,16 +193,18 @@ export class FleetCargoService {
     if (manifest.resources) {
       const available = fleet.cargo.resources;
       const wanted =
-        manifest.resources === 'all' ? available : Math.max(0, Math.floor(manifest.resources as number));
+        manifest.resources === 'all'
+          ? available
+          : Math.max(0, Math.floor(manifest.resources as number));
       const give = Math.min(wanted, available);
-      
+
       fleet.cargo.resources -= give;
       planet.resources += give;
 
       if (give > 0) {
         this.logging.debug(`Unloaded ${give} resources`, {
           ...context,
-          additionalData: { ...context.additionalData, resources: give }
+          additionalData: { ...context.additionalData, resources: give },
         });
       }
     }
@@ -224,41 +216,31 @@ export class FleetCargoService {
           ? availablePeople
           : Math.max(0, Math.floor(manifest.colonists as number));
       const givePeople = Math.min(wantedPeople, availablePeople);
-      
+
       fleet.cargo.colonists -= givePeople;
       planet.population += givePeople;
 
       if (givePeople > 0) {
         this.logging.debug(`Unloaded ${givePeople} colonists`, {
           ...context,
-          additionalData: { ...context.additionalData, colonists: givePeople }
+          additionalData: { ...context.additionalData, colonists: givePeople },
         });
       }
     }
 
     this.logging.info(`Cargo unloading completed for fleet ${fleet.name}`, context);
-    
-    // Create new game state with updated fleet and planet
-    const updatedFleets = game.fleets.map(f => f.id === fleet.id ? fleet : f);
-    const updatedStars = game.stars.map(star => {
-      if (star.id === planet.starId) {
-        return {
-          ...star,
-          planets: star.planets.map(p => p.id === planet.id ? planet : p)
-        };
-      }
-      return star;
-    });
-    
+
+    // Create new game state with updated fleet and star
+    const updatedFleets = game.fleets.map((f) => (f.id === fleet.id ? fleet : f));
+    const updatedStars = game.stars.map((star) => (star.id === planet.id ? planet : star));
+
     return { ...game, stars: updatedStars, fleets: updatedFleets };
   }
 
-  private buildPlanetIndex(game: GameState): Map<string, Planet> {
-    const index = new Map<string, Planet>();
+  private buildPlanetIndex(game: GameState): Map<string, Star> {
+    const index = new Map<string, Star>();
     for (const star of game.stars) {
-      for (const planet of star.planets) {
-        index.set(planet.id, planet);
-      }
+      index.set(star.id, star);
     }
     return index;
   }

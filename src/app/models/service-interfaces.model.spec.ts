@@ -25,17 +25,17 @@ import {
   ResourceCost,
   ShipDesignTemplate,
   LogContext,
-  ServiceLogEntry
+  ServiceLogEntry,
 } from './service-interfaces.model';
-import { GameState, Fleet, Planet, ShipDesign, PlayerTech } from './game.model';
+import { GameState, Star, Fleet, ShipDesign, PlayerTech } from './game.model';
 
 describe('ServiceInterfacesModel', () => {
   describe('Property 1: Service Interface Consistency', () => {
     /**
      * Feature: code-quality-refactor, Property 1: Service Interface Consistency
      * Validates: Requirements 1.6, 8.1
-     * 
-     * For any service method call with valid parameters, the service should produce 
+     *
+     * For any service method call with valid parameters, the service should produce
      * consistent, well-typed results according to its interface contract
      */
     it('should maintain consistent interface contracts for all service interfaces', () => {
@@ -47,27 +47,27 @@ describe('ServiceInterfacesModel', () => {
               type: fc.constantFrom('space', 'orbit'),
               x: fc.option(fc.integer({ min: 0, max: 2000 }), { nil: undefined }),
               y: fc.option(fc.integer({ min: 0, max: 2000 }), { nil: undefined }),
-              planetId: fc.option(fc.string({ minLength: 1 }), { nil: undefined })
+              starId: fc.option(fc.string({ minLength: 1 }), { nil: undefined }),
             }),
             galaxyMapState: fc.record({
               zoom: fc.double({ min: 0.1, max: 10.0, noNaN: true }),
               panX: fc.integer({ min: -1000, max: 1000 }),
               panY: fc.integer({ min: -1000, max: 1000 }),
               selectedStar: fc.option(fc.string({ minLength: 1 }), { nil: null }),
-              selectedFleet: fc.option(fc.string({ minLength: 1 }), { nil: null })
+              selectedFleet: fc.option(fc.string({ minLength: 1 }), { nil: null }),
             }),
             validationResult: fc.record({
               isValid: fc.boolean(),
               errors: fc.array(fc.string({ minLength: 1 })),
-              warnings: fc.array(fc.string({ minLength: 1 }))
+              warnings: fc.array(fc.string({ minLength: 1 })),
             }),
             screenCoordinate: fc.record({
               x: fc.integer({ min: 0, max: 4000 }),
-              y: fc.integer({ min: 0, max: 4000 })
+              y: fc.integer({ min: 0, max: 4000 }),
             }),
             galaxyCoordinate: fc.record({
               x: fc.integer({ min: 0, max: 2000 }),
-              y: fc.integer({ min: 0, max: 2000 })
+              y: fc.integer({ min: 0, max: 2000 }),
             }),
             hullSlot: fc.record({
               id: fc.string({ minLength: 1 }),
@@ -75,28 +75,33 @@ describe('ServiceInterfacesModel', () => {
               max: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),
               required: fc.option(fc.boolean(), { nil: undefined }),
               editable: fc.option(fc.boolean(), { nil: undefined }),
-              size: fc.option(fc.integer({ min: 1, max: 10 }), { nil: undefined })
+              size: fc.option(fc.integer({ min: 1, max: 10 }), { nil: undefined }),
             }),
             componentData: fc.record({
               id: fc.string({ minLength: 1 }),
               name: fc.string({ minLength: 1 }),
               type: fc.string({ minLength: 1 }),
               stats: fc.option(fc.dictionary(fc.string(), fc.anything()), { nil: undefined }),
-              cost: fc.option(fc.record({
-                resources: fc.integer({ min: 0 }),
-                ironium: fc.integer({ min: 0 }),
-                boranium: fc.integer({ min: 0 }),
-                germanium: fc.integer({ min: 0 })
-              }), { nil: undefined }),
-              mass: fc.option(fc.integer({ min: 1 }), { nil: undefined })
+              cost: fc.option(
+                fc.record({
+                  resources: fc.integer({ min: 0 }),
+                  ironium: fc.integer({ min: 0 }),
+                  boranium: fc.integer({ min: 0 }),
+                  germanium: fc.integer({ min: 0 }),
+                }),
+                { nil: undefined },
+              ),
+              mass: fc.option(fc.integer({ min: 1 }), { nil: undefined }),
             }),
             logContext: fc.record({
               service: fc.string({ minLength: 1 }),
               operation: fc.string({ minLength: 1 }),
               entityId: fc.option(fc.string({ minLength: 1 }), { nil: undefined }),
               entityType: fc.option(fc.string({ minLength: 1 }), { nil: undefined }),
-              additionalData: fc.option(fc.dictionary(fc.string(), fc.anything()), { nil: undefined })
-            })
+              additionalData: fc.option(fc.dictionary(fc.string(), fc.anything()), {
+                nil: undefined,
+              }),
+            }),
           }),
           (testData: {
             fleetLocation: FleetLocation;
@@ -111,7 +116,7 @@ describe('ServiceInterfacesModel', () => {
             // Test FleetLocation interface consistency
             expect(typeof testData.fleetLocation.type).toBe('string');
             expect(['space', 'orbit']).toContain(testData.fleetLocation.type);
-            
+
             if (testData.fleetLocation.type === 'space') {
               // Space locations should have coordinates
               if (testData.fleetLocation.x !== undefined) {
@@ -124,9 +129,9 @@ describe('ServiceInterfacesModel', () => {
               }
             } else if (testData.fleetLocation.type === 'orbit') {
               // Orbit locations should have planetId
-              if (testData.fleetLocation.planetId !== undefined) {
-                expect(typeof testData.fleetLocation.planetId).toBe('string');
-                expect(testData.fleetLocation.planetId.length).toBeGreaterThan(0);
+              if (testData.fleetLocation.starId !== undefined) {
+                expect(typeof testData.fleetLocation.starId).toBe('string');
+                expect(testData.fleetLocation.starId.length).toBeGreaterThan(0);
               }
             }
 
@@ -135,7 +140,7 @@ describe('ServiceInterfacesModel', () => {
             expect(testData.galaxyMapState.zoom).toBeGreaterThan(0);
             expect(typeof testData.galaxyMapState.panX).toBe('number');
             expect(typeof testData.galaxyMapState.panY).toBe('number');
-            
+
             if (testData.galaxyMapState.selectedStar !== null) {
               expect(typeof testData.galaxyMapState.selectedStar).toBe('string');
             }
@@ -147,12 +152,12 @@ describe('ServiceInterfacesModel', () => {
             expect(typeof testData.validationResult.isValid).toBe('boolean');
             expect(Array.isArray(testData.validationResult.errors)).toBe(true);
             expect(Array.isArray(testData.validationResult.warnings)).toBe(true);
-            
+
             testData.validationResult.errors.forEach((error: string) => {
               expect(typeof error).toBe('string');
               expect(error.length).toBeGreaterThan(0);
             });
-            
+
             testData.validationResult.warnings.forEach((warning: string) => {
               expect(typeof warning).toBe('string');
               expect(warning.length).toBeGreaterThan(0);
@@ -174,7 +179,7 @@ describe('ServiceInterfacesModel', () => {
             expect(testData.hullSlot.id.length).toBeGreaterThan(0);
             expect(Array.isArray(testData.hullSlot.allowedTypes)).toBe(true);
             expect(testData.hullSlot.allowedTypes.length).toBeGreaterThan(0);
-            
+
             testData.hullSlot.allowedTypes.forEach((type: string) => {
               expect(typeof type).toBe('string');
               expect(type.length).toBeGreaterThan(0);
@@ -249,9 +254,9 @@ describe('ServiceInterfacesModel', () => {
               expect(typeof testData.logContext.additionalData).toBe('object');
               expect(testData.logContext.additionalData).not.toBeNull();
             }
-          }
+          },
         ),
-        { numRuns: 20 }
+        { numRuns: 20 },
       );
     });
   });
@@ -261,12 +266,12 @@ describe('ServiceInterfacesModel', () => {
       const spaceLocation: FleetLocation = {
         type: 'space',
         x: 100,
-        y: 200
+        y: 200,
       };
 
       const orbitLocation: FleetLocation = {
         type: 'orbit',
-        planetId: 'planet1'
+        starId: 'planet1',
       };
 
       expect(spaceLocation.type).toBe('space');
@@ -274,20 +279,20 @@ describe('ServiceInterfacesModel', () => {
       expect(spaceLocation.y).toBe(200);
 
       expect(orbitLocation.type).toBe('orbit');
-      expect(orbitLocation.planetId).toBe('planet1');
+      expect(orbitLocation.starId).toBe('planet1');
     });
 
     it('should validate ValidationResult interface structure', () => {
       const validResult: ValidationResult = {
         isValid: true,
         errors: [],
-        warnings: []
+        warnings: [],
       };
 
       const invalidResult: ValidationResult = {
         isValid: false,
         errors: ['Error 1', 'Error 2'],
-        warnings: ['Warning 1']
+        warnings: ['Warning 1'],
       };
 
       expect(validResult.isValid).toBe(true);
@@ -306,7 +311,7 @@ describe('ServiceInterfacesModel', () => {
         warnings: [],
         fuelRequired: 100,
         fuelAvailable: 150,
-        canMove: true
+        canMove: true,
       };
 
       // Should have all ValidationResult properties
@@ -324,11 +329,11 @@ describe('ServiceInterfacesModel', () => {
       const selectResult: InteractionResult = {
         type: 'select',
         target: 'fleet1',
-        position: { x: 100, y: 200 }
+        position: { x: 100, y: 200 },
       };
 
       const panResult: InteractionResult = {
-        type: 'pan'
+        type: 'pan',
       };
 
       expect(selectResult.type).toBe('select');
@@ -346,7 +351,7 @@ describe('ServiceInterfacesModel', () => {
         componentName: '',
         componentCount: 0,
         maxCount: 1,
-        slotType: 'Engine'
+        slotType: 'Engine',
       };
 
       const filledSlot: SlotDisplayInfo = {
@@ -354,7 +359,7 @@ describe('ServiceInterfacesModel', () => {
         componentName: 'Quick Jump 5',
         componentCount: 1,
         maxCount: 1,
-        slotType: 'Engine'
+        slotType: 'Engine',
       };
 
       expect(emptySlot.isEmpty).toBe(true);
@@ -371,7 +376,7 @@ describe('ServiceInterfacesModel', () => {
         resources: 100,
         ironium: 50,
         boranium: 25,
-        germanium: 10
+        germanium: 10,
       };
 
       expect(typeof cost.resources).toBe('number');
@@ -392,17 +397,27 @@ describe('ServiceInterfacesModel', () => {
 
       // Mock implementations to verify interface contracts
       const mockFleetOps: Partial<IFleetOperationsService> = {
-        createFleet: (game: GameState, location: FleetLocation, ownerId: string, baseNameSource?: string): Fleet => {
+        createFleet: (
+          game: GameState,
+          location: FleetLocation,
+          ownerId: string,
+          baseNameSource?: string,
+        ): Fleet => {
           // Mock implementation - just verify the signature compiles
           return {} as Fleet;
         },
-        addShipToFleet: (game: GameState, planet: Planet, shipDesignId: string, count: number): void => {
+        addShipToFleet: (
+          game: GameState,
+          planet: Star,
+          shipDesignId: string,
+          count: number,
+        ): void => {
           // Mock implementation - just verify the signature compiles
         },
         validateFleetLimits: (game: GameState, ownerId: string): boolean => {
           // Mock implementation - just verify the signature compiles
           return true;
-        }
+        },
       };
 
       const mockFleetMovement: Partial<IFleetMovementService> = {
@@ -421,9 +436,9 @@ describe('ServiceInterfacesModel', () => {
             warnings: [],
             fuelRequired: 0,
             fuelAvailable: 0,
-            canMove: true
+            canMove: true,
           };
-        }
+        },
       };
 
       // If these compile without TypeScript errors, the interfaces are consistent
@@ -446,19 +461,27 @@ describe('ServiceInterfacesModel', () => {
         },
         handleWheelEvents: (event: WheelEvent, mapState: GalaxyMapState): InteractionResult => {
           return { type: 'zoom' };
-        }
+        },
       };
 
       const mockGalaxyCoordinate: Partial<IGalaxyCoordinateService> = {
-        screenToGalaxy: (screenX: number, screenY: number, mapState: GalaxyMapState): GalaxyCoordinate => {
+        screenToGalaxy: (
+          screenX: number,
+          screenY: number,
+          mapState: GalaxyMapState,
+        ): GalaxyCoordinate => {
           return { x: 0, y: 0 };
         },
-        galaxyToScreen: (galaxyX: number, galaxyY: number, mapState: GalaxyMapState): ScreenCoordinate => {
+        galaxyToScreen: (
+          galaxyX: number,
+          galaxyY: number,
+          mapState: GalaxyMapState,
+        ): ScreenCoordinate => {
           return { x: 0, y: 0 };
         },
         calculateZoomLevel: (currentZoom: number, delta: number): number => {
           return 1.0;
-        }
+        },
       };
 
       // If these compile without TypeScript errors, the interfaces are consistent
@@ -476,16 +499,25 @@ describe('ServiceInterfacesModel', () => {
         validateDesign: (design: ShipDesign, techLevels: PlayerTech): ValidationResult => {
           return { isValid: true, errors: [], warnings: [] };
         },
-        validateComponentPlacement: (slotId: string, component: ComponentData, count: number): ValidationResult => {
+        validateComponentPlacement: (
+          slotId: string,
+          component: ComponentData,
+          count: number,
+        ): ValidationResult => {
           return { isValid: true, errors: [], warnings: [] };
         },
         validateHullSelection: (hullId: string, techLevels: PlayerTech): ValidationResult => {
           return { isValid: true, errors: [], warnings: [] };
-        }
+        },
       };
 
       const mockShipDesignOps: Partial<IShipDesignOperationsService> = {
-        setSlotComponent: (design: ShipDesign, slotId: string, component: ComponentData, count: number): ShipDesign => {
+        setSlotComponent: (
+          design: ShipDesign,
+          slotId: string,
+          component: ComponentData,
+          count: number,
+        ): ShipDesign => {
           return design;
         },
         clearSlot: (design: ShipDesign, slotId: string): ShipDesign => {
@@ -496,7 +528,7 @@ describe('ServiceInterfacesModel', () => {
         },
         calculateDesignCost: (design: ShipDesign): ResourceCost => {
           return { resources: 0, ironium: 0, boranium: 0, germanium: 0 };
-        }
+        },
       };
 
       // If these compile without TypeScript errors, the interfaces are consistent

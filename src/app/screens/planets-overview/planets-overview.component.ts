@@ -177,7 +177,7 @@ export class PlanetsOverviewComponent {
         }
 
         if (isStarbase) {
-          map.set((fleet.location as any).planetId, {
+          map.set((fleet.location as any).starId, {
             designId: ship.designId,
             name: designName,
             imageClass: this.techService.getHullImageClass(hullName),
@@ -211,6 +211,6 @@ export class PlanetsOverviewComponent {
   }
 
   onViewOnMap(planet: Star) {
-    this.router.navigate(['/map'], { queryParams: { planetId: planet.id } });
+    this.router.navigate(['/map'], { queryParams: { starId: planet.id } });
   }
 }

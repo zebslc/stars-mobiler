@@ -1,5 +1,5 @@
 import { BuildPaymentService, ResourceAmount } from './build-payment.service';
-import { BuildItem, Planet } from '../../models/game.model';
+import { BuildItem, Star } from '../../models/game.model';
 
 describe('BuildPaymentService', () => {
   let service: BuildPaymentService;
@@ -8,10 +8,10 @@ describe('BuildPaymentService', () => {
     service = new BuildPaymentService();
   });
 
-  const createPlanet = (overrides: Partial<Planet> = {}): Planet => ({
-    id: 'planet1',
-    name: 'Test Planet',
-    starId: 'star1',
+  const createStar = (overrides: Partial<Star> = {}): Star => ({
+    id: 'star1',
+    name: 'Test Star',
+    position: { x: 100, y: 100 },
     ownerId: 'p1',
     population: 10000,
     maxPopulation: 1000000,
@@ -26,7 +26,7 @@ describe('BuildPaymentService', () => {
     terraformOffset: { temperature: 0, atmosphere: 0 },
     scanner: 0,
     research: 0,
-    ...overrides
+    ...overrides,
   });
 
   const createBuildItem = (overrides: Partial<BuildItem> = {}): BuildItem => ({
@@ -119,9 +119,9 @@ describe('BuildPaymentService', () => {
 
   describe('calculateAffordablePayment', () => {
     it('should return remaining amount when planet has enough', () => {
-      const planet = createPlanet({
+      const planet = createStar({
         resources: 500,
-        surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 }
+        surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
       });
       const remaining: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
@@ -131,9 +131,9 @@ describe('BuildPaymentService', () => {
     });
 
     it('should return planet resources when less than remaining', () => {
-      const planet = createPlanet({
+      const planet = createStar({
         resources: 50,
-        surfaceMinerals: { ironium: 30, boranium: 20, germanium: 10 }
+        surfaceMinerals: { ironium: 30, boranium: 20, germanium: 10 },
       });
       const remaining: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
@@ -145,9 +145,9 @@ describe('BuildPaymentService', () => {
 
   describe('deductFromPlanet', () => {
     it('should deduct affordable amounts from planet', () => {
-      const planet = createPlanet({
+      const planet = createStar({
         resources: 500,
-        surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 }
+        surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
       });
       const affordable: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
 
@@ -217,9 +217,9 @@ describe('BuildPaymentService', () => {
 
   describe('processItemPayment', () => {
     it('should process full payment when planet has enough resources', () => {
-      const planet = createPlanet({
+      const planet = createStar({
         resources: 500,
-        surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 }
+        surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
       });
       const item = createBuildItem({
         cost: { resources: 100, ironium: 50, boranium: 30, germanium: 20 },
@@ -237,9 +237,9 @@ describe('BuildPaymentService', () => {
     });
 
     it('should process partial payment when planet has insufficient resources', () => {
-      const planet = createPlanet({
+      const planet = createStar({
         resources: 50,
-        surfaceMinerals: { ironium: 30, boranium: 20, germanium: 10 }
+        surfaceMinerals: { ironium: 30, boranium: 20, germanium: 10 },
       });
       const item = createBuildItem({
         cost: { resources: 100, ironium: 50, boranium: 30, germanium: 20 },
@@ -259,8 +259,8 @@ describe('BuildPaymentService', () => {
 
   describe('handleExcessRefunds', () => {
     it('should refund excess minerals from scrap credits', () => {
-      const planet = createPlanet({
-        surfaceMinerals: { ironium: 100, boranium: 100, germanium: 100 }
+      const planet = createStar({
+        surfaceMinerals: { ironium: 100, boranium: 100, germanium: 100 },
       });
       const paid: ResourceAmount = { resources: 100, ironium: 40, boranium: 25, germanium: 15 };
       const scrapCredit: ResourceAmount = { resources: 0, ironium: 20, boranium: 15, germanium: 10 };
@@ -274,8 +274,8 @@ describe('BuildPaymentService', () => {
     });
 
     it('should not refund when no excess', () => {
-      const planet = createPlanet({
-        surfaceMinerals: { ironium: 100, boranium: 100, germanium: 100 }
+      const planet = createStar({
+        surfaceMinerals: { ironium: 100, boranium: 100, germanium: 100 },
       });
       const paid: ResourceAmount = { resources: 100, ironium: 50, boranium: 30, germanium: 20 };
       const scrapCredit: ResourceAmount = zeroResources();

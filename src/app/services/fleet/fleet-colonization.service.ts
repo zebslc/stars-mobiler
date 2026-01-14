@@ -81,7 +81,7 @@ export class FleetColonizationService {
   ): { isValid: boolean; reason?: string; planet?: Planet } {
     const planetIndex = this.buildPlanetIndex(game);
     const planet = planetIndex.get(
-      (fleet.location as { type: 'orbit'; planetId: string }).planetId
+      (fleet.location as { type: 'orbit'; starId: string }).starId
     );
     
     if (!planet) {
@@ -110,7 +110,7 @@ export class FleetColonizationService {
     this.logging.debug(`Colonization check passed for fleet ${fleet.name}`, {
       ...context,
       additionalData: { 
-        planetId: planet.id,
+        starId: planet.id,
         planetName: planet.name,
         fleetName: fleet.name
       }
@@ -139,7 +139,7 @@ export class FleetColonizationService {
 
     const planetIndex = this.buildPlanetIndex(game);
     const planet = planetIndex.get(
-      (fleet.location as { type: 'orbit'; planetId: string }).planetId
+      (fleet.location as { type: 'orbit'; starId: string }).starId
     );
     
     if (!planet) {
@@ -187,7 +187,7 @@ export class FleetColonizationService {
     this.logging.info(`Colonizing planet ${planet.name} (habitability: ${hab}%)`, {
       ...context,
       additionalData: { 
-        planetId: planet.id, 
+        starId: planet.id, 
         planetName: planet.name, 
         habitability: hab,
         fleetName: fleet.name
@@ -269,7 +269,7 @@ export class FleetColonizationService {
     this.logging.info(`Colony established on ${planet.name}`, {
       ...context,
       additionalData: { 
-        planetId: planet.id,
+        starId: planet.id,
         planetName: planet.name,
         population: planet.population,
         maxPopulation: planet.maxPopulation

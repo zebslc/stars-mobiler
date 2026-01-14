@@ -67,7 +67,7 @@ export class StarbaseUpgradeService {
       (f) =>
         f.ownerId === planet.ownerId &&
         f.location.type === 'orbit' &&
-        (f.location as any).planetId === planet.id,
+        (f.location as any).starId === planet.id,
     );
   }
 

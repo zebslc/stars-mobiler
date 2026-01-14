@@ -180,7 +180,7 @@ export interface FleetPathSegment {
 export interface PlanetCoordinate {
   x: number;
   y: number;
-  planetId: string;
+  starId: string;
   starId: string;
 }
 

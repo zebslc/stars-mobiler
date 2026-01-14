@@ -1,6 +1,6 @@
 import { BuildQueueService } from './build-queue.service';
 import { PlanetUtilityService } from '../colony/planet-utility.service';
-import { BuildItem, GameState, Planet, Player, Star } from '../../models/game.model';
+import { BuildItem, GameState, Player, Star } from '../../models/game.model';
 
 describe('BuildQueueService', () => {
   let service: BuildQueueService;
@@ -11,45 +11,59 @@ describe('BuildQueueService', () => {
     name: 'Human',
     species: {} as any,
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    ownedPlanetIds: ['planet1'],
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy'
+    selectedResearchField: 'Energy',
+    ownedStarIds: [],
   };
 
-  const createPlanet = (overrides: Partial<Planet> = {}): Planet => ({
+  const createStar = (overrides: Partial<Star> = {}): Star => ({
     id: 'planet1',
     name: 'Test Planet',
-    starId: 'star1',
+    position: { x: 0, y: 0 },
     ownerId: 'p1',
+    temperature: 50,
+    atmosphere: 50,
+    mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
+    surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
     population: 10000,
     maxPopulation: 1000000,
     resources: 500,
-    surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
-    mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
     mines: 10,
     factories: 10,
     defenses: 0,
-    temperature: 50,
-    atmosphere: 50,
     terraformOffset: { temperature: 0, atmosphere: 0 },
     scanner: 0,
     research: 0,
     buildQueue: [],
-    ...overrides
+    ...overrides,
   });
 
   const createBuildItem = (overrides: Partial<BuildItem> = {}): BuildItem => ({
     project: 'mine',
     cost: { resources: 100, ironium: 50, boranium: 30, germanium: 20 },
-    ...overrides
+    ...overrides,
   });
 
-  const createGameState = (planet: Planet): GameState => {
+  const createGameState = (planet: Star): GameState => {
     const star: Star = {
       id: 'star1',
       name: 'Sol',
       position: { x: 0, y: 0 },
-      planets: [planet]
+      temperature: 50,
+      atmosphere: 50,
+      mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
+      surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
+      ownerId: null,
+      population: 0,
+      maxPopulation: 1000000,
+      mines: 0,
+      factories: 0,
+      defenses: 0,
+      research: 0,
+      scanner: 0,
+      terraformOffset: { temperature: 0, atmosphere: 0 },
+      resources: 0,
+      buildQueue: [],
     };
 
     return {
@@ -62,14 +76,14 @@ describe('BuildQueueService', () => {
       aiPlayers: [],
       fleets: [],
       shipDesigns: [],
-      playerEconomy: { freighterCapacity: 0, research: 0 }
+      playerEconomy: { freighterCapacity: 0, research: 0 },
     };
   };
 
   beforeEach(() => {
     mockPlanetUtility = jasmine.createSpyObj('PlanetUtilityService', [
-      'getOwnedPlanet',
-      'updateGameState'
+      'getOwnedStar',
+      'updateGameState',
     ]);
 
     service = new BuildQueueService(mockPlanetUtility);
@@ -77,27 +91,27 @@ describe('BuildQueueService', () => {
 
   describe('addToBuildQueue', () => {
     it('should add item to empty build queue', () => {
-      const planet = createPlanet({ buildQueue: [] });
+      const planet = createStar({ buildQueue: [] });
       const game = createGameState(planet);
       const item = createBuildItem();
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.addToBuildQueue(game, 'planet1', item);
 
       expect(planet.buildQueue).toEqual([item]);
-      expect(mockPlanetUtility.getOwnedPlanet).toHaveBeenCalledWith(game, 'planet1');
+      expect(mockPlanetUtility.getOwnedStar).toHaveBeenCalledWith(game, 'planet1');
       expect(mockPlanetUtility.updateGameState).toHaveBeenCalled();
     });
 
     it('should append item to existing build queue', () => {
       const existingItem = createBuildItem({ project: 'factory' });
-      const planet = createPlanet({ buildQueue: [existingItem] });
+      const planet = createStar({ buildQueue: [existingItem] });
       const game = createGameState(planet);
       const newItem = createBuildItem({ project: 'mine' });
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.addToBuildQueue(game, 'planet1', newItem);
@@ -108,12 +122,12 @@ describe('BuildQueueService', () => {
     });
 
     it('should handle undefined build queue', () => {
-      const planet = createPlanet();
+      const planet = createStar();
       delete (planet as any).buildQueue;
       const game = createGameState(planet);
       const item = createBuildItem();
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.addToBuildQueue(game, 'planet1', item);
@@ -122,11 +136,11 @@ describe('BuildQueueService', () => {
     });
 
     it('should return unchanged game when planet not found', () => {
-      const planet = createPlanet();
+      const planet = createStar();
       const game = createGameState(planet);
       const item = createBuildItem();
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(null);
+      mockPlanetUtility.getOwnedStar.and.returnValue(null);
 
       const result = service.addToBuildQueue(game, 'unknown', item);
 
@@ -140,10 +154,10 @@ describe('BuildQueueService', () => {
       const item1 = createBuildItem({ project: 'mine' });
       const item2 = createBuildItem({ project: 'factory' });
       const item3 = createBuildItem({ project: 'defense' });
-      const planet = createPlanet({ buildQueue: [item1, item2, item3] });
+      const planet = createStar({ buildQueue: [item1, item2, item3] });
       const game = createGameState(planet);
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.removeFromQueue(game, 'planet1', 1);
@@ -156,10 +170,10 @@ describe('BuildQueueService', () => {
     it('should remove first item when index is 0', () => {
       const item1 = createBuildItem({ project: 'mine' });
       const item2 = createBuildItem({ project: 'factory' });
-      const planet = createPlanet({ buildQueue: [item1, item2] });
+      const planet = createStar({ buildQueue: [item1, item2] });
       const game = createGameState(planet);
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
       mockPlanetUtility.updateGameState.and.callFake((g: GameState) => ({ ...g }));
 
       service.removeFromQueue(game, 'planet1', 0);
@@ -169,10 +183,10 @@ describe('BuildQueueService', () => {
     });
 
     it('should return unchanged game when planet not found', () => {
-      const planet = createPlanet();
+      const planet = createStar();
       const game = createGameState(planet);
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(null);
+      mockPlanetUtility.getOwnedStar.and.returnValue(null);
 
       const result = service.removeFromQueue(game, 'unknown', 0);
 
@@ -180,11 +194,11 @@ describe('BuildQueueService', () => {
     });
 
     it('should return unchanged game when build queue is undefined', () => {
-      const planet = createPlanet();
+      const planet = createStar();
       delete (planet as any).buildQueue;
       const game = createGameState(planet);
 
-      mockPlanetUtility.getOwnedPlanet.and.returnValue(planet);
+      mockPlanetUtility.getOwnedStar.and.returnValue(planet);
 
       const result = service.removeFromQueue(game, 'planet1', 0);
 
@@ -196,7 +210,7 @@ describe('BuildQueueService', () => {
     it('should decrement count and reset paid for multi-count items', () => {
       const item = createBuildItem({
         count: 3,
-        paid: { resources: 100, ironium: 50, boranium: 30, germanium: 20 }
+        paid: { resources: 100, ironium: 50, boranium: 30, germanium: 20 },
       });
       const queue = [item];
 

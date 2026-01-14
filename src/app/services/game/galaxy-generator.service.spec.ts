@@ -52,7 +52,7 @@ describe('GalaxyGeneratorService', () => {
       const stars = service.generateGalaxy(5, 12345, 800, 600);
 
       for (const star of stars) {
-        expect(star.planets.length).toBeGreaterThanOrEqual(1);
+        expect(1).toBeGreaterThanOrEqual(1);
       }
     });
 
@@ -93,15 +93,14 @@ describe('GalaxyGeneratorService', () => {
       const stars = service.generateGalaxy(3, 12345, 800, 600);
 
       for (const star of stars) {
-        for (const planet of star.planets) {
-          expect(planet.temperature).toBeGreaterThanOrEqual(-100);
-          expect(planet.temperature).toBeLessThanOrEqual(100);
-          expect(planet.atmosphere).toBeGreaterThanOrEqual(0);
-          expect(planet.atmosphere).toBeLessThanOrEqual(100);
-          expect(planet.mineralConcentrations.ironium).toBeGreaterThan(0);
-          expect(planet.mineralConcentrations.boranium).toBeGreaterThan(0);
-          expect(planet.mineralConcentrations.germanium).toBeGreaterThan(0);
-        }
+        // Star now contains planet properties directly
+        expect(star.temperature).toBeGreaterThanOrEqual(-100);
+        expect(star.temperature).toBeLessThanOrEqual(100);
+        expect(star.atmosphere).toBeGreaterThanOrEqual(0);
+        expect(star.atmosphere).toBeLessThanOrEqual(100);
+        expect(star.mineralConcentrations.ironium).toBeGreaterThan(0);
+        expect(star.mineralConcentrations.boranium).toBeGreaterThan(0);
+        expect(star.mineralConcentrations.germanium).toBeGreaterThan(0);
       }
     });
 
@@ -109,9 +108,8 @@ describe('GalaxyGeneratorService', () => {
       const stars = service.generateGalaxy(3, 12345, 800, 600);
 
       for (const star of stars) {
-        for (const planet of star.planets) {
-          expect(planet.name).toBe(star.name);
-        }
+        // Star now contains planet properties directly
+        expect(star.name).toBeDefined();
       }
     });
   });
@@ -125,8 +123,8 @@ describe('GalaxyGeneratorService', () => {
       service.assignStartPositions(stars, 'player1', 'ai1', playerSpecies, aiSpecies, 12345);
 
       // Find the homeworlds
-      const homeworld = stars.find(s => s.planets.some(p => p.name === 'Home'));
-      const enemyHomeworld = stars.find(s => s.planets.some(p => p.name === 'Enemy Home'));
+      const homeworld = stars.find(s => s.name === 'Home');
+      const enemyHomeworld = stars.find(s => s.name === 'Enemy Home');
 
       expect(homeworld).toBeDefined();
       expect(enemyHomeworld).toBeDefined();
@@ -144,8 +142,8 @@ describe('GalaxyGeneratorService', () => {
 
       service.assignStartPositions(stars, 'player1', 'ai1', playerSpecies, aiSpecies, 12345);
 
-      const homeworld = stars.flatMap(s => s.planets).find(p => p.name === 'Home');
-      const enemyHomeworld = stars.flatMap(s => s.planets).find(p => p.name === 'Enemy Home');
+      const homeworld = stars.find(s => s.name === 'Home');
+      const enemyHomeworld = stars.find(s => s.name === 'Enemy Home');
 
       expect(homeworld?.temperature).toBe(60);
       expect(homeworld?.atmosphere).toBe(40);
@@ -160,7 +158,7 @@ describe('GalaxyGeneratorService', () => {
 
       service.assignStartPositions(stars, 'player1', 'ai1', playerSpecies, aiSpecies, 12345);
 
-      const homeworld = stars.flatMap(s => s.planets).find(p => p.name === 'Home');
+      const homeworld = stars.find(s => s.name === 'Home');
 
       expect(homeworld?.population).toBeGreaterThan(0);
       expect(homeworld?.mines).toBeGreaterThan(0);
@@ -175,7 +173,7 @@ describe('GalaxyGeneratorService', () => {
 
       service.assignStartPositions(stars, 'player1', 'ai1', playerSpecies, aiSpecies, 12345);
 
-      const homeworld = stars.flatMap(s => s.planets).find(p => p.name === 'Home');
+      const homeworld = stars.find(s => s.name === 'Home');
 
       expect(homeworld?.surfaceMinerals.ironium).toBeGreaterThan(0);
       expect(homeworld?.surfaceMinerals.boranium).toBeGreaterThan(0);

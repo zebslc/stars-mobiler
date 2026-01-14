@@ -151,12 +151,12 @@ export class PlanetDetailComponent implements OnInit {
   private shipyardService = inject(ShipyardService);
   private techService = inject(TechService);
 
-  private planetIdSignal = signal<string | null>(null);
+  private starIdSignal = signal<string | null>(null);
   activeTab = signal<'status' | 'queue' | 'fleet'>('status');
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
-      this.planetIdSignal.set(params.get('id'));
+      this.starIdSignal.set(params.get('id'));
       // Reset tab to status when navigating to new planet
       this.activeTab.set('status');
     });
@@ -166,7 +166,7 @@ export class PlanetDetailComponent implements OnInit {
 
   planet = computed(() => {
     this.gs.turn();
-    const id = this.planetIdSignal();
+    const id = this.starIdSignal();
     if (!id) return null;
     const p = this.gs.starIndex().get(id) || null;
     return p ? { ...p } : null;
@@ -178,7 +178,7 @@ export class PlanetDetailComponent implements OnInit {
   }
 
   prevPlanet() {
-    const currentId = this.planetIdSignal();
+    const currentId = this.starIdSignal();
     const playerPlanets = this.getPlayerPlanets();
     if (playerPlanets.length === 0) return;
 
@@ -193,7 +193,7 @@ export class PlanetDetailComponent implements OnInit {
   }
 
   nextPlanet() {
-    const currentId = this.planetIdSignal();
+    const currentId = this.starIdSignal();
     const playerPlanets = this.getPlayerPlanets();
     if (playerPlanets.length === 0) return;
 
@@ -308,7 +308,7 @@ export class PlanetDetailComponent implements OnInit {
     if (!game || !p) return null;
 
     const orbitingFleets = game.fleets.filter(
-      (f) => f.location.type === 'orbit' && (f.location as any).planetId === p.id,
+      (f) => f.location.type === 'orbit' && (f.location as any).starId === p.id,
     );
 
     return orbitingFleets.find((f) => {
@@ -346,7 +346,7 @@ export class PlanetDetailComponent implements OnInit {
     return game.fleets.filter(
       (f) =>
         f.location.type === 'orbit' &&
-        (f.location as any).planetId === p.id &&
+        (f.location as any).starId === p.id &&
         (!sbFleet || f.id !== sbFleet.id),
     ) as Fleet[];
   });

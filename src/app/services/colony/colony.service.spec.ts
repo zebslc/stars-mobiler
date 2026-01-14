@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ColonyService } from './colony.service';
 import { EconomyService } from './economy.service';
 import { ShipyardService } from '../ship-design/shipyard.service';
-import { GameState, Player, Planet, Fleet, ShipDesign, BuildItem } from '../../models/game.model';
+import { GameState, Player, Fleet, ShipDesign, BuildItem, Star } from '../../models/game.model';
 
 describe('ColonyService', () => {
   let service: ColonyService;
@@ -14,26 +14,26 @@ describe('ColonyService', () => {
     name: 'Human',
     species: {} as any,
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    ownedPlanetIds: ['planet1'],
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
+    ownedStarIds: [],
   };
 
-  const mockPlanet: Planet = {
+  const mockPlanet: Star = {
     id: 'planet1',
     name: 'Earth',
-    starId: 'star1',
+    position: { x: 0, y: 0 },
     ownerId: 'p1',
+    temperature: 50,
+    atmosphere: 50,
+    mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
+    surfaceMinerals: { ironium: 500, boranium: 300, germanium: 200 },
     population: 10000,
     maxPopulation: 1000000,
     resources: 1000, // Rich planet
-    surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
-    mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
     mines: 10,
     factories: 10,
     defenses: 0,
-    temperature: 50,
-    atmosphere: 50,
     terraformOffset: { temperature: 0, atmosphere: 0 },
     buildQueue: [],
     scanner: 0,
@@ -114,7 +114,6 @@ describe('ColonyService', () => {
 
       const game: GameState = {
         humanPlayer: mockPlayer,
-        stars: [{ planets: [planet] }] as any,
         shipDesigns: [mockDesign],
         fleets: [],
       } as any;
@@ -144,7 +143,6 @@ describe('ColonyService', () => {
 
       const game: GameState = {
         humanPlayer: mockPlayer,
-        stars: [{ planets: [planet] }] as any,
         shipDesigns: [mockDesign],
         fleets: [],
       } as any;
@@ -167,7 +165,7 @@ describe('ColonyService', () => {
       const existingFleet: Fleet = {
         id: 'f1',
         ownerId: 'p1',
-        location: { type: 'orbit', planetId: planet.id },
+        location: { type: 'orbit', starId: planet.id },
         ships: [{ designId: 'starbase1', count: 1, damage: 0 }],
         cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
         fuel: 0,
@@ -186,7 +184,6 @@ describe('ColonyService', () => {
 
       const game: GameState = {
         humanPlayer: mockPlayer,
-        stars: [{ planets: [planet] }] as any,
         shipDesigns: [mockStarbaseDesign, mockStarbaseDesign2],
         fleets: [existingFleet],
       } as any;

@@ -248,7 +248,7 @@ export class GalaxyContextMenuService implements IGalaxyContextMenuService {
     return null;
   }
 
-  private findStarByPlanetId(planetId: string): Star | null {
+  private findStarByPlanetId(starId: string): Star | null {
     // This is a placeholder implementation
     // In a real implementation, you would inject a service to find the star
     // or have access to the game state to perform this lookup

@@ -12,35 +12,30 @@ describe('FleetMovementService', () => {
     name: 'Human',
     species: {} as any,
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    ownedPlanetIds: [],
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy'
+    selectedResearchField: 'Energy',
+    ownedStarIds: [],
   };
 
   const mockStar: Star = {
     id: 'star1',
     name: 'Sol',
     position: { x: 100, y: 200 },
-    planets: [{
-      id: 'planet1',
-      name: 'Earth',
-      starId: 'star1',
-      ownerId: 'p1',
-      population: 10000,
-      maxPopulation: 1000000,
-      resources: 1000,
-      surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
-      mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
-      mines: 10,
-      factories: 10,
-      defenses: 0,
-      temperature: 50,
-      atmosphere: 50,
-      terraformOffset: { temperature: 0, atmosphere: 0 },
-      buildQueue: [],
-      scanner: 0,
-      research: 0
-    }]
+    temperature: 50,
+    atmosphere: 50,
+    mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
+    surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
+    ownerId: 'p1',
+    population: 10000,
+    maxPopulation: 1000000,
+    resources: 1000,
+    mines: 10,
+    factories: 10,
+    defenses: 0,
+    terraformOffset: { temperature: 0, atmosphere: 0 },
+    buildQueue: [],
+    scanner: 0,
+    research: 0,
   };
 
   beforeEach(() => {
@@ -92,7 +87,7 @@ describe('FleetMovementService', () => {
     });
 
     it('should add move order to orbit destination', () => {
-      const destination: FleetLocation = { type: 'orbit', planetId: 'planet1' };
+      const destination: FleetLocation = { type: 'orbit', starId: 'planet1' };
       
       service.moveFleet(mockGame, 'f1', destination);
 

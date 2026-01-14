@@ -259,7 +259,7 @@ export class FleetTransferService {
     return (
       (source.location.type === 'orbit' &&
         target.location.type === 'orbit' &&
-        (source.location as any).planetId === (target.location as any).planetId) ||
+        (source.location as any).starId === (target.location as any).starId) ||
       (source.location.type === 'space' &&
         target.location.type === 'space' &&
         (source.location as any).x === (target.location as any).x &&

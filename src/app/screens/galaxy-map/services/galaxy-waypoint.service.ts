@@ -105,7 +105,7 @@ export class GalaxyWaypointService {
           if (order.type === 'move') {
             dest = order.destination;
           } else if (order.type === 'orbit') {
-            const star = stars.find((s) => s.planets.some((p) => p.id === order.planetId));
+            const star = stars.find((s) => s.planets.some((p) => p.id === order.starId));
             if (star) dest = star.position;
           } else if (order.type === 'attack') {
             const target = fleets.find((f) => f.id === order.targetFleetId);
@@ -246,13 +246,13 @@ export class GalaxyWaypointService {
 
         if (snap) {
           if (snap.type === 'planet' && snap.id) {
-            newOrder = { ...existingOrder, type: 'orbit', planetId: snap.id };
+            newOrder = { ...existingOrder, type: 'orbit', starId: snap.id };
             // Remove destination if switching to orbit
             delete newOrder.destination;
           } else if (snap.type === 'fleet' && snap.id) {
             newOrder = { ...existingOrder, type: 'move', destination: { x: snap.x, y: snap.y } };
             // TODO: Handle merge/attack types specifically if needed
-            delete newOrder.planetId;
+            delete newOrder.starId;
           }
         } else {
           newOrder = {
@@ -260,7 +260,7 @@ export class GalaxyWaypointService {
             type: 'move',
             destination: { x: wp.currentX, y: wp.currentY },
           };
-          delete newOrder.planetId;
+          delete newOrder.starId;
         }
 
         if (newOrder) {

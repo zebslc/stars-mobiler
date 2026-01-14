@@ -4,7 +4,7 @@ import { ResearchService } from '../tech/research.service';
 import { ColonyService } from '../colony/colony.service';
 import { FleetService } from '../fleet/fleet.service';
 import { HabitabilityService } from '../colony/habitability.service';
-import { GameState, Planet, Player, Star } from '../../models/game.model';
+import { GameState, Star, Player } from '../../models/game.model';
 
 describe('TurnService', () => {
   let service: TurnService;
@@ -21,19 +21,19 @@ describe('TurnService', () => {
       id: 'human',
       name: 'Human',
       habitat: { idealTemperature: 50, idealAtmosphere: 50, toleranceRadius: 25 },
-      traits: []
+      traits: [],
     },
-    ownedPlanetIds: ['planet1'],
     techLevels: { Energy: 1, Kinetics: 1, Propulsion: 1, Construction: 1 },
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
-    ...overrides
+    ownedStarIds: [],
+    ...overrides,
   });
 
-  const createPlanet = (overrides: Partial<Planet> = {}): Planet => ({
-    id: 'planet1',
-    name: 'Test Planet',
-    starId: 'star1',
+  const createStar = (overrides: Partial<Star> = {}): Star => ({
+    id: 'star1',
+    name: 'Test Star',
+    position: { x: 100, y: 100 },
     ownerId: 'human',
     population: 100000,
     maxPopulation: 1000000,
@@ -48,28 +48,21 @@ describe('TurnService', () => {
     terraformOffset: { temperature: 0, atmosphere: 0 },
     scanner: 0,
     research: 5,
-    ...overrides
+    ...overrides,
   });
 
-  const createGameState = (planets: Planet[], player?: Player): GameState => {
-    const star: Star = {
-      id: 'star1',
-      name: 'Sol',
-      position: { x: 0, y: 0 },
-      planets
-    };
-
+  const createGameState = (stars: Star[], player?: Player): GameState => {
     return {
       id: 'game1',
       seed: 123,
       turn: 1,
       settings: {} as any,
-      stars: [star],
+      stars: stars,
       humanPlayer: player || createPlayer(),
       aiPlayers: [],
       fleets: [],
       shipDesigns: [],
-      playerEconomy: { freighterCapacity: 100, research: 0 }
+      playerEconomy: { freighterCapacity: 100, research: 0 },
     };
   };
 
@@ -77,7 +70,7 @@ describe('TurnService', () => {
     mockEconomy = jasmine.createSpyObj('EconomyService', [
       'calculateProduction',
       'applyMiningDepletion',
-      'logisticGrowth'
+      'logisticGrowth',
     ]);
     mockResearch = jasmine.createSpyObj('ResearchService', ['advanceResearch']);
     mockColony = jasmine.createSpyObj('ColonyService', ['processBuildQueues', 'processGovernors']);
@@ -89,7 +82,7 @@ describe('TurnService', () => {
       resources: 50,
       extraction: { ironium: 10, boranium: 8, germanium: 5 },
       operableFactories: 10,
-      operableMines: 10
+      operableMines: 10,
     });
     mockEconomy.logisticGrowth.and.returnValue(1000);
     mockHab.calculate.and.returnValue(75);
@@ -97,24 +90,24 @@ describe('TurnService', () => {
     service = new TurnService(mockEconomy, mockResearch, mockColony, mockFleet, mockHab);
   });
 
-  describe('getOwnedPlanets', () => {
+  describe('getOwnedStars', () => {
     it('should return only planets owned by human player', () => {
-      const ownedPlanet = createPlanet({ id: 'planet1', ownerId: 'human' });
-      const enemyPlanet = createPlanet({ id: 'planet2', ownerId: 'enemy' });
-      const neutralPlanet = createPlanet({ id: 'planet3', ownerId: null });
+      const ownedPlanet = createStar({ id: 'planet1', ownerId: 'human' });
+      const enemyPlanet = createStar({ id: 'planet2', ownerId: 'enemy' });
+      const neutralPlanet = createStar({ id: 'planet3', ownerId: null });
       const game = createGameState([ownedPlanet, enemyPlanet, neutralPlanet]);
 
-      const result = service.getOwnedPlanets(game);
+      const result = service.getOwnedStars(game);
 
       expect(result.length).toBe(1);
       expect(result[0].id).toBe('planet1');
     });
 
     it('should return empty array when no owned planets', () => {
-      const enemyPlanet = createPlanet({ id: 'planet1', ownerId: 'enemy' });
+      const enemyPlanet = createStar({ id: 'planet1', ownerId: 'enemy' });
       const game = createGameState([enemyPlanet]);
 
-      const result = service.getOwnedPlanets(game);
+      const result = service.getOwnedStars(game);
 
       expect(result.length).toBe(0);
     });
@@ -133,8 +126,8 @@ describe('TurnService', () => {
       const player = createPlayer({
         species: {
           ...createPlayer().species,
-          traits: [{ type: 'research', modifier: 0.25 }]
-        }
+          traits: [{ type: 'research', modifier: 0.25 }],
+        },
       });
 
       const result = service.getResearchModifier(player);
@@ -145,23 +138,23 @@ describe('TurnService', () => {
 
   describe('calculatePlanetResearch', () => {
     it('should calculate research with no modifier', () => {
-      const planet = createPlanet({ research: 5 });
+      const star = createStar({ research: 5 });
 
-      const result = service.calculatePlanetResearch(planet, 0);
+      const result = service.calculatePlanetResearch(star, 0);
 
       expect(result).toBe(5);
     });
 
     it('should apply research modifier', () => {
-      const planet = createPlanet({ research: 10 });
+      const star = createStar({ research: 10 });
 
-      const result = service.calculatePlanetResearch(planet, 0.5);
+      const result = service.calculatePlanetResearch(star, 0.5);
 
       expect(result).toBe(15); // 10 * 1.5
     });
 
     it('should handle undefined research', () => {
-      const planet = createPlanet();
+      const planet = createStar();
       (planet as any).research = undefined;
 
       const result = service.calculatePlanetResearch(planet, 0.5);
@@ -172,25 +165,25 @@ describe('TurnService', () => {
 
   describe('processPlanetProduction', () => {
     it('should add resources to planet', () => {
-      const planet = createPlanet({ resources: 100 });
+      const star = createStar({ resources: 100 });
       mockEconomy.calculateProduction.and.returnValue({
-        resources: 50,
         extraction: { ironium: 0, boranium: 0, germanium: 0 },
-        operableFactories: 10,
-        operableMines: 10
+        resources: 50,
+        operableFactories: 5,
+        operableMines: 10,
       });
 
-      service.processPlanetProduction(planet);
+      service.processPlanetProduction(star);
 
-      expect(planet.resources).toBe(150);
-      expect(mockEconomy.calculateProduction).toHaveBeenCalledWith(planet);
+      expect(star.resources).toBe(150);
+      expect(mockEconomy.calculateProduction).toHaveBeenCalledWith(star);
       expect(mockEconomy.applyMiningDepletion).toHaveBeenCalled();
     });
   });
 
   describe('processResearch', () => {
     it('should add research to economy and advance', () => {
-      const game = createGameState([createPlanet()]);
+      const game = createGameState([createStar()]);
       game.playerEconomy.research = 10;
 
       service.processResearch(game, 25);
@@ -202,63 +195,63 @@ describe('TurnService', () => {
 
   describe('applyPopulationGrowth', () => {
     it('should update maxPopulation based on habitability', () => {
-      const planet = createPlanet({ population: 100000, maxPopulation: 500000 });
+      const star = createStar({ population: 100000, maxPopulation: 500000 });
 
-      service.applyPopulationGrowth(planet, 80); // 80% habitability
+      service.applyPopulationGrowth(star, 80); // 80% habitability
 
-      expect(planet.maxPopulation).toBe(800000); // 1M * 0.8
+      expect(star.maxPopulation).toBe(800000); // 1M * 0.8
     });
 
     it('should apply logistic growth', () => {
-      const planet = createPlanet({ population: 100000 });
+      const star = createStar({ population: 100000 });
       mockEconomy.logisticGrowth.and.returnValue(5000);
 
-      service.applyPopulationGrowth(planet, 75);
+      service.applyPopulationGrowth(star, 75);
 
       expect(mockEconomy.logisticGrowth).toHaveBeenCalled();
-      expect(planet.population).toBe(105000);
+      expect(star.population).toBe(105000);
     });
 
     it('should cap population at maxPopulation', () => {
-      const planet = createPlanet({ population: 990000, maxPopulation: 1000000 });
+      const star = createStar({ population: 990000, maxPopulation: 1000000 });
       mockEconomy.logisticGrowth.and.returnValue(50000);
 
-      service.applyPopulationGrowth(planet, 100);
+      service.applyPopulationGrowth(star, 100);
 
-      expect(planet.population).toBe(1000000);
+      expect(star.population).toBe(1000000);
     });
   });
 
   describe('applyPopulationDecay', () => {
     it('should reduce population for negative habitability', () => {
-      const planet = createPlanet({ population: 100000 });
+      const star = createStar({ population: 100000 });
 
-      service.applyPopulationDecay(planet, -50);
+      service.applyPopulationDecay(star, -50);
 
-      expect(planet.population).toBeLessThan(100000);
+      expect(star.population).toBeLessThan(100000);
     });
 
     it('should set owner to neutral when population reaches zero', () => {
-      const planet = createPlanet({ population: 10, ownerId: 'human' });
+      const star = createStar({ population: 10, ownerId: 'human' });
 
-      service.applyPopulationDecay(planet, -100);
+      service.applyPopulationDecay(star, -100);
 
-      expect(planet.population).toBe(0);
-      expect(planet.ownerId).toBe('neutral');
+      expect(star.population).toBe(0);
+      expect(star.ownerId).toBe('neutral');
     });
 
     it('should not reduce population below zero', () => {
-      const planet = createPlanet({ population: 5 });
+      const star = createStar({ population: 5 });
 
-      service.applyPopulationDecay(planet, -100);
+      service.applyPopulationDecay(star, -100);
 
-      expect(planet.population).toBeGreaterThanOrEqual(0);
+      expect(star.population).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('processColonies', () => {
     it('should process build queues and governors', () => {
-      const game = createGameState([createPlanet()]);
+      const game = createGameState([createStar()]);
 
       service.processColonies(game);
 
@@ -269,7 +262,7 @@ describe('TurnService', () => {
 
   describe('processFleets', () => {
     it('should process fleet movement', () => {
-      const game = createGameState([createPlanet()]);
+      const game = createGameState([createStar()]);
 
       service.processFleets(game);
 
@@ -279,7 +272,7 @@ describe('TurnService', () => {
 
   describe('createNextGameState', () => {
     it('should increment turn', () => {
-      const game = createGameState([createPlanet()]);
+      const game = createGameState([createStar()]);
       game.turn = 5;
 
       const result = service.createNextGameState(game);
@@ -288,7 +281,7 @@ describe('TurnService', () => {
     });
 
     it('should create new object references for change detection', () => {
-      const game = createGameState([createPlanet()]);
+      const game = createGameState([createStar()]);
 
       const result = service.createNextGameState(game);
 
@@ -301,8 +294,8 @@ describe('TurnService', () => {
 
   describe('endTurn', () => {
     it('should orchestrate all turn processing', () => {
-      const planet = createPlanet();
-      const game = createGameState([planet]);
+      const star = createStar();
+      const game = createGameState([star]);
 
       const result = service.endTurn(game);
 
@@ -316,8 +309,8 @@ describe('TurnService', () => {
     });
 
     it('should accumulate research from production', () => {
-      const planet = createPlanet({ research: 10 });
-      const game = createGameState([planet]);
+      const star = createStar({ research: 10 });
+      const game = createGameState([star]);
 
       service.endTurn(game);
 
@@ -325,8 +318,8 @@ describe('TurnService', () => {
     });
 
     it('should not process enemy planets', () => {
-      const enemyPlanet = createPlanet({ ownerId: 'enemy' });
-      const game = createGameState([enemyPlanet]);
+      const enemyStar = createStar({ ownerId: 'enemy' });
+      const game = createGameState([enemyStar]);
 
       service.endTurn(game);
 

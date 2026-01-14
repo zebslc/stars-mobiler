@@ -1,6 +1,6 @@
 import { BuildProjectService } from './build-project.service';
 import { FleetService } from '../fleet/fleet.service';
-import { BuildItem, GameState, Planet, Player, PlayerTech, Star } from '../../models/game.model';
+import { BuildItem, GameState, Player, PlayerTech, Star } from '../../models/game.model';
 import { TechRequirement } from '../../data/tech-atlas.types';
 
 describe('BuildProjectService', () => {
@@ -16,21 +16,21 @@ describe('BuildProjectService', () => {
       habitat: {
         idealTemperature: 50,
         idealAtmosphere: 50,
-        toleranceRadius: 25
+        toleranceRadius: 25,
       },
-      traits: []
+      traits: [],
     },
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0, ...techOverrides },
-    ownedPlanetIds: ['planet1'],
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy'
+    selectedResearchField: 'Energy',
+    ownedStarIds: [],
   });
 
-  const createPlanet = (overrides: Partial<Planet> = {}): Planet => ({
+  const createStar = (overrides: Partial<Star> = {}): Star => ({
     id: 'planet1',
     name: 'Test Planet',
-    starId: 'star1',
     ownerId: 'p1',
+    position: { x: 0, y: 0 },
     population: 10000,
     maxPopulation: 1000000,
     resources: 500,
@@ -44,21 +44,36 @@ describe('BuildProjectService', () => {
     terraformOffset: { temperature: 0, atmosphere: 0 },
     scanner: 0,
     research: 0,
-    ...overrides
+    buildQueue: [],
+    ...overrides,
   });
 
   const createBuildItem = (overrides: Partial<BuildItem> = {}): BuildItem => ({
     project: 'mine',
     cost: { resources: 100, ironium: 50, boranium: 30, germanium: 20 },
-    ...overrides
+    ...overrides,
   });
 
-  const createGameState = (planet: Planet, player?: Player): GameState => {
+  const createGameState = (planet: Star, player?: Player): GameState => {
     const star: Star = {
       id: 'star1',
       name: 'Sol',
       position: { x: 0, y: 0 },
-      planets: [planet]
+      temperature: 50,
+      atmosphere: 50,
+      mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
+      surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
+      ownerId: null,
+      population: 0,
+      maxPopulation: 1000000,
+      mines: 0,
+      factories: 0,
+      defenses: 0,
+      research: 0,
+      scanner: 0,
+      terraformOffset: { temperature: 0, atmosphere: 0 },
+      resources: 0,
+      buildQueue: [],
     };
 
     return {
@@ -71,7 +86,7 @@ describe('BuildProjectService', () => {
       aiPlayers: [],
       fleets: [],
       shipDesigns: [],
-      playerEconomy: { freighterCapacity: 0, research: 0 }
+      playerEconomy: { freighterCapacity: 0, research: 0 },
     };
   };
 
@@ -83,7 +98,7 @@ describe('BuildProjectService', () => {
   describe('executeBuildProject', () => {
     describe('mine project', () => {
       it('should increment planet mines by 1', () => {
-        const planet = createPlanet({ mines: 10 });
+        const planet = createStar({ mines: 10 });
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'mine' });
 
@@ -95,7 +110,7 @@ describe('BuildProjectService', () => {
 
     describe('factory project', () => {
       it('should increment planet factories by 1', () => {
-        const planet = createPlanet({ factories: 10 });
+        const planet = createStar({ factories: 10 });
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'factory' });
 
@@ -107,7 +122,7 @@ describe('BuildProjectService', () => {
 
     describe('defense project', () => {
       it('should increment planet defenses by 1', () => {
-        const planet = createPlanet({ defenses: 5 });
+        const planet = createStar({ defenses: 5 });
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'defense' });
 
@@ -119,7 +134,7 @@ describe('BuildProjectService', () => {
 
     describe('research project', () => {
       it('should increment planet research by 1', () => {
-        const planet = createPlanet({ research: 3 });
+        const planet = createStar({ research: 3 });
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'research' });
 
@@ -129,7 +144,7 @@ describe('BuildProjectService', () => {
       });
 
       it('should handle undefined research', () => {
-        const planet = createPlanet();
+        const planet = createStar();
         (planet as any).research = undefined;
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'research' });
@@ -142,7 +157,7 @@ describe('BuildProjectService', () => {
 
     describe('scanner project', () => {
       it('should set scanner to default range with no tech', () => {
-        const planet = createPlanet({ scanner: 0 });
+        const planet = createStar({ scanner: 0 });
         const player = createPlayer({ Energy: 0 });
         const game = createGameState(planet, player);
         const item = createBuildItem({ project: 'scanner' });
@@ -153,7 +168,7 @@ describe('BuildProjectService', () => {
       });
 
       it('should set scanner to best available range based on tech', () => {
-        const planet = createPlanet({ scanner: 0 });
+        const planet = createStar({ scanner: 0 });
         const player = createPlayer({ Energy: 3 }); // Unlocks Scoper 150
         const game = createGameState(planet, player);
         const item = createBuildItem({ project: 'scanner' });
@@ -166,7 +181,7 @@ describe('BuildProjectService', () => {
 
     describe('terraform project', () => {
       it('should increase temperature when below ideal', () => {
-        const planet = createPlanet({ temperature: 40, atmosphere: 40 });
+        const planet = createStar({ temperature: 40, atmosphere: 40 });
         const player = createPlayer();
         player.species.habitat.idealTemperature = 50;
         player.species.habitat.idealAtmosphere = 50;
@@ -180,7 +195,7 @@ describe('BuildProjectService', () => {
       });
 
       it('should decrease temperature when above ideal', () => {
-        const planet = createPlanet({ temperature: 60, atmosphere: 60 });
+        const planet = createStar({ temperature: 60, atmosphere: 60 });
         const player = createPlayer();
         player.species.habitat.idealTemperature = 50;
         player.species.habitat.idealAtmosphere = 50;
@@ -196,39 +211,29 @@ describe('BuildProjectService', () => {
 
     describe('ship project', () => {
       it('should call fleet service to add ship with specified design', () => {
-        const planet = createPlanet();
+        const planet = createStar();
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'ship', shipDesignId: 'destroyer' });
 
         service.executeBuildProject(game, planet, item);
 
-        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(
-          game,
-          planet,
-          'destroyer',
-          1
-        );
+        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(game, planet, 'destroyer', 1);
       });
 
       it('should use scout as default ship design', () => {
-        const planet = createPlanet();
+        const planet = createStar();
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'ship' });
 
         service.executeBuildProject(game, planet, item);
 
-        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(
-          game,
-          planet,
-          'scout',
-          1
-        );
+        expect(mockFleetService.addShipToFleet).toHaveBeenCalledWith(game, planet, 'scout', 1);
       });
     });
 
     describe('unknown project', () => {
       it('should handle unknown project types gracefully', () => {
-        const planet = createPlanet({ mines: 10 });
+        const planet = createStar({ mines: 10 });
         const game = createGameState(planet);
         const item = createBuildItem({ project: 'unknown' as any });
 
@@ -247,7 +252,12 @@ describe('BuildProjectService', () => {
 
     it('should return true when all requirements met', () => {
       const techLevels: PlayerTech = { Energy: 5, Kinetics: 3, Propulsion: 2, Construction: 4 };
-      const requirements: TechRequirement = { Energy: 3, Kinetics: 2, Propulsion: 1, Construction: 4 };
+      const requirements: TechRequirement = {
+        Energy: 3,
+        Kinetics: 2,
+        Propulsion: 1,
+        Construction: 4,
+      };
 
       expect(service.meetsRequirements(techLevels, requirements)).toBe(true);
     });

@@ -2,7 +2,7 @@ import { FleetOperationsService } from './fleet-operations.service';
 import { FleetNamingService } from './fleet-naming.service';
 import { FleetValidationService } from './fleet-validation.service';
 import { LoggingService } from '../core/logging.service';
-import { GameState, Player, Planet, Fleet, ShipDesign } from '../../models/game.model';
+import { GameState, Player, Fleet, ShipDesign, Star } from '../../models/game.model';
 import { ValidationResult } from '../../models/service-interfaces.model';
 
 describe('FleetOperationsService', () => {
@@ -16,16 +16,18 @@ describe('FleetOperationsService', () => {
     name: 'Human',
     species: {} as any,
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    ownedPlanetIds: ['planet1'],
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy'
+    selectedResearchField: 'Energy',
+    ownedStarIds: [],
   };
 
-  const mockPlanet: Planet = {
+  const mockPlanet: Star = {
     id: 'planet1',
     name: 'Earth',
-    starId: 'star1',
+    position: { x: 0, y: 0 },
     ownerId: 'p1',
+    temperature: 50,
+    atmosphere: 50,
     population: 10000,
     maxPopulation: 1000000,
     resources: 1000,
@@ -34,12 +36,10 @@ describe('FleetOperationsService', () => {
     mines: 10,
     factories: 10,
     defenses: 0,
-    temperature: 50,
-    atmosphere: 50,
     terraformOffset: { temperature: 0, atmosphere: 0 },
     buildQueue: [],
     scanner: 0,
-    research: 0
+    research: 0,
   };
 
   const mockDesign: ShipDesign = {
@@ -54,16 +54,22 @@ describe('FleetOperationsService', () => {
       isStarbase: false,
       mass: 10,
       fuelCapacity: 100,
-      hasColonyModule: false
-    } as any
+      hasColonyModule: false,
+    } as any,
   };
 
   beforeEach(() => {
     mockLoggingService = jasmine.createSpyObj('LoggingService', ['debug', 'info', 'warn', 'error']);
     mockNamingService = jasmine.createSpyObj('FleetNamingService', ['generateFleetName']);
-    mockValidationService = jasmine.createSpyObj('FleetValidationService', ['validateShipAddition']);
+    mockValidationService = jasmine.createSpyObj('FleetValidationService', [
+      'validateShipAddition',
+    ]);
 
-    service = new FleetOperationsService(mockLoggingService, mockNamingService, mockValidationService);
+    service = new FleetOperationsService(
+      mockLoggingService,
+      mockNamingService,
+      mockValidationService,
+    );
   });
 
   describe('createFleet', () => {
@@ -80,15 +86,15 @@ describe('FleetOperationsService', () => {
         aiPlayers: [],
         fleets: [],
         shipDesigns: [mockDesign],
-        playerEconomy: { freighterCapacity: 0, research: 0 }
+        playerEconomy: { freighterCapacity: 0, research: 0 },
       };
 
       mockNamingService.generateFleetName.and.returnValue('Scout-1');
     });
 
     it('should create a fleet with valid parameters', () => {
-      const location = { type: 'orbit' as const, planetId: 'planet1' };
-      
+      const location = { type: 'orbit' as const, starId: 'planet1' };
+
       const fleet = service.createFleet(mockGame, location, 'p1', 'scout');
 
       expect(fleet).toBeDefined();
@@ -108,26 +114,36 @@ describe('FleetOperationsService', () => {
           id: `f${i}`,
           ownerId: 'p1',
           name: `Fleet ${i}`,
-          location: { type: 'orbit', planetId: 'planet1' },
+          location: { type: 'orbit', starId: 'planet1' },
           ships: [],
-          cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+          cargo: {
+            resources: 0,
+            minerals: { ironium: 0, boranium: 0, germanium: 0 },
+            colonists: 0,
+          },
           fuel: 0,
-          orders: []
+          orders: [],
         });
       }
 
       expect(() => {
-        service.createFleet(mockGame, { type: 'orbit', planetId: 'planet1' }, 'p1', 'scout');
+        service.createFleet(mockGame, { type: 'orbit', starId: 'planet1' }, 'p1', 'scout');
       }).toThrowError(/Maximum of 512 fleets/);
     });
 
     it('should log fleet creation', () => {
-      const location = { type: 'orbit' as const, planetId: 'planet1' };
-      
+      const location = { type: 'orbit' as const, starId: 'planet1' };
+
       service.createFleet(mockGame, location, 'p1', 'scout');
 
-      expect(mockLoggingService.debug).toHaveBeenCalledWith('Creating new fleet', jasmine.any(Object));
-      expect(mockLoggingService.info).toHaveBeenCalledWith('Fleet created: Scout-1', jasmine.any(Object));
+      expect(mockLoggingService.debug).toHaveBeenCalledWith(
+        'Creating new fleet',
+        jasmine.any(Object),
+      );
+      expect(mockLoggingService.info).toHaveBeenCalledWith(
+        'Fleet created: Scout-1',
+        jasmine.any(Object),
+      );
     });
   });
 
@@ -140,11 +156,11 @@ describe('FleetOperationsService', () => {
         id: 'f1',
         ownerId: 'p1',
         name: 'Fleet 1',
-        location: { type: 'orbit', planetId: 'planet1' },
+        location: { type: 'orbit', starId: 'planet1' },
         ships: [],
         cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
         fuel: 0,
-        orders: []
+        orders: [],
       };
 
       mockGame = {
@@ -157,13 +173,13 @@ describe('FleetOperationsService', () => {
         aiPlayers: [],
         fleets: [fleet],
         shipDesigns: [mockDesign],
-        playerEconomy: { freighterCapacity: 0, research: 0 }
+        playerEconomy: { freighterCapacity: 0, research: 0 },
       };
 
       mockValidationService.validateShipAddition.and.returnValue({
         isValid: true,
         errors: [],
-        warnings: []
+        warnings: [],
       });
     });
 
@@ -179,7 +195,7 @@ describe('FleetOperationsService', () => {
 
     it('should add to existing ship stack', () => {
       fleet.ships.push({ designId: 'scout', count: 3, damage: 0 });
-      
+
       service.addShipToFleet(mockGame, mockPlanet, 'scout', 2);
 
       expect(fleet.ships.length).toBe(1);
@@ -190,7 +206,7 @@ describe('FleetOperationsService', () => {
       mockValidationService.validateShipAddition.and.returnValue({
         isValid: false,
         errors: ['Test validation error'],
-        warnings: []
+        warnings: [],
       });
 
       expect(() => {
@@ -210,12 +226,12 @@ describe('FleetOperationsService', () => {
       service.addShipToFleet(mockGame, mockPlanet, 'scout', 5);
 
       expect(mockLoggingService.debug).toHaveBeenCalledWith(
-        'Adding 5 ships of design scout to fleet', 
-        jasmine.any(Object)
+        'Adding 5 ships of design scout to fleet',
+        jasmine.any(Object),
       );
       expect(mockLoggingService.info).toHaveBeenCalledWith(
-        'Added 5 ships of design scout to fleet Fleet 1', 
-        jasmine.any(Object)
+        'Added 5 ships of design scout to fleet Fleet 1',
+        jasmine.any(Object),
       );
     });
   });
@@ -234,7 +250,7 @@ describe('FleetOperationsService', () => {
         aiPlayers: [],
         fleets: [],
         shipDesigns: [mockDesign],
-        playerEconomy: { freighterCapacity: 0, research: 0 }
+        playerEconomy: { freighterCapacity: 0, research: 0 },
       };
     });
 
@@ -245,11 +261,15 @@ describe('FleetOperationsService', () => {
           id: `f${i}`,
           ownerId: 'p1',
           name: `Fleet ${i}`,
-          location: { type: 'orbit', planetId: 'planet1' },
+          location: { type: 'orbit', starId: 'planet1' },
           ships: [],
-          cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+          cargo: {
+            resources: 0,
+            minerals: { ironium: 0, boranium: 0, germanium: 0 },
+            colonists: 0,
+          },
           fuel: 0,
-          orders: []
+          orders: [],
         });
       }
 
@@ -265,11 +285,15 @@ describe('FleetOperationsService', () => {
           id: `f${i}`,
           ownerId: 'p1',
           name: `Fleet ${i}`,
-          location: { type: 'orbit', planetId: 'planet1' },
+          location: { type: 'orbit', starId: 'planet1' },
           ships: [],
-          cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+          cargo: {
+            resources: 0,
+            minerals: { ironium: 0, boranium: 0, germanium: 0 },
+            colonists: 0,
+          },
           fuel: 0,
-          orders: []
+          orders: [],
         });
       }
 
@@ -285,11 +309,15 @@ describe('FleetOperationsService', () => {
           id: `f${i}`,
           ownerId: 'p1',
           name: `Fleet ${i}`,
-          location: { type: 'orbit', planetId: 'planet1' },
+          location: { type: 'orbit', starId: 'planet1' },
           ships: [],
-          cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+          cargo: {
+            resources: 0,
+            minerals: { ironium: 0, boranium: 0, germanium: 0 },
+            colonists: 0,
+          },
           fuel: 0,
-          orders: []
+          orders: [],
         });
       }
 
@@ -298,11 +326,15 @@ describe('FleetOperationsService', () => {
           id: `f2${i}`,
           ownerId: 'p2',
           name: `Fleet ${i}`,
-          location: { type: 'orbit', planetId: 'planet1' },
+          location: { type: 'orbit', starId: 'planet1' },
           ships: [],
-          cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+          cargo: {
+            resources: 0,
+            minerals: { ironium: 0, boranium: 0, germanium: 0 },
+            colonists: 0,
+          },
           fuel: 0,
-          orders: []
+          orders: [],
         });
       }
 

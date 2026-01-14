@@ -115,7 +115,7 @@ export class GalaxyNavigationService {
     } else {
       // Fleet is in orbit - find the star
       const star = this.gs.stars().find((s) => 
-        s.planets.some((p) => p.id === fleet.location.planetId)
+        s.planets.some((p) => p.id === fleet.location.starId)
       );
       
       if (star) {
@@ -156,7 +156,7 @@ export class GalaxyNavigationService {
         entityType: 'planet',
         additionalData: {
           ...context.additionalData,
-          planetId: targetPlanet.id,
+          starId: targetPlanet.id,
           isOwned: !!ownedPlanet
         }
       });
@@ -184,7 +184,7 @@ export class GalaxyNavigationService {
   /**
    * Opens planet detail view
    */
-  openPlanet(planetId: string): void {
+  openPlanet(starId: string): void {
     const context: LogContext = {
       service: 'GalaxyNavigationService',
       operation: 'openPlanet',
