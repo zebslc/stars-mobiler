@@ -385,7 +385,7 @@ export class ResearchCurrentComponent {
     const game = this.gs.game();
     if (!game) return 0;
     return game.stars
-      .flatMap((s) => s.planets)
+      .map((s) => s)
       .filter((p) => p.ownerId === game.humanPlayer.id)
       .reduce((sum, p) => sum + (p.research || 0), 0);
   });

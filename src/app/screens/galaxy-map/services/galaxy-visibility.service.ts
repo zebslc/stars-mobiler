@@ -66,7 +66,7 @@ export class GalaxyVisibilityService {
 
     // 1. All stars with owned planets are visible
     for (const star of stars) {
-      if (star.planets.some((p) => p.ownerId === player.id)) {
+      if (star.ownerId === player.id) {
         visibleIds.add(star.id);
       }
     }
@@ -76,14 +76,12 @@ export class GalaxyVisibilityService {
 
     // Planet Scanners
     for (const star of stars) {
-      for (const p of star.planets) {
-        if (p.ownerId === player.id && p.scanner > 0) {
-          scanners.push({
-            x: star.position.x,
-            y: star.position.y,
-            r: p.scanner,
-          });
-        }
+      if (star.ownerId === player.id && star.scanner > 0) {
+        scanners.push({
+          x: star.position.x,
+          y: star.position.y,
+          r: star.scanner,
+        });
       }
     }
 
@@ -129,15 +127,13 @@ export class GalaxyVisibilityService {
 
     // Planets
     for (const star of this.gs.stars()) {
-      for (const p of star.planets) {
-        if (p.ownerId === player.id && p.scanner > 0) {
-          ranges.push({
-            x: star.position.x,
-            y: star.position.y,
-            r: p.scanner * rangePct,
-            type: 'planet',
-          });
-        }
+      if (star.ownerId === player.id && star.scanner > 0) {
+        ranges.push({
+          x: star.position.x,
+          y: star.position.y,
+          r: star.scanner * rangePct,
+          type: 'planet',
+        });
       }
     }
 
@@ -175,15 +171,13 @@ export class GalaxyVisibilityService {
 
     // Planets
     for (const star of this.gs.stars()) {
-      for (const p of star.planets) {
-        if (p.ownerId === player.id && p.scanner > 0) {
-          ranges.push({
-            x: star.position.x,
-            y: star.position.y,
-            r: p.scanner * rangePct,
-            type: 'planet',
-          });
-        }
+      if (star.ownerId === player.id && star.scanner > 0) {
+        ranges.push({
+          x: star.position.x,
+          y: star.position.y,
+          r: star.scanner * rangePct,
+          type: 'planet',
+        });
       }
     }
 

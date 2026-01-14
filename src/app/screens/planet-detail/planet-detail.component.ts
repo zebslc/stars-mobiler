@@ -168,12 +168,12 @@ export class PlanetDetailComponent implements OnInit {
     this.gs.turn();
     const id = this.planetIdSignal();
     if (!id) return null;
-    const p = this.gs.planetIndex().get(id) || null;
+    const p = this.gs.starIndex().get(id) || null;
     return p ? { ...p } : null;
   });
 
   getPlanetCoordinates(p: any) {
-    const star = this.gs.stars().find((s) => s.planets.some((pl) => pl.id === p.id));
+    const star = this.gs.stars().find((s) => s.id === p.id);
     return star ? star.position : null;
   }
 
@@ -212,7 +212,7 @@ export class PlanetDetailComponent implements OnInit {
     if (!playerId) return [];
     return this.gs
       .stars()
-      .flatMap((s) => s.planets)
+      .map((s) => s)
       .filter((p) => p.ownerId === playerId)
       .sort((a, b) => a.name.localeCompare(b.name));
   }

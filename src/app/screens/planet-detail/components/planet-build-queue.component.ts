@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Planet } from '../../../models/game.model';
+import { Star } from '../../../models/game.model';
 import { ShipSelectorComponent, ShipOption } from '../../../components/ship-selector.component';
 import { getDesign } from '../../../data/ships.data';
 import { GameStateService } from '../../../services/game/game-state.service';
@@ -158,7 +158,7 @@ export class PlanetBuildQueueComponent {
 
   @ViewChild(ShipSelectorComponent) shipSelector?: ShipSelectorComponent;
 
-  planet = input.required<Planet>();
+  planet = input.required<Star>();
   shipOptions = input.required<ShipOption[]>();
   selectedShipOption = input.required<ShipOption | null>();
   buildAmount = input.required<number>();

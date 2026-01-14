@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Planet } from '../../models/game.model';
+import { BuildItem, GameState, Star } from '../../models/game.model';
 
 export type StarbaseUpgradeInfo = {
   scrapCredit: { resources: number; ironium: number; boranium: number; germanium: number };
@@ -13,7 +13,7 @@ export class StarbaseUpgradeService {
   /**
    * Handle starbase upgrade logic and calculate scrap credit.
    */
-  handleStarbaseUpgrade(game: GameState, planet: Planet, item: BuildItem): StarbaseUpgradeInfo {
+  handleStarbaseUpgrade(game: GameState, planet: Star, item: BuildItem): StarbaseUpgradeInfo {
     if (!this.isStarbaseProject(game, item)) {
       return this.createEmptyUpgradeInfo();
     }
@@ -45,7 +45,7 @@ export class StarbaseUpgradeService {
   /**
    * Find existing starbase in orbit and calculate scrap credit.
    */
-  private findExistingStarbase(game: GameState, planet: Planet): StarbaseUpgradeInfo {
+  private findExistingStarbase(game: GameState, planet: Star): StarbaseUpgradeInfo {
     const orbitFleets = this.getOrbitFleets(game, planet);
     
     for (const fleet of orbitFleets) {
@@ -62,7 +62,7 @@ export class StarbaseUpgradeService {
   /**
    * Get fleets orbiting the planet.
    */
-  private getOrbitFleets(game: GameState, planet: Planet) {
+  private getOrbitFleets(game: GameState, planet: Star) {
     return game.fleets.filter(
       (f) =>
         f.ownerId === planet.ownerId &&

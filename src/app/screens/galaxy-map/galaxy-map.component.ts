@@ -1016,7 +1016,7 @@ export class GalaxyMapComponent implements OnInit {
         let orderIndex: number | null = null;
 
         if (snap) {
-          if (snap.type === 'star' && snap.id) {
+          if (snap.type === 'planet' && snap.id) {
             newOrder = { ...existingOrder, type: 'orbit', starId: snap.id };
             delete newOrder.destination;
           } else if (snap.type === 'fleet' && snap.id) {

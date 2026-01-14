@@ -118,7 +118,9 @@ export class GalaxyFleetService {
 
   fleetOrbitPosition(fleet: Fleet): { x: number; y: number } | null {
     if (fleet.location.type !== 'orbit') return null;
-    const star = this.gs.stars().find((s) => s.id === fleet.location.starId);
+    const star = fleet.location.type === 'orbit' 
+      ? this.gs.stars().find((s) => s.id === (fleet.location as any).starId)
+      : null;
     if (!star) return null;
     const fleets = this.fleetsAtStar(star);
     const idx = fleets.findIndex((f) => f.id === fleet.id);

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Planet } from '../../models/game.model';
+import { Star } from '../../models/game.model';
 
 export interface ProductionResult {
   resources: number;
@@ -10,7 +10,7 @@ export interface ProductionResult {
 
 @Injectable({ providedIn: 'root' })
 export class EconomyService {
-  calculateProduction(planet: Planet): ProductionResult {
+  calculateProduction(planet: Star): ProductionResult {
     const operableFactories = Math.min(planet.factories, Math.floor(planet.population / 10));
     const resources = operableFactories;
     const operableMines = Math.min(planet.mines, Math.floor(planet.population / 10));
@@ -22,7 +22,7 @@ export class EconomyService {
     return { resources, extraction, operableFactories, operableMines };
   }
 
-  applyMiningDepletion(planet: Planet, extraction: { ironium: number; boranium: number; germanium: number }) {
+  applyMiningDepletion(planet: Star, extraction: { ironium: number; boranium: number; germanium: number }) {
     planet.surfaceMinerals.ironium += Math.floor(extraction.ironium);
     planet.surfaceMinerals.boranium += Math.floor(extraction.boranium);
     planet.surfaceMinerals.germanium += Math.floor(extraction.germanium);
@@ -45,7 +45,7 @@ export class EconomyService {
     return Math.max(0, Math.floor(growth));
   }
 
-  spend(planet: Planet, cost: { resources: number; ironium?: number; boranium?: number; germanium?: number }): boolean {
+  spend(planet: Star, cost: { resources: number; ironium?: number; boranium?: number; germanium?: number }): boolean {
     const ironium = cost.ironium ?? 0;
     const bo = cost.boranium ?? 0;
     const ge = cost.germanium ?? 0;

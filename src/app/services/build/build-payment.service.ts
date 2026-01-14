@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, Planet } from '../../models/game.model';
+import { BuildItem, Star } from '../../models/game.model';
 
 export type ResourceAmount = {
   resources: number;
@@ -59,7 +59,7 @@ export class BuildPaymentService {
    * Process payment for a build item from planet resources.
    */
   processItemPayment(
-    planet: Planet,
+    planet: Star,
     item: BuildItem,
     remaining: ResourceAmount,
     totalCost: ResourceAmount,
@@ -76,7 +76,7 @@ export class BuildPaymentService {
   /**
    * Calculate what the planet can afford to pay.
    */
-  calculateAffordablePayment(planet: Planet, remaining: ResourceAmount): ResourceAmount {
+  calculateAffordablePayment(planet: Star, remaining: ResourceAmount): ResourceAmount {
     return {
       resources: Math.min(remaining.resources, planet.resources),
       ironium: Math.min(remaining.ironium, planet.surfaceMinerals.ironium),
@@ -88,7 +88,7 @@ export class BuildPaymentService {
   /**
    * Deduct affordable amounts from planet resources.
    */
-  deductFromPlanet(planet: Planet, affordable: ResourceAmount): void {
+  deductFromPlanet(planet: Star, affordable: ResourceAmount): void {
     planet.resources -= affordable.resources;
     planet.surfaceMinerals.ironium -= affordable.ironium;
     planet.surfaceMinerals.boranium -= affordable.boranium;
@@ -125,7 +125,7 @@ export class BuildPaymentService {
    * Handle excess resource refunds from scrap credits.
    */
   handleExcessRefunds(
-    planet: Planet,
+    planet: Star,
     paid: ResourceAmount,
     scrapCredit: ResourceAmount,
     totalCost: ResourceAmount

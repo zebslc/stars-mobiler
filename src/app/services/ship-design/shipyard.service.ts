@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, ShipDesign, PlayerTech, Planet, Player } from '../../models/game.model';
+import { GameState, ShipDesign, PlayerTech, Star, Player } from '../../models/game.model';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { ShipOption } from '../../components/ship-selector.component';
 import { getComponent, getHull, getAllComponents } from '../../utils/data-access.util';
@@ -89,7 +89,7 @@ export class ShipyardService {
     return totalCost;
   }
 
-  getAvailableShipOptions(planet: Planet, player: Player, game: GameState): ShipOption[] {
+  getAvailableShipOptions(planet: Star, player: Player, game: GameState): ShipOption[] {
     if (!player || !game) return [];
 
     const userDesigns = this.getPlayerShipDesigns(game);

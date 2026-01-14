@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { TechService } from '../../services/tech/tech.service';
-import { Planet } from '../../models/game.model';
+import { Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';
 import { PlanetCardComponent } from './components/planet-card.component';
@@ -135,7 +135,7 @@ export class PlanetsOverviewComponent {
     if (!game) return map;
 
     const playerId = this.gs.player()?.id;
-    const planetIndex = this.gs.planetIndex();
+    const planetIndex = this.gs.starIndex();
 
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== playerId) continue;
@@ -192,7 +192,7 @@ export class PlanetsOverviewComponent {
   planets = computed(() => {
     const stars = this.gs.stars();
     const playerId = this.gs.player()?.id;
-    const allPlanets = stars.flatMap((s) => s.planets).filter((p) => p.ownerId === playerId);
+    const allPlanets = stars.filter((s) => s.ownerId === playerId);
 
     if (this.filterMode() === 'Starbase') {
       const sbMap = this.starbaseMap();
@@ -206,11 +206,11 @@ export class PlanetsOverviewComponent {
     return allPlanets;
   });
 
-  onViewPlanet(planet: Planet) {
+  onViewPlanet(planet: Star) {
     this.router.navigate(['/planet', planet.id]);
   }
 
-  onViewOnMap(planet: Planet) {
+  onViewOnMap(planet: Star) {
     this.router.navigate(['/map'], { queryParams: { planetId: planet.id } });
   }
 }

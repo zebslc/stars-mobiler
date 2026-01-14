@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { Planet, ShipDesign } from '../../../models/game.model';
+import { Star, ShipDesign } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 
@@ -255,7 +255,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanetCardComponent {
-  @Input({ required: true }) planet!: Planet;
+  @Input({ required: true }) planet!: Star;
   @Input() starbase: { designId?: string; name: string; imageClass: string } | null = null;
   @Output() viewPlanet = new EventEmitter<void>();
   @Output() viewOnMap = new EventEmitter<void>();

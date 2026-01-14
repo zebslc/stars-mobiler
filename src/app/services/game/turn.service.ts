@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, Planet, Player } from '../../models/game.model';
+import { GameState, Star, Player } from '../../models/game.model';
 import { EconomyService } from '../colony/economy.service';
 import { ResearchService } from '../tech/research.service';
 import { ColonyService } from '../colony/colony.service';
@@ -31,9 +31,9 @@ export class TurnService {
   /**
    * Get all planets owned by the human player.
    */
-  getOwnedPlanets(game: GameState): Planet[] {
+  getOwnedPlanets(game: GameState): Star[] {
     return game.stars
-      .flatMap((s) => s.planets)
+      .map((s) => s)
       .filter((p) => p.ownerId === game.humanPlayer.id);
   }
 
@@ -41,7 +41,7 @@ export class TurnService {
    * Process production for all owned planets.
    * Returns total research points generated.
    */
-  processProduction(planets: Planet[], player: Player): number {
+  processProduction(planets: Star[], player: Player): number {
     let totalResearch = 0;
     const researchModifier = this.getResearchModifier(player);
 
@@ -56,7 +56,7 @@ export class TurnService {
   /**
    * Process production for a single planet.
    */
-  processPlanetProduction(planet: Planet): void {
+  processPlanetProduction(planet: Star): void {
     const prod = this.economy.calculateProduction(planet);
     planet.resources += prod.resources;
     this.economy.applyMiningDepletion(planet, prod.extraction);
@@ -72,7 +72,7 @@ export class TurnService {
   /**
    * Calculate research points from a planet.
    */
-  calculatePlanetResearch(planet: Planet, modifier: number): number {
+  calculatePlanetResearch(planet: Star, modifier: number): number {
     const baseResearch = planet.research || 0;
     return baseResearch * (1 + modifier);
   }
@@ -88,7 +88,7 @@ export class TurnService {
   /**
    * Process population growth or die-off for all owned planets.
    */
-  processPopulation(planets: Planet[], player: Player): void {
+  processPopulation(planets: Star[], player: Player): void {
     for (const planet of planets) {
       const habPct = this.hab.calculate(planet, player.species);
 
@@ -103,7 +103,7 @@ export class TurnService {
   /**
    * Apply population growth for positive habitability.
    */
-  applyPopulationGrowth(planet: Planet, habPct: number): void {
+  applyPopulationGrowth(planet: Star, habPct: number): void {
     planet.maxPopulation = Math.floor(1_000_000 * (habPct / 100));
     const growthRate = (habPct / 100) * 0.1;
     const growth = this.economy.logisticGrowth(
@@ -117,7 +117,7 @@ export class TurnService {
   /**
    * Apply population decay for negative habitability.
    */
-  applyPopulationDecay(planet: Planet, habPct: number): void {
+  applyPopulationDecay(planet: Star, habPct: number): void {
     const lossRate = Math.min(0.15, Math.abs(habPct / 100) * 0.15);
     const decay = Math.ceil(planet.population * lossRate);
     planet.population = Math.max(0, planet.population - decay);

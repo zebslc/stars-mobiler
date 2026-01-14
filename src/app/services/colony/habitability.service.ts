@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Planet, Species } from '../../models/game.model';
+import { Star, Species } from '../../models/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class HabitabilityService {
-  calculate(planet: Planet, species: Species): number {
+  calculate(planet: Star, species: Species): number {
     const tempDiff = Math.abs(planet.temperature - species.habitat.idealTemperature);
     const atmoDiff = Math.abs(planet.atmosphere - species.habitat.idealAtmosphere);
     const distance = Math.sqrt(tempDiff * tempDiff + atmoDiff * atmoDiff);

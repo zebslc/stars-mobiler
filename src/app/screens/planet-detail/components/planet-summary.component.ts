@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Planet } from '../../../models/game.model';
+import { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { inject } from '@angular/core';
 
@@ -97,7 +97,7 @@ import { inject } from '@angular/core';
 export class PlanetSummaryComponent {
   gs = inject(GameStateService);
 
-  planet = input.required<Planet>();
+  planet = input.required<Star>();
   habitability = input.required<number>();
   planetTexture = input.required<string>(); // Used by parent now, but maybe we don't need it here?
   // Actually, parent will use it for the header.
