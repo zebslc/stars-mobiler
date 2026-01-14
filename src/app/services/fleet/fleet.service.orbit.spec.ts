@@ -62,27 +62,6 @@ describe('FleetService Orbit Order', () => {
       } as any,
     };
 
-    const planet: Star = {
-      id: 'planet1',
-      name: 'Planet 1',
-      position: { x: 0, y: 0 },
-      ownerId: 'p1',
-      temperature: 50,
-      atmosphere: 50,
-      population: 0,
-      maxPopulation: 1000,
-      surfaceMinerals: { ironium: 0, boranium: 0, germanium: 0 },
-      mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
-      resources: 0,
-      factories: 0,
-      mines: 0,
-      defenses: 0,
-      scanner: 0,
-      research: 0,
-      terraformOffset: { temperature: 0, atmosphere: 0 },
-      buildQueue: []
-    };
-
     const star: Star = {
       id: 'star1',
       name: 'Star 1',
@@ -101,7 +80,7 @@ describe('FleetService Orbit Order', () => {
       scanner: 0,
       terraformOffset: { temperature: 0, atmosphere: 0 },
       resources: 0,
-      buildQueue: []
+      buildQueue: [],
     };
 
     const fleet: Fleet = {
@@ -112,7 +91,7 @@ describe('FleetService Orbit Order', () => {
       ships: [{ designId: 'test-ship', count: 1, damage: 0 }],
       cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
       fuel: 2000,
-      orders: [{ type: 'orbit', starId: 'planet1' }],
+      orders: [{ type: 'orbit', starId: 'star1' }],
     };
 
     return {
@@ -139,7 +118,7 @@ describe('FleetService Orbit Order', () => {
     // Should arrive in one turn (speed 10 * 20 = 200 > 100)
     expect(fleet.location.type).toBe('orbit');
     if (fleet.location.type === 'orbit') {
-      expect(fleet.location.starId).toBe('planet1');
+      expect(fleet.location.starId).toBe('star1');
     }
     expect(fleet.orders.length).toBe(0);
   });
@@ -166,13 +145,13 @@ describe('FleetService Orbit Order', () => {
     const dist = 0;
     const game = createGameWithPlanet(dist);
     const fleet = game.fleets[0];
-    fleet.location = { type: 'orbit', starId: 'planet1' };
+    fleet.location = { type: 'orbit', starId: 'star1' };
 
     service.processFleets(game);
 
     expect(fleet.orders.length).toBe(0);
     expect(fleet.location.type).toBe('orbit');
-    expect((fleet.location as any).starId).toBe('planet1');
+    expect((fleet.location as any).starId).toBe('star1');
   });
 
   it('should inject colonize order if already at planet with action=colonize', () => {

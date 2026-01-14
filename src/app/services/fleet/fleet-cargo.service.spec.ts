@@ -84,7 +84,7 @@ describe('FleetCargoService', () => {
         seed: 123,
         turn: 1,
         settings: {} as any,
-        stars: [mockStar],
+        stars: [mockPlanet],
         humanPlayer: mockPlayer,
         aiPlayers: [],
         fleets: [fleet],
@@ -206,7 +206,7 @@ describe('FleetCargoService', () => {
         seed: 123,
         turn: 1,
         settings: {} as any,
-        stars: [mockStar],
+        stars: [mockPlanet],
         humanPlayer: mockPlayer,
         aiPlayers: [],
         fleets: [fleet],
@@ -263,7 +263,7 @@ describe('FleetCargoService', () => {
       });
 
       expect(mockLoggingService.debug).toHaveBeenCalledWith(
-        'Unloading cargo to planet planet1',
+        'Unloading cargo to star star1',
         jasmine.any(Object),
       );
       expect(mockLoggingService.info).toHaveBeenCalledWith(

@@ -127,7 +127,7 @@ export class FleetCargoService {
 
     // Create new game state with updated fleet and star
     const updatedFleets = game.fleets.map((f) => (f.id === fleet.id ? fleet : f));
-    const updatedStars = game.stars.map((star) => (star.id === star.id ? planet : star));
+    const updatedStars = game.stars.map((star) => (star.id === starId ? planet : star));
 
     return { ...game, stars: updatedStars, fleets: updatedFleets };
   }
@@ -152,7 +152,7 @@ export class FleetCargoService {
       additionalData: { starId, manifest },
     };
 
-    this.logging.debug(`Unloading cargo to planet ${starId}`, context);
+    this.logging.debug(`Unloading cargo to star ${starId}`, context);
 
     const originalFleet = game.fleets.find(
       (f) => f.id === fleetId && f.ownerId === game.humanPlayer.id,
@@ -232,7 +232,7 @@ export class FleetCargoService {
 
     // Create new game state with updated fleet and star
     const updatedFleets = game.fleets.map((f) => (f.id === fleet.id ? fleet : f));
-    const updatedStars = game.stars.map((star) => (star.id === star.id ? planet : star));
+    const updatedStars = game.stars.map((star) => (star.id === starId ? planet : star));
 
     return { ...game, stars: updatedStars, fleets: updatedFleets };
   }

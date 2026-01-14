@@ -114,6 +114,7 @@ describe('ColonyService', () => {
 
       const game: GameState = {
         humanPlayer: mockPlayer,
+        stars: [planet],
         shipDesigns: [mockDesign],
         fleets: [],
       } as any;
