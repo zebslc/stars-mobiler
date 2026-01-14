@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Planet } from '../../models/game.model';
+import { BuildItem, GameState, Planet, PlayerTech } from '../../models/game.model';
 import { FleetService } from '../fleet/fleet.service';
 import { PLANETARY_SCANNER_COMPONENTS } from '../../data/techs/planetary.data';
+import { TechRequirement } from '../../data/tech-atlas.types';
+
+const DEFAULT_SCANNER_RANGE = 50;
 
 @Injectable({ providedIn: 'root' })
 export class BuildProjectService {
@@ -67,21 +70,35 @@ export class BuildProjectService {
    * Build a scanner on the planet.
    */
   private buildScanner(game: GameState, planet: Planet): void {
-    const techLevels = game.humanPlayer.techLevels;
+    const bestRange = this.findBestScannerRange(game.humanPlayer.techLevels);
+    planet.scanner = bestRange > 0 ? bestRange : DEFAULT_SCANNER_RANGE;
+  }
+
+  /**
+   * Find the best scanner range available for given tech levels.
+   */
+  findBestScannerRange(techLevels: PlayerTech): number {
     let bestRange = 0;
-    for (const s of PLANETARY_SCANNER_COMPONENTS) {
-      if (
-        s.tech &&
-        techLevels.Energy >= (s.tech.Energy || 0) &&
-        techLevels.Kinetics >= (s.tech.Kinetics || 0) &&
-        techLevels.Propulsion >= (s.tech.Propulsion || 0) &&
-        techLevels.Construction >= (s.tech.Construction || 0)
-      ) {
-        const scan = s.stats?.scan || 0;
-        if (scan > bestRange) bestRange = scan;
+    for (const scanner of PLANETARY_SCANNER_COMPONENTS) {
+      if (this.meetsRequirements(techLevels, scanner.tech)) {
+        const scanRange = scanner.stats?.scan || 0;
+        if (scanRange > bestRange) bestRange = scanRange;
       }
     }
-    planet.scanner = bestRange > 0 ? bestRange : 50;
+    return bestRange;
+  }
+
+  /**
+   * Check if player tech levels meet component requirements.
+   */
+  meetsRequirements(techLevels: PlayerTech, requirements?: TechRequirement): boolean {
+    if (!requirements) return true;
+    return (
+      techLevels.Energy >= (requirements.Energy ?? 0) &&
+      techLevels.Kinetics >= (requirements.Kinetics ?? 0) &&
+      techLevels.Propulsion >= (requirements.Propulsion ?? 0) &&
+      techLevels.Construction >= (requirements.Construction ?? 0)
+    );
   }
 
   /**

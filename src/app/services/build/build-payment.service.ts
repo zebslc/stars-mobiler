@@ -1,8 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BuildItem, Planet } from '../../models/game.model';
 
+export type ResourceAmount = {
+  resources: number;
+  ironium: number;
+  boranium: number;
+  germanium: number;
+};
+
 export type PaymentResult = {
-  paid: { resources: number; ironium: number; boranium: number; germanium: number };
+  paid: ResourceAmount;
   isComplete: boolean;
 };
 
@@ -23,7 +30,7 @@ export class BuildPaymentService {
   /**
    * Calculate the total cost for a build item.
    */
-  calculateTotalCost(item: BuildItem): { resources: number; ironium: number; boranium: number; germanium: number } {
+  calculateTotalCost(item: BuildItem): ResourceAmount {
     return {
       resources: item.cost.resources ?? 0,
       ironium: item.cost.ironium ?? 0,
@@ -36,10 +43,10 @@ export class BuildPaymentService {
    * Calculate remaining costs after accounting for payments and credits.
    */
   calculateRemainingCost(
-    totalCost: any,
-    paid: any,
-    scrapCredit: any
-  ): { resources: number; ironium: number; boranium: number; germanium: number } {
+    totalCost: ResourceAmount,
+    paid: ResourceAmount,
+    scrapCredit: ResourceAmount
+  ): ResourceAmount {
     return {
       resources: Math.max(0, totalCost.resources - paid.resources),
       ironium: Math.max(0, totalCost.ironium - paid.ironium - scrapCredit.ironium),
@@ -54,22 +61,22 @@ export class BuildPaymentService {
   processItemPayment(
     planet: Planet,
     item: BuildItem,
-    remaining: any,
-    totalCost: any,
-    scrapCredit: any
+    remaining: ResourceAmount,
+    totalCost: ResourceAmount,
+    scrapCredit: ResourceAmount
   ): PaymentResult {
     const affordable = this.calculateAffordablePayment(planet, remaining);
     this.deductFromPlanet(planet, affordable);
     this.addToPaidAmount(item, affordable);
     const isComplete = this.checkPaymentCompletion(item.paid!, totalCost, scrapCredit);
-    
+
     return { paid: item.paid!, isComplete };
   }
 
   /**
    * Calculate what the planet can afford to pay.
    */
-  private calculateAffordablePayment(planet: Planet, remaining: any) {
+  calculateAffordablePayment(planet: Planet, remaining: ResourceAmount): ResourceAmount {
     return {
       resources: Math.min(remaining.resources, planet.resources),
       ironium: Math.min(remaining.ironium, planet.surfaceMinerals.ironium),
@@ -81,7 +88,7 @@ export class BuildPaymentService {
   /**
    * Deduct affordable amounts from planet resources.
    */
-  private deductFromPlanet(planet: Planet, affordable: any): void {
+  deductFromPlanet(planet: Planet, affordable: ResourceAmount): void {
     planet.resources -= affordable.resources;
     planet.surfaceMinerals.ironium -= affordable.ironium;
     planet.surfaceMinerals.boranium -= affordable.boranium;
@@ -91,7 +98,7 @@ export class BuildPaymentService {
   /**
    * Add affordable amounts to the item's paid amount.
    */
-  private addToPaidAmount(item: BuildItem, affordable: any): void {
+  addToPaidAmount(item: BuildItem, affordable: ResourceAmount): void {
     item.paid!.resources += affordable.resources;
     item.paid!.ironium += affordable.ironium;
     item.paid!.boranium += affordable.boranium;
@@ -101,17 +108,28 @@ export class BuildPaymentService {
   /**
    * Check if payment is complete.
    */
-  private checkPaymentCompletion(paid: any, totalCost: any, scrapCredit: any): boolean {
-    return paid.resources >= totalCost.resources &&
+  checkPaymentCompletion(
+    paid: ResourceAmount,
+    totalCost: ResourceAmount,
+    scrapCredit: ResourceAmount
+  ): boolean {
+    return (
+      paid.resources >= totalCost.resources &&
       paid.ironium + scrapCredit.ironium >= totalCost.ironium &&
       paid.boranium + scrapCredit.boranium >= totalCost.boranium &&
-      paid.germanium + scrapCredit.germanium >= totalCost.germanium;
+      paid.germanium + scrapCredit.germanium >= totalCost.germanium
+    );
   }
 
   /**
    * Handle excess resource refunds from scrap credits.
    */
-  handleExcessRefunds(planet: Planet, paid: any, scrapCredit: any, totalCost: any): void {
+  handleExcessRefunds(
+    planet: Planet,
+    paid: ResourceAmount,
+    scrapCredit: ResourceAmount,
+    totalCost: ResourceAmount
+  ): void {
     const excessIronium = paid.ironium + scrapCredit.ironium - totalCost.ironium;
     const excessBoranium = paid.boranium + scrapCredit.boranium - totalCost.boranium;
     const excessGermanium = paid.germanium + scrapCredit.germanium - totalCost.germanium;

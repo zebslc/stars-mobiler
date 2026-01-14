@@ -283,13 +283,12 @@ describe('DeveloperPanelComponent', () => {
               viewport: { width: 1920, height: 1080 },
               url: 'https://test.com',
               timestamp: Date.now(),
-            }
-          }
+            },
+          },
         };
         developerEventsSignal.set(logEntry);
+        fixture.detectChanges(); // Ensure each entry is processed
       }
-
-      fixture.detectChanges();
 
       // Should be limited to 100 entries
       expect(component.logEntries().length).toBe(100);
