@@ -701,13 +701,15 @@ export class GalaxyMapComponent implements OnInit {
       return;
     }
 
-    this.isLongPressing = true;
-    this.pressedFleet = fleet;
     const clientX =
       (event.originalEvent as any).clientX || (event.originalEvent as any).touches[0].clientX;
     const clientY =
       (event.originalEvent as any).clientY || (event.originalEvent as any).touches[0].clientY;
 
+    this.potentialDragFleet = fleet;
+    this.potentialDragStart = { x: clientX, y: clientY };
+    this.isLongPressing = true;
+    this.pressedFleet = fleet;
     this.longPressStartPos = { x: clientX, y: clientY };
 
     this.longPressTimer = setTimeout(() => {
@@ -827,6 +829,25 @@ export class GalaxyMapComponent implements OnInit {
       return;
     }
 
+    if (this.potentialDragFleet && this.potentialDragStart && event.touches.length === 1) {
+      const dist = Math.hypot(
+        event.touches[0].clientX - this.potentialDragStart.x,
+        event.touches[0].clientY - this.potentialDragStart.y,
+      );
+
+      if (dist > 5) {
+        this.startDrag(this.potentialDragFleet);
+        this.potentialDragFleet = null;
+        this.potentialDragStart = null;
+        this.isLongPressing = false;
+        this.pressedFleet = null;
+        clearTimeout(this.longPressTimer);
+
+        this.handleMove(event.touches[0].clientX, event.touches[0].clientY);
+      }
+      return;
+    }
+
     // Check Waypoint Hold
     if (this.isWaypointHolding && this.waypointHoldStartPos) {
       const dist = Math.hypot(
@@ -836,30 +857,6 @@ export class GalaxyMapComponent implements OnInit {
       if (dist > 10) {
         this.isWaypointHolding = false;
         clearTimeout(this.waypointHoldTimer);
-      }
-      return;
-    }
-
-    // Check Fleet Hold / Drag (Press and Drag support)
-    if (this.isLongPressing && this.longPressStartPos) {
-      const dist = Math.hypot(
-        event.touches[0].clientX - this.longPressStartPos.x,
-        event.touches[0].clientY - this.longPressStartPos.y,
-      );
-
-      if (dist > 10) {
-        if (this.pressedFleet) {
-          this.startDrag(this.pressedFleet);
-          this.isLongPressing = false;
-          this.pressedFleet = null;
-          clearTimeout(this.longPressTimer);
-
-          // Immediately move
-          this.handleMove(event.touches[0].clientX, event.touches[0].clientY);
-        } else {
-          this.isLongPressing = false;
-          clearTimeout(this.longPressTimer);
-        }
       }
       return;
     }
@@ -900,6 +897,8 @@ export class GalaxyMapComponent implements OnInit {
     this.cancelTouchHold();
     this.cancelWaypointHold();
 
+    this.potentialDragFleet = null;
+    this.potentialDragStart = null;
     this.isLongPressing = false;
     this.pressedFleet = null;
     clearTimeout(this.longPressTimer);
