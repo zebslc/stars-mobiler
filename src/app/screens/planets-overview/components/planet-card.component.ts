@@ -264,7 +264,7 @@ export class PlanetCardComponent {
 
   buildQueue = computed(() => this.planet.buildQueue || []);
 
-  habitability = computed(() => this.gs.habitabilityFor(this.star.id));
+  habitability = computed(() => this.gs.habitabilityFor(this.planet.id));
 
   habitabilityColor = computed(() => {
     return this.habitability() > 0 ? '#27ae60' : '#c0392b';

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Star } from '../../models/game.model';
+import { BuildItem, GameState, Star, Fleet, ShipStack } from '../../models/game.model';
 
 export type StarbaseUpgradeInfo = {
   scrapCredit: { resources: number; ironium: number; boranium: number; germanium: number };
   existingStarbaseIndex: number;
-  existingFleet: any;
+  existingFleet: Fleet | null;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -62,20 +62,20 @@ export class StarbaseUpgradeService {
   /**
    * Get fleets orbiting the planet.
    */
-  private getOrbitFleets(game: GameState, planet: Star) {
+  private getOrbitFleets(game: GameState, planet: Star): Fleet[] {
     return game.fleets.filter(
       (f) =>
         f.ownerId === planet.ownerId &&
         f.location.type === 'orbit' &&
-        (f.location as any).starId === planet.id,
+        (f.location as { type: 'orbit'; starId: string }).starId === planet.id,
     );
   }
 
   /**
    * Find starbase ship in fleet.
    */
-  private findStarbaseInFleet(game: GameState, fleet: any): number {
-    return fleet.ships.findIndex((s: any) => {
+  private findStarbaseInFleet(game: GameState, fleet: Fleet): number {
+    return fleet.ships.findIndex((s: ShipStack) => {
       const d = game.shipDesigns.find((sd) => sd.id === s.designId);
       return d?.spec?.isStarbase;
     });
@@ -84,30 +84,30 @@ export class StarbaseUpgradeService {
   /**
    * Calculate scrap credit from old starbase.
    */
-  private calculateScrapCredit(game: GameState, fleet: any, starbaseIndex: number) {
+  private calculateScrapCredit(game: GameState, fleet: Fleet, starbaseIndex: number) {
     const scrapCredit = { resources: 0, ironium: 0, boranium: 0, germanium: 0 };
     const oldDesign = game.shipDesigns.find((d) => d.id === fleet.ships[starbaseIndex].designId);
-    
+
     if (oldDesign?.spec?.cost) {
       // 75% Mineral Recovery
       scrapCredit.ironium = Math.floor((oldDesign.spec.cost.ironium || 0) * 0.75);
       scrapCredit.boranium = Math.floor((oldDesign.spec.cost.boranium || 0) * 0.75);
       scrapCredit.germanium = Math.floor((oldDesign.spec.cost.germanium || 0) * 0.75);
     }
-    
+
     return scrapCredit;
   }
 
   /**
    * Remove an old starbase when upgrading.
    */
-  removeOldStarbase(game: GameState, existingFleet: any, existingStarbaseIndex: number): void {
+  removeOldStarbase(game: GameState, existingFleet: Fleet | null, existingStarbaseIndex: number): void {
     if (!existingFleet || existingStarbaseIndex < 0) return;
 
     existingFleet.ships.splice(existingStarbaseIndex, 1);
     if (existingFleet.ships.length === 0) {
       // If fleet is empty, remove it
-      game.fleets = game.fleets.filter((f: any) => f.id !== existingFleet.id);
+      game.fleets = game.fleets.filter((f) => f.id !== existingFleet.id);
     }
   }
 }

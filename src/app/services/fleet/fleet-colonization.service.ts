@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, Star } from '../../models/game.model';
+import { GameState, Fleet, Star, ShipStack, ShipDesign } from '../../models/game.model';
 import { LogContext } from '../../models/service-interfaces.model';
 import { LoggingService } from '../core/logging.service';
 import { HabitabilityService } from '../colony/habitability.service';
@@ -151,10 +151,10 @@ export class FleetColonizationService {
   }
 
   private findColonyShip(
-    game: GameState, 
-    fleet: Fleet, 
+    game: GameState,
+    fleet: Fleet,
     context: LogContext
-  ): { ship: any | null; design: any | null } {
+  ): { ship: ShipStack | null; design: ShipDesign | null } {
     const colonyStack = fleet.ships.find((s) => {
       const design = game.shipDesigns.find((d) => d.id === s.designId);
       return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
@@ -175,20 +175,20 @@ export class FleetColonizationService {
   }
 
   private executeColonization(
-    game: GameState, 
-    fleet: Fleet, 
-    star: Star, 
-    colonyStack: any, 
-    design: any, 
+    game: GameState,
+    fleet: Fleet,
+    star: Star,
+    colonyStack: ShipStack,
+    design: ShipDesign,
     context: LogContext
   ): [GameState, string | null] {
     const hab = this.habitability.calculate(star, game.humanPlayer.species);
-    
+
     this.logging.info(`Colonizing star ${star.name} (habitability: ${hab}%)`, {
       ...context,
-      additionalData: { 
-        starId: star.id, 
-        starName: star.name, 
+      additionalData: {
+        starId: star.id,
+        starName: star.name,
         habitability: hab,
         fleetName: fleet.name
       }
@@ -201,19 +201,19 @@ export class FleetColonizationService {
     game: GameState,
     fleet: Fleet,
     star: Star,
-    colonyStack: any,
-    design: any,
+    colonyStack: ShipStack,
+    design: ShipDesign,
     habitability: number,
     context: LogContext
   ): [GameState, string | null] {
     this.consumeColonyShip(fleet, colonyStack);
     this.initializeColony(star, habitability, game.humanPlayer.id);
     this.transferResourcesToColony(star, fleet, design);
-    
+
     return this.finalizeColonization(game, fleet, star, context);
   }
 
-  private consumeColonyShip(fleet: Fleet, colonyStack: any): void {
+  private consumeColonyShip(fleet: Fleet, colonyStack: ShipStack): void {
     colonyStack.count -= 1;
     if (colonyStack.count <= 0) {
       fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
@@ -229,15 +229,15 @@ export class FleetColonizationService {
       : 1000;
   }
 
-  private transferResourcesToColony(star: Star, fleet: Fleet, design: any): void {
+  private transferResourcesToColony(star: Star, fleet: Fleet, design: ShipDesign): void {
     // Transfer population
     star.population = Math.max(0, fleet.cargo.colonists);
-    
+
     // Transfer minerals from cargo
     star.surfaceMinerals.ironium += fleet.cargo.minerals.ironium;
     star.surfaceMinerals.boranium += fleet.cargo.minerals.boranium;
     star.surfaceMinerals.germanium += fleet.cargo.minerals.germanium;
-    
+
     // Add resources from broken-down ship
     const cost = this.shipyard.getShipCost(design);
     star.resources += cost.resources;

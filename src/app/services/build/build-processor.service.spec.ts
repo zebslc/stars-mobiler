@@ -282,7 +282,16 @@ describe('BuildProcessorService', () => {
       const starbaseInfo: StarbaseUpgradeInfo = {
         scrapCredit,
         existingStarbaseIndex: 0,
-        existingFleet: { id: 'fleet1', ships: [] },
+        existingFleet: {
+          id: 'fleet1',
+          name: 'Starbase Fleet',
+          ownerId: 'player1',
+          location: { type: 'orbit', starId: 'star1' },
+          ships: [],
+          fuel: 0,
+          cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+          orders: [],
+        },
       };
 
       mockBuildPayment.calculateTotalCost.and.returnValue(totalCost);

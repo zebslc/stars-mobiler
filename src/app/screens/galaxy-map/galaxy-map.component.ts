@@ -13,8 +13,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { SettingsService } from '../../services/core/settings.service';
 import { LoggingService } from '../../services/core/logging.service';
-import { LogContext } from '../../models/logging.model';
-import { Star, Fleet } from '../../models/game.model';
+import { Star, Fleet, FleetOrder, GameState } from '../../models/game.model';
 import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
 import { WaypointContextMenuComponent } from './components/waypoint-context-menu.component';
@@ -27,6 +26,31 @@ import { GalaxyVisibilityService } from './services/galaxy-visibility.service';
 import { GalaxyFleetService } from './services/galaxy-fleet.service';
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
 import { getDesign } from '../../data/ships.data';
+
+interface WaypointSegment {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  distance: number;
+  type: string;
+  order: FleetOrder;
+  color: string;
+  warning: string | null;
+}
+
+interface MenuAction {
+  action: string;
+  available: boolean;
+  reason: string;
+}
+
+interface SnapResult {
+  type: 'star' | 'fleet';
+  id: string;
+  x: number;
+  y: number;
+}
 
 @Component({
   standalone: true,
@@ -519,7 +543,7 @@ export class GalaxyMapComponent implements OnInit {
   });
 
   waypointContextMenu = signal<
-    | { visible: boolean; x: number; y: number; fleetId: string; orderIndex: number; order: any }
+    | { visible: boolean; x: number; y: number; fleetId: string; orderIndex: number; order: FleetOrder }
     | { visible: false; x: 0; y: 0; fleetId: null; orderIndex: -1; order: null }
   >({
     visible: false,
@@ -531,12 +555,12 @@ export class GalaxyMapComponent implements OnInit {
   });
 
   // Touch hold state
-  private touchHoldTimer: any;
+  private touchHoldTimer: ReturnType<typeof setTimeout> | undefined;
   private touchHoldStartPos: { x: number; y: number } | null = null;
   private isTouchHolding = false;
 
   // Waypoint hold state
-  private waypointHoldTimer: any;
+  private waypointHoldTimer: ReturnType<typeof setTimeout> | undefined;
   private waypointHoldStartPos: { x: number; y: number } | null = null;
   private isWaypointHolding = false;
 
@@ -591,21 +615,18 @@ export class GalaxyMapComponent implements OnInit {
 
     return myFleets.map((fleet) => {
       let currentPos = this.fleetService.fleetPos(fleet.id);
-      const segments: any[] = [];
+      const segments: WaypointSegment[] = [];
 
       // Calculate max speed for this fleet
       let maxFleetSpeed = 10;
-      let fuelCapacity = 0;
-      let currentFuel = fleet.fuel;
 
       // Simple check: find the slowest ship in the fleet
       for (const stack of fleet.ships) {
         const design = shipDesigns.find((d) => d.id === stack.designId);
-        if (design && design.spec) {
+        if (design?.spec) {
           if (design.spec.warpSpeed < maxFleetSpeed && design.spec.warpSpeed > 0) {
             maxFleetSpeed = design.spec.warpSpeed;
           }
-          fuelCapacity += design.spec.fuelCapacity * stack.count;
         }
       }
 
@@ -625,7 +646,7 @@ export class GalaxyMapComponent implements OnInit {
 
           if (dest) {
             const dist = Math.hypot(dest.x - currentPos.x, dest.y - currentPos.y);
-            const orderSpeed = (order as any).warpSpeed || 9;
+            const orderSpeed = ('warpSpeed' in order && order.warpSpeed) ? order.warpSpeed : 9;
             let warning: string | null = null;
 
             if (orderSpeed > maxFleetSpeed) {
@@ -651,7 +672,7 @@ export class GalaxyMapComponent implements OnInit {
     });
   });
 
-  private longPressTimer: any;
+  private longPressTimer: ReturnType<typeof setTimeout> | undefined;
   private isLongPressing = false;
   private longPressStartPos: { x: number; y: number } | null = null;
 
@@ -920,7 +941,7 @@ export class GalaxyMapComponent implements OnInit {
     this.isTouchHolding = false;
     if (this.touchHoldTimer) {
       clearTimeout(this.touchHoldTimer);
-      this.touchHoldTimer = null;
+      this.touchHoldTimer = undefined;
     }
     this.touchHoldStartPos = null;
   }
@@ -929,7 +950,7 @@ export class GalaxyMapComponent implements OnInit {
     this.isWaypointHolding = false;
     if (this.waypointHoldTimer) {
       clearTimeout(this.waypointHoldTimer);
-      this.waypointHoldTimer = null;
+      this.waypointHoldTimer = undefined;
     }
     this.waypointHoldStartPos = null;
   }
@@ -976,7 +997,7 @@ export class GalaxyMapComponent implements OnInit {
 
   checkSnap(x: number, y: number) {
     const threshold = 10 / this.state.scale();
-    let snapResult: any = null;
+    let snapResult: SnapResult | null = null;
 
     // Check stars
     const stars = this.stars();
@@ -1023,26 +1044,23 @@ export class GalaxyMapComponent implements OnInit {
     if (wp) {
       const fleet = this.gs.game()?.fleets.find((f) => f.id === wp.fleetId);
       if (fleet) {
-        let newOrder: any = null;
-        const existingOrder =
-          wp.orderIndex !== undefined && fleet.orders ? fleet.orders[wp.orderIndex] : {};
+        let newOrder: FleetOrder | null = null;
+        const existingOrder = wp.orderIndex !== undefined && fleet.orders ? fleet.orders[wp.orderIndex] : null;
+        const existingWarpSpeed = existingOrder && 'warpSpeed' in existingOrder ? existingOrder.warpSpeed : undefined;
         let orderIndex: number | null = null;
 
         if (snap) {
           if (snap.type === 'star' && snap.id) {
-            newOrder = { ...existingOrder, type: 'orbit', starId: snap.id };
-            delete newOrder.destination;
+            newOrder = { type: 'orbit', starId: snap.id, warpSpeed: existingWarpSpeed };
           } else if (snap.type === 'fleet' && snap.id) {
-            newOrder = { ...existingOrder, type: 'move', destination: { x: snap.x, y: snap.y } };
-            delete newOrder.starId;
+            newOrder = { type: 'move', destination: { x: snap.x, y: snap.y }, warpSpeed: existingWarpSpeed };
           }
         } else {
           newOrder = {
-            ...existingOrder,
             type: 'move',
             destination: { x: wp.currentX, y: wp.currentY },
+            warpSpeed: existingWarpSpeed,
           };
-          delete newOrder.starId;
         }
 
         if (newOrder) {
@@ -1193,7 +1211,7 @@ export class GalaxyMapComponent implements OnInit {
     this.closeContextMenus(false);
   }
 
-  onWaypointClick(event: MouseEvent, fleetId: string, order: any) {
+  onWaypointClick(event: MouseEvent, fleetId: string, order: FleetOrder) {
     event.stopPropagation();
     event.preventDefault();
 
@@ -1294,8 +1312,8 @@ export class GalaxyMapComponent implements OnInit {
           fleetId: ctx.fleetId,
           hasColonyModule,
           orderType: order.type,
-          orderDest: order.destination,
-          orderStarId: order.starId,
+          orderDest: order.type === 'move' ? order.destination : undefined,
+          orderStarId: order.type === 'orbit' || order.type === 'colonize' ? order.starId : undefined,
           targetStarId,
           targetStarName,
           canColonize,
@@ -1329,10 +1347,11 @@ export class GalaxyMapComponent implements OnInit {
     if (starId) {
       const newOrders = [...fleet.orders];
       // Use orbit order with colonize action to preserve movement semantics/speed if needed
+      const existingWarpSpeed = 'warpSpeed' in order ? order.warpSpeed : undefined;
       newOrders[ctx.orderIndex] = {
         type: 'orbit',
         starId,
-        warpSpeed: (order as any).warpSpeed,
+        warpSpeed: existingWarpSpeed,
         action: 'colonize',
       };
       this.gs.setFleetOrders(ctx.fleetId, newOrders);
@@ -1359,13 +1378,20 @@ export class GalaxyMapComponent implements OnInit {
       if (fleet && fleet.orders && fleet.orders[ctx.orderIndex]) {
         const order = fleet.orders[ctx.orderIndex];
         // Cycle speed: 1 -> ... -> 9 -> 1
-        const currentSpeed = (order as any).warpSpeed || 9;
+        const currentSpeed = ('warpSpeed' in order && order.warpSpeed) ? order.warpSpeed : 9;
         let newSpeed = currentSpeed + 1;
         if (newSpeed > 9) newSpeed = 1;
 
         if (order.type !== 'colonize') {
           const newOrders = [...fleet.orders];
-          newOrders[ctx.orderIndex] = { ...order, warpSpeed: newSpeed } as any;
+          // Create new order with updated warp speed
+          if (order.type === 'move') {
+            newOrders[ctx.orderIndex] = { ...order, warpSpeed: newSpeed };
+          } else if (order.type === 'orbit') {
+            newOrders[ctx.orderIndex] = { ...order, warpSpeed: newSpeed };
+          } else if (order.type === 'attack') {
+            newOrders[ctx.orderIndex] = { ...order, warpSpeed: newSpeed };
+          }
           this.gs.setFleetOrders(ctx.fleetId, newOrders);
         }
       }
@@ -1430,8 +1456,8 @@ export class GalaxyMapComponent implements OnInit {
     });
   }
 
-  private getPlanetMenuActions(star: Star): any[] {
-    const actions = [{ action: 'viewPlanet', available: true, reason: 'Always available' }];
+  private getPlanetMenuActions(_star: Star): MenuAction[] {
+    const actions: MenuAction[] = [{ action: 'viewPlanet', available: true, reason: 'Always available' }];
 
     if (this.state.selectedFleetId()) {
       actions.push({ action: 'sendFleetToStar', available: true, reason: 'Fleet selected' });
@@ -1441,8 +1467,8 @@ export class GalaxyMapComponent implements OnInit {
     return actions;
   }
 
-  private getFleetMenuActions(fleet: Fleet): any[] {
-    const actions = [
+  private getFleetMenuActions(fleet: Fleet): MenuAction[] {
+    const actions: MenuAction[] = [
       { action: 'viewFleet', available: true, reason: 'Always available' },
       { action: 'decommission', available: true, reason: 'Always available' },
     ];
@@ -1473,9 +1499,9 @@ export class GalaxyMapComponent implements OnInit {
     return actions;
   }
 
-  private hasColonyShipForFleet(game: any, fleet: Fleet): boolean {
+  private hasColonyShipForFleet(game: GameState, fleet: Fleet): boolean {
     return fleet.ships.some((s) => {
-      const dynamicDesign = game.shipDesigns.find((d: any) => d.id === s.designId);
+      const dynamicDesign = game.shipDesigns.find((d) => d.id === s.designId);
       if (dynamicDesign?.spec?.hasColonyModule && s.count > 0) {
         return true;
       }
@@ -1684,15 +1710,15 @@ export class GalaxyMapComponent implements OnInit {
     this.dumpWaypointDebugData(fleetId);
   }
 
-  private getWaypointActionsStatus(fleet: Fleet, order: any): any[] {
-    const actions: any[] = [
+  private getWaypointActionsStatus(fleet: Fleet, _order: FleetOrder): MenuAction[] {
+    const actions: MenuAction[] = [
       { action: 'move', available: true, reason: 'Always available' },
       { action: 'delete', available: true, reason: 'Always available' },
     ];
 
     // Check colony module
     const hasColonyModule = fleet.ships.some((s) => {
-      const d = this.gs.game()?.shipDesigns.find((d) => d.id === s.designId);
+      const d = this.gs.game()?.shipDesigns.find((sd) => sd.id === s.designId);
       const stock = getDesign(s.designId);
       return d?.spec?.hasColonyModule || stock?.colonyModule;
     });

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, FleetOrder, Star, ShipDesign } from '../../models/game.model';
-import { getDesign } from '../../data/ships.data';
+import { GameState, Fleet, FleetOrder, Star, ShipDesign, ShipStack } from '../../models/game.model';
+import { getDesign, CompiledDesign } from '../../data/ships.data';
 import { ENGINE_COMPONENTS } from '../../data/techs/engines.data';
+import { ComponentStats } from '../../data/tech-atlas.types';
 import { SettingsService } from '../core/settings.service';
 import { HabitabilityService } from '../colony/habitability.service';
 import { ShipyardService } from '../ship-design/shipyard.service';
@@ -32,6 +33,20 @@ export interface UnloadManifest {
   boranium?: number | 'all';
   germanium?: number | 'all';
   colonists?: number | 'all';
+}
+
+interface FleetMovementStats {
+  maxWarp: number;
+  idealWarp: number;
+  totalMass: number;
+  totalFuel: number;
+  worstEfficiency: number;
+}
+
+interface ShipTransfer {
+  designId: string;
+  count: number;
+  damage?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -73,8 +88,8 @@ export class FleetService {
     }
 
     this.addShipsToStack(fleet, designId, count);
-    this.addStartingFuel(fleet, shipDesign, legacyDesign, count);
-    this.loadColonistsForNewShip(star, fleet, shipDesign, legacyDesign, count);
+    this.addStartingFuel(fleet, shipDesign ?? null, legacyDesign, count);
+    this.loadColonistsForNewShip(star, fleet, shipDesign ?? null, legacyDesign, count);
   }
 
   private findTargetFleet(game: GameState, star: Star, isStarbase: boolean): Fleet | undefined {
@@ -121,7 +136,7 @@ export class FleetService {
     }
   }
 
-  private addStartingFuel(fleet: Fleet, shipDesign: any, legacyDesign: any, count: number): void {
+  private addStartingFuel(fleet: Fleet, shipDesign: ShipDesign | null, legacyDesign: CompiledDesign | null, count: number): void {
     const fuelCap = shipDesign?.spec?.fuelCapacity ?? legacyDesign?.fuelCapacity ?? 0;
     fleet.fuel += fuelCap * count;
   }
@@ -129,8 +144,8 @@ export class FleetService {
   private loadColonistsForNewShip(
     star: Star,
     fleet: Fleet,
-    shipDesign: any,
-    legacyDesign: any,
+    shipDesign: ShipDesign | null,
+    legacyDesign: CompiledDesign | null,
     count: number,
   ): void {
     const hasColony = shipDesign?.spec?.hasColonyModule ?? legacyDesign?.colonyModule;
@@ -242,7 +257,7 @@ export class FleetService {
     );
   }
 
-  private transferShips(source: Fleet, target: Fleet, shipsToTransfer: any[]): void {
+  private transferShips(source: Fleet, target: Fleet, shipsToTransfer: ShipTransfer[]): void {
     for (const ship of shipsToTransfer) {
       const sourceStack = source.ships.find(
         (s) => s.designId === ship.designId && (s.damage || 0) === (ship.damage || 0),
@@ -253,7 +268,7 @@ export class FleetService {
     }
   }
 
-  private moveShipStack(source: Fleet, target: Fleet, sourceStack: any, ship: any): void {
+  private moveShipStack(source: Fleet, target: Fleet, sourceStack: ShipStack, ship: ShipTransfer): void {
     sourceStack.count -= ship.count;
     if (sourceStack.count <= 0) {
       source.ships = source.ships.filter((s) => s !== sourceStack);
@@ -275,7 +290,7 @@ export class FleetService {
     target.fuel += fuelToMove;
   }
 
-  private transferCargo(source: Fleet, target: Fleet, cargoSpec: any): void {
+  private transferCargo(source: Fleet, target: Fleet, cargoSpec: TransferSpec['cargo']): void {
     this.moveCargoItem(source, target, 'resources', cargoSpec.resources);
     this.moveCargoItem(source, target, 'colonists', cargoSpec.colonists);
     this.moveCargoItem(source, target, 'ironium', cargoSpec.ironium, true);
@@ -286,16 +301,19 @@ export class FleetService {
   private moveCargoItem(
     source: Fleet,
     target: Fleet,
-    key: string,
+    key: 'resources' | 'colonists' | 'ironium' | 'boranium' | 'germanium',
     amount: number,
     isMineral = false,
   ): void {
-    const containerSource = isMineral ? source.cargo.minerals : source.cargo;
-    const containerTarget = isMineral ? target.cargo.minerals : target.cargo;
-
-    const val = Math.min((containerSource as any)[key], amount);
-    (containerSource as any)[key] -= val;
-    (containerTarget as any)[key] += val;
+    if (isMineral && (key === 'ironium' || key === 'boranium' || key === 'germanium')) {
+      const val = Math.min(source.cargo.minerals[key], amount);
+      source.cargo.minerals[key] -= val;
+      target.cargo.minerals[key] += val;
+    } else if (!isMineral && (key === 'resources' || key === 'colonists')) {
+      const val = Math.min(source.cargo[key], amount);
+      source.cargo[key] -= val;
+      target.cargo[key] += val;
+    }
   }
 
   private cleanupEmptyFleet(game: GameState, fleet: Fleet): void {
@@ -585,13 +603,30 @@ export class FleetService {
     star.population += givePeople;
   }
 
-  private getShipDesign(game: GameState, designId: string): any {
+  private getShipDesign(game: GameState, designId: string): CompiledDesign {
     const dynamicDesign = game.shipDesigns.find((d) => d.id === designId);
     if (dynamicDesign?.spec) {
       return {
-        ...dynamicDesign.spec,
-        colonyModule: dynamicDesign.spec.hasColonyModule,
+        id: dynamicDesign.id,
+        name: dynamicDesign.name,
+        hullId: dynamicDesign.hullId,
+        hullName: dynamicDesign.name,
+        mass: dynamicDesign.spec.mass,
+        cargoCapacity: dynamicDesign.spec.cargoCapacity,
+        fuelCapacity: dynamicDesign.spec.fuelCapacity,
         fuelEfficiency: dynamicDesign.spec.fuelEfficiency ?? 100,
+        warpSpeed: dynamicDesign.spec.warpSpeed,
+        idealWarp: dynamicDesign.spec.idealWarp,
+        armor: dynamicDesign.spec.armor,
+        shields: dynamicDesign.spec.shields,
+        initiative: dynamicDesign.spec.initiative,
+        firepower: dynamicDesign.spec.firepower,
+        colonistCapacity: dynamicDesign.spec.colonistCapacity,
+        cost: dynamicDesign.spec.cost,
+        colonyModule: dynamicDesign.spec.hasColonyModule,
+        scannerRange: dynamicDesign.spec.scanRange,
+        cloakedRange: 0,
+        components: dynamicDesign.spec.components,
       };
     }
     return getDesign(designId);
@@ -734,7 +769,7 @@ export class FleetService {
     game: GameState,
     fleet: Fleet,
     order: FleetOrder,
-    stats: any,
+    stats: FleetMovementStats,
     dist: number,
   ): number {
     const warpSpeed = 'warpSpeed' in order ? order.warpSpeed : undefined;
@@ -842,7 +877,7 @@ export class FleetService {
     game: GameState,
     fleet: Fleet,
     star: Star,
-    colonyStack: { designId: string; count: number; damage?: number },
+    colonyStack: ShipStack,
   ) {
     const hab = this.hab.calculate(star, game.humanPlayer.species);
     this.consumeColonyShip(fleet, colonyStack);
@@ -852,7 +887,7 @@ export class FleetService {
     this.cleanupFleet(game, fleet);
   }
 
-  private consumeColonyShip(fleet: Fleet, colonyStack: any) {
+  private consumeColonyShip(fleet: Fleet, colonyStack: ShipStack) {
     colonyStack.count -= 1;
     if (colonyStack.count <= 0) {
       fleet.ships = fleet.ships.filter((s) => s !== colonyStack);
@@ -876,12 +911,20 @@ export class FleetService {
   }
 
   private recycleColonyShip(game: GameState, star: Star, designId: string) {
-    const effectiveDesign = this.getShipDesign(game, designId);
-    const cost = this.shipyard.getShipCost(effectiveDesign, game.humanPlayer.techLevels);
-    star.resources += cost.resources;
-    star.surfaceMinerals.ironium += cost.ironium ?? 0;
-    star.surfaceMinerals.boranium += cost.boranium ?? 0;
-    star.surfaceMinerals.germanium += cost.germanium ?? 0;
+    const shipDesign = game.shipDesigns.find((d) => d.id === designId);
+    if (shipDesign) {
+      const cost = this.shipyard.getShipCost(shipDesign, game.humanPlayer.techLevels);
+      star.resources += cost.resources;
+      star.surfaceMinerals.ironium += cost.ironium ?? 0;
+      star.surfaceMinerals.boranium += cost.boranium ?? 0;
+      star.surfaceMinerals.germanium += cost.germanium ?? 0;
+    } else {
+      const legacyDesign = getDesign(designId);
+      star.resources += legacyDesign.cost.resources;
+      star.surfaceMinerals.ironium += legacyDesign.cost.ironium ?? 0;
+      star.surfaceMinerals.boranium += legacyDesign.cost.boranium ?? 0;
+      star.surfaceMinerals.germanium += legacyDesign.cost.germanium ?? 0;
+    }
   }
 
   private cleanupFleet(game: GameState, fleet: Fleet) {
@@ -964,7 +1007,7 @@ export class FleetService {
     return { totalCost, totalShipMass, weightedEngineFactorSum };
   }
 
-  private calculateStackFuelCost(game: GameState, stack: any, warp: number) {
+  private calculateStackFuelCost(game: GameState, stack: ShipStack, warp: number) {
     const design = game.shipDesigns.find((d) => d.id === stack.designId);
     if (!design) {
       return this.calculateLegacyStackCost(game, stack, warp);
@@ -976,7 +1019,7 @@ export class FleetService {
     return { cost, mass: mass * stack.count, factor };
   }
 
-  private calculateLegacyStackCost(game: GameState, stack: any, warp: number) {
+  private calculateLegacyStackCost(game: GameState, stack: ShipStack, warp: number) {
     const legacySpec = this.getShipDesign(game, stack.designId);
     const factor = this.calculateLegacyEngineFactor(legacySpec, warp);
     const mass = legacySpec.mass || 10;
@@ -984,28 +1027,24 @@ export class FleetService {
     return { cost, mass: mass * stack.count, factor };
   }
 
-  private getDesignEngineFactor(design: any, warp: number): number {
+  private getDesignEngineFactor(design: ShipDesign, warp: number): number {
     const engineStat = this.findEngineComponent(design);
-    if (engineStat) {
-      const key = `warp${warp}`;
+    if (engineStat?.stats?.fuelUsage) {
+      const key = `warp${warp}` as keyof typeof engineStat.stats.fuelUsage;
       return engineStat.stats.fuelUsage[key] || 0;
     }
-    return this.calculateLegacyEngineFactor(design.spec, warp);
+    return this.calculateLegacyEngineFactor(design.spec ?? null, warp);
   }
 
-  private findEngineComponent(design: any): any {
+  private findEngineComponent(design: ShipDesign): ComponentStats | null {
     if (design.slots) {
       for (const slot of design.slots) {
         if (!slot.components) continue;
         for (const compAssignment of slot.components) {
-          const comp = ENGINE_COMPONENTS.find((c: any) => c.id === compAssignment.componentId);
+          const comp = ENGINE_COMPONENTS.find((c) => c.id === compAssignment.componentId);
           if (comp?.type === 'Engine') return comp;
-          if (comp?.stats?.fuelUsage && !comp) return comp;
         }
       }
-    }
-    if (design.spec?.engine) {
-      return ENGINE_COMPONENTS.find((c) => c.id === design.spec.engine.id);
     }
     return null;
   }
@@ -1020,18 +1059,11 @@ export class FleetService {
     return (cargoMass * averageFactor) / 2000;
   }
 
-  private calculateLegacyEngineFactor(spec: any, warp: number): number {
+  private calculateLegacyEngineFactor(spec: CompiledDesign | { fuelEfficiency?: number; idealWarp?: number } | null, warp: number): number {
     if (!spec) return 0;
     const efficiency = spec.fuelEfficiency || 100;
     const idealWarp = spec.idealWarp || 6;
     if (efficiency === 0) return 0;
-
-    // Formula to approximate factor:
-    // Base Factor roughly 100?
-    // Let's use the logic from fuelCostPerLightYearSpec:
-    // cost = (mass/100) * speedMult * effMult
-    // cost = (mass * factor) / 2000
-    // => factor = (2000 / 100) * speedMult * effMult = 20 * speedMult * effMult
 
     const speedRatio = warp / idealWarp;
     const speedMultiplier = speedRatio <= 1 ? 1 : Math.pow(speedRatio, 2.5);

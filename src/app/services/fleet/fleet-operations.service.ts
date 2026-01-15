@@ -6,10 +6,16 @@ import {
   ValidationResult,
   LogContext,
 } from '../../models/service-interfaces.model';
-import { getDesign } from '../../data/ships.data';
+import { getDesign, CompiledDesign } from '../../data/ships.data';
 import { LoggingService } from '../core/logging.service';
 import { FleetNamingService } from './fleet-naming.service';
 import { FleetValidationService } from './fleet-validation.service';
+
+interface DesignContext {
+  shipDesign: ShipDesign | undefined;
+  legacyDesign: CompiledDesign | null;
+  isNewShipStarbase: boolean;
+}
 
 @Injectable({ providedIn: 'root' })
 export class FleetOperationsService implements IFleetOperationsService {
@@ -54,7 +60,7 @@ export class FleetOperationsService implements IFleetOperationsService {
     };
   }
 
-  private logFleetCreated(fleet: Fleet, metadata: any) {
+  private logFleetCreated(fleet: Fleet, metadata: LogContext) {
     this.logging.info(`Fleet created: ${fleet.name}`, {
       ...metadata,
       entityId: fleet.id,
@@ -96,7 +102,7 @@ export class FleetOperationsService implements IFleetOperationsService {
     fleet: Fleet,
     designId: string,
     count: number,
-    metadata: any,
+    metadata: LogContext,
   ): void {
     const validation = this.validationService.validateShipAddition(fleet, designId, count);
     if (!validation.isValid) {
@@ -110,9 +116,9 @@ export class FleetOperationsService implements IFleetOperationsService {
     fleet: Fleet,
     designId: string,
     count: number,
-    context: any,
+    context: DesignContext,
     star: Star,
-    metadata: any,
+    metadata: LogContext,
   ): boolean {
     this.addShipsToFleetStack(fleet, designId, count, metadata);
     this.handleFuelAddition(fleet, context.shipDesign, context.legacyDesign, count);
@@ -123,9 +129,9 @@ export class FleetOperationsService implements IFleetOperationsService {
     fleet: Fleet,
     designId: string,
     count: number,
-    context: any,
+    context: DesignContext,
     hasColony: boolean,
-    metadata: any,
+    metadata: LogContext,
   ): void {
     this.logging.info(`Added ${count} ships of design ${designId} to fleet ${fleet.name}`, {
       ...metadata,
@@ -135,9 +141,9 @@ export class FleetOperationsService implements IFleetOperationsService {
     });
   }
 
-  private getSuccessLogData(metadata: any, hasColony: boolean, context: any) {
+  private getSuccessLogData(metadata: LogContext, hasColony: boolean, context: DesignContext) {
     return {
-      ...metadata.additionalData,
+      ...(metadata.additionalData ?? {}),
       hasColonyModule: hasColony,
       designSpecs: {
         hull: context.shipDesign?.hullId || context.legacyDesign?.hullId,
@@ -152,7 +158,7 @@ export class FleetOperationsService implements IFleetOperationsService {
     return d?.spec?.isStarbase ?? ld?.isStarbase ?? false;
   }
 
-  private handleFuelAddition(fleet: Fleet, shipDesign: any, legacyDesign: any, count: number) {
+  private handleFuelAddition(fleet: Fleet, shipDesign: ShipDesign | undefined, legacyDesign: CompiledDesign | null, count: number) {
     const fuelCap = shipDesign?.spec?.fuelCapacity ?? legacyDesign?.fuelCapacity ?? 0;
     fleet.fuel += fuelCap * count;
   }
@@ -160,9 +166,9 @@ export class FleetOperationsService implements IFleetOperationsService {
   private handleColonistLoading(
     fleet: Fleet,
     star: Star,
-    context: any,
+    context: DesignContext,
     count: number,
-    metadata: any,
+    metadata: LogContext,
   ): boolean {
     const { hasColony, colCap } = this.getColonistSpecs(context);
 
@@ -172,7 +178,7 @@ export class FleetOperationsService implements IFleetOperationsService {
     return !!hasColony;
   }
 
-  private getColonistSpecs(context: any) {
+  private getColonistSpecs(context: DesignContext) {
     const hasColony =
       context.shipDesign?.spec?.hasColonyModule ?? context.legacyDesign?.colonyModule;
     const colCap =
@@ -180,14 +186,14 @@ export class FleetOperationsService implements IFleetOperationsService {
     return { hasColony, colCap };
   }
 
-  private transferColonists(fleet: Fleet, star: Star, totalColCap: number, metadata: any) {
+  private transferColonists(fleet: Fleet, star: Star, totalColCap: number, metadata: LogContext) {
     const amount = Math.min(totalColCap, star.population);
     star.population -= amount;
     fleet.cargo.colonists += amount;
 
     this.logging.debug(`Loaded ${amount} colonists onto colony ship`, {
       ...metadata,
-      additionalData: { ...metadata.additionalData, colonistsLoaded: amount },
+      additionalData: { ...(metadata.additionalData ?? {}), colonistsLoaded: amount },
     });
   }
 
@@ -210,7 +216,7 @@ export class FleetOperationsService implements IFleetOperationsService {
     }
   }
 
-  private addShipsToFleetStack(fleet: Fleet, designId: string, count: number, metadata: any) {
+  private addShipsToFleetStack(fleet: Fleet, designId: string, count: number, metadata: LogContext) {
     const stack = fleet.ships.find((s) => s.designId === designId && (s.damage || 0) === 0);
     if (stack) {
       if (stack.count + count > this.MAX_SHIPS_PER_DESIGN) {
@@ -248,7 +254,7 @@ export class FleetOperationsService implements IFleetOperationsService {
     return isValid;
   }
 
-  private checkFleetLimit(game: GameState, ownerId: string, metadata: any) {
+  private checkFleetLimit(game: GameState, ownerId: string, metadata: LogContext) {
     const playerFleets = game.fleets.filter((f) => f.ownerId === ownerId);
     if (playerFleets.length >= this.MAX_FLEETS) {
       const error = `Maximum of ${this.MAX_FLEETS} fleets allowed per player.`;
