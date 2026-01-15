@@ -1,0 +1,128 @@
+import { Injectable } from '@angular/core';
+import {
+  ComponentStats,
+  HullTemplate,
+  getSlotTypeForComponentType,
+} from '../../data/tech-atlas.types';
+import { ALL_HULLS, getAllComponents } from '../../data/tech-atlas.data';
+import { PlayerTech, Species } from '../../models/game.model';
+import {
+  getPrimaryTechField,
+  getRequiredTechLevel,
+} from '../../utils/data-access.util';
+import { miniaturizeComponent, MiniaturizedComponent } from '../../utils/miniaturization.util';
+import { canInstallComponent } from '../../models/ship-design.model';
+
+export type NormalizedHullSlot = {
+  id: string;
+  allowedTypes: ReturnType<typeof getSlotTypeForComponentType>[];
+  max?: number;
+  required?: boolean;
+  editable?: boolean;
+  size?: number;
+};
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ShipComponentEligibilityService {
+  getAvailableComponentsForSlot(
+    hull: HullTemplate | null,
+    slotId: string,
+    techLevels: PlayerTech,
+    species: Species | null,
+  ): MiniaturizedComponent[] {
+    if (!hull) return [];
+    const slotDefinition = this.findHullSlotDefinition(hull, slotId);
+    if (!slotDefinition) return [];
+    const slot = this.normalizeSlot(slotDefinition, slotId);
+    return getAllComponents()
+      .filter((component) =>
+        this.isComponentAllowed(component, hull, slot, techLevels, species),
+      )
+      .map((component) => miniaturizeComponent(component, techLevels));
+  }
+
+  getAvailableHulls(techLevels: PlayerTech): HullTemplate[] {
+    const constructionLevel = techLevels.Construction;
+    return ALL_HULLS.filter((hull) => (hull.techReq?.Construction ?? 0) <= constructionLevel);
+  }
+
+  normalizeSlot(
+    hullSlot: HullTemplate['Slots'][number],
+    slotId: string,
+  ): NormalizedHullSlot {
+    return {
+      id: hullSlot.Code ?? slotId,
+      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as ReturnType<
+        typeof getSlotTypeForComponentType
+      >[],
+      max: hullSlot.Max,
+      required: hullSlot.Required,
+      editable: hullSlot.Editable,
+      size: typeof hullSlot.Size === 'number' ? hullSlot.Size : undefined,
+    };
+  }
+
+  findHullSlotDefinition(
+    hull: HullTemplate,
+    slotId: string,
+  ): HullTemplate['Slots'][number] | null {
+    return hull.Slots.find((slot, index) => (slot.Code ?? `slot_${index}`) === slotId) ?? null;
+  }
+
+  private isComponentAllowed(
+    component: ComponentStats,
+    hull: HullTemplate,
+    slot: NormalizedHullSlot,
+    techLevels: PlayerTech,
+    species: Species | null,
+  ): boolean {
+    return (
+      this.meetsTechRequirement(component, techLevels) &&
+      this.meetsTraitRequirements(component, species) &&
+      this.meetsHullRestriction(component, hull) &&
+      canInstallComponent(component, slot)
+    );
+  }
+
+  private meetsTechRequirement(component: ComponentStats, techLevels: PlayerTech): boolean {
+    const primaryField = getPrimaryTechField(component);
+    const requiredLevel = getRequiredTechLevel(component);
+    const playerLevel = techLevels[primaryField as keyof PlayerTech] ?? 0;
+    return playerLevel >= requiredLevel;
+  }
+
+  private meetsTraitRequirements(component: ComponentStats, species: Species | null): boolean {
+    if (!species) return true;
+    if (!this.hasAll(species.primaryTraits, component.primaryRacialTraitRequired)) return false;
+    if (!this.lacksAny(species.primaryTraits, component.primaryRacialTraitUnavailable)) return false;
+    if (!this.hasAll(species.lesserTraits, component.lesserRacialTraitRequired)) return false;
+    if (!this.lacksAny(species.lesserTraits, component.lesserRacialTraitUnavailable)) return false;
+    return true;
+  }
+
+  private meetsHullRestriction(component: ComponentStats, hull: HullTemplate): boolean {
+    const restrictions = component.hullRestrictions;
+    if (!restrictions || restrictions.length === 0) return true;
+    return restrictions.includes(hull.Name);
+  }
+
+  private hasAll(
+    source: readonly string[] | undefined | null,
+    required?: readonly string[],
+  ): boolean {
+    if (!required || required.length === 0) return true;
+    if (!source || source.length === 0) return false;
+    return required.every((value) => source.includes(value));
+  }
+
+  private lacksAny(
+    source: readonly string[] | undefined | null,
+    forbidden?: readonly string[],
+  ): boolean {
+    if (!forbidden || forbidden.length === 0) return true;
+    if (!source || source.length === 0) return true;
+    return !forbidden.some((value) => source.includes(value));
+  }
+}

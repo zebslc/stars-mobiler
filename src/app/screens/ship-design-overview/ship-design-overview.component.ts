@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game/game-state.service';
-import { ShipDesignerService } from '../../services/ship-design/ship-designer.service';
+import { ShipDesignerService } from '../../services/ship-designer.service';
 import { ShipDesignerComponent } from '../ship-designer/ship-designer.component';
 import {
   ShipDesignItemComponent,
@@ -103,7 +103,7 @@ export class ShipDesignOverviewComponent {
       .sort((a, b) => a.config.label.localeCompare(b.config.label));
   });
 
-  readonly ribbonItems = computed(() => {
+  readonly ribbonItems = computed<FilterItem<string>[]>(() => {
     return this.availableCategories().map((cat) => ({
       label: cat.config.label,
       icon: cat.config.icon,
@@ -113,24 +113,14 @@ export class ShipDesignOverviewComponent {
   });
 
   constructor() {
-    // Initialize selected categories with all available ones
     effect(
       () => {
-        const all = this.availableCategories().map((c) => c.type);
-        const currentSize = untracked(() => this.selectedCategories().size);
-        if (all.length > 0 && currentSize === 0) {
-          // Only set if not already set (to avoid loop, though signal equality check should handle it)
-          // Actually, we want to initialize it once.
-          // But availableCategories is a computed.
-          // Let's use untracked or just set it if size is 0 and we haven't touched it?
-          // A better way is to set it when availableCategories changes if it's empty?
-          // For now, let's just default to all in the filter logic if empty?
-          // NO, we want consistent behavior where empty = none.
-          // So we must initialize it.
-          this.selectedCategories.set(new Set(all));
-        }
+        const categories = this.availableCategories().map((item) => item.type);
+        const hasSelection = untracked(() => this.selectedCategories().size > 0);
+        if (categories.length === 0 || hasSelection) return;
+        this.selectedCategories.set(new Set(categories));
       },
-
+      { allowSignalWrites: true },
     );
   }
 

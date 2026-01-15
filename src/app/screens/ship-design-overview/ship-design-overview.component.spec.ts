@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShipDesignOverviewComponent } from './ship-design-overview.component';
 import { GameStateService } from '../../services/game/game-state.service';
-import { ShipDesignerService } from '../../services/ship-design/ship-designer.service';
+import { ShipDesignerService } from '../../services/ship-designer.service';
 import { signal } from '@angular/core';
 
 // Declare Jasmine globals to satisfy linter
