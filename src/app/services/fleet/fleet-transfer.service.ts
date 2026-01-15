@@ -3,18 +3,7 @@ import { GameState, Fleet } from '../../models/game.model';
 import { LogContext } from '../../models/service-interfaces.model';
 import { LoggingService } from '../core/logging.service';
 import { FleetOperationsService } from './fleet-operations.service';
-
-export interface TransferSpec {
-  ships: { designId: string; count: number; damage?: number }[];
-  fuel: number;
-  cargo: {
-    resources: number;
-    ironium: number;
-    boranium: number;
-    germanium: number;
-    colonists: number;
-  };
-}
+import { TransferSpec } from './fleet-transfer.types';
 
 @Injectable({ providedIn: 'root' })
 export class FleetTransferService {

@@ -9,7 +9,8 @@
     "test": "ng test",
     "test:watch": "ng test --watch=true",
     "test:ci": "ng test --browsers=ChromeHeadless --watch=false --code-coverage",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "analyze:functions": "node scripts/report-long-functions.mjs"
   },
   "dependencies": {
     "@angular/animations": "^21.0.0",

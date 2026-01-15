@@ -6,18 +6,7 @@ import { ComponentStats } from '../../data/tech-atlas.types';
 import { SettingsService } from '../core/settings.service';
 import { HabitabilityService } from '../colony/habitability.service';
 import { ShipyardService } from '../ship-design/shipyard.service';
-
-export interface TransferSpec {
-  ships: { designId: string; count: number; damage?: number }[];
-  fuel: number;
-  cargo: {
-    resources: number;
-    ironium: number;
-    boranium: number;
-    germanium: number;
-    colonists: number;
-  };
-}
+import { TransferSpec } from './fleet-transfer.types';
 
 export interface LoadManifest {
   resources?: number | 'all' | 'fill';

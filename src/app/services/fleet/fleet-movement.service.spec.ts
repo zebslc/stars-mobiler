@@ -2,10 +2,21 @@ import { FleetMovementService } from './fleet-movement.service';
 import { LoggingService } from '../core/logging.service';
 import { GameState, Fleet, Player, Star } from '../../models/game.model';
 import { FleetLocation } from '../../models/service-interfaces.model';
+import { FleetMovementOrderService } from './fleet-movement-order.service';
+import { FleetMovementStatsService } from './fleet-movement-stats.service';
+import { FleetFuelCalculatorService } from './fleet-fuel-calculator.service';
+import { FleetMovementValidatorService } from './fleet-movement-validator.service';
+import { FleetShipDesignService } from './fleet-ship-design.service';
 
 describe('FleetMovementService', () => {
   let service: FleetMovementService;
   let mockLoggingService: jasmine.SpyObj<LoggingService>;
+  let orderService: FleetMovementOrderService;
+  let shipDesignService: FleetShipDesignService;
+  let statsService: FleetMovementStatsService;
+  let fuelCalculator: FleetFuelCalculatorService;
+  let validator: FleetMovementValidatorService;
+  let designSpy: jasmine.Spy;
 
   const mockPlayer: Player = {
     id: 'p1',
@@ -40,7 +51,28 @@ describe('FleetMovementService', () => {
 
   beforeEach(() => {
     mockLoggingService = jasmine.createSpyObj('LoggingService', ['debug', 'info', 'warn', 'error']);
-    service = new FleetMovementService(mockLoggingService);
+    orderService = new FleetMovementOrderService();
+    shipDesignService = new FleetShipDesignService(mockLoggingService);
+    designSpy = spyOn(shipDesignService, 'getDesign').and.callFake((designId: string) => ({
+      id: designId,
+      warpSpeed: 5,
+      idealWarp: 5,
+      mass: 10,
+      fuelCapacity: 20,
+      fuelEfficiency: 100,
+      engine: { id: 'eng_fuel_mizer' },
+    }));
+    statsService = new FleetMovementStatsService(shipDesignService);
+    fuelCalculator = new FleetFuelCalculatorService(mockLoggingService, shipDesignService);
+    validator = new FleetMovementValidatorService(fuelCalculator);
+
+    service = new FleetMovementService(
+      mockLoggingService,
+      orderService,
+      statsService,
+      fuelCalculator,
+      validator,
+    );
   });
 
   describe('moveFleet', () => {
@@ -176,6 +208,22 @@ describe('FleetMovementService', () => {
         jasmine.any(Object)
       );
     });
+
+    it('should throw when engine data is missing', () => {
+      designSpy.and.callFake(() => ({
+        id: 'no-engine',
+        warpSpeed: 5,
+        idealWarp: 5,
+        mass: 10,
+        fuelCapacity: 0,
+        fuelEfficiency: 100,
+        engine: undefined,
+      }));
+
+      expect(() => service.calculateFuelConsumption(fleet, 10)).toThrowError(
+        /missing engine configuration/i,
+      );
+    });
   });
 
   describe('validateMovement', () => {
@@ -230,7 +278,7 @@ describe('FleetMovementService', () => {
       const result = service.validateMovement(fleet, destination);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Orbit destination requires planetId');
+      expect(result.errors).toContain('Orbit destination requires starId');
     });
 
     it('should warn about insufficient fuel', () => {
