@@ -1,11 +1,4 @@
-import {
-  Component,
-  Input,
-  ChangeDetectionStrategy,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game/game-state.service';
 import { TechService } from '../../services/tech/tech.service';
@@ -26,12 +19,12 @@ import { TouchClickDirective, TouchClickEvent } from '../directives';
       appTouchClick
       (touchClick)="openPreview($event)"
       class="btn-small"
-      [title]="title || 'View Design'"
-      [class]="buttonClass"
+      [title]="title() || 'View Design'"
+      [class]="buttonClass()"
     >
       <img
         [src]="hullIcon()"
-        [alt]="title || 'Hull'"
+        [alt]="title() || 'Hull'"
         class="ship-icon"
         (error)="onImageError($event)"
       />
@@ -85,9 +78,9 @@ import { TouchClickDirective, TouchClickEvent } from '../directives';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesignPreviewButtonComponent {
-  @Input({ required: true }) designId!: string;
-  @Input() title = '';
-  @Input() buttonClass = '';
+  readonly designId = input.required<string>();
+  readonly title = input('');
+  readonly buttonClass = input('');
 
   private gs = inject(GameStateService);
   private techService = inject(TechService);
@@ -99,7 +92,7 @@ export class DesignPreviewButtonComponent {
   previewStats = signal<any>(null);
 
   hullIcon = computed(() => {
-    const designId = this.designId;
+    const designId = this.designId();
     if (!designId) return '';
 
     let hullName = '';
@@ -156,7 +149,7 @@ export class DesignPreviewButtonComponent {
       }
     }
 
-    const designId = this.designId;
+    const designId = this.designId();
     const designDetails = this.getDesignDetails(designId);
     const hull = getHull(designDetails.hullId);
 

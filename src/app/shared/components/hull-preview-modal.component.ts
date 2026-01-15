@@ -1,11 +1,4 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  ChangeDetectionStrategy,
-  signal,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HullTemplate } from '../../data/tech-atlas.types';
 import { getComponent } from '../../utils/data-access.util';
@@ -30,97 +23,99 @@ import { TouchClickDirective, ClickOutsideDirective } from '../directives';
     <div class="modal-overlay">
       <div class="modal-content" appClickOutside (clickOutside)="close.emit()" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>{{ title || hull?.Name || 'Hull Preview' }}</h3>
+          <h3>{{ title() ?? hull()?.Name ?? 'Hull Preview' }}</h3>
           <button class="btn-text" appTouchClick (touchClick)="close.emit()">Close</button>
         </div>
         <div class="modal-body">
           <div class="hull-info">
-            @if (stats || hull) {
+            @let currentStats = stats();
+            @let currentHull = hull();
+            @if (currentStats || currentHull) {
               <div class="info-grid">
                 <div class="info-column">
                   <h4>General</h4>
                   <div class="spec-row">
                     <span class="label">Mass:</span>
-                    <span class="value">{{ stats?.mass || hull?.Stats?.Mass }}kt</span>
+                    <span class="value">{{ currentStats?.mass || currentHull?.Stats?.Mass }}kt</span>
                   </div>
                   <div class="spec-row">
                     <span class="label">Fuel:</span>
                     <span class="value"
-                      >{{ stats?.fuelCapacity || hull?.Stats?.['Max Fuel'] }}mg</span
+                      >{{ currentStats?.fuelCapacity || currentHull?.Stats?.['Max Fuel'] }}mg</span
                     >
                   </div>
                   <div class="spec-row">
                     <span class="label">Armor:</span>
-                    <span class="value">{{ stats?.armor || hull?.Stats?.Armor }}</span>
+                    <span class="value">{{ currentStats?.armor || currentHull?.Stats?.Armor }}</span>
                   </div>
-                  @if (stats?.shields > 0) {
+                  @if (currentStats?.shields > 0) {
                     <div class="spec-row">
                       <span class="label">Shields:</span>
-                      <span class="value">{{ stats.shields }}</span>
+                      <span class="value">{{ currentStats.shields }}</span>
                     </div>
                   }
-                  @if (stats?.cargoCapacity > 0) {
+                  @if (currentStats?.cargoCapacity > 0) {
                     <div class="spec-row">
                       <span class="label">Cargo:</span>
-                      <span class="value">{{ stats.cargoCapacity }}kT</span>
+                      <span class="value">{{ currentStats.cargoCapacity }}kT</span>
                     </div>
                   }
-                  @if (stats?.colonistCapacity > 0) {
+                  @if (currentStats?.colonistCapacity > 0) {
                     <div class="spec-row">
                       <span class="label">Colonists:</span>
-                      <span class="value">{{ stats.colonistCapacity }}</span>
+                      <span class="value">{{ currentStats.colonistCapacity }}</span>
                     </div>
                   }
                 </div>
 
-                @if (stats) {
+                @if (currentStats) {
                   <div class="info-column">
                     <h4>Performance</h4>
                     <div class="spec-row">
                       <span class="label">Warp:</span>
-                      <span class="value">{{ stats.warpSpeed || stats.idealWarp || 0 }}</span>
+                      <span class="value">{{ currentStats.warpSpeed || currentStats.idealWarp || 0 }}</span>
                     </div>
-                    @if (stats.firepower > 0) {
+                    @if (currentStats.firepower > 0) {
                       <div class="spec-row">
                         <span class="label">Weapons:</span>
-                        <span class="value">{{ stats.firepower }}</span>
+                        <span class="value">{{ currentStats.firepower }}</span>
                       </div>
                     }
                     <div class="spec-row">
                       <span class="label">Initiative:</span>
-                      <span class="value">{{ stats.initiative }}</span>
+                      <span class="value">{{ currentStats.initiative }}</span>
                     </div>
-                    @if (stats.scanRange > 0) {
+                    @if (currentStats.scanRange > 0) {
                       <div class="spec-row">
                         <span class="label">Scan Range:</span>
-                        <span class="value">{{ stats.scanRange }} ly</span>
+                        <span class="value">{{ currentStats.scanRange }} ly</span>
                       </div>
                     }
-                    @if (stats.miningRate > 0) {
+                    @if (currentStats.miningRate > 0) {
                       <div class="spec-row">
                         <span class="label">Mining:</span>
-                        <span class="value">{{ stats.miningRate }}</span>
+                        <span class="value">{{ currentStats.miningRate }}</span>
                       </div>
                     }
-                    @if (stats.terraformRate > 0) {
+                    @if (currentStats.terraformRate > 0) {
                       <div class="spec-row">
                         <span class="label">Terraform:</span>
-                        <span class="value">{{ stats.terraformRate }}%</span>
+                        <span class="value">{{ currentStats.terraformRate }}%</span>
                       </div>
                     }
-                    @if (stats.bombing?.kill > 0 || stats.bombing?.destroy > 0) {
+                    @if (currentStats.bombing?.kill > 0 || currentStats.bombing?.destroy > 0) {
                       <div class="spec-row">
                         <span class="label">Bombing:</span>
                         <span class="value"
-                          >{{ stats.bombing.kill }}%/{{ stats.bombing.destroy }}</span
+                          >{{ currentStats.bombing.kill }}%/{{ currentStats.bombing.destroy }}</span
                         >
                       </div>
                     }
-                    @if (stats.massDriver?.speed > 0) {
+                    @if (currentStats.massDriver?.speed > 0) {
                       <div class="spec-row">
                         <span class="label">Mass Driver:</span>
                         <span class="value"
-                          >{{ stats.massDriver.speed }} ({{ stats.massDriver.catch }}kT)</span
+                          >{{ currentStats.massDriver.speed }} ({{ currentStats.massDriver.catch }}kT)</span
                         >
                       </div>
                     }
@@ -130,14 +125,14 @@ import { TouchClickDirective, ClickOutsideDirective } from '../directives';
 
               <div class="cost">
                 <span class="label">Cost:</span>
-                <app-resource-cost [cost]="toCost(stats?.cost || hull?.Cost)"></app-resource-cost>
+                <app-resource-cost [cost]="toCost(currentStats?.cost || currentHull?.Cost)"></app-resource-cost>
               </div>
             }
           </div>
 
           <app-hull-layout
-            [hull]="hull"
-            [design]="design"
+            [hull]="hull()"
+            [design]="design()"
             [editable]="false"
             (componentInfoClick)="onComponentInfoClick($event)"
           ></app-hull-layout>
@@ -268,17 +263,18 @@ import { TouchClickDirective, ClickOutsideDirective } from '../directives';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HullPreviewModalComponent {
-  @Input() hull: HullTemplate | null = null;
-  @Input() design: ShipDesign | null = null;
-  @Input() stats: any | null = null;
-  @Input() title: string | null = null;
-  @Output() close = new EventEmitter<void>();
+  readonly hull = input<HullTemplate | null>(null);
+  readonly design = input<ShipDesign | null>(null);
+  readonly stats = input<any | null>(null);
+  readonly title = input<string | null>(null);
+  readonly close = output<void>();
 
   previewComponentName = signal<string | null>(null);
 
   onComponentInfoClick(slotId: string) {
-    if (!this.design) return;
-    const slot = this.design.slots.find((s) => s.slotId === slotId);
+    const design = this.design();
+    if (!design) return;
+    const slot = design.slots.find((s) => s.slotId === slotId);
     if (slot && slot.components && slot.components.length > 0) {
       const componentId = slot.components[0].componentId;
       const component = getComponent(componentId);
@@ -289,17 +285,19 @@ export class HullPreviewModalComponent {
   }
 
   get componentList(): { name: string; count: number; icon: string }[] {
-    if (this.stats?.components) {
-      return this.stats.components.map((c: any) => ({
+    const stats = this.stats();
+    if (stats?.components) {
+      return stats.components.map((c: any) => ({
         name: c.name,
         count: c.quantity,
         icon: this.getComponentIcon(c.id || c.name),
       }));
     }
 
-    if (this.design) {
+    const design = this.design();
+    if (design) {
       const comps: { name: string; count: number; icon: string }[] = [];
-      this.design.slots.forEach((slot) => {
+      design.slots.forEach((slot) => {
         if (slot.components && slot.components.length > 0) {
           const c = slot.components[0];
           // We need to look up component name/icon

@@ -1,13 +1,4 @@
-import { 
-  Directive, 
-  ElementRef, 
-  OnInit, 
-  OnDestroy, 
-  Output, 
-  EventEmitter, 
-  Input,
-  Renderer2
-} from '@angular/core';
+import { Directive, ElementRef, OnInit, OnDestroy, input, output, Renderer2 } from '@angular/core';
 import { InputInteractionService } from '../../services/core/input-interaction.service';
 import { 
   UnifiedInputEvent, 
@@ -36,16 +27,16 @@ export interface DropEvent extends DragEvent {
   standalone: true
 })
 export class DragDropDirective implements OnInit, OnDestroy {
-  @Input() dragDropConfig: Partial<InputServiceConfig> = {};
-  @Input() dragHandle: string | Element | null = null; // CSS selector or element
-  @Input() dragData: any = null; // Data to pass with drag events
-  @Input() enableGhost: boolean = true; // Show ghost element during drag
-  @Input() ghostOpacity: number = 0.5;
-  
-  @Output() dragStart = new EventEmitter<DragEvent>();
-  @Output() drag = new EventEmitter<DragEvent>();
-  @Output() dragEnd = new EventEmitter<DragEvent>();
-  @Output() drop = new EventEmitter<DropEvent>();
+  readonly dragDropConfig = input<Partial<InputServiceConfig>>({});
+  readonly dragHandle = input<string | Element | null>(null);
+  readonly dragData = input<any>(null);
+  readonly enableGhost = input(true);
+  readonly ghostOpacity = input(0.5);
+
+  readonly dragStart = output<DragEvent>();
+  readonly drag = output<DragEvent>();
+  readonly dragEnd = output<DragEvent>();
+  readonly drop = output<DropEvent>();
   
   private handlerId: string;
   private isDragging = false;
@@ -71,7 +62,7 @@ export class DragDropDirective implements OnInit, OnDestroy {
       },
       preventDefault: true,
       stopPropagation: false,
-      ...this.dragDropConfig
+      ...this.dragDropConfig()
     };
 
     // If dragHandle is specified, only attach to the handle element
@@ -125,7 +116,7 @@ export class DragDropDirective implements OnInit, OnDestroy {
     };
 
     // Create ghost element if enabled
-    if (this.enableGhost) {
+    if (this.enableGhost()) {
       this.createGhostElement(event.position);
     }
 
@@ -193,7 +184,7 @@ export class DragDropDirective implements OnInit, OnDestroy {
     this.renderer.setStyle(this.ghostElement, 'position', 'fixed');
     this.renderer.setStyle(this.ghostElement, 'top', '0px');
     this.renderer.setStyle(this.ghostElement, 'left', '0px');
-    this.renderer.setStyle(this.ghostElement, 'opacity', this.ghostOpacity.toString());
+    this.renderer.setStyle(this.ghostElement, 'opacity', this.ghostOpacity().toString());
     this.renderer.setStyle(this.ghostElement, 'pointer-events', 'none');
     this.renderer.setStyle(this.ghostElement, 'z-index', '9999');
     this.renderer.setStyle(this.ghostElement, 'transform', 
@@ -240,12 +231,13 @@ export class DragDropDirective implements OnInit, OnDestroy {
   }
 
   private getDragHandle(): Element | null {
-    if (!this.dragHandle) return null;
-    
-    if (typeof this.dragHandle === 'string') {
-      return this.elementRef.nativeElement.querySelector(this.dragHandle);
+    const handle = this.dragHandle();
+    if (!handle) return null;
+
+    if (typeof handle === 'string') {
+      return this.elementRef.nativeElement.querySelector(handle);
     }
-    
-    return this.dragHandle;
+
+    return handle;
   }
 }

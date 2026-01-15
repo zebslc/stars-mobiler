@@ -1,12 +1,11 @@
 import {
   Component,
-  Output,
-  EventEmitter,
   signal,
   computed,
   input,
   effect,
   ChangeDetectorRef,
+  output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HullTemplate, SlotDefinition } from '../../../data/tech-atlas.types';
@@ -127,12 +126,12 @@ export class HullLayoutComponent {
   readonly editable = input(false);
   readonly selectedSlotId = input<string | null>(null);
 
-  @Output() slotSelected = new EventEmitter<string>();
-  @Output() slotHover = new EventEmitter<any>();
-  @Output() componentRemoved = new EventEmitter<{ slotId: string; componentId: string }>();
-  @Output() componentIncremented = new EventEmitter<{ slotId: string; componentId: string }>();
-  @Output() slotCleared = new EventEmitter<string>();
-  @Output() componentInfoClick = new EventEmitter<string>();
+  readonly slotSelected = output<string>();
+  readonly slotHover = output<any>();
+  readonly componentRemoved = output<{ slotId: string; componentId: string }>();
+  readonly componentIncremented = output<{ slotId: string; componentId: string }>();
+  readonly slotCleared = output<string>();
+  readonly componentInfoClick = output<string>();
 
   imageErrors = signal<Set<string>>(new Set());
   showClearButton = signal<string | null>(null);

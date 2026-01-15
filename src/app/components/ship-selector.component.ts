@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CompiledDesign } from '../data/ships.data';
 import {
@@ -33,18 +33,17 @@ export interface ShipOption {
         (click)="toggleDropdown()"
         [class.open]="isOpen()"
       >
-        @if (selectedShip) {
+        @if (selectedShip(); as current) {
           <span class="selected-content">
             <app-ship-design-item
-              [design]="toDisplay(selectedShip.design)"
-              [count]="selectedShip.existingCount"
+              [design]="toDisplay(current.design)"
+              [count]="current.existingCount"
               mode="selector"
               class="flex-grow"
             ></app-ship-design-item>
-            <div class="selected-cost">{{ selectedShip.cost.resources }}R</div>
+            <div class="selected-cost">{{ current.cost.resources }}R</div>
           </span>
-        }
-        @if (!selectedShip) {
+        } @else {
           <span class="placeholder">Select ship design...</span>
         }
         <span class="dropdown-arrow">▼</span>
@@ -52,13 +51,13 @@ export interface ShipOption {
 
       @if (isOpen()) {
         <div class="dropdown-panel" (click)="$event.stopPropagation()" appClickOutside (clickOutside)="isOpen.set(false)">
-          @if (options.length > 0) {
+          @if (options().length > 0) {
             <div class="options-list">
-              @for (option of options; track option.design.id) {
+              @for (option of options(); track option.design.id) {
                 <button
                   type="button"
                   class="ship-option"
-                  [class.selected]="option.design.id === selectedShip?.design?.id"
+                  [class.selected]="option.design.id === selectedShip()?.design?.id"
                   [class.cannot-afford]="!option.canAfford"
                   (click)="selectShip(option)"
                 >
@@ -280,9 +279,9 @@ export interface ShipOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipSelectorComponent {
-  @Input() options: ShipOption[] = [];
-  @Input() selectedShip: ShipOption | null = null;
-  @Output() shipSelected = new EventEmitter<ShipOption>();
+  readonly options = input<ShipOption[]>([]);
+  readonly selectedShip = input<ShipOption | null>(null);
+  readonly shipSelected = output<ShipOption>();
 
   isOpen = signal(false);
 

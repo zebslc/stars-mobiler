@@ -1,4 +1,4 @@
-import { Component, Input, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -80,7 +80,7 @@ import { CommonModule } from '@angular/common';
             <text
               [attr.x]="30 + (tick - 1) * (240 / 9)"
               y="115"
-              [attr.fill]="tick > maxWarp ? '#d32f2f' : '#888'"
+              [attr.fill]="tick > maxWarp() ? '#d32f2f' : '#888'"
               font-size="10"
               text-anchor="middle"
             >
@@ -115,12 +115,12 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FuelUsageGraphComponent {
-  @Input({ required: true }) fuelUsage!: Record<string, number>;
-  @Input() maxWarp = 10;
-  @Input() threshold = 100; // 100 mg/ly is the standard efficiency baseline
+  readonly fuelUsage = input.required<Record<string, number>>();
+  readonly maxWarp = input(10);
+  readonly threshold = input(100); // 100 mg/ly is the standard efficiency baseline
 
   readonly paths = computed(() => {
-    const usageMap = this.fuelUsage;
+    const usageMap = this.fuelUsage();
     if (!usageMap) return null;
 
     // Convert map to array
@@ -145,14 +145,15 @@ export class FuelUsageGraphComponent {
 
     // Scales
     // Ensure Y axis accommodates the threshold and the max usage
-    const yMax = Math.max(maxUsage, this.threshold * 1.2); 
+    const threshold = this.threshold();
+    const yMax = Math.max(maxUsage, threshold * 1.2); 
     const xScale = graphWidth / 9; // 10 points = 9 intervals
     const yScale = graphHeight / yMax;
 
     const getX = (warp: number) => paddingX + (warp - 1) * xScale;
     const getY = (usage: number) => height - paddingY - usage * yScale;
-    const yThreshold = getY(this.threshold);
-    const maxWarpX = getX(this.maxWarp);
+    const yThreshold = getY(threshold);
+    const maxWarpX = getX(this.maxWarp());
 
     // Build Paths
     let safeD = '';
@@ -164,7 +165,7 @@ export class FuelUsageGraphComponent {
     const unsafePoints: {x: number, y: number}[] = [];
 
     // Start point
-    let wasSafe = data[0].usage <= this.threshold;
+    let wasSafe = data[0].usage <= threshold;
     if (wasSafe) {
       safePoints.push({ x: getX(data[0].warp), y: getY(data[0].usage) });
     } else {
@@ -176,8 +177,8 @@ export class FuelUsageGraphComponent {
       const p2 = data[i + 1];
       const u1 = p1.usage;
       const u2 = p2.usage;
-      const safe1 = u1 <= this.threshold;
-      const safe2 = u2 <= this.threshold;
+      const safe1 = u1 <= threshold;
+      const safe2 = u2 <= threshold;
 
       if (safe1 && safe2) {
         // Both safe
@@ -191,7 +192,7 @@ export class FuelUsageGraphComponent {
         // u = u1 + (u2 - u1) * t
         // threshold = u1 + (u2 - u1) * t
         // t = (threshold - u1) / (u2 - u1)
-        const t = (this.threshold - u1) / (u2 - u1);
+        const t = (threshold - u1) / (u2 - u1);
         const warpCross = p1.warp + (p2.warp - p1.warp) * t;
         const xCross = getX(warpCross);
         const yCross = yThreshold; // Should be exactly this

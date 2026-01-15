@@ -1,11 +1,10 @@
 import {
   Component,
-  Input,
-  Output,
-  EventEmitter,
   ChangeDetectionStrategy,
   computed,
   inject,
+  input,
+  output,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -32,105 +31,105 @@ export interface ShipDesignDisplay {
   template: `
     <div
       class="design-card"
-      [class.mode-list]="mode === 'list'"
-      [class.mode-selector]="mode === 'selector'"
+      [class.mode-list]="mode() === 'list'"
+      [class.mode-selector]="mode() === 'selector'"
     >
       <div class="design-header">
-        <div class="icon-container" (click)="preview.emit(design.id)" title="Preview hull template">
+        <div class="icon-container" (click)="preview.emit(design().id)" title="Preview hull template">
           <img
             [src]="hullIcon"
-            [alt]="design.hullId"
+            [alt]="design().hullId"
             class="hull-icon"
             (error)="onImageError($event)"
           />
         </div>
         <div class="header-info">
-          <h3>{{ design.name }}</h3>
+          <h3>{{ design().name }}</h3>
           <span class="design-type">{{ hullName }}</span>
         </div>
-        @if (count !== undefined) {
+        @if (count() !== undefined) {
           <div class="ship-count" title="Ships in service">
-            <span class="count-badge">{{ count }}</span>
+            <span class="count-badge">{{ count() }}</span>
           </div>
         }
       </div>
 
       <div class="design-stats">
-        @if (mode === 'list') {
-          <app-ship-stats-row [stats]="design.stats"></app-ship-stats-row>
+        @if (mode() === 'list') {
+          <app-ship-stats-row [stats]="design().stats"></app-ship-stats-row>
         } @else {
-          @if (!design.stats.isStarbase) {
+          @if (!design().stats.isStarbase) {
             <div class="stat-row" title="Mass">
               <span class="stat-icon">⚖️</span>
-              <span>{{ design.stats.mass }}kt</span>
+              <span>{{ design().stats.mass }}kt</span>
             </div>
           }
           <div class="stat-row" title="Armor">
             <span class="stat-icon">🛡️</span>
-            <span>{{ design.stats.armor }}dp</span>
+            <span>{{ design().stats.armor }}dp</span>
           </div>
-          @if (design.stats.shields > 0) {
+          @if (design().stats.shields > 0) {
             <div class="stat-row" title="Shields">
               <span class="stat-icon">🔵</span>
-              <span>{{ design.stats.shields }}dp</span>
+              <span>{{ design().stats.shields }}dp</span>
             </div>
           }
-          @if (design.stats.firepower > 0) {
+          @if (design().stats.firepower > 0) {
             <div class="stat-row" title="Firepower">
               <span class="stat-icon">⚔️</span>
-              <span>{{ design.stats.firepower }}</span>
+              <span>{{ design().stats.firepower }}</span>
             </div>
           }
-          @if (!design.stats.isStarbase) {
+          @if (!design().stats.isStarbase) {
             <div class="stat-row" title="Speed">
               <span class="stat-icon">🚀</span>
-              <span>W{{ design.stats.warpSpeed }}</span>
+              <span>W{{ design().stats.warpSpeed }}</span>
             </div>
           }
-          @if (design.stats.initiative > 0) {
+          @if (design().stats.initiative > 0) {
             <div class="stat-row" title="Initiative">
               <span class="stat-icon">⏱️</span>
-              <span>{{ design.stats.initiative }}</span>
+              <span>{{ design().stats.initiative }}</span>
             </div>
           }
-          @if (design.stats.scanRange > 0) {
+          @if (design().stats.scanRange > 0) {
             <div class="stat-row" title="Scan Range">
               <span class="stat-icon">📡</span>
-              <span>{{ design.stats.scanRange }}ly</span>
+              <span>{{ design().stats.scanRange }}ly</span>
             </div>
           }
-          @if (design.stats.penScanRange > 0) {
+          @if (design().stats.penScanRange > 0) {
             <div class="stat-row" title="Penetrating Scan Range">
               <span class="stat-icon">👁️</span>
-              <span>{{ design.stats.penScanRange }}ly</span>
+              <span>{{ design().stats.penScanRange }}ly</span>
             </div>
           }
-          @if (design.stats.fuelCapacity > 0) {
+          @if (design().stats.fuelCapacity > 0) {
             <div class="stat-row" title="Fuel">
               <span class="stat-icon">⛽</span>
-              <span>{{ design.stats.fuelCapacity }}mg</span>
+              <span>{{ design().stats.fuelCapacity }}mg</span>
             </div>
           }
-          @if (design.stats.cargoCapacity > 0) {
+          @if (design().stats.cargoCapacity > 0) {
             <div class="stat-row" title="Cargo">
               <span class="stat-icon">📦</span>
-              <span>{{ design.stats.cargoCapacity }}kt</span>
+              <span>{{ design().stats.cargoCapacity }}kt</span>
             </div>
           }
-          @if (design.stats.colonistCapacity > 0) {
+          @if (design().stats.colonistCapacity > 0) {
             <div class="stat-row" title="Colonists">
               <span class="stat-icon">👥</span>
-              <span>{{ design.stats.colonistCapacity }}</span>
+              <span>{{ design().stats.colonistCapacity }}</span>
             </div>
           }
           <div class="stat-row full-width" title="Cost">
             <span class="stat-icon">💰</span>
-            <app-resource-cost [cost]="design.stats.cost" [inline]="true"></app-resource-cost>
+            <app-resource-cost [cost]="design().stats.cost" [inline]="true"></app-resource-cost>
           </div>
         }
       </div>
 
-      @if (mode === 'card') {
+      @if (mode() === 'card') {
         <div class="build-controls">
           <select
             [ngModel]="selectedStarId()"
@@ -156,11 +155,11 @@ export interface ShipDesignDisplay {
         </div>
 
         <div class="design-actions">
-          @if (!count) {
-            <button type="button" class="btn-small" (click)="edit.emit(design.id)">Edit</button>
+          @if (!count()) {
+            <button type="button" class="btn-small" (click)="edit.emit(design().id)">Edit</button>
           }
-          <button type="button" class="btn-small" (click)="clone.emit(design.id)">Clone</button>
-          <button type="button" class="btn-small btn-danger" (click)="delete.emit(design.id)">
+          <button type="button" class="btn-small" (click)="clone.emit(design().id)">Clone</button>
+          <button type="button" class="btn-small btn-danger" (click)="delete.emit(design().id)">
             Delete
           </button>
         </div>
@@ -331,14 +330,14 @@ export interface ShipDesignDisplay {
   ],
 })
 export class ShipDesignItemComponent {
-  @Input({ required: true }) design!: ShipDesignDisplay;
-  @Input() count?: number;
-  @Input() mode: 'card' | 'list' | 'selector' = 'card';
+  readonly design = input.required<ShipDesignDisplay>();
+  readonly count = input<number | undefined>();
+  readonly mode = input<'card' | 'list' | 'selector'>('card');
 
-  @Output() edit = new EventEmitter<string>();
-  @Output() delete = new EventEmitter<string>();
-  @Output() clone = new EventEmitter<string>();
-  @Output() preview = new EventEmitter<string>();
+  readonly edit = output<string>();
+  readonly delete = output<string>();
+  readonly clone = output<string>();
+  readonly preview = output<string>();
 
   private gameState = inject(GameStateService);
   readonly selectedStarId = signal<string>('');
@@ -347,7 +346,7 @@ export class ShipDesignItemComponent {
     const game = this.gameState.game();
     if (!game) return [];
 
-    const designMass = this.design.stats.mass;
+    const designMass = this.design().stats.mass;
     const player = game.humanPlayer;
 
     // Find stars owned by player
@@ -401,8 +400,8 @@ export class ShipDesignItemComponent {
 
     this.gameState.addToBuildQueue(starId, {
       project: 'ship',
-      cost: this.design.stats.cost,
-      shipDesignId: this.design.id,
+      cost: this.design().stats.cost,
+      shipDesignId: this.design().id,
       count: 1,
     });
 
@@ -410,12 +409,12 @@ export class ShipDesignItemComponent {
   }
 
   get hullName(): string {
-    const hull = getHull(this.design.hullId);
-    return hull ? hull.Name : this.design.hullId;
+    const hull = getHull(this.design().hullId);
+    return hull ? hull.Name : this.design().hullId;
   }
 
   get hullIcon(): string {
-    const hull = getHull(this.design.hullId);
+    const hull = getHull(this.design().hullId);
     if (hull && hull.id) {
       return `/assets/tech-icons/${hull.id}.png`;
     }

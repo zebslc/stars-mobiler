@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface Cost {
@@ -13,28 +13,30 @@ export interface Cost {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="cost-display" [class.inline]="inline">
-      @if (cost.ironium) {
-        <span class="cost-item ironium" title="Ironium">
-          {{ cost.ironium }} <span class="unit">Fe</span>
-        </span>
-      }
-      @if (cost.boranium) {
-        <span class="cost-item boranium" title="Boranium">
-          {{ cost.boranium }} <span class="unit">B</span>
-        </span>
-      }
-      @if (cost.germanium) {
-        <span class="cost-item germanium" title="Germanium">
-          {{ cost.germanium }} <span class="unit">Ge</span>
-        </span>
-      }
-      @if (cost.resources) {
-        <span class="cost-item resources" title="Resources">
-          {{ cost.resources }} <span class="unit">Res</span>
-        </span>
-      }
-    </div>
+    @if (cost(); as c) {
+      <div class="cost-display" [class.inline]="inline()">
+        @if (c.ironium) {
+          <span class="cost-item ironium" title="Ironium">
+            {{ c.ironium }} <span class="unit">Fe</span>
+          </span>
+        }
+        @if (c.boranium) {
+          <span class="cost-item boranium" title="Boranium">
+            {{ c.boranium }} <span class="unit">B</span>
+          </span>
+        }
+        @if (c.germanium) {
+          <span class="cost-item germanium" title="Germanium">
+            {{ c.germanium }} <span class="unit">Ge</span>
+          </span>
+        }
+        @if (c.resources) {
+          <span class="cost-item resources" title="Resources">
+            {{ c.resources }} <span class="unit">Res</span>
+          </span>
+        }
+      </div>
+    }
   `,
   styles: [`
     .cost-display {
@@ -75,6 +77,6 @@ export interface Cost {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResourceCostComponent {
-  @Input({ required: true }) cost: Cost = {};
-  @Input() inline: boolean = true;
+  readonly cost = input.required<Cost>();
+  readonly inline = input(true);
 }

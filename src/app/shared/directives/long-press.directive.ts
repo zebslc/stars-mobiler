@@ -1,12 +1,4 @@
-import { 
-  Directive, 
-  ElementRef, 
-  OnInit, 
-  OnDestroy, 
-  Output, 
-  EventEmitter, 
-  Input 
-} from '@angular/core';
+import { Directive, ElementRef, OnInit, OnDestroy, input, output } from '@angular/core';
 import { InputInteractionService } from '../../services/core/input-interaction.service';
 import { 
   UnifiedInputEvent, 
@@ -28,9 +20,9 @@ export interface LongPressEvent {
   standalone: true
 })
 export class LongPressDirective implements OnInit, OnDestroy {
-  @Input() longPressThreshold: number = 500; // milliseconds
-  @Input() longPressConfig: Partial<InputServiceConfig> = {};
-  @Output() longPress = new EventEmitter<LongPressEvent>();
+  readonly longPressThreshold = input(500);
+  readonly longPressConfig = input<Partial<InputServiceConfig>>({});
+  readonly longPress = output<LongPressEvent>();
   
   private handlerId: string;
 
@@ -45,14 +37,14 @@ export class LongPressDirective implements OnInit, OnDestroy {
     const config: Partial<InputServiceConfig> = {
       enabledGestures: ['longpress'],
       gestures: {
-        longPress: { threshold: this.longPressThreshold },
+        longPress: { threshold: this.longPressThreshold() },
         doubleClick: { threshold: 300 },
         movement: { threshold: 10 },
         pinch: { minDistance: 20 }
       },
       preventDefault: false,
       stopPropagation: false,
-      ...this.longPressConfig
+      ...this.longPressConfig()
     };
 
     this.inputService.attachToElement(

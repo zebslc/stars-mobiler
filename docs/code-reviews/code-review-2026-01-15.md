@@ -131,9 +131,9 @@ transfer() -> resolveTransferParticipants()
 #### Areas for Improvement
 
 1. **Input Signal Migration** - Low adoption
-   - Only 2/54 components use `input()` signals
-   - 64 `@Input()` decorators still in use
-   - Guardrails specify `input()` and `input.required()` should be used
+   - Angular 21 stabilizes the signal-based component API surface (`input()`, `input.required()`, `input.transform()`, `model()`, `output()`), yet only 2/54 components currently leverage it.
+   - 64 legacy `@Input()` decorators remain, blocking typed transforms, factory defaults, and push-based bindings that Angular 21 expects for zoneless change detection and new control-flow templates.
+   - Guardrails require migrating to signal inputs so we can pair them with Angular 21 features (`@if/@for` control flow, defer/hydration, template `model()` bindings) and unlock template type inference.
 
 2. **Large Files** - Some violations
    ```

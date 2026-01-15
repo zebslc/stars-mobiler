@@ -1,12 +1,4 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  ChangeDetectionStrategy,
-  inject,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, input, output } from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
@@ -17,12 +9,14 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
   standalone: true,
   imports: [CommonModule, DecimalPipe, TitleCasePipe, DesignPreviewButtonComponent],
   template: `
+    @let currentStar = star();
+    @let starbaseInfo = starbase();
     <div class="star-card">
       <div class="star-header">
-        <h3>{{ star.name }}</h3>
+        <h3>{{ currentStar.name }}</h3>
         <div class="header-buttons">
-          @if (starbase && starbase.designId) {
-            <app-design-preview-button [designId]="starbase.designId" title="View Starbase Design">
+          @if (starbaseInfo && starbaseInfo.designId) {
+            <app-design-preview-button [designId]="starbaseInfo.designId" title="View Starbase Design">
             </app-design-preview-button>
           }
           <button (click)="onViewOnMap()" class="btn-small" title="View on Map">
@@ -38,21 +32,21 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
         <div class="stat-row">
           <span class="stat-label">Resources:</span>
           <span class="stat-value" style="color:var(--color-primary)">
-            {{ star.resources }}R
+            {{ currentStar.resources }}R
           </span>
         </div>
         <div class="stat-row">
           <span class="stat-label">Minerals:</span>
           <span class="stat-value">
-            {{ star.surfaceMinerals.ironium }}Fe {{ star.surfaceMinerals.boranium }}Bo
-            {{ star.surfaceMinerals.germanium }}Ge
+            {{ currentStar.surfaceMinerals.ironium }}Fe {{ currentStar.surfaceMinerals.boranium }}Bo
+            {{ currentStar.surfaceMinerals.germanium }}Ge
           </span>
         </div>
         <div class="stat-row">
           <span class="stat-label">Population:</span>
           <span class="stat-value">
-            {{ star.population | number }} /
-            {{ (star.maxPopulation / 1_000_000).toFixed(1) }}M
+            {{ currentStar.population | number }} /
+            {{ (currentStar.maxPopulation / 1_000_000).toFixed(1) }}M
           </span>
         </div>
         <div class="stat-row">
@@ -66,19 +60,19 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
       <div class="star-production">
         <div class="production-row">
           <span class="text-small text-muted">Mines:</span>
-          <span class="text-small">{{ star.mines }}</span>
+          <span class="text-small">{{ currentStar.mines }}</span>
         </div>
         <div class="production-row">
           <span class="text-small text-muted">Factories:</span>
-          <span class="text-small">{{ star.factories }}</span>
+          <span class="text-small">{{ currentStar.factories }}</span>
         </div>
         <div class="production-row">
           <span class="text-small text-muted">Defenses:</span>
-          <span class="text-small">{{ star.defenses }}</span>
+          <span class="text-small">{{ currentStar.defenses }}</span>
         </div>
         <div class="production-row">
           <span class="text-small text-muted">Labs:</span>
-          <span class="text-small">{{ star.research || 0 }}</span>
+          <span class="text-small">{{ currentStar.research || 0 }}</span>
         </div>
       </div>
 
@@ -240,16 +234,16 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarCardComponent {
-  @Input({ required: true }) star!: Star;
-  @Input() starbase: { designId?: string; name: string; imageClass: string } | null = null;
-  @Output() viewStar = new EventEmitter<void>();
-  @Output() viewOnMap = new EventEmitter<void>();
+  readonly star = input.required<Star>();
+  readonly starbase = input<{ designId?: string; name: string; imageClass: string } | null>(null);
+  readonly viewStar = output<void>();
+  readonly viewOnMap = output<void>();
 
   private gs = inject(GameStateService);
 
-  buildQueue = computed(() => this.star.buildQueue || []);
+  buildQueue = computed(() => this.star().buildQueue || []);
 
-  habitability = computed(() => this.gs.habitabilityFor(this.star.id));
+  habitability = computed(() => this.gs.habitabilityFor(this.star().id));
 
   habitabilityColor = computed(() => {
     return this.habitability() > 0 ? '#27ae60' : '#c0392b';

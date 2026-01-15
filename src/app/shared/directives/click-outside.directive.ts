@@ -1,13 +1,4 @@
-import { 
-  Directive, 
-  ElementRef, 
-  OnInit, 
-  OnDestroy, 
-  Output, 
-  EventEmitter, 
-  Input,
-  inject
-} from '@angular/core';
+import { Directive, ElementRef, OnInit, OnDestroy, input, output, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
 export interface ClickOutsideEvent {
@@ -24,9 +15,9 @@ export interface ClickOutsideEvent {
   standalone: true
 })
 export class ClickOutsideDirective implements OnInit, OnDestroy {
-  @Input() excludeElements: Element[] = [];
-  @Input() includeTouch: boolean = true;
-  @Output() clickOutside = new EventEmitter<ClickOutsideEvent>();
+  readonly excludeElements = input<Element[]>([]);
+  readonly includeTouch = input(true);
+  readonly clickOutside = output<ClickOutsideEvent>();
   
   private document = inject(DOCUMENT);
   private clickListener?: (event: MouseEvent) => void;
@@ -42,7 +33,7 @@ export class ClickOutsideDirective implements OnInit, OnDestroy {
     this.document.addEventListener('click', this.clickListener, { capture: true });
 
     // Listen for touch events if enabled
-    if (this.includeTouch) {
+    if (this.includeTouch()) {
       this.touchListener = (event: TouchEvent) => this.handleTouchEvent(event);
       this.document.addEventListener('touchend', this.touchListener, { capture: true });
     }
@@ -93,7 +84,7 @@ export class ClickOutsideDirective implements OnInit, OnDestroy {
     }
 
     // Check if click is inside any excluded elements
-    return !this.excludeElements.some(excludedElement => 
+    return !this.excludeElements().some(excludedElement => 
       excludedElement.contains(target)
     );
   }

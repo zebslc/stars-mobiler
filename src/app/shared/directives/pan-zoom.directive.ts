@@ -1,12 +1,4 @@
-import { 
-  Directive, 
-  ElementRef, 
-  OnInit, 
-  OnDestroy, 
-  Output, 
-  EventEmitter, 
-  Input 
-} from '@angular/core';
+import { Directive, ElementRef, OnInit, OnDestroy, input, output } from '@angular/core';
 import { InputInteractionService } from '../../services/core/input-interaction.service';
 import { 
   UnifiedInputEvent, 
@@ -36,16 +28,16 @@ export interface PanZoomEvent extends PanEvent {
   standalone: true
 })
 export class PanZoomDirective implements OnInit, OnDestroy {
-  @Input() panZoomConfig: Partial<InputServiceConfig> = {};
-  @Input() enablePan: boolean = true;
-  @Input() enableZoom: boolean = true;
-  @Input() movementThreshold: number = 10;
-  
-  @Output() panStart = new EventEmitter<PanEvent>();
-  @Output() pan = new EventEmitter<PanEvent>();
-  @Output() panEnd = new EventEmitter<PanEvent>();
-  @Output() zoom = new EventEmitter<PanZoomEvent>();
-  @Output() wheel = new EventEmitter<PanZoomEvent>();
+  readonly panZoomConfig = input<Partial<InputServiceConfig>>({});
+  readonly enablePan = input(true);
+  readonly enableZoom = input(true);
+  readonly movementThreshold = input(10);
+
+  readonly panStart = output<PanEvent>();
+  readonly pan = output<PanEvent>();
+  readonly panEnd = output<PanEvent>();
+  readonly zoom = output<PanZoomEvent>();
+  readonly wheel = output<PanZoomEvent>();
   
   private handlerId: string;
   private isPanning = false;
@@ -61,10 +53,10 @@ export class PanZoomDirective implements OnInit, OnDestroy {
   ngOnInit(): void {
     const enabledGestures: Array<'tap' | 'longpress' | 'doubletap' | 'pan' | 'pinch' | 'drag' | 'wheel'> = [];
     
-    if (this.enablePan) {
+    if (this.enablePan()) {
       enabledGestures.push('pan', 'drag');
     }
-    if (this.enableZoom) {
+    if (this.enableZoom()) {
       enabledGestures.push('pinch', 'wheel');
     }
 
@@ -73,12 +65,12 @@ export class PanZoomDirective implements OnInit, OnDestroy {
       gestures: {
         longPress: { threshold: 500 },
         doubleClick: { threshold: 300 },
-        movement: { threshold: this.movementThreshold },
+        movement: { threshold: this.movementThreshold() },
         pinch: { minDistance: 20 }
       },
       preventDefault: true,
       stopPropagation: false,
-      ...this.panZoomConfig
+      ...this.panZoomConfig()
     };
 
     this.inputService.attachToElement(
@@ -113,7 +105,7 @@ export class PanZoomDirective implements OnInit, OnDestroy {
   }
 
   private handlePanEvent(event: UnifiedInputEvent): void {
-    if (!this.enablePan || !event.gestureData?.delta || !event.gestureData?.startPosition) {
+    if (!this.enablePan() || !event.gestureData?.delta || !event.gestureData?.startPosition) {
       return;
     }
 
@@ -134,7 +126,7 @@ export class PanZoomDirective implements OnInit, OnDestroy {
   }
 
   private handleDragEvent(event: UnifiedInputEvent): void {
-    if (!this.enablePan || !event.gestureData?.delta || !event.gestureData?.startPosition) {
+    if (!this.enablePan() || !event.gestureData?.delta || !event.gestureData?.startPosition) {
       return;
     }
 
@@ -153,7 +145,7 @@ export class PanZoomDirective implements OnInit, OnDestroy {
   }
 
   private handlePinchEvent(event: UnifiedInputEvent): void {
-    if (!this.enableZoom || !event.gestureData?.scale) {
+    if (!this.enableZoom() || !event.gestureData?.scale) {
       return;
     }
 
@@ -171,7 +163,7 @@ export class PanZoomDirective implements OnInit, OnDestroy {
   }
 
   private handleWheelEvent(event: UnifiedInputEvent): void {
-    if (!this.enableZoom || !event.gestureData?.deltaY) {
+    if (!this.enableZoom() || !event.gestureData?.deltaY) {
       return;
     }
 

@@ -1,12 +1,4 @@
-import {
-  Directive,
-  ElementRef,
-  OnInit,
-  OnDestroy,
-  Output,
-  EventEmitter,
-  Input,
-} from '@angular/core';
+import { Directive, ElementRef, OnInit, OnDestroy, input, output } from '@angular/core';
 import { InputInteractionService } from '../../services/core/input-interaction.service';
 import { UnifiedInputEvent, InputServiceConfig, Point } from '../../models/input-events.model';
 import { LoggingService } from '../../services/core/logging.service';
@@ -26,8 +18,8 @@ export interface TouchClickEvent {
   standalone: true
 })
 export class TouchClickDirective implements OnInit, OnDestroy {
-  @Input() touchClickConfig: Partial<InputServiceConfig> = {};
-  @Output() touchClick = new EventEmitter<TouchClickEvent>();
+  readonly touchClickConfig = input<Partial<InputServiceConfig>>({});
+  readonly touchClick = output<TouchClickEvent>();
 
   private handlerId: string;
 
@@ -44,7 +36,7 @@ export class TouchClickDirective implements OnInit, OnDestroy {
       enabledGestures: ['tap'],
       preventDefault: false,
       stopPropagation: false,
-      ...this.touchClickConfig
+      ...this.touchClickConfig()
     };
 
     this.logging.debug('TouchClickDirective initializing', {

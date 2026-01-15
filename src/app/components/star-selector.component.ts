@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Star } from '../models/game.model';
 import { ClickOutsideDirective } from '../shared/directives';
@@ -26,11 +26,11 @@ export interface StarOption {
         (click)="toggleDropdown()"
         [class.open]="isOpen()"
       >
-        @if (selectedStar) {
+        @if (selectedStar(); as selected) {
           <span class="selected-content">
-            <span class="star-icon">{{ getIcon(selectedStar) }}</span>
-            <span class="star-name">{{ selectedStar.star.name }}</span>
-            <span class="star-distance text-xs text-muted">{{ selectedStar.turnsAway }}T</span>
+            <span class="star-icon">{{ getIcon(selected) }}</span>
+            <span class="star-name">{{ selected.star.name }}</span>
+            <span class="star-distance text-xs text-muted">{{ selected.turnsAway }}T</span>
           </span>
         } @else {
           <span class="placeholder">Select destination...</span>
@@ -40,13 +40,13 @@ export interface StarOption {
 
       @if (isOpen()) {
         <div class="dropdown-panel" (click)="$event.stopPropagation()" appClickOutside (clickOutside)="isOpen.set(false)">
-          @if (options.length > 0) {
+          @if (options().length > 0) {
             <div class="options-list">
-              @for (option of options; track option.star.id) {
+              @for (option of options(); track option.star.id) {
                 <button
                   type="button"
                   class="star-option"
-                  [class.selected]="option.star.id === selectedStar?.star?.id"
+                  [class.selected]="option.star.id === selectedStar()?.star?.id"
                   [class.out-of-range]="!option.isInRange"
                   (click)="selectStar(option)"
                 >
@@ -300,11 +300,11 @@ export interface StarOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarSelectorComponent {
-  @Input() options: StarOption[] = [];
-  @Input() selectedStar: StarOption | null = null;
-  @Output() starSelected = new EventEmitter<StarOption>();
+  readonly options = input<StarOption[]>([]);
+  readonly selectedStar = input<StarOption | null>(null);
+  readonly starSelected = output<StarOption>();
 
-  isOpen = signal(false);
+  readonly isOpen = signal(false);
 
 
 

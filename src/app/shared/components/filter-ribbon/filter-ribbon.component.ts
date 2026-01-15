@@ -1,10 +1,4 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface FilterItem<T = any> {
@@ -21,13 +15,13 @@ export interface FilterItem<T = any> {
   imports: [CommonModule],
   template: `
     <div class="filter-ribbon">
-      @if (showAll) {
+      @if (showAll()) {
         <button class="ribbon-btn" [class.active]="isAllSelected()" (click)="onSelectAll()">
-          {{ allLabel }}
+          {{ allLabel() }}
         </button>
       }
 
-      @for (item of items; track trackByFn($index, item)) {
+      @for (item of items(); track trackByFn($index, item)) {
         <button
           class="ribbon-btn"
           [class.active]="isSelected(item.value)"
@@ -111,13 +105,13 @@ export interface FilterItem<T = any> {
   ],
 })
 export class FilterRibbonComponent<T = any> {
-  @Input({ required: true }) items: FilterItem<T>[] = [];
-  @Input() selected: T | Set<T> | T[] | null = null;
-  @Input() showAll = false;
-  @Input() allLabel = 'All';
-  @Input() emptyMeansAll = true;
+  readonly items = input.required<FilterItem<T>[]>();
+  readonly selected = input<T | Set<T> | T[] | null>(null);
+  readonly showAll = input(false);
+  readonly allLabel = input('All');
+  readonly emptyMeansAll = input(true);
 
-  @Output() select = new EventEmitter<T | null>();
+  readonly select = output<T | null>();
 
   onSelect(value: T) {
     this.select.emit(value);
@@ -131,25 +125,30 @@ export class FilterRibbonComponent<T = any> {
     if (this.isAllSelected()) {
       return true;
     }
-    if (this.selected instanceof Set) {
-      return this.selected.has(value);
+    const selected = this.selected();
+    if (selected instanceof Set) {
+      return selected.has(value);
     }
-    if (Array.isArray(this.selected)) {
-      return this.selected.includes(value);
+    if (Array.isArray(selected)) {
+      return selected.includes(value);
     }
-    return this.selected === value;
+    return selected === value;
   }
 
   isAllSelected(): boolean {
-    if (this.selected instanceof Set) {
-      if (this.selected.size === 0) return this.emptyMeansAll;
-      return this.items.every((i) => (this.selected as Set<T>).has(i.value));
+    const selected = this.selected();
+    const items = this.items();
+    const emptyMeansAll = this.emptyMeansAll();
+
+    if (selected instanceof Set) {
+      if (selected.size === 0) return emptyMeansAll;
+      return items.every((i) => selected.has(i.value));
     }
-    if (Array.isArray(this.selected)) {
-      if (this.selected.length === 0) return this.emptyMeansAll;
-      return this.items.every((i) => (this.selected as T[]).includes(i.value));
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return emptyMeansAll;
+      return items.every((i) => selected.includes(i.value));
     }
-    return this.selected === null || this.selected === undefined;
+    return selected === null || selected === undefined;
   }
 
   trackByFn(index: number, item: FilterItem<T>) {

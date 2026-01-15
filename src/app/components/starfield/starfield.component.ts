@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ChangeDetectionStrategy, effect, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 type Star = { cx: number; cy: number; r: number; o: number };
@@ -19,7 +19,7 @@ function mulberry32(seed: number) {
   template: `
 <svg
   class="starfield"
-  [attr.viewBox]="'0 0 ' + vbWidth + ' ' + vbHeight"
+  [attr.viewBox]="'0 0 ' + vbWidth() + ' ' + vbHeight()"
   preserveAspectRatio="xMidYMid slice"
   aria-hidden="true"
 >
@@ -70,12 +70,12 @@ function mulberry32(seed: number) {
     </radialGradient>
   </defs>
 
-  <rect x="0" y="0" [attr.width]="vbWidth" [attr.height]="vbHeight" fill="url(#bgGradient)"></rect>
+  <rect x="0" y="0" [attr.width]="vbWidth()" [attr.height]="vbHeight()" fill="url(#bgGradient)"></rect>
 
   <rect
     x="0" y="0"
-    [attr.width]="vbWidth"
-    [attr.height]="vbHeight"
+    [attr.width]="vbWidth()"
+    [attr.height]="vbHeight()"
     filter="url(#spaceNoise)"
     opacity="0.55"
   ></rect>
@@ -108,7 +108,7 @@ function mulberry32(seed: number) {
     ></circle>
   </g>
 
-  <rect x="0" y="0" [attr.width]="vbWidth" [attr.height]="vbHeight" fill="url(#vignetteGradient)"></rect>
+  <rect x="0" y="0" [attr.width]="vbWidth()" [attr.height]="vbHeight()" fill="url(#vignetteGradient)"></rect>
 </svg>
   `,
   styles: [`
@@ -125,30 +125,35 @@ function mulberry32(seed: number) {
   50%{transform:translate3d(10px,-6px,0) scale(1.02)}
   100%{transform:translate3d(0,0,0) scale(1)}
 }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StarfieldComponent implements OnChanges {
-  @Input() vbWidth = 1200;
-  @Input() vbHeight = 800;
-  @Input() smallStars = 900;
-  @Input() midStars = 250;
-  @Input() seed = 1337;
+export class StarfieldComponent {
+  readonly vbWidth = input(1200);
+  readonly vbHeight = input(800);
+  readonly smallStars = input(900);
+  readonly midStars = input(250);
+  readonly seed = input(1337);
 
   small: Star[] = [];
   mid: Star[] = [];
 
-  ngOnChanges(_: SimpleChanges): void {
+  private readonly regenerate = effect(() => {
     this.generate();
-  }
+  });
 
   private generate(): void {
-    const rand = mulberry32(this.seed);
+    const width = this.vbWidth();
+    const height = this.vbHeight();
+    const smallCount = this.smallStars();
+    const midCount = this.midStars();
+    const rand = mulberry32(this.seed());
 
     const genStars = (count: number, rMin: number, rMax: number, oMin: number, oMax: number): Star[] => {
       const stars: Star[] = [];
       for (let i = 0; i < count; i++) {
-        const x = rand() * this.vbWidth;
-        const y = rand() * this.vbHeight;
+        const x = rand() * width;
+        const y = rand() * height;
         const r = rMin + rand() * (rMax - rMin);
         const o = oMin + rand() * (oMax - oMin);
         stars.push({ cx: x, cy: y, r, o });
@@ -156,8 +161,8 @@ export class StarfieldComponent implements OnChanges {
       return stars;
     };
 
-    this.small = genStars(this.smallStars, 0.25, 0.9, 0.15, 0.75);
-    this.mid = genStars(this.midStars, 0.7, 1.8, 0.25, 0.9);
+    this.small = genStars(smallCount, 0.25, 0.9, 0.15, 0.75);
+    this.mid = genStars(midCount, 0.7, 1.8, 0.25, 0.9);
   }
 
   trackByIndex(i: number): number {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, inject, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective, TouchClickDirective } from '../shared/directives';
 import { StarOption } from './star-selector.component'; // Assuming this interface exists
@@ -23,7 +23,7 @@ export interface StarSelectorRefactoredOptions {
       <div 
         class="selector-trigger"
         [class.open]="isOpen()"
-        [class.disabled]="disabled"
+        [class.disabled]="disabled()"
         appTouchClick
         (touchClick)="onToggleClick($event)"
         [attr.aria-expanded]="isOpen()"
@@ -31,11 +31,11 @@ export interface StarSelectorRefactoredOptions {
         role="combobox"
       >
         <div class="selected-content">
-          @if (selectedStar; as selected) {
+          @if (selectedStar(); as selected) {
             <span class="star-icon">{{ getIcon(selected) }}</span>
             <span class="star-name">{{ selected.name }}</span>
           } @else {
-            <span class="placeholder">{{ placeholder || 'Select a star...' }}</span>
+            <span class="placeholder">{{ placeholder() ?? 'Select a star...' }}</span>
           }
         </div>
         <span class="dropdown-arrow">▼</span>
@@ -50,17 +50,17 @@ export interface StarSelectorRefactoredOptions {
           role="listbox"
         >
           <div class="options-list">
-            @for (option of options; track option.id) {
+            @for (option of options(); track option.id) {
               <button
                 type="button"
                 class="star-option"
-                [class.selected]="option.id === selectedStar?.id"
+                [class.selected]="option.id === selectedStar()?.id"
                 [class.out-of-range]="option.outOfRange"
                 [disabled]="option.outOfRange"
                 appTouchClick
                 (touchClick)="onOptionSelect(option)"
                 role="option"
-                [attr.aria-selected]="option.id === selectedStar?.id"
+                [attr.aria-selected]="option.id === selectedStar()?.id"
               >
                 <div class="option-main">
                   <span class="star-icon">{{ getIcon(option) }}</span>
@@ -298,21 +298,22 @@ export interface StarSelectorRefactoredOptions {
         min-height: 48px; /* Ensure touch-friendly size */
       }
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarSelectorRefactoredComponent {
-  @Input() options: StarOption[] = [];
-  @Input() selectedStar: StarOption | null = null;
-  @Input() placeholder: string = 'Select a star...';
-  @Input() disabled: boolean = false;
-  @Output() starSelected = new EventEmitter<StarOption>();
+  readonly options = input<StarOption[]>([]);
+  readonly selectedStar = input<StarOption | null>(null);
+  readonly placeholder = input('Select a star...');
+  readonly disabled = input(false);
+  readonly starSelected = output<StarOption>();
 
   private elementRef = inject(ElementRef);
   isOpen = signal(false);
 
-  onToggleClick(event: any): void {
-    if (this.disabled) return;
-    this.isOpen.update(val => !val);
+  onToggleClick(_: Event): void {
+    if (this.disabled()) return;
+    this.isOpen.update((val) => !val);
   }
 
   onOptionSelect(option: StarOption): void {
@@ -322,7 +323,7 @@ export class StarSelectorRefactoredComponent {
     this.isOpen.set(false);
   }
 
-  onClickOutside(event: any): void {
+  onClickOutside(_: Event): void {
     this.isOpen.set(false);
   }
 
