@@ -6,6 +6,7 @@ import {
   DeveloperPanelConfig
 } from '../../models/logging.model';
 import { SettingsService } from '../core/settings.service';
+import { InternalLoggerService, normalizeError } from '../core/internal-logger.service';
 
 /**
  * Developer panel destination for logging service
@@ -17,6 +18,7 @@ import { SettingsService } from '../core/settings.service';
 export class DeveloperPanelDestination implements LogDestination {
   readonly name = 'developerPanel';
   private readonly settingsService = inject(SettingsService);
+  private readonly internalLogger = inject(InternalLoggerService);
   
   private _isEnabled = false;
   private _config: DeveloperPanelConfig = {
@@ -87,8 +89,11 @@ export class DeveloperPanelDestination implements LogDestination {
       // Update statistics
       this.updateStats(entry);
     } catch (error) {
-      // Silently handle errors to prevent affecting main application
-      console.warn('DeveloperPanelDestination: Failed to process log entry', error);
+      await this.internalLogger.warn(
+        'DeveloperPanelDestination failed to process log entry',
+        { error: normalizeError(error) },
+        'DeveloperPanelDestination'
+      );
     }
   }
 

@@ -12,6 +12,7 @@ import {
 } from '../../models/logging.model';
 import { LogDestinationManager } from './log-destination-manager.service';
 import { SettingsService } from './settings.service';
+import { logInternalError, logInternalInfo, normalizeError } from './internal-logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -254,9 +255,24 @@ export class LoggingService {
     try {
       await this.destinationManager.routeLogEntry(entry);
     } catch (error) {
-      // Log routing failures to console as fallback
-      console.error('LoggingService: Failed to route log entry to destinations:', error);
-      console.log(`[FALLBACK] [${LogLevel[entry.level]}] ${entry.message}`, entry);
+      try {
+        logInternalError(
+          'LoggingService failed to route log entry',
+          {
+            error: normalizeError(error),
+            level: LogLevel[entry.level],
+            message: entry.message,
+          },
+          'LoggingService'
+        );
+        logInternalInfo(
+          `Fallback emit for level ${LogLevel[entry.level]}`,
+          { entry },
+          'LoggingService'
+        );
+      } catch (fallbackError) {
+        console.error('LoggingService fallback logging failed', fallbackError);
+      }
     }
   }
 

@@ -8,6 +8,7 @@ import {
 import { ConsoleDestination } from '../destinations/console.destination';
 import { ApplicationInsightsDestination } from '../destinations/application-insights.destination';
 import { DeveloperPanelDestination } from '../destinations/developer-panel.destination';
+import { InternalLoggerService, normalizeError } from './internal-logger.service';
 
 /**
  * LogDestinationManager handles registration, configuration, and routing of log entries
@@ -20,6 +21,7 @@ export class LogDestinationManager {
   private readonly consoleDestination = inject(ConsoleDestination);
   private readonly applicationInsightsDestination = inject(ApplicationInsightsDestination);
   private readonly developerPanelDestination = inject(DeveloperPanelDestination);
+  private readonly internalLogger = inject(InternalLoggerService);
 
   // Registry of all available destinations
   private readonly _destinations = new Map<LogDestinationName, LogDestination>([
@@ -144,8 +146,14 @@ export class LogDestinationManager {
 
       await destination.log(entry);
     } catch (error) {
-      // Log the error but don't let it propagate to prevent affecting other destinations
-      console.warn(`LogDestinationManager: Failed to route to ${destination.name}:`, error);
+      await this.internalLogger.warn(
+        'LogDestinationManager failed to route entry',
+        {
+          destination: destination.name,
+          error: normalizeError(error),
+        },
+        'LogDestinationManager'
+      );
       throw error; // Re-throw for Promise.allSettled to catch
     }
   }
@@ -289,7 +297,15 @@ export class LogDestinationManager {
     });
 
     // Log the failure for debugging
-    console.warn(`LogDestinationManager: Destination ${destinationName} failure #${currentFailureCount + 1}:`, error);
+    void this.internalLogger.warn(
+      'LogDestinationManager recorded destination failure',
+      {
+        destination: destinationName,
+        failureCount: currentFailureCount + 1,
+        error: normalizeError(error),
+      },
+      'LogDestinationManager'
+    );
   }
 
   /**

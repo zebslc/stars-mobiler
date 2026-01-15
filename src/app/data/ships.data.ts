@@ -1,5 +1,5 @@
-// Legacy ships.data.ts - Compatibility layer for compiled ship designs
 import { ALL_HULLS } from './tech-atlas.data';
+import { logInternalWarn } from '../services/core/internal-logger.service';
 
 // CompiledDesign interface - represents a fully compiled ship design with calculated stats
 export interface CompiledDesign {
@@ -157,7 +157,7 @@ export function getDesign(designId: string): CompiledDesign {
   if (!design) {
     // Only warn if this looks like a legacy design ID, not a user-created one
     if (!designId.startsWith('design_')) {
-      console.warn(`Design not found: ${designId}`);
+      logInternalWarn('Design not found in COMPILED_DESIGNS', { designId }, 'ShipDesignRegistry');
     }
     // Return a default design to prevent crashes
     return {

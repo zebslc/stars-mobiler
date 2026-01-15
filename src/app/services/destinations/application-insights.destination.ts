@@ -1,10 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import {
   LogDestination,
   LogEntry,
   LogLevel,
   ApplicationInsightsConfig
 } from '../../models/logging.model';
+import { InternalLoggerService, normalizeError } from '../core/internal-logger.service';
 
 /**
  * Application Insights destination for logging service
@@ -15,6 +16,7 @@ import {
 })
 export class ApplicationInsightsDestination implements LogDestination {
   readonly name = 'applicationInsights';
+  private readonly internalLogger = inject(InternalLoggerService);
   private _isEnabled = false;
   private _config: ApplicationInsightsConfig = {
     enabled: false,
@@ -78,8 +80,11 @@ export class ApplicationInsightsDestination implements LogDestination {
         await this.flushBatch();
       }
     } catch (error) {
-      // Silently handle errors to prevent affecting main application
-      console.warn('ApplicationInsightsDestination: Failed to queue log entry', error);
+      await this.internalLogger.warn(
+        'ApplicationInsightsDestination failed to queue log entry',
+        { error: normalizeError(error) },
+        'ApplicationInsightsDestination'
+      );
     }
   }
 
@@ -94,7 +99,11 @@ export class ApplicationInsightsDestination implements LogDestination {
     this._flushTimer = window.setInterval(() => {
       if (this._batchQueue.length > 0) {
         this.flushBatch().catch(error => {
-          console.warn('ApplicationInsightsDestination: Scheduled flush failed', error);
+          void this.internalLogger.warn(
+            'ApplicationInsightsDestination scheduled flush failed',
+            { error: normalizeError(error) },
+            'ApplicationInsightsDestination'
+          );
         });
       }
     }, this._config.flushInterval);
@@ -258,7 +267,11 @@ export class ApplicationInsightsDestination implements LogDestination {
 
     // Log discarded items for debugging
     if (itemsToDiscard.length > 0) {
-      console.warn(`ApplicationInsightsDestination: Discarding ${itemsToDiscard.length} entries after max retries`);
+      await this.internalLogger.warn(
+        'ApplicationInsightsDestination discarded retry entries',
+        { discardCount: itemsToDiscard.length },
+        'ApplicationInsightsDestination'
+      );
     }
 
     // Retry items that haven't exceeded max attempts
@@ -295,7 +308,11 @@ export class ApplicationInsightsDestination implements LogDestination {
     // Attempt to flush remaining entries
     if (this._batchQueue.length > 0) {
       this.flushBatch().catch(error => {
-        console.warn('ApplicationInsightsDestination: Final flush failed', error);
+        void this.internalLogger.warn(
+          'ApplicationInsightsDestination final flush failed',
+          { error: normalizeError(error) },
+          'ApplicationInsightsDestination'
+        );
       });
     }
   }

@@ -3,6 +3,8 @@
 // Based on official Stars! hull-templates.json
 // ==========================================
 
+import { logInternalWarn } from '../services/core/internal-logger.service';
+
 export interface ResourceCost {
   Ironium: number;
   Boranium: number;
@@ -184,7 +186,7 @@ export function getSlotTypeForComponentType(componentType: string): SlotType {
   }
 
   // Fallback to General
-  console.warn(`Unknown component type: ${componentType}, falling back to General`);
+  logInternalWarn('Unknown component type encountered', { componentType }, 'TechAtlasRegistry');
   return 'General';
 }
 

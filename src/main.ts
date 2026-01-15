@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { AppComponent } from './app/app.component';
 import { appRoutes } from './app/app.routes';
+import { logInternalError, normalizeError } from './app/services/core/internal-logger.service';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -11,4 +12,6 @@ bootstrapApplication(AppComponent, {
     provideRouter(appRoutes),
     provideHttpClient()
   ]
-}).catch((err: unknown) => console.error(err));
+}).catch((err: unknown) => {
+  logInternalError('bootstrapApplication failed', { error: normalizeError(err) }, 'AngularBootstrap');
+});
