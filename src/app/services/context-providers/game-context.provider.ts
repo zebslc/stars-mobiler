@@ -17,19 +17,19 @@ export class GameContextProvider {
    */
   getContext(): GameContext | undefined {
     const game = this.gameState.game();
-    
+
     if (!game) {
       return undefined;
     }
 
     const player = this.gameState.player();
-    
+
     return {
       gameId: game.id,
       turn: this.gameState.turn(),
       playerId: player?.id,
       currentScreen: this.getCurrentScreen(),
-      selectedPlanet: this.getSelectedPlanet(),
+      selectedStar: this.getSelectedStar(),
       selectedFleet: this.getSelectedFleet(),
       gameState: this.getGameState(),
     };
@@ -41,33 +41,33 @@ export class GameContextProvider {
   private getCurrentScreen(): string | undefined {
     // Extract screen name from current URL path
     const path = window.location.pathname;
-    const segments = path.split('/').filter(segment => segment.length > 0);
-    
+    const segments = path.split('/').filter((segment) => segment.length > 0);
+
     if (segments.length === 0) {
       return 'home';
     }
-    
+
     // Return the first segment as the screen name
     return segments[0];
   }
 
   /**
-   * Get currently selected planet ID if any
+   * Get currently selected star ID if any
    */
-  private getSelectedPlanet(): string | undefined {
-    // Check URL parameters for planet selection
+  private getSelectedStar(): string | undefined {
+    // Check URL parameters for star selection
     const urlParams = new URLSearchParams(window.location.search);
-    const planetId = urlParams.get('planet') || urlParams.get('planetId');
-    
-    if (planetId) {
-      return planetId;
+    const starId = urlParams.get('star') || urlParams.get('starId');
+
+    if (starId) {
+      return starId;
     }
 
-    // Check route parameters for planet detail screen
+    // Check route parameters for star detail screen
     const path = window.location.pathname;
-    const planetMatch = path.match(/\/planet\/([^\/]+)/);
-    if (planetMatch) {
-      return planetMatch[1];
+    const starMatch = path.match(/\/star\/([^\/]+)/);
+    if (starMatch) {
+      return starMatch[1];
     }
 
     return undefined;
@@ -80,7 +80,7 @@ export class GameContextProvider {
     // Check URL parameters for fleet selection
     const urlParams = new URLSearchParams(window.location.search);
     const fleetId = urlParams.get('fleet') || urlParams.get('fleetId');
-    
+
     if (fleetId) {
       return fleetId;
     }
@@ -100,7 +100,7 @@ export class GameContextProvider {
    */
   private getGameState(): GameContext['gameState'] {
     const game = this.gameState.game();
-    
+
     if (!game) {
       return 'loading';
     }
@@ -111,7 +111,7 @@ export class GameContextProvider {
       if (!game.stars || game.stars.length === 0) {
         return 'error';
       }
-      
+
       if (!game.humanPlayer) {
         return 'error';
       }
@@ -134,20 +134,19 @@ export class GameContextProvider {
   getGameStatistics(): Record<string, any> {
     const game = this.gameState.game();
     const player = this.gameState.player();
-    
+
     if (!game || !player) {
       return {};
     }
 
-    const playerPlanets = game.stars.filter((star) => star.ownerId === player.id);
+    const playerStars = game.stars.filter((star) => star.ownerId === player.id);
 
-    const playerFleets = game.fleets?.filter(fleet => fleet.ownerId === player.id) || [];
+    const playerFleets = game.fleets?.filter((fleet) => fleet.ownerId === player.id) || [];
 
     return {
       turn: this.gameState.turn(),
       totalStars: game.stars.length,
-      totalPlanets: game.stars.length, // Each star system has one planet
-      playerPlanets: playerPlanets.length,
+      playerStars: playerStars.length,
       playerFleets: playerFleets.length,
       playerSpecies: player.species?.name,
       gameSettings: {
@@ -163,7 +162,7 @@ export class GameContextProvider {
   getResearchContext(): Record<string, any> {
     const game = this.gameState.game();
     const player = this.gameState.player();
-    
+
     if (!game || !player) {
       return {};
     }
@@ -180,7 +179,7 @@ export class GameContextProvider {
    */
   getEconomicContext(): Record<string, any> {
     const economy = this.gameState.playerEconomy();
-    
+
     if (!economy) {
       return {};
     }
@@ -196,7 +195,7 @@ export class GameContextProvider {
    */
   getErrorContext(): Record<string, any> {
     const context = this.getContext();
-    
+
     if (!context) {
       return { gameLoaded: false };
     }

@@ -145,7 +145,10 @@ export class GalaxyMapMenuService {
     });
   }
 
-  showWaypointMenuFromResult(result: FinalizeWaypointResult | null, screenPoint?: { x: number; y: number } | null): void {
+  showWaypointMenuFromResult(
+    result: FinalizeWaypointResult | null,
+    screenPoint?: { x: number; y: number } | null,
+  ): void {
     if (!result || !screenPoint) {
       return;
     }
@@ -195,8 +198,8 @@ export class GalaxyMapMenuService {
     }
   }
 
-  handlePlanetView(starId: string): void {
-    this.router.navigateByUrl(`/planet/${starId}`);
+  handleStarView(starId: string): void {
+    this.router.navigateByUrl(`/star/${starId}`);
     this.closeMenus();
   }
 
@@ -359,7 +362,7 @@ export class GalaxyMapMenuService {
       return false;
     }
 
-    this.router.navigateByUrl(`/planet/${colonizedStarId}`);
+    this.router.navigateByUrl(`/star/${colonizedStarId}`);
     return true;
   }
 
@@ -454,11 +457,7 @@ export class GalaxyMapMenuService {
     return actions;
   }
 
-  logWaypointSelection(
-    fleetId: string,
-    orderIndex: number,
-    event: MouseEvent | TouchEvent,
-  ): void {
+  logWaypointSelection(fleetId: string, orderIndex: number, event: MouseEvent | TouchEvent): void {
     if (!this.settings.developerMode()) {
       return;
     }
@@ -589,7 +588,9 @@ export class GalaxyMapMenuService {
     ];
 
     const hasColony = fleet.ships.some((ship) => {
-      const dynamicDesign = this.gs.game()?.shipDesigns.find((design) => design.id === ship.designId);
+      const dynamicDesign = this.gs
+        .game()
+        ?.shipDesigns.find((design) => design.id === ship.designId);
       const stock = getDesign(ship.designId);
       return ship.count > 0 && (dynamicDesign?.spec?.hasColonyModule || stock?.colonyModule);
     });
@@ -609,7 +610,9 @@ export class GalaxyMapMenuService {
       return;
     }
 
-    const waypoints = this.waypoints.fleetWaypoints().find((candidate) => candidate.fleetId === activeFleetId);
+    const waypoints = this.waypoints
+      .fleetWaypoints()
+      .find((candidate) => candidate.fleetId === activeFleetId);
     this.logging.debug('Debug: Waypoint Array', {
       service: 'GalaxyMapMenuService',
       operation: 'DebugDump',

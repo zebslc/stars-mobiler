@@ -14,35 +14,43 @@ export const appRoutes: Routes = [
       import('./screens/galaxy-map/galaxy-map.component').then((m) => m.GalaxyMapComponent),
   },
   {
-    path: 'planets',
+    path: 'stars',
     canActivate: [gameActiveGuard],
     loadComponent: () =>
-      import('./screens/planets-overview/planets-overview.component').then((m) => m.PlanetsOverviewComponent),
+      import('./screens/stars-overview/stars-overview.component').then(
+        (m) => m.StarsOverviewComponent,
+      ),
   },
   {
     path: 'fleets',
     canActivate: [gameActiveGuard],
     loadComponent: () =>
-      import('./screens/fleets-overview/fleets-overview.component').then((m) => m.FleetsOverviewComponent),
+      import('./screens/fleets-overview/fleets-overview.component').then(
+        (m) => m.FleetsOverviewComponent,
+      ),
   },
   {
     path: 'research',
     canActivate: [gameActiveGuard],
     loadComponent: () =>
-      import('./screens/research-overview/research-overview.component').then((m) => m.ResearchOverviewComponent),
+      import('./screens/research-overview/research-overview.component').then(
+        (m) => m.ResearchOverviewComponent,
+      ),
   },
   {
     path: 'ship-design',
     canActivate: [gameActiveGuard],
     loadComponent: () =>
-      import('./screens/ship-design-overview/ship-design-overview.component').then((m) => m.ShipDesignOverviewComponent),
+      import('./screens/ship-design-overview/ship-design-overview.component').then(
+        (m) => m.ShipDesignOverviewComponent,
+      ),
   },
   {
-    path: 'planet/:id',
+    path: 'star/:id',
     canActivate: [gameActiveGuard],
     loadComponent: () =>
-      import('./screens/planet-detail/planet-detail.component').then(
-        (m) => m.PlanetDetailComponent,
+      import('./screens/star-detail/star-detail.component').then(
+        (m) => m.StarDetailComponent,
       ),
   },
   {

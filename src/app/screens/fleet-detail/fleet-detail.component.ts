@@ -558,7 +558,7 @@ export class FleetDetailComponent implements OnInit {
     }
     const sid = this.gs.colonizeNow(f.id);
     if (sid) {
-      this.router.navigateByUrl(`/planet/${sid}`);
+      this.router.navigateByUrl(`/star/${sid}`);
     } else {
       this.gs.issueFleetOrder(f.id, { type: 'colonize', starId });
       this.router.navigateByUrl('/map');

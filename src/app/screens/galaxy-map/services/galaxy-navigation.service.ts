@@ -6,8 +6,7 @@ import { GalaxyMapStateService } from './galaxy-map-state.service';
 import { GalaxyCoordinateService } from './galaxy-coordinate.service';
 import { 
   Star, 
-  Fleet, 
-  Planet 
+  Fleet
 } from '../../../models/game.model';
 import { 
   GalaxyCoordinate,
@@ -113,15 +112,21 @@ export class GalaxyNavigationService {
     if (fleet.location.type === 'space') {
       position = { x: fleet.location.x, y: fleet.location.y };
     } else {
-      // Fleet is in orbit - find the star
-      const star = this.gs.stars().find((s) => 
-        s.planets.some((p) => p.id === fleet.location.starId)
-      );
-      
+      // Fleet is in orbit - find the associated star
+      const star = this.gs
+        .stars()
+        .find((candidate) => candidate.id === fleet.location.starId);
+
       if (star) {
         position = star.position;
       } else {
-        this.logging.warn('Could not find star for orbiting fleet', context);
+        this.logging.warn('Could not find star for orbiting fleet', {
+          ...context,
+          additionalData: {
+            ...context.additionalData,
+            attemptedStarId: fleet.location.starId
+          }
+        });
         return;
       }
     }
@@ -130,70 +135,51 @@ export class GalaxyNavigationService {
   }
 
   /**
-   * Navigates to the first planet of a star (opens planet detail)
+   * Opens the star detail view for the provided star
    */
-  openFirstPlanet(star: Star): void {
+  openStarDetail(star: Star): void {
+    const player = this.gs.player();
+    const ownedStarIds = player?.ownedStarIds ?? [];
+    const isOwnedByPlayer = star.ownerId === player?.id || ownedStarIds.includes(star.id);
+
     const context: LogContext = {
       service: 'GalaxyNavigationService',
-      operation: 'openFirstPlanet',
+      operation: 'openStarDetail',
       entityId: star.id,
       entityType: 'star',
-      additionalData: { 
-        planetCount: star.planets.length
+      additionalData: {
+        starName: star.name,
+        ownerId: star.ownerId,
+        playerOwnsStar: isOwnedByPlayer
       }
     };
 
-    this.logging.debug('Opening first planet of star', context);
+    this.logging.debug('Opening star detail view', context);
 
-    const player = this.gs.player();
-    const ownedPlanet = star.planets.find((p) => p.ownerId === player?.id);
-    const targetPlanet = ownedPlanet || star.planets[0];
+    this.logging.info('Navigating to star detail', {
+      ...context,
+      additionalData: {
+        ...context.additionalData,
+        route: `/star/${star.id}`
+      }
+    });
 
-    if (targetPlanet) {
-      this.logging.info('Navigating to planet detail', {
-        ...context,
-        entityId: targetPlanet.id,
-        entityType: 'planet',
-        additionalData: {
-          ...context.additionalData,
-          starId: targetPlanet.id,
-          isOwned: !!ownedPlanet
-        }
-      });
-      this.router.navigateByUrl(`/planet/${targetPlanet.id}`);
-    } else {
-      this.logging.warn('No planets found for star', context);
-    }
+    this.router.navigateByUrl(`/star/${star.id}`);
   }
 
   /**
-   * Opens fleet detail view
+   * Opens star detail view by ID
    */
-  openFleet(fleetId: string): void {
+  openStar(starId: string): void {
     const context: LogContext = {
       service: 'GalaxyNavigationService',
-      operation: 'openFleet',
-      entityId: fleetId,
-      entityType: 'fleet'
+      operation: 'openStar',
+      entityId: starId,
+      entityType: 'star'
     };
 
-    this.logging.debug('Opening fleet detail', context);
-    this.router.navigateByUrl(`/fleet/${fleetId}`);
-  }
-
-  /**
-   * Opens planet detail view
-   */
-  openPlanet(starId: string): void {
-    const context: LogContext = {
-      service: 'GalaxyNavigationService',
-      operation: 'openPlanet',
-      entityId: planetId,
-      entityType: 'planet'
-    };
-
-    this.logging.debug('Opening planet detail', context);
-    this.router.navigateByUrl(`/planet/${planetId}`);
+    this.logging.debug('Opening star detail', context);
+    this.router.navigateByUrl(`/star/${starId}`);
   }
 
   /**
@@ -213,41 +199,58 @@ export class GalaxyNavigationService {
    * Finds and centers on the player's home star
    */
   centerOnHomeStar(viewportWidth?: number, viewportHeight?: number): void {
+    const player = this.gs.player();
+    const stars = this.gs.stars();
+
     const context: LogContext = {
       service: 'GalaxyNavigationService',
       operation: 'centerOnHomeStar',
-      additionalData: { viewportWidth, viewportHeight }
+      additionalData: {
+        viewportWidth,
+        viewportHeight,
+        playerId: player?.id,
+        ownedStarIds: player?.ownedStarIds ?? []
+      }
     };
 
     this.logging.debug('Centering on home star', context);
 
-    const stars = this.gs.stars();
-    const player = this.gs.player();
-    
     if (!player) {
       this.logging.warn('No player found for home star centering', context);
       return;
     }
 
-    const homeStar = stars.find((s) => 
-      s.planets.some((p) => p.ownerId === player.id)
-    );
+    const ownedStarIds = player.ownedStarIds ?? [];
+    const primaryHomeStarId = ownedStarIds[0];
+
+    let homeStar = primaryHomeStarId
+      ? stars.find((candidate) => candidate.id === primaryHomeStarId)
+      : undefined;
+
+    if (!homeStar) {
+      homeStar = stars.find((candidate) => candidate.ownerId === player.id);
+    }
+
+    if (!homeStar && stars.length) {
+      homeStar = stars[0];
+    }
 
     if (homeStar) {
       this.mapState.scale.set(6); // Set a reasonable zoom level
       this.centerOnStar(homeStar, viewportWidth, viewportHeight);
-      
+
       this.logging.info('Centered on home star', {
         ...context,
         entityId: homeStar.id,
         entityType: 'star',
         additionalData: {
           ...context.additionalData,
+          homeStarName: homeStar.name,
           homeStarPosition: homeStar.position
         }
       });
     } else {
-      this.logging.warn('No home star found for player', context);
+      this.logging.warn('No home star available to center on', context);
     }
   }
 
@@ -302,14 +305,14 @@ export class GalaxyNavigationService {
   }
 
   /**
-   * Handles query parameter navigation (planetId, fleetId)
+   * Handles query parameter navigation (starId, fleetId)
    */
-  handleQueryParamNavigation(planetId?: string, fleetId?: string, viewportWidth?: number, viewportHeight?: number): void {
+  handleQueryParamNavigation(starId?: string, fleetId?: string, viewportWidth?: number, viewportHeight?: number): void {
     const context: LogContext = {
       service: 'GalaxyNavigationService',
       operation: 'handleQueryParamNavigation',
       additionalData: { 
-        planetId, 
+        starId, 
         fleetId,
         viewportWidth,
         viewportHeight
@@ -318,22 +321,22 @@ export class GalaxyNavigationService {
 
     this.logging.debug('Handling query parameter navigation', context);
 
-    if (planetId) {
-      const star = this.gs.stars().find((s) => 
-        s.planets.some((p) => p.id === planetId)
-      );
-      
+    if (starId) {
+      const star = this.gs
+        .stars()
+        .find((candidate) => candidate.id === starId);
+
       if (star) {
         this.centerOnStar(star, viewportWidth, viewportHeight);
         this.mapState.selectedStarId.set(star.id);
-        
-        this.logging.info('Navigated to planet via query param', {
+
+        this.logging.info('Navigated to star via query param', {
           ...context,
-          entityId: planetId,
-          entityType: 'planet',
+          entityId: star.id,
+          entityType: 'star',
           additionalData: {
             ...context.additionalData,
-            starId: star.id
+            starName: star.name
           }
         });
         return;

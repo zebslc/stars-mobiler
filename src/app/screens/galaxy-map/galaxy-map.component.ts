@@ -585,13 +585,13 @@ export class GalaxyMapComponent implements OnInit {
     this.lastClickTime = now;
 
     if (isDoubleTap) {
-      this.openFirstPlanet(star);
+      this.openStarDetail(star);
     }
   }
 
   onStarDoubleClick(star: Star, event: MouseEvent) {
     event.stopPropagation();
-    this.openFirstPlanet(star);
+    this.openStarDetail(star);
   }
 
   onFleetClick(fleet: Fleet, event: MouseEvent) {
@@ -613,9 +613,8 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   // Navigation & Actions
-  openFirstPlanet(star: Star) {
-    // In the merged model, star IS the planet
-    this.router.navigateByUrl(`/planet/${star.id}`);
+  openStarDetail(star: Star) {
+    this.router.navigateByUrl(`/star/${star.id}`);
   }
 
   openFleet(id: string) {
@@ -637,7 +636,7 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   private handleQueryParams(params: Params) {
-    if (this.tryCenterOnQueryStar(params['planetId'])) {
+    if (this.tryCenterOnQueryStar(params['starId'])) {
       return;
     }
 
@@ -767,7 +766,7 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   onViewPlanet(starId: string) {
-    this.menus.handlePlanetView(starId);
+    this.menus.handleStarView(starId);
   }
 
   onSendFleetToStar(star: Star) {

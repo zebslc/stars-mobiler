@@ -66,7 +66,7 @@ describe('LoggingModel', () => {
                   turn: fc.option(fc.integer({ min: 0 }), { nil: undefined }),
                   playerId: fc.option(fc.string(), { nil: undefined }),
                   currentScreen: fc.option(fc.string(), { nil: undefined }),
-                  selectedPlanet: fc.option(fc.string(), { nil: undefined }),
+                  selectedStar: fc.option(fc.string(), { nil: undefined }),
                   selectedFleet: fc.option(fc.string(), { nil: undefined }),
                   gameState: fc.option(fc.constantFrom('playing', 'paused', 'loading', 'error'), {
                     nil: undefined,

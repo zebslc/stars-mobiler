@@ -19,7 +19,8 @@
   }
 }
 
-.minerals-grid, .facilities-grid {
+.minerals-grid,
+.facilities-grid {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -31,7 +32,8 @@
   border-top: 1px solid var(--color-border);
 }
 
-.mineral-item, .facility-item {
+.mineral-item,
+.facility-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,10 +46,16 @@
 
   .label {
     font-weight: bold;
-    
-    &.ironium { color: var(--color-ironium); }
-    &.boranium { color: var(--color-boranium); }
-    &.germanium { color: var(--color-germanium); }
+
+    &.ironium {
+      color: var(--color-ironium);
+    }
+    &.boranium {
+      color: var(--color-boranium);
+    }
+    &.germanium {
+      color: var(--color-germanium);
+    }
   }
 
   .value {

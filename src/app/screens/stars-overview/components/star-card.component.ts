@@ -6,53 +6,53 @@ import {
   ChangeDetectionStrategy,
   inject,
   computed,
-  signal,
 } from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { Star, ShipDesign } from '../../../models/game.model';
+import { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 
 @Component({
-  selector: 'app-planet-card',
+  selector: 'app-star-card',
   standalone: true,
   imports: [CommonModule, DecimalPipe, TitleCasePipe, DesignPreviewButtonComponent],
   template: `
-    <div class="planet-card">
-      <div class="planet-header">
-        <h3>{{ planet.name }}</h3>
+    <div class="star-card">
+      <div class="star-header">
+        <h3>{{ star.name }}</h3>
         <div class="header-buttons">
           @if (starbase && starbase.designId) {
             <app-design-preview-button [designId]="starbase.designId" title="View Starbase Design">
             </app-design-preview-button>
           }
           <button (click)="onViewOnMap()" class="btn-small" title="View on Map">
-            <span style="font-size: 24px;">🌃</span>
+            <span style="font-size: 24px;">🗺️</span>
           </button>
-          <button (click)="onViewPlanet()" class="btn-small" title="Planet Details">
-            <span style="font-size: 24px;">🌍</span>
+          <button (click)="onViewStar()" class="btn-small" title="Star Details">
+            <span style="font-size: 24px;">🌏</span>
           </button>
         </div>
       </div>
 
-      <div class="planet-stats">
+      <div class="star-stats">
         <div class="stat-row">
           <span class="stat-label">Resources:</span>
           <span class="stat-value" style="color:var(--color-primary)">
-            {{ planet.resources }}R
+            {{ star.resources }}R
           </span>
         </div>
         <div class="stat-row">
           <span class="stat-label">Minerals:</span>
           <span class="stat-value">
-            {{ planet.surfaceMinerals.ironium }}Fe {{ planet.surfaceMinerals.boranium }}Bo
-            {{ planet.surfaceMinerals.germanium }}Ge
+            {{ star.surfaceMinerals.ironium }}Fe {{ star.surfaceMinerals.boranium }}Bo
+            {{ star.surfaceMinerals.germanium }}Ge
           </span>
         </div>
         <div class="stat-row">
           <span class="stat-label">Population:</span>
           <span class="stat-value">
-            {{ planet.population | number }} / {{ (planet.maxPopulation / 1000000).toFixed(1) }}M
+            {{ star.population | number }} /
+            {{ (star.maxPopulation / 1_000_000).toFixed(1) }}M
           </span>
         </div>
         <div class="stat-row">
@@ -63,22 +63,22 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
         </div>
       </div>
 
-      <div class="planet-production">
+      <div class="star-production">
         <div class="production-row">
           <span class="text-small text-muted">Mines:</span>
-          <span class="text-small">{{ planet.mines }}</span>
+          <span class="text-small">{{ star.mines }}</span>
         </div>
         <div class="production-row">
           <span class="text-small text-muted">Factories:</span>
-          <span class="text-small">{{ planet.factories }}</span>
+          <span class="text-small">{{ star.factories }}</span>
         </div>
         <div class="production-row">
           <span class="text-small text-muted">Defenses:</span>
-          <span class="text-small">{{ planet.defenses }}</span>
+          <span class="text-small">{{ star.defenses }}</span>
         </div>
         <div class="production-row">
           <span class="text-small text-muted">Labs:</span>
-          <span class="text-small">{{ planet.research || 0 }}</span>
+          <span class="text-small">{{ star.research || 0 }}</span>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
   `,
   styles: [
     `
-      .planet-card {
+      .star-card {
         background: var(--color-bg-secondary);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-md);
@@ -127,7 +127,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
         gap: var(--space-md);
       }
 
-      .planet-header {
+      .star-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -135,7 +135,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
         border-bottom: 1px solid var(--color-border);
       }
 
-      .planet-header h3 {
+      .star-header h3 {
         margin: 0;
         font-size: var(--font-size-lg);
       }
@@ -154,7 +154,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
         cursor: pointer;
       }
 
-      .planet-stats {
+      .star-stats {
         display: flex;
         flex-direction: column;
         gap: var(--space-xs);
@@ -176,22 +176,7 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
         font-size: var(--font-size-sm);
       }
 
-      .min-val {
-        font-weight: bold;
-        margin-right: 6px;
-      }
-
-      .ironium {
-        color: var(--color-ironium);
-      }
-      .boranium {
-        color: var(--color-boranium);
-      }
-      .germanium {
-        color: var(--color-germanium);
-      }
-
-      .planet-production {
+      .star-production {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: var(--space-sm);
@@ -241,12 +226,12 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
       }
 
       @media (max-width: 600px) {
-        .planet-card {
+        .star-card {
           padding: var(--space-md);
           gap: var(--space-sm);
         }
 
-        .planet-header h3 {
+        .star-header h3 {
           font-size: var(--font-size-md);
         }
       }
@@ -254,24 +239,24 @@ import { DesignPreviewButtonComponent } from '../../../shared/components/design-
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlanetCardComponent {
-  @Input({ required: true }) planet!: Star;
+export class StarCardComponent {
+  @Input({ required: true }) star!: Star;
   @Input() starbase: { designId?: string; name: string; imageClass: string } | null = null;
-  @Output() viewPlanet = new EventEmitter<void>();
+  @Output() viewStar = new EventEmitter<void>();
   @Output() viewOnMap = new EventEmitter<void>();
 
   private gs = inject(GameStateService);
 
-  buildQueue = computed(() => this.planet.buildQueue || []);
+  buildQueue = computed(() => this.star.buildQueue || []);
 
-  habitability = computed(() => this.gs.habitabilityFor(this.planet.id));
+  habitability = computed(() => this.gs.habitabilityFor(this.star.id));
 
   habitabilityColor = computed(() => {
     return this.habitability() > 0 ? '#27ae60' : '#c0392b';
   });
 
-  onViewPlanet() {
-    this.viewPlanet.emit();
+  onViewStar() {
+    this.viewStar.emit();
   }
 
   onViewOnMap() {

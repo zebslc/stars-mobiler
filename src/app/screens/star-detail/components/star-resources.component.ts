@@ -4,7 +4,7 @@ import { Star } from '../../../models/game.model';
 
 @Component({
   standalone: true,
-  selector: 'app-planet-resources',
+  selector: 'app-star-resources',
   imports: [CommonModule],
   template: `
     <div class="card resources-card">
@@ -13,37 +13,37 @@ import { Star } from '../../../models/game.model';
       <div class="minerals-grid">
         <div class="mineral-item">
           <div class="label ironium">Ironium</div>
-          <div class="value">{{ planet().surfaceMinerals.ironium }} kT</div>
+          <div class="value">{{ star().surfaceMinerals.ironium }} kT</div>
         </div>
         <div class="mineral-item">
           <div class="label boranium">Boranium</div>
-          <div class="value">{{ planet().surfaceMinerals.boranium }} kT</div>
+          <div class="value">{{ star().surfaceMinerals.boranium }} kT</div>
         </div>
         <div class="mineral-item">
           <div class="label germanium">Germanium</div>
-          <div class="value">{{ planet().surfaceMinerals.germanium }} kT</div>
+          <div class="value">{{ star().surfaceMinerals.germanium }} kT</div>
         </div>
       </div>
 
       <div class="facilities-grid">
         <div class="facility-item">
           <div class="label">Mines</div>
-          <div class="value">{{ planet().mines }} of {{ maxFacilities() }}</div>
+          <div class="value">{{ star().mines }} of {{ maxFacilities() }}</div>
         </div>
         <div class="facility-item">
           <div class="label">Factories</div>
-          <div class="value">{{ planet().factories }} of {{ maxFacilities() }}</div>
+          <div class="value">{{ star().factories }} of {{ maxFacilities() }}</div>
         </div>
       </div>
     </div>
   `,
-  styleUrl: './planet-resources.component.scss',
+  styleUrl: './star-resources.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlanetResourcesComponent {
-  planet = input.required<Star>();
+export class StarResourcesComponent {
+  star = input.required<Star>();
 
   maxFacilities() {
-    return Math.floor(this.planet().population / 10);
+    return Math.floor(this.star().population / 10);
   }
 }

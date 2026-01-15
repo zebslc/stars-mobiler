@@ -6,7 +6,7 @@ import { getDesign } from '../../../data/ships.data';
 
 @Component({
   standalone: true,
-  selector: 'app-planet-colonization',
+  selector: 'app-star-colonization',
   imports: [CommonModule],
   template: `
     <h3 class="section-title">Colonization</h3>
@@ -75,13 +75,13 @@ import { getDesign } from '../../../data/ships.data';
       }
     </div>
   `,
-  styleUrl: './planet-colonization.component.scss',
+  styleUrl: './star-colonization.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlanetColonizationComponent {
+export class StarColonizationComponent {
   gs = inject(GameStateService);
 
-  planet = input.required<Star>();
+  star = input.required<Star>();
   colonizersInOrbit = input.required<Fleet[]>();
   colonizersEnRoute = input.required<Fleet[]>();
   colonizersIdle = input.required<Fleet[]>();
@@ -90,15 +90,13 @@ export class PlanetColonizationComponent {
   sendColonizer = output<string>();
 
   getEta(fleet: Fleet): number {
-    const star = this.planet();
+    const star = this.star();
     if (!star) return 0;
 
-    let fx = 0,
-      fy = 0;
+    let fx = 0;
+    let fy = 0;
     if (fleet.location.type === 'orbit') {
-      const fStar = this.gs
-        .stars()
-        .find((s) => s.id === (fleet.location as any).starId);
+      const fStar = this.gs.stars().find((s) => s.id === (fleet.location as any).starId);
       if (fStar) {
         fx = fStar.position.x;
         fy = fStar.position.y;

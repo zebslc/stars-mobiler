@@ -6,18 +6,18 @@ import { TechService } from '../../services/tech/tech.service';
 import { Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';
-import { PlanetCardComponent } from './components/planet-card.component';
+import { StarCardComponent } from './components/star-card.component';
 import { LoggingService } from '../../services/core/logging.service';
 
 @Component({
   standalone: true,
-  selector: 'app-planets-overview',
-  imports: [CommonModule, PlanetCardComponent],
+  selector: 'app-stars-overview',
+  imports: [CommonModule, StarCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main class="planets-container">
+    <main class="stars-container">
       <div class="header-row">
-        <h1 style="margin-bottom:0">Planets</h1>
+        <h1 style="margin-bottom:0">Stars</h1>
 
         <div class="control-group">
           <button [class.active]="filterMode() === 'Normal'" (click)="filterMode.set('Normal')">
@@ -29,29 +29,29 @@ import { LoggingService } from '../../services/core/logging.service';
         </div>
       </div>
 
-      @if (planets().length === 0) {
+      @if (stars().length === 0) {
         <div class="empty-state">
-          <p>You don't own any planets yet.</p>
-          <p class="text-muted">Explore the galaxy and colonize planets to expand your empire!</p>
+          <p>You don't control any stars yet.</p>
+          <p class="text-muted">Explore the galaxy and establish starbases to expand your empire!</p>
         </div>
       }
 
-      <div class="planets-grid">
-        @for (planet of planets(); track planet.id) {
-          <app-planet-card
-            [planet]="planet"
-            [starbase]="starbaseMap().get(planet.id) || null"
-            (viewPlanet)="onViewPlanet(planet)"
-            (viewOnMap)="onViewOnMap(planet)"
+      <div class="stars-grid">
+        @for (star of stars(); track star.id) {
+          <app-star-card
+            [star]="star"
+            [starbase]="starbaseMap().get(star.id) || null"
+            (viewStar)="onViewStar(star)"
+            (viewOnMap)="onViewOnMap(star)"
           >
-          </app-planet-card>
+          </app-star-card>
         }
       </div>
     </main>
   `,
   styles: [
     `
-      .planets-container {
+      .stars-container {
         padding: var(--space-lg);
         max-width: 1400px;
         margin: 0 auto;
@@ -102,18 +102,18 @@ import { LoggingService } from '../../services/core/logging.service';
         color: var(--color-text-muted);
       }
 
-      .planets-grid {
+      .stars-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: var(--space-lg);
       }
 
       @media (max-width: 600px) {
-        .planets-container {
+        .stars-container {
           padding: var(--space-md);
         }
 
-        .planets-grid {
+        .stars-grid {
           grid-template-columns: 1fr;
           gap: var(--space-md);
         }
@@ -121,7 +121,7 @@ import { LoggingService } from '../../services/core/logging.service';
     `,
   ],
 })
-export class PlanetsOverviewComponent {
+export class StarsOverviewComponent {
   private gs = inject(GameStateService);
   private router = inject(Router);
   private techService = inject(TechService);
@@ -135,7 +135,6 @@ export class PlanetsOverviewComponent {
     if (!game) return map;
 
     const playerId = this.gs.player()?.id;
-    const planetIndex = this.gs.starIndex();
 
     for (const fleet of game.fleets) {
       if (fleet.ownerId !== playerId) continue;
@@ -182,35 +181,35 @@ export class PlanetsOverviewComponent {
             name: designName,
             imageClass: this.techService.getHullImageClass(hullName),
           });
-          break; // Found starbase for this fleet/planet
+          break; // Found starbase for this fleet/star
         }
       }
     }
     return map;
   });
 
-  planets = computed(() => {
+  stars = computed(() => {
     const stars = this.gs.stars();
     const playerId = this.gs.player()?.id;
-    const allPlanets = stars.filter((s) => s.ownerId === playerId);
+    const ownedStars = stars.filter((s) => s.ownerId === playerId);
 
     if (this.filterMode() === 'Starbase') {
       const sbMap = this.starbaseMap();
-      return allPlanets.sort((a, b) => {
+      return ownedStars.sort((a, b) => {
         const hasA = sbMap.has(a.id) ? 1 : 0;
         const hasB = sbMap.has(b.id) ? 1 : 0;
         return hasB - hasA; // Starbases first
       });
     }
 
-    return allPlanets;
+    return ownedStars;
   });
 
-  onViewPlanet(planet: Star) {
-    this.router.navigate(['/planet', planet.id]);
+  onViewStar(star: Star) {
+    this.router.navigate(['/star', star.id]);
   }
 
-  onViewOnMap(planet: Star) {
-    this.router.navigate(['/map'], { queryParams: { starId: planet.id } });
+  onViewOnMap(star: Star) {
+    this.router.navigate(['/map'], { queryParams: { starId: star.id } });
   }
 }

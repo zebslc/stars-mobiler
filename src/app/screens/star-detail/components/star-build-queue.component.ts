@@ -149,7 +149,7 @@ export type BuildProject =
       </div>
     }
   `,
-  styleUrl: './planet-build-queue.component.scss',
+  styleUrl: './star-build-queue.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarBuildQueueComponent {
@@ -208,18 +208,16 @@ export class StarBuildQueueComponent {
   }
 
   getDesignName(id: string): string {
-    // Try to find in game state designs first (user designs)
     const gameDesigns = this.gs.game()?.shipDesigns;
     const userDesign = gameDesigns?.find((d) => d.id === id);
     if (userDesign) return userDesign.name;
 
-    // Fallback to compiled designs (built-in)
     const design = getDesign(id);
     return design?.name || id;
   }
 
   formatCost(cost: Cost): string {
-    const parts = [];
+    const parts = [] as string[];
     if (cost.resources) parts.push(`${cost.resources}R`);
     if (cost.ironium) parts.push(`${cost.ironium}Fe`);
     if (cost.boranium) parts.push(`${cost.boranium}Bo`);
@@ -249,8 +247,7 @@ export class StarBuildQueueComponent {
     return Math.min(100, (paid / total) * 100);
   }
 
-  queueColor(item: any, index: number): string {
-    // With partial payments, we don't warn about immediate affordability
+  queueColor(_: any, __: number): string {
     return 'inherit';
   }
 }

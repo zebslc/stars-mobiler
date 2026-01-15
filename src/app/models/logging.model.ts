@@ -48,7 +48,7 @@ export interface GameContext {
   turn?: number;
   playerId?: string;
   currentScreen?: string;
-  selectedPlanet?: string;
+  selectedStar?: string;
   selectedFleet?: string;
   gameState?: 'playing' | 'paused' | 'loading' | 'error';
 }

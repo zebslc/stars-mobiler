@@ -35,7 +35,7 @@ import { FleetCardComponent } from '../../fleets-overview/components/fleet-card.
       }
     </div>
   `,
-  styleUrl: './planet-fleet-list.component.scss',
+  styleUrl: './star-fleet-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarFleetListComponent {
@@ -71,7 +71,6 @@ export class StarFleetListComponent {
         };
       }
 
-      // Fallback: Compile stats on the fly
       const hull = getHull(dynamicDesign.hullId);
       if (hull) {
         const player = this.gs.player();
@@ -115,7 +114,6 @@ export class StarFleetListComponent {
   canColonize(fleet: Fleet): boolean {
     if (fleet.ownerId !== this.gs.player()?.id) return false;
     if (!this.hasColonyShip(fleet)) return false;
-    // Can only colonize if planet is unowned (null)
     return !this.starOwnerId();
   }
 }

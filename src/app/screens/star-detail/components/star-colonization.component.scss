@@ -24,11 +24,11 @@
   padding: var(--space-lg);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-md);
-  
+
   &.in-orbit {
     background: var(--color-success-light);
     border: 1px solid var(--color-success);
-    
+
     .status {
       color: var(--color-success);
     }

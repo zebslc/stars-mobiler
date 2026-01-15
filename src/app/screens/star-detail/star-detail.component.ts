@@ -32,20 +32,20 @@ import { Fleet } from '../../models/game.model';
   ],
   template: `
     @if (star(); as s) {
-      <main class="planet-detail-container">
+      <main class="star-detail-container">
         <!-- Header Section -->
-        <div class="planet-header">
+        <div class="star-header">
           <div class="header-top">
             <button (click)="back()" class="btn-small back-btn">← Back</button>
-            <div class="planet-controls">
+            <div class="star-controls">
               <button class="nav-btn" (click)="prevStar()">Prev</button>
               <button class="nav-btn" (click)="nextStar()">Next</button>
             </div>
           </div>
 
-          <div class="planet-info-banner">
-            <div class="planet-visual" [style.background]="starTexture()"></div>
-            <div class="planet-text">
+          <div class="star-info-banner">
+            <div class="star-visual" [style.background]="starTexture()"></div>
+            <div class="star-text">
               <h2>{{ s.name }}</h2>
               <div class="coords">
                 X: {{ getStarCoordinates(s)?.x }} Y: {{ getStarCoordinates(s)?.y }}
@@ -140,7 +140,7 @@ import { Fleet } from '../../models/game.model';
       </main>
     }
   `,
-  styleUrl: './planet-detail.component.scss',
+  styleUrl: './star-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarDetailComponent implements OnInit {

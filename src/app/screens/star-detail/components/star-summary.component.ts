@@ -1,15 +1,14 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { inject } from '@angular/core';
 
 @Component({
   standalone: true,
   selector: 'app-star-summary',
   imports: [CommonModule],
   template: `
-    <div class="card planet-summary-card">
+    <div class="card star-summary-card">
       <div class="status-section">
         <div class="governor-section">
           <div class="controls">
@@ -91,7 +90,7 @@ import { inject } from '@angular/core';
       </div>
     </div>
   `,
-  styleUrl: './planet-summary.component.scss',
+  styleUrl: './star-summary.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarSummaryComponent {
@@ -99,9 +98,7 @@ export class StarSummaryComponent {
 
   star = input.required<Star>();
   habitability = input.required<number>();
-  starTexture = input.required<string>(); // Used by parent now, but maybe we don't need it here?
-  // Actually, parent will use it for the header.
-  // We can remove it from here if we don't use it.
+  starTexture = input.required<string>();
   projectionDelta = input.required<number>();
   defenseCoverage = input.required<number>();
   scannerRange = input.required<number>();
@@ -114,10 +111,6 @@ export class StarSummaryComponent {
   onGovernorTypeChange(event: Event) {
     this.onGovernorType.emit(event);
   }
-
-  // Removed header outputs
-  // prev = output<void>();
-  // next = output<void>();
 
   maxResources() {
     return Math.floor(this.star().population / 10);

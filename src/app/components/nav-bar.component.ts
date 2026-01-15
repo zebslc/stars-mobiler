@@ -22,9 +22,9 @@ import { GameStateService } from '../services/game/game-state.service';
           <span class="nav-label">Map</span>
         </button>
 
-        <button class="nav-button" routerLink="/planets" routerLinkActive="active" title="Planets">
-          <span class="nav-icon">🌍</span>
-          <span class="nav-label">Planets</span>
+        <button class="nav-button" routerLink="/stars" routerLinkActive="active" title="Stars">
+          <span class="nav-icon">🌏</span>
+          <span class="nav-label">Stars</span>
         </button>
 
         <button class="nav-button" routerLink="/fleets" routerLinkActive="active" title="Fleets">
