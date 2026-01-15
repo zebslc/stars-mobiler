@@ -22,7 +22,8 @@
       "WebSearch",
       "Bash(python3:*)",
       "Skill(code-review)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run lint:*)"
     ]
   }
 }

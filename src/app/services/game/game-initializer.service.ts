@@ -13,10 +13,14 @@ import { GalaxyGeneratorService } from './galaxy-generator.service';
 import { SPECIES } from '../../data/species.data';
 import { getHull } from '../../utils/data-access.util';
 import { createEmptyDesign } from '../../models/ship-design.model';
+import { LoggingService } from '../core/logging.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameInitializerService {
-  constructor(private galaxy: GalaxyGeneratorService) {}
+  constructor(
+    private galaxy: GalaxyGeneratorService,
+    private logging: LoggingService
+  ) {}
 
   initializeGame(settings: GameSettings): GameState {
     const starCount =
@@ -141,7 +145,10 @@ export class GameInitializerService {
         components: [],
       };
     } else {
-      console.warn('Space Station hull not found, creating legacy fallback design');
+      this.logging.warn('Space Station hull not found, creating legacy fallback design', {
+        service: 'GameInitializerService',
+        operation: 'createInitialShipDesigns'
+      });
       ssDesign = {
         id: ssDesignId,
         name: 'Space Station',

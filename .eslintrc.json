@@ -19,7 +19,36 @@
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/array-type": ["error", { "default": "generic" }],
     "@typescript-eslint/consistent-type-imports": "error",
-    "@typescript-eslint/no-floating-promises": "error"
-  }
+    "@typescript-eslint/no-floating-promises": "error",
+    "no-console": ["error", { "allow": [] }]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/app/services/destinations/**/*.ts",
+        "src/app/services/core/logging.service.ts",
+        "src/app/services/core/log-destination-manager.service.ts"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": [
+        "src/app/data/**/*.ts"
+      ],
+      "rules": {
+        "no-console": ["error", { "allow": ["warn"] }]
+      }
+    },
+    {
+      "files": [
+        "src/main.ts"
+      ],
+      "rules": {
+        "no-console": ["error", { "allow": ["error"] }]
+      }
+    }
+  ]
 }
 

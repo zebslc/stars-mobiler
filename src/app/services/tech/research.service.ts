@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { GameState } from '../../models/game.model';
 import { TECH_FIELDS, TechField } from '../../data/tech-tree.data';
+import { LoggingService } from '../core/logging.service';
 
 @Injectable({ providedIn: 'root' })
 export class ResearchService {
-  constructor() {}
+  constructor(private logging: LoggingService) {}
 
   advanceResearch(game: GameState, totalRP: number) {
     // All research goes into the selected field
@@ -24,7 +25,11 @@ export class ResearchService {
       game.humanPlayer.researchProgress[field] -= nextLevel.cost;
 
       // TODO: Show notification to player about tech advancement
-      console.log(`Advanced ${techInfo.name} to level ${game.humanPlayer.techLevels[field]}`);
+      this.logging.info(`Advanced ${techInfo.name} to level ${game.humanPlayer.techLevels[field]}`, {
+        service: 'ResearchService',
+        operation: 'advanceResearch',
+        additionalData: { field, newLevel: game.humanPlayer.techLevels[field] }
+      });
     }
   }
 

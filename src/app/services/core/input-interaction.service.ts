@@ -1,13 +1,14 @@
 import { Injectable, NgZone } from '@angular/core';
-import { 
+import {
   Point,
-  UnifiedInputEvent, 
-  InputServiceConfig, 
-  InputHandler, 
-  GestureState, 
+  UnifiedInputEvent,
+  InputServiceConfig,
+  InputHandler,
+  GestureState,
   ManagedListener
 } from '../../models/input-events.model';
 import { GestureRecognitionService } from './gesture-recognition.service';
+import { LoggingService } from './logging.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,8 @@ export class InputInteractionService {
 
   constructor(
     private gestureService: GestureRecognitionService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private logging: LoggingService
   ) {}
 
   /**
@@ -521,7 +523,11 @@ export class InputInteractionService {
                 return;
               }
             } catch (error) {
-              console.error('Error in input handler:', error);
+              this.logging.error('Error in input handler', {
+                service: 'InputInteractionService',
+                operation: 'dispatchToHandlers',
+                additionalData: { error: error instanceof Error ? error.message : String(error) }
+              });
             }
           });
         }
