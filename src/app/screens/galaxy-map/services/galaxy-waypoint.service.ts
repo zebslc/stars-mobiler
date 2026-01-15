@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { LoggingService } from '../../../services/core/logging.service';
-import { GalaxyFleetService } from './galaxy-fleet.service';
+import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
 import { 
   Fleet, 
   Star,
@@ -52,7 +52,7 @@ export interface SnapTarget {
 export class GalaxyWaypointService {
   private gs = inject(GameStateService);
   private logging = inject(LoggingService);
-  private fleetService = inject(GalaxyFleetService);
+  private fleetPositions = inject(GalaxyFleetPositionService);
 
   // Waypoint drag state
   readonly draggedWaypoint = signal<DraggedWaypoint | null>(null);
@@ -79,7 +79,7 @@ export class GalaxyWaypointService {
     const myFleets = fleets.filter((f) => f.ownerId === this.gs.player()?.id);
 
     const waypoints = myFleets.map((fleet) => {
-      let currentPos = this.fleetService.fleetPos(fleet.id);
+      let currentPos = this.fleetPositions.fleetPos(fleet.id);
       const segments: WaypointSegment[] = [];
 
       // Calculate max speed for this fleet
@@ -109,7 +109,7 @@ export class GalaxyWaypointService {
             if (star) dest = star.position;
           } else if (order.type === 'attack') {
             const target = fleets.find((f) => f.id === order.targetFleetId);
-            if (target) dest = this.fleetService.fleetPos(target.id);
+            if (target) dest = this.fleetPositions.fleetPos(target.id);
           }
 
           if (dest) {
@@ -158,7 +158,7 @@ export class GalaxyWaypointService {
     this.logging.debug('Starting waypoint drag for fleet', context);
 
     const fw = this.fleetWaypoints().find((f) => f.fleetId === fleet.id);
-    const startPos = fw?.lastPos || this.fleetService.fleetPos(fleet.id);
+    const startPos = fw?.lastPos || this.fleetPositions.fleetPos(fleet.id);
 
     this.draggedWaypoint.set({
       startX: startPos.x,
@@ -206,7 +206,7 @@ export class GalaxyWaypointService {
     for (const fleet of fleets) {
       if (fleet.id === this.draggedWaypoint()?.fleetId) continue;
 
-      const fPos = this.fleetService.fleetPos(fleet.id);
+      const fPos = this.fleetPositions.fleetPos(fleet.id);
       const dx = fPos.x - x;
       const dy = fPos.y - y;
       if (dx * dx + dy * dy < threshold * threshold) {

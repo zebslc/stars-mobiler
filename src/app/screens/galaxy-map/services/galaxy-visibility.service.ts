@@ -1,7 +1,7 @@
 import { Injectable, inject, computed } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
-import { GalaxyFleetService } from './galaxy-fleet.service';
+import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
 import { Fleet } from '../../../models/game.model';
 import { getDesign } from '../../../data/ships.data';
 
@@ -11,7 +11,7 @@ import { getDesign } from '../../../data/ships.data';
 export class GalaxyVisibilityService {
   private gs = inject(GameStateService);
   private settings = inject(SettingsService);
-  private fleetService = inject(GalaxyFleetService);
+  private fleetPositions = inject(GalaxyFleetPositionService);
 
   // Helper
   getDistance(p1: { x: number; y: number }, p2: { x: number; y: number }) {
@@ -91,7 +91,7 @@ export class GalaxyVisibilityService {
         if (f.ownerId === player.id) {
           const caps = this.getFleetScanCapabilities(f);
           if (caps.scanRange > 0) {
-            const pos = this.fleetService.getFleetPosition(f);
+            const pos = this.fleetPositions.getFleetPosition(f);
             if (pos) {
               scanners.push({ ...pos, r: caps.scanRange });
             }
@@ -144,7 +144,7 @@ export class GalaxyVisibilityService {
         if (f.ownerId === player.id) {
           const caps = this.getFleetScanCapabilities(f);
           if (caps.scanRange > 0) {
-            const pos = this.fleetService.getFleetPosition(f);
+            const pos = this.fleetPositions.getFleetPosition(f);
             if (pos) {
               ranges.push({
                 x: pos.x,
@@ -188,7 +188,7 @@ export class GalaxyVisibilityService {
         if (f.ownerId === player.id) {
           const caps = this.getFleetScanCapabilities(f);
           if (caps.cloakedRange > 0) {
-            const pos = this.fleetService.getFleetPosition(f);
+            const pos = this.fleetPositions.getFleetPosition(f);
             if (pos) {
               ranges.push({
                 x: pos.x,

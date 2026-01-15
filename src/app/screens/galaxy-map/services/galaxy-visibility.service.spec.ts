@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { GalaxyVisibilityService } from './galaxy-visibility.service';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
-import { GalaxyFleetService } from './galaxy-fleet.service';
+import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
 import { Fleet, GameState, Player, ShipDesign, Star } from '../../../models/game.model';
 import { signal } from '@angular/core';
 
@@ -10,7 +10,7 @@ describe('GalaxyVisibilityService', () => {
   let service: GalaxyVisibilityService;
   let mockGameStateService: any;
   let mockSettingsService: any;
-  let mockGalaxyFleetService: any;
+  let mockFleetPositions: any;
 
   const mockPlayer: Player = {
     id: 'p1',
@@ -99,7 +99,7 @@ describe('GalaxyVisibilityService', () => {
       showCloakedRanges: signal(true),
     };
 
-    mockGalaxyFleetService = {
+    mockFleetPositions = {
       getFleetPosition: (f: Fleet) => {
         if (f.location.type === 'orbit') {
           return { x: 100, y: 100 }; // Star position
@@ -111,9 +111,9 @@ describe('GalaxyVisibilityService', () => {
     TestBed.configureTestingModule({
       providers: [
         GalaxyVisibilityService,
-        GalaxyFleetService,
         { provide: GameStateService, useValue: mockGameStateService },
         { provide: SettingsService, useValue: mockSettingsService },
+        { provide: GalaxyFleetPositionService, useValue: mockFleetPositions },
       ],
     });
     service = TestBed.inject(GalaxyVisibilityService);

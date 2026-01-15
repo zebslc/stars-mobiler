@@ -23,7 +23,9 @@ import { GalaxyMapControlsComponent } from './components/galaxy-map-controls.com
 import { GalaxyMapSettingsComponent } from './components/galaxy-map-settings.component';
 import { GalaxyMapStateService } from './services/galaxy-map-state.service';
 import { GalaxyVisibilityService } from './services/galaxy-visibility.service';
-import { GalaxyFleetService } from './services/galaxy-fleet.service';
+import { GalaxyFleetFilterService } from './services/galaxy-fleet-filter.service';
+import { GalaxyFleetPositionService } from './services/galaxy-fleet-position.service';
+import { GalaxyFleetStationService } from './services/galaxy-fleet-station.service';
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
 import { getDesign } from '../../data/ships.data';
 
@@ -220,9 +222,9 @@ interface SnapResult {
               }
 
               <!-- Draw fleets first so stars remain clickable on top -->
-              @for (fleet of fleetService.filteredFleets(); track fleet.id) {
+              @for (fleet of fleetFilter.filteredFleets(); track fleet.id) {
                 @if (fleet.location.type === 'orbit') {
-                  @if (fleetService.fleetOrbitPosition(fleet); as pos) {
+                  @if (fleetPositions.fleetOrbitPosition(fleet); as pos) {
                     <g
                       app-galaxy-fleet
                       [fleet]="fleet"
@@ -239,7 +241,7 @@ interface SnapResult {
                   <g
                     app-galaxy-fleet
                     [fleet]="fleet"
-                    [position]="fleetService.getSpaceFleetPos(fleet)"
+                    [position]="fleetPositions.getSpaceFleetPos(fleet)"
                     [isOrbit]="false"
                     (fleetClick)="onFleetClick(fleet, $event)"
                     (fleetDoubleClick)="onFleetDoubleClick(fleet, $event)"
@@ -250,7 +252,7 @@ interface SnapResult {
               }
 
               @if (selectedFleet(); as fleet) {
-                @if (fleetService.getFleetPosition(fleet); as pos) {
+                @if (fleetPositions.getFleetPosition(fleet); as pos) {
                   @if (visibility.getFleetScanCapabilities(fleet); as caps) {
                     @if (caps.scanRange > 0) {
                       <circle
@@ -289,7 +291,7 @@ interface SnapResult {
                   [isVisible]="visibility.visibleStars().has(star.id)"
                   [viewMode]="settings.viewMode()"
                   [showLabels]="settings.showLabels()"
-                  [stationName]="fleetService.stationByStarId().get(star.id)"
+                  [stationName]="fleetStations.stationByStarId().get(star.id)"
                   (starClick)="onStarClick(star, $event)"
                   (starDoubleClick)="onStarDoubleClick(star, $event)"
                   (starContext)="onStarRightClick($event, star)"
@@ -297,10 +299,10 @@ interface SnapResult {
               }
 
               @if (selectedStar() && state.selectedFleetId(); as fid) {
-                @if (fleetService.pathMarkers(fid, selectedStar()!); as marks) {
+                @if (fleetPositions.pathMarkers(fid, selectedStar()!); as marks) {
                   <line
-                    [attr.x1]="fleetService.fleetPos(fid).x"
-                    [attr.y1]="fleetService.fleetPos(fid).y"
+                    [attr.x1]="fleetPositions.fleetPos(fid).x"
+                    [attr.y1]="fleetPositions.fleetPos(fid).y"
                     [attr.x2]="selectedStar()!.position.x"
                     [attr.y2]="selectedStar()!.position.y"
                     stroke="#34495e"
@@ -505,7 +507,9 @@ export class GalaxyMapComponent implements OnInit {
   // Injected Services
   readonly state = inject(GalaxyMapStateService);
   readonly visibility = inject(GalaxyVisibilityService);
-  readonly fleetService = inject(GalaxyFleetService);
+  readonly fleetFilter = inject(GalaxyFleetFilterService);
+  readonly fleetPositions = inject(GalaxyFleetPositionService);
+  readonly fleetStations = inject(GalaxyFleetStationService);
 
   // SVG element reference
   readonly galaxySvg = viewChild<ElementRef<SVGSVGElement>>('galaxySvg');
@@ -589,7 +593,7 @@ export class GalaxyMapComponent implements OnInit {
 
   private startDrag(fleet: Fleet) {
     const fw = this.fleetWaypoints().find((f) => f.fleetId === fleet.id);
-    const startPos = fw?.lastPos || this.fleetService.fleetPos(fleet.id);
+    const startPos = fw?.lastPos || this.fleetPositions.fleetPos(fleet.id);
 
     this.draggedWaypoint.set({
       startX: startPos.x,
@@ -614,7 +618,7 @@ export class GalaxyMapComponent implements OnInit {
     const myFleets = fleets.filter((f) => f.ownerId === this.gs.player()?.id);
 
     return myFleets.map((fleet) => {
-      let currentPos = this.fleetService.fleetPos(fleet.id);
+      let currentPos = this.fleetPositions.fleetPos(fleet.id);
       const segments: WaypointSegment[] = [];
 
       // Calculate max speed for this fleet
@@ -641,7 +645,7 @@ export class GalaxyMapComponent implements OnInit {
             if (star) dest = star.position;
           } else if (order.type === 'attack') {
             const target = fleets.find((f) => f.id === order.targetFleetId);
-            if (target) dest = this.fleetService.fleetPos(target.id);
+            if (target) dest = this.fleetPositions.fleetPos(target.id);
           }
 
           if (dest) {
@@ -1022,7 +1026,7 @@ export class GalaxyMapComponent implements OnInit {
     for (const fleet of fleets) {
       if (fleet.id === this.draggedWaypoint()?.fleetId) continue;
 
-      const fPos = this.fleetService.fleetPos(fleet.id);
+      const fPos = this.fleetPositions.fleetPos(fleet.id);
       const dx = fPos.x - x;
       const dy = fPos.y - y;
       if (dx * dx + dy * dy < threshold * threshold) {
@@ -1754,7 +1758,7 @@ export class GalaxyMapComponent implements OnInit {
     // Star Coordinate Array (nearby stars)
     const fleet = game.fleets.find((f) => f.id === activeFleetId);
     if (fleet) {
-      const pos = this.fleetService.fleetPos(fleet.id);
+      const pos = this.fleetPositions.fleetPos(fleet.id);
       const nearbyStars = [];
       const threshold = 100; // Arbitrary large range for debug dump
 
