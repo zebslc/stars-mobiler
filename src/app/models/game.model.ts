@@ -1,4 +1,5 @@
 import { PrimaryRacialTrait, LesserRacialTrait } from '../data/tech-atlas.types';
+import { FLEET_ORDER_TYPE } from './fleet-order.constants';
 
 export interface GameSettings {
   galaxySize: 'small' | 'medium' | 'large';
@@ -175,15 +176,19 @@ export interface ShipStack {
 }
 
 export type FleetOrder =
-  | { type: 'move'; destination: { x: number; y: number }; warpSpeed?: number }
   | {
-      type: 'orbit';
+      type: typeof FLEET_ORDER_TYPE.MOVE;
+      destination: { x: number; y: number };
+      warpSpeed?: number;
+    }
+  | {
+      type: typeof FLEET_ORDER_TYPE.ORBIT;
       starId: string;
       warpSpeed?: number;
       action?: 'load' | 'unload' | 'colonize' | 'decommission' | 'wait';
     }
-  | { type: 'colonize'; starId: string }
-  | { type: 'attack'; targetFleetId: string; warpSpeed?: number };
+  | { type: typeof FLEET_ORDER_TYPE.COLONIZE; starId: string }
+  | { type: typeof FLEET_ORDER_TYPE.ATTACK; targetFleetId: string; warpSpeed?: number };
 
 export type Fleet = {
   id: string;

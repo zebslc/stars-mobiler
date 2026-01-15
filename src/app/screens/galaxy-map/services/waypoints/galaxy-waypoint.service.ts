@@ -9,7 +9,7 @@ import {
   SnapTarget,
   WaypointSegment,
 } from './galaxy-waypoint.models';
-import { Fleet } from '../../../models/game.model';
+import { Fleet } from '../../../../models/game.model';
 
 @Injectable({
   providedIn: 'root',

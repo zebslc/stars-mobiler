@@ -14,6 +14,7 @@ import { GameStateService } from '../../services/game/game-state.service';
 import { SettingsService } from '../../services/core/settings.service';
 import { LoggingService } from '../../services/core/logging.service';
 import { Star, Fleet, FleetOrder, GameState } from '../../models/game.model';
+import { FLEET_ORDER_TYPE } from '../../models/fleet-order.constants';
 import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
 import { WaypointContextMenuComponent } from './components/waypoint-context-menu.component';
@@ -26,32 +27,19 @@ import { GalaxyVisibilityService } from './services/galaxy-visibility.service';
 import { GalaxyFleetFilterService } from './services/galaxy-fleet-filter.service';
 import { GalaxyFleetPositionService } from './services/galaxy-fleet-position.service';
 import { GalaxyFleetStationService } from './services/galaxy-fleet-station.service';
+import {
+  GalaxyWaypointService,
+  WaypointSegment,
+  SnapTarget,
+  FinalizeWaypointResult,
+} from './services/waypoints/galaxy-waypoint.service';
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
 import { getDesign } from '../../data/ships.data';
-
-interface WaypointSegment {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  distance: number;
-  type: string;
-  order: FleetOrder;
-  color: string;
-  warning: string | null;
-}
 
 interface MenuAction {
   action: string;
   available: boolean;
   reason: string;
-}
-
-interface SnapResult {
-  type: 'star' | 'fleet';
-  id: string;
-  x: number;
-  y: number;
 }
 
 @Component({
@@ -510,6 +498,7 @@ export class GalaxyMapComponent implements OnInit {
   readonly fleetFilter = inject(GalaxyFleetFilterService);
   readonly fleetPositions = inject(GalaxyFleetPositionService);
   readonly fleetStations = inject(GalaxyFleetStationService);
+  readonly waypoints = inject(GalaxyWaypointService);
 
   // SVG element reference
   readonly galaxySvg = viewChild<ElementRef<SVGSVGElement>>('galaxySvg');
@@ -572,109 +561,19 @@ export class GalaxyMapComponent implements OnInit {
   private pressedFleet: Fleet | null = null;
 
   // Waypoint Creation State
-  draggedWaypoint = signal<{
-    startX: number;
-    startY: number;
-    currentX: number;
-    currentY: number;
-    fleetId: string;
-    orderIndex?: number;
-  } | null>(null);
-  snapTarget = signal<{
-    type: 'star' | 'fleet' | 'space';
-    id?: string;
-    x: number;
-    y: number;
-  } | null>(null);
+  readonly draggedWaypoint = this.waypoints.draggedWaypoint;
+  readonly snapTarget = this.waypoints.snapTarget;
+  readonly navigationModeFleetId = this.waypoints.navigationModeFleetId;
+  readonly fleetWaypoints = this.waypoints.fleetWaypoints;
 
   private potentialDragFleet: Fleet | null = null;
   private potentialDragStart: { x: number; y: number } | null = null;
   private waypointDropScreenPos: { x: number; y: number } | null = null;
 
   private startDrag(fleet: Fleet) {
-    const fw = this.fleetWaypoints().find((f) => f.fleetId === fleet.id);
-    const startPos = fw?.lastPos || this.fleetPositions.fleetPos(fleet.id);
-
-    this.draggedWaypoint.set({
-      startX: startPos.x,
-      startY: startPos.y,
-      currentX: startPos.x,
-      currentY: startPos.y,
-      fleetId: fleet.id,
-    });
-
-    // Enter navigation mode for this fleet automatically
-    this.navigationModeFleetId.set(fleet.id);
+    this.waypoints.startDrag(fleet);
     this.state.endPan();
   }
-
-  navigationModeFleetId = signal<string | null>(null);
-
-  fleetWaypoints = computed(() => {
-    const game = this.gs.game();
-    const fleets = game?.fleets || [];
-    const stars = this.stars();
-    const shipDesigns = game?.shipDesigns || [];
-    const myFleets = fleets.filter((f) => f.ownerId === this.gs.player()?.id);
-
-    return myFleets.map((fleet) => {
-      let currentPos = this.fleetPositions.fleetPos(fleet.id);
-      const segments: WaypointSegment[] = [];
-
-      // Calculate max speed for this fleet
-      let maxFleetSpeed = 10;
-
-      // Simple check: find the slowest ship in the fleet
-      for (const stack of fleet.ships) {
-        const design = shipDesigns.find((d) => d.id === stack.designId);
-        if (design?.spec) {
-          if (design.spec.warpSpeed < maxFleetSpeed && design.spec.warpSpeed > 0) {
-            maxFleetSpeed = design.spec.warpSpeed;
-          }
-        }
-      }
-
-      if (fleet.orders) {
-        for (const order of fleet.orders) {
-          let dest: { x: number; y: number } | null = null;
-
-          if (order.type === 'move') {
-            dest = order.destination;
-          } else if (order.type === 'orbit') {
-            const star = stars.find((s) => s.id === order.starId);
-            if (star) dest = star.position;
-          } else if (order.type === 'attack') {
-            const target = fleets.find((f) => f.id === order.targetFleetId);
-            if (target) dest = this.fleetPositions.fleetPos(target.id);
-          }
-
-          if (dest) {
-            const dist = Math.hypot(dest.x - currentPos.x, dest.y - currentPos.y);
-            const orderSpeed = ('warpSpeed' in order && order.warpSpeed) ? order.warpSpeed : 9;
-            let warning: string | null = null;
-
-            if (orderSpeed > maxFleetSpeed) {
-              warning = 'Speed too high';
-            }
-
-            segments.push({
-              x1: currentPos.x,
-              y1: currentPos.y,
-              x2: dest.x,
-              y2: dest.y,
-              distance: Math.round(dist),
-              type: order.type,
-              order: order,
-              color: this.getSpeedColor(orderSpeed),
-              warning,
-            });
-            currentPos = dest;
-          }
-        }
-      }
-      return { fleetId: fleet.id, segments, lastPos: currentPos };
-    });
-  });
 
   private longPressTimer: ReturnType<typeof setTimeout> | undefined;
   private isLongPressing = false;
@@ -993,108 +892,29 @@ export class GalaxyMapComponent implements OnInit {
 
     this.waypointDropScreenPos = { x: clientX, y: clientY };
 
-    this.draggedWaypoint.update((dw) =>
-      dw ? { ...dw, currentX: worldX, currentY: worldY } : null,
-    );
-    this.checkSnap(worldX, worldY);
-  }
-
-  checkSnap(x: number, y: number) {
-    const threshold = 10 / this.state.scale();
-    let snapResult: SnapResult | null = null;
-
-    // Check stars
-    const stars = this.stars();
-    for (const star of stars) {
-      const dx = star.position.x - x;
-      const dy = star.position.y - y;
-      if (dx * dx + dy * dy < threshold * threshold) {
-        snapResult = {
-          type: 'star',
-          id: star.id,
-          x: star.position.x,
-          y: star.position.y,
-        };
-        this.snapTarget.set(snapResult);
-        this.logSnapCheck(x, y, snapResult);
-        return;
-      }
-    }
-
-    // Check fleets
-    const fleets = this.gs.game()?.fleets || [];
-    for (const fleet of fleets) {
-      if (fleet.id === this.draggedWaypoint()?.fleetId) continue;
-
-      const fPos = this.fleetPositions.fleetPos(fleet.id);
-      const dx = fPos.x - x;
-      const dy = fPos.y - y;
-      if (dx * dx + dy * dy < threshold * threshold) {
-        snapResult = { type: 'fleet', id: fleet.id, x: fPos.x, y: fPos.y };
-        this.snapTarget.set(snapResult);
-        this.logSnapCheck(x, y, snapResult);
-        return;
-      }
-    }
-
-    this.snapTarget.set(null);
-    this.logSnapCheck(x, y, null);
+    this.waypoints.updateDragPosition(worldX, worldY);
+    const snap = this.waypoints.checkSnap(worldX, worldY, this.state.scale());
+    this.logSnapCheck(worldX, worldY, snap);
   }
 
   finalizeWaypoint() {
-    const wp = this.draggedWaypoint();
-    const snap = this.snapTarget();
+    const result = this.waypoints.finalizeWaypoint();
+    this.handleWaypointFinalizeResult(result);
+  }
 
-    if (wp) {
-      const fleet = this.gs.game()?.fleets.find((f) => f.id === wp.fleetId);
-      if (fleet) {
-        let newOrder: FleetOrder | null = null;
-        const existingOrder = wp.orderIndex !== undefined && fleet.orders ? fleet.orders[wp.orderIndex] : null;
-        const existingWarpSpeed = existingOrder && 'warpSpeed' in existingOrder ? existingOrder.warpSpeed : undefined;
-        let orderIndex: number | null = null;
-
-        if (snap) {
-          if (snap.type === 'star' && snap.id) {
-            newOrder = { type: 'orbit', starId: snap.id, warpSpeed: existingWarpSpeed };
-          } else if (snap.type === 'fleet' && snap.id) {
-            newOrder = { type: 'move', destination: { x: snap.x, y: snap.y }, warpSpeed: existingWarpSpeed };
-          }
-        } else {
-          newOrder = {
-            type: 'move',
-            destination: { x: wp.currentX, y: wp.currentY },
-            warpSpeed: existingWarpSpeed,
-          };
-        }
-
-        if (newOrder) {
-          const currentOrders = [...(fleet.orders || [])];
-          if (wp.orderIndex !== undefined && wp.orderIndex >= 0) {
-            currentOrders[wp.orderIndex] = newOrder;
-            orderIndex = wp.orderIndex;
-          } else {
-            currentOrders.push(newOrder);
-            orderIndex = currentOrders.length - 1;
-          }
-          this.gs.setFleetOrders(wp.fleetId, currentOrders);
-
-          if (this.waypointDropScreenPos && orderIndex !== null) {
-            this.closeContextMenus(false);
-            this.waypointContextMenu.set({
-              visible: true,
-              x: this.waypointDropScreenPos.x,
-              y: this.waypointDropScreenPos.y,
-              fleetId: wp.fleetId,
-              orderIndex,
-              order: newOrder,
-            });
-          }
-        }
-      }
+  private handleWaypointFinalizeResult(result: FinalizeWaypointResult | null) {
+    if (result && this.waypointDropScreenPos) {
+      this.closeContextMenus(false);
+      this.waypointContextMenu.set({
+        visible: true,
+        x: this.waypointDropScreenPos.x,
+        y: this.waypointDropScreenPos.y,
+        fleetId: result.fleetId,
+        orderIndex: result.orderIndex,
+        order: result.order,
+      });
     }
 
-    this.draggedWaypoint.set(null);
-    this.snapTarget.set(null);
     this.waypointDropScreenPos = null;
   }
 
@@ -1247,31 +1067,15 @@ export class GalaxyMapComponent implements OnInit {
   onDeleteWaypoint() {
     const ctx = this.waypointContextMenu();
     if (ctx.visible && ctx.fleetId && ctx.orderIndex >= 0) {
-      const fleet = this.gs.game()?.fleets.find((f) => f.id === ctx.fleetId);
-      if (fleet && fleet.orders) {
-        const newOrders = [...fleet.orders];
-        newOrders.splice(ctx.orderIndex, 1);
-        this.gs.setFleetOrders(ctx.fleetId, newOrders);
-      }
+      this.waypoints.deleteWaypoint(ctx.fleetId, ctx.orderIndex);
     }
+    this.closeContextMenus();
   }
 
   onMoveWaypoint() {
     const ctx = this.waypointContextMenu();
     if (ctx.visible && ctx.fleetId && ctx.orderIndex >= 0) {
-      const fw = this.fleetWaypoints().find((f) => f.fleetId === ctx.fleetId);
-      if (fw && fw.segments[ctx.orderIndex]) {
-        const segment = fw.segments[ctx.orderIndex];
-        this.draggedWaypoint.set({
-          startX: segment.x1,
-          startY: segment.y1,
-          currentX: segment.x2,
-          currentY: segment.y2,
-          fleetId: ctx.fleetId,
-          orderIndex: ctx.orderIndex,
-        });
-        this.navigationModeFleetId.set(ctx.fleetId);
-      }
+      this.waypoints.moveWaypoint(ctx.fleetId, ctx.orderIndex);
     }
     this.closeContextMenus();
   }
@@ -1289,9 +1093,9 @@ export class GalaxyMapComponent implements OnInit {
     const order = ctx.order;
     let targetStarId: string | undefined;
 
-    if (order.type === 'orbit' || order.type === 'colonize') {
+    if (order.type === FLEET_ORDER_TYPE.ORBIT || order.type === FLEET_ORDER_TYPE.COLONIZE) {
       targetStarId = order.starId;
-    } else if (order.type === 'move' && order.destination) {
+    } else if (order.type === FLEET_ORDER_TYPE.MOVE && order.destination) {
       const threshold = 10 / this.state.scale();
       targetStarId = this.findClosestStar(order.destination.x, order.destination.y, threshold);
     }
@@ -1316,8 +1120,11 @@ export class GalaxyMapComponent implements OnInit {
           fleetId: ctx.fleetId,
           hasColonyModule,
           orderType: order.type,
-          orderDest: order.type === 'move' ? order.destination : undefined,
-          orderStarId: order.type === 'orbit' || order.type === 'colonize' ? order.starId : undefined,
+          orderDest: order.type === FLEET_ORDER_TYPE.MOVE ? order.destination : undefined,
+          orderStarId:
+            order.type === FLEET_ORDER_TYPE.ORBIT || order.type === FLEET_ORDER_TYPE.COLONIZE
+              ? order.starId
+              : undefined,
           targetStarId,
           targetStarName,
           canColonize,
@@ -1341,9 +1148,9 @@ export class GalaxyMapComponent implements OnInit {
     const order = fleet.orders[ctx.orderIndex];
     let starId: string | undefined;
 
-    if (order.type === 'orbit' || order.type === 'colonize') {
+    if (order.type === FLEET_ORDER_TYPE.ORBIT || order.type === FLEET_ORDER_TYPE.COLONIZE) {
       starId = order.starId;
-    } else if (order.type === 'move' && order.destination) {
+    } else if (order.type === FLEET_ORDER_TYPE.MOVE && order.destination) {
       const threshold = 10 / this.state.scale();
       starId = this.findClosestStar(order.destination.x, order.destination.y, threshold);
     }
@@ -1353,7 +1160,7 @@ export class GalaxyMapComponent implements OnInit {
       // Use orbit order with colonize action to preserve movement semantics/speed if needed
       const existingWarpSpeed = 'warpSpeed' in order ? order.warpSpeed : undefined;
       newOrders[ctx.orderIndex] = {
-        type: 'orbit',
+        type: FLEET_ORDER_TYPE.ORBIT,
         starId,
         warpSpeed: existingWarpSpeed,
         action: 'colonize',
@@ -1378,46 +1185,14 @@ export class GalaxyMapComponent implements OnInit {
   onSetWaypointSpeed() {
     const ctx = this.waypointContextMenu();
     if (ctx.visible && ctx.fleetId && ctx.orderIndex >= 0) {
-      const fleet = this.gs.game()?.fleets.find((f) => f.id === ctx.fleetId);
-      if (fleet && fleet.orders && fleet.orders[ctx.orderIndex]) {
-        const order = fleet.orders[ctx.orderIndex];
-        // Cycle speed: 1 -> ... -> 9 -> 1
-        const currentSpeed = ('warpSpeed' in order && order.warpSpeed) ? order.warpSpeed : 9;
-        let newSpeed = currentSpeed + 1;
-        if (newSpeed > 9) newSpeed = 1;
-
-        if (order.type !== 'colonize') {
-          const newOrders = [...fleet.orders];
-          // Create new order with updated warp speed
-          if (order.type === 'move') {
-            newOrders[ctx.orderIndex] = { ...order, warpSpeed: newSpeed };
-          } else if (order.type === 'orbit') {
-            newOrders[ctx.orderIndex] = { ...order, warpSpeed: newSpeed };
-          } else if (order.type === 'attack') {
-            newOrders[ctx.orderIndex] = { ...order, warpSpeed: newSpeed };
-          }
-          this.gs.setFleetOrders(ctx.fleetId, newOrders);
-        }
-      }
+      this.waypoints.setWaypointSpeed(ctx.fleetId, ctx.orderIndex);
     }
     this.closeContextMenus();
   }
 
-  getSpeedColor(speed?: number): string {
-    if (!speed) return '#3498db'; // Default blue
-    if (speed <= 5) return '#2ecc71'; // Green (safe/slow)
-    if (speed <= 8) return '#f1c40f'; // Yellow (medium)
-    return '#e74c3c'; // Red (fast/dangerous)
-  }
-
   exitNavigationMode() {
-    // User requested: "If I drag and drop a waypoint then come out of waypoint movement by closing the x
-    // it should consider that as the destination and start moving there from the next turn"
-    this.finalizeWaypoint();
-
-    this.navigationModeFleetId.set(null);
-    this.draggedWaypoint.set(null);
-    this.snapTarget.set(null);
+    const result = this.waypoints.exitNavigationMode();
+    this.handleWaypointFinalizeResult(result);
   }
 
   // Context Menus
@@ -1542,7 +1317,7 @@ export class GalaxyMapComponent implements OnInit {
   onSendFleetToStar(star: Star) {
     const fid = this.state.selectedFleetId();
     if (fid) {
-      this.gs.issueFleetOrder(fid, { type: 'move', destination: star.position });
+      this.gs.issueFleetOrder(fid, { type: FLEET_ORDER_TYPE.MOVE, destination: star.position });
     }
     this.closeContextMenus();
   }
@@ -1578,7 +1353,7 @@ export class GalaxyMapComponent implements OnInit {
     if (sid) {
       this.router.navigateByUrl(`/planet/${sid}`);
     } else {
-      this.gs.issueFleetOrder(fleetId, { type: 'colonize', starId });
+      this.gs.issueFleetOrder(fleetId, { type: FLEET_ORDER_TYPE.COLONIZE, starId });
       this.router.navigateByUrl('/map');
     }
     this.closeContextMenus();
@@ -1786,7 +1561,7 @@ export class GalaxyMapComponent implements OnInit {
 
   private lastSnapLogKey: string | null = null;
 
-  private logSnapCheck(x: number, y: number, snapResult: any) {
+  private logSnapCheck(x: number, y: number, snapResult: SnapTarget | null) {
     if (!this.settings.developerMode()) return;
 
     if (!snapResult) {
@@ -1794,7 +1569,7 @@ export class GalaxyMapComponent implements OnInit {
       return;
     }
 
-    const key = `${snapResult.type ?? ''}:${snapResult.id ?? ''}`;
+    const key = `${snapResult.type}:${snapResult.id ?? ''}`;
     if (key === this.lastSnapLogKey) return;
     this.lastSnapLogKey = key;
 

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { Fleet, FleetOrder, Star } from '../../../models/game.model';
+import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
 import { getDesign } from '../../../data/ships.data';
 
 interface FleetRangeStats {
@@ -102,10 +103,9 @@ export class GalaxyFleetPositionService {
       return null;
     }
 
-    const moveOrder = fleet.orders.find((order) => order.type === 'move') as Extract<
-      FleetOrder,
-      { type: 'move' }
-    > | undefined;
+    const moveOrder = fleet.orders.find((order) => order.type === FLEET_ORDER_TYPE.MOVE) as
+      | Extract<FleetOrder, { type: typeof FLEET_ORDER_TYPE.MOVE }>
+      | undefined;
 
     return moveOrder ? moveOrder.destination : null;
   }
