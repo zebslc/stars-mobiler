@@ -54,6 +54,13 @@ export default [
       'no-console': 'off',
     },
   },
+  // Test suites encapsulate logic via arrow functions, so disable per-function line limits
+  {
+    files: ['src/**/*.spec.ts'],
+    rules: {
+      'max-lines-per-function': 'off',
+    },
+  },
   // Data files - allow console.warn only
   {
     files: ['src/app/data/**/*.ts'],

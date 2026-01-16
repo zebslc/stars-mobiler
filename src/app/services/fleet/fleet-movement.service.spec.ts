@@ -120,8 +120,7 @@ describe('FleetMovementService calculateFuelConsumption', () => {
   it('throws when no engine configuration is available', () => {
     ctx.designSpy.and.callFake((designId: string): CompiledDesign => {
       const design = createCompiledDesign({ id: designId });
-      delete (design as Record<string, unknown>).engine;
-      return design;
+      return { ...design, engine: undefined as unknown as CompiledDesign['engine'] };
     });
 
     expect(() => ctx.service.calculateFuelConsumption(fleet, 10)).toThrowError(/missing engine configuration/i);

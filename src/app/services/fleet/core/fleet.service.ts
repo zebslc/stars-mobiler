@@ -596,6 +596,11 @@ export class FleetService {
   private getShipDesign(game: GameState, designId: string): CompiledDesign {
     const dynamicDesign = game.shipDesigns.find((d) => d.id === designId);
     if (dynamicDesign?.spec) {
+      const engineStats = this.findEngineComponent(dynamicDesign);
+      const engineMaxWarp = engineStats?.stats?.maxWarp;
+      const calculatedWarp = engineMaxWarp ?? dynamicDesign.spec.warpSpeed;
+      const idealWarp = Math.min(dynamicDesign.spec.idealWarp, calculatedWarp);
+
       return {
         id: dynamicDesign.id,
         name: dynamicDesign.name,
@@ -605,8 +610,8 @@ export class FleetService {
         cargoCapacity: dynamicDesign.spec.cargoCapacity,
         fuelCapacity: dynamicDesign.spec.fuelCapacity,
         fuelEfficiency: dynamicDesign.spec.fuelEfficiency ?? 100,
-        warpSpeed: dynamicDesign.spec.warpSpeed,
-        idealWarp: dynamicDesign.spec.idealWarp,
+        warpSpeed: calculatedWarp,
+        idealWarp,
         armor: dynamicDesign.spec.armor,
         shields: dynamicDesign.spec.shields,
         initiative: dynamicDesign.spec.initiative,

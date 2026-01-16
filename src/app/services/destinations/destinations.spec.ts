@@ -15,6 +15,7 @@ import { DeveloperPanelDestination } from './developer-panel.destination';
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { SettingsService } from '../core/settings.service';
+import { InternalLoggerService } from '../core/internal-logger.service';
 import { signal } from '@angular/core';
 
 describe('LogDestinations', () => {
@@ -22,6 +23,7 @@ describe('LogDestinations', () => {
   let applicationInsightsDestination: ApplicationInsightsDestination;
   let developerPanelDestination: DeveloperPanelDestination;
   let mockSettingsService: any;
+  let internalLoggerStub: jasmine.SpyObj<InternalLoggerService>;
 
   beforeEach(() => {
     // Create mock settings service with developerMode signal
@@ -29,14 +31,24 @@ describe('LogDestinations', () => {
       developerMode: signal(true)
     };
 
+    internalLoggerStub = jasmine.createSpyObj<InternalLoggerService>('InternalLoggerService', [
+      'info',
+      'warn',
+      'error',
+    ]);
+    internalLoggerStub.info.and.resolveTo();
+    internalLoggerStub.warn.and.resolveTo();
+    internalLoggerStub.error.and.resolveTo();
+
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
         ConsoleDestination,
         ApplicationInsightsDestination,
         DeveloperPanelDestination,
-        { provide: SettingsService, useValue: mockSettingsService }
-      ]
+        { provide: SettingsService, useValue: mockSettingsService },
+        { provide: InternalLoggerService, useValue: internalLoggerStub },
+      ],
     });
 
     consoleDestination = TestBed.inject(ConsoleDestination);

@@ -3,9 +3,9 @@ import { ColonyService } from './colony.service';
 import { BuildQueueService } from '../build/queue/build-queue.service';
 import { BuildProcessorService } from '../build/processor/build-processor.service';
 import { GovernorService } from './governor.service';
-import type { BuildItem, GameState, Star } from '../../models/game.model';
+import type { BuildItem, GameState, Star, StarGovernor } from '../../models/game.model';
 
-class BuildQueueStub implements BuildQueueService {
+class BuildQueueStub {
   addToBuildQueueCalls: Array<{ game: GameState; starId: string; item: BuildItem }> = [];
   removeFromQueueCalls: Array<{ game: GameState; starId: string; index: number }> = [];
   queuedGame: GameState | null = null;
@@ -22,7 +22,7 @@ class BuildQueueStub implements BuildQueueService {
   }
 }
 
-class BuildProcessorStub implements BuildProcessorService {
+class BuildProcessorStub {
   processedGames: Array<GameState> = [];
 
   processBuildQueues(game: GameState): void {
@@ -30,7 +30,7 @@ class BuildProcessorStub implements BuildProcessorService {
   }
 }
 
-class GovernorStub implements GovernorService {
+class GovernorStub {
   processedGames: Array<GameState> = [];
   setCalls: Array<{ game: GameState; starId: string; governor: Star['governor'] }> = [];
 
@@ -58,9 +58,9 @@ describe('ColonyService', () => {
     TestBed.configureTestingModule({
       providers: [
         ColonyService,
-        { provide: BuildQueueService, useValue: queue },
-        { provide: BuildProcessorService, useValue: processor },
-        { provide: GovernorService, useValue: governor },
+        { provide: BuildQueueService, useValue: queue as unknown as BuildQueueService },
+        { provide: BuildProcessorService, useValue: processor as unknown as BuildProcessorService },
+        { provide: GovernorService, useValue: governor as unknown as GovernorService },
       ],
     });
 
@@ -88,9 +88,10 @@ describe('ColonyService', () => {
   it('delegates governor behaviour', () => {
     const game = {} as GameState;
     service.processGovernors(game);
-    service.setGovernor(game, 'gamma', 'terraforming');
+    const governorValue: StarGovernor = { type: 'industrial' };
+    service.setGovernor(game, 'gamma', governorValue);
 
     expect(governor.processedGames).toEqual([game]);
-    expect(governor.setCalls).toEqual([{ game, starId: 'gamma', governor: 'terraforming' }]);
+    expect(governor.setCalls).toEqual([{ game, starId: 'gamma', governor: governorValue }]);
   });
 });

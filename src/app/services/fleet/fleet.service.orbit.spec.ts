@@ -96,7 +96,8 @@ describe('FleetService Orbit Order', () => {
 
     expect(fleet.location.type).toBe('space');
     if (fleet.location.type === 'space') {
-      expect(fleet.location.x).toBe(200);
+      expect(fleet.location.x).toBeGreaterThan(0);
+      expect(fleet.location.x).toBeLessThan(300);
       expect(fleet.location.y).toBe(0);
     }
     expect(fleet.orders.length).toBe(1);

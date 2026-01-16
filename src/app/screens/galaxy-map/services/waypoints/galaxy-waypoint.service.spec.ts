@@ -6,17 +6,19 @@ import { GalaxyWaypointOrderService } from './galaxy-waypoint-order.service';
 import { GalaxyWaypointStateService } from './galaxy-waypoint-state.service';
 import { GalaxyWaypointVisualService } from './galaxy-waypoint-visual.service';
 import type { Fleet } from '../../../../models/game.model';
+import { FLEET_ORDER_TYPE } from '../../../../models/fleet-order.constants';
 
-class VisualStub implements GalaxyWaypointVisualService {
+class VisualStub {
   fleetWaypoints = signal<Array<FleetWaypoints>>([
     {
       fleetId: 'fleet-1',
       segments: [],
+      lastPos: { x: 0, y: 0 },
     },
   ]);
 }
 
-class StateStub implements GalaxyWaypointStateService {
+class StateStub {
   draggedWaypoint = signal<DraggedWaypoint | null>(null);
   snapTarget = signal<SnapTarget | null>(null);
   navigationModeFleetId = signal<string | null>(null);
@@ -50,11 +52,14 @@ class StateStub implements GalaxyWaypointStateService {
   }
 }
 
-class OrderStub implements GalaxyWaypointOrderService {
+class OrderStub {
   finalizeWaypointResult: FinalizeWaypointResult | null = {
     fleetId: 'fleet-1',
     orderIndex: 0,
-    order: { type: 'test-order' as unknown as never },
+    order: {
+      type: FLEET_ORDER_TYPE.MOVE,
+      destination: { x: 0, y: 0 },
+    },
   };
   deleteWaypointCalls: Array<{ fleetId: string; index: number }> = [];
   setWaypointSpeedCalls: Array<{ fleetId: string; index: number }> = [];
@@ -91,9 +96,9 @@ describe('GalaxyWaypointService', () => {
     TestBed.configureTestingModule({
       providers: [
         GalaxyWaypointService,
-        { provide: GalaxyWaypointVisualService, useValue: visual },
-        { provide: GalaxyWaypointStateService, useValue: state },
-        { provide: GalaxyWaypointOrderService, useValue: order },
+        { provide: GalaxyWaypointVisualService, useValue: visual as unknown as GalaxyWaypointVisualService },
+        { provide: GalaxyWaypointStateService, useValue: state as unknown as GalaxyWaypointStateService },
+        { provide: GalaxyWaypointOrderService, useValue: order as unknown as GalaxyWaypointOrderService },
       ],
     });
 
@@ -109,7 +114,7 @@ describe('GalaxyWaypointService', () => {
 
   it('delegates drag lifecycle to the state service', () => {
     const fleet = { id: 'fleet-1' } as Fleet;
-    state.snapTarget.set({ type: 'star', starId: 'alpha', position: { x: 0, y: 0 } });
+    state.snapTarget.set({ type: 'star', id: 'alpha', x: 0, y: 0 });
     service.startDrag(fleet);
     service.updateDragPosition(10, 20);
     const snap = service.checkSnap(5, 6, 2);
@@ -124,7 +129,14 @@ describe('GalaxyWaypointService', () => {
     const finalized = service.finalizeWaypoint();
     service.deleteWaypoint('fleet-1', 3);
     service.setWaypointSpeed('fleet-2', 4);
-    order.exitNavigationModeResult = { fleetId: 'fleet-3', orderIndex: 1, order: { type: 'noop' as never } };
+    order.exitNavigationModeResult = {
+      fleetId: 'fleet-3',
+      orderIndex: 1,
+      order: {
+        type: FLEET_ORDER_TYPE.ORBIT,
+        starId: 'alpha',
+      },
+    };
     const exitResult = service.exitNavigationMode();
 
     expect(finalized).toBe(order.finalizeWaypointResult);

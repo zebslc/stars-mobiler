@@ -115,15 +115,12 @@ export class ShipDesignOverviewComponent {
   });
 
   constructor() {
-    effect(
-      () => {
-        const categories = this.availableCategories().map((item) => item.type);
-        const hasSelection = untracked(() => this.selectedCategories().size > 0);
-        if (categories.length === 0 || hasSelection) return;
-        this.selectedCategories.set(new Set(categories));
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      const categories = this.availableCategories().map((item) => item.type);
+      const hasSelection = untracked(() => this.selectedCategories().size > 0);
+      if (categories.length === 0 || hasSelection) return;
+      this.selectedCategories.set(new Set(categories));
+    });
   }
 
   readonly designDisplays = computed(() => {
