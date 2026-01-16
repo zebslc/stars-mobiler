@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GameState } from '../../../models/game.model';
-import { IFleetNamingService, LogContext } from '../../../models/service-interfaces.model';
+import type { GameState } from '../../../models/game.model';
+import type { IFleetNamingService, LogContext } from '../../../models/service-interfaces.model';
 import { getDesign } from '../../../data/ships.data';
 import { LoggingService } from '../../core/logging.service';
 
@@ -71,7 +71,7 @@ export class FleetNamingService implements IFleetNamingService {
     return isValid;
   }
 
-  getAvailableFleetNames(game: GameState, ownerId: string): string[] {
+  getAvailableFleetNames(game: GameState, ownerId: string): Array<string> {
     const context: LogContext = {
       service: 'FleetNamingService',
       operation: 'getAvailableFleetNames',
@@ -83,7 +83,7 @@ export class FleetNamingService implements IFleetNamingService {
     const usedNames = playerFleets.map((f) => f.name);
     
     // Generate some suggested names based on ship designs
-    const suggestions: string[] = [];
+    const suggestions: Array<string> = [];
     for (const design of game.shipDesigns.filter(d => d.playerId === ownerId)) {
       const baseName = design.name;
       let counter = 1;

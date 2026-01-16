@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Star, Fleet } from '../models/game.model';
+import type { Star, Fleet } from '../models/game.model';
 
 export interface PlanetContextMenuOption {
   label: string;
@@ -67,22 +67,22 @@ export interface PlanetContextMenuOption {
   `]
 })
 export class PlanetContextMenuComponent {
-  visible = input.required<boolean>();
-  x = input.required<number>();
-  y = input.required<number>();
-  star = input.required<Star | null>();
-  selectedFleet = input<Fleet | null>(null);
-  canSendFleet = input<boolean>(false);
+  readonly visible = input.required<boolean>();
+  readonly x = input.required<number>();
+  readonly y = input.required<number>();
+  readonly star = input.required<Star | null>();
+  readonly selectedFleet = input<Fleet | null>(null);
+  readonly canSendFleet = input<boolean>(false);
 
   close = output<void>();
   viewPlanet = output<string>();
   sendFleetToStar = output<Star>();
 
-  options = computed(() => {
+  readonly options = computed(() => {
     const star = this.star();
     if (!star) return [];
 
-    const opts: PlanetContextMenuOption[] = [];
+    const opts: Array<PlanetContextMenuOption> = [];
 
     opts.push({
       label: `View ${star.name}`,

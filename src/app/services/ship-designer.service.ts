@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { ComponentStats, HullTemplate } from '../data/tech-atlas.types';
+import type { ComponentStats, HullTemplate } from '../data/tech-atlas.types';
 import { getHull, getComponent } from '../utils/data-access.util';
-import { PlayerTech, ShipDesign, SlotAssignment, Species } from '../models/game.model';
+import type { PlayerTech, ShipDesign, SlotAssignment, Species } from '../models/game.model';
 import { createEmptyDesign } from '../models/ship-design.model';
-import { MiniaturizedComponent } from '../utils/miniaturization.util';
+import type { MiniaturizedComponent } from '../utils/miniaturization.util';
 import { LoggingService } from './core/logging.service';
-import { LogContext } from '../models/service-interfaces.model';
+import type { LogContext } from '../models/service-interfaces.model';
 import { ShipDesignStore } from '../core/state/ship-design.store';
 import { ShipComponentEligibilityService } from './ship-design/ship-component-eligibility.service';
 import { ShipSlotOperatorService } from './ship-design/ship-slot-operator.service';
@@ -171,7 +171,7 @@ export class ShipDesignerService {
   /**
    * Get available components for a specific slot
    */
-  getAvailableComponentsForSlot(slotId: string): MiniaturizedComponent[] {
+  getAvailableComponentsForSlot(slotId: string): Array<MiniaturizedComponent> {
     const hull = this.currentHull();
     const techLevels = this.store.techLevels();
     const species = this.store.playerSpecies();
@@ -181,7 +181,7 @@ export class ShipDesignerService {
   /**
    * Get available hulls based on construction tech level
    */
-  getAvailableHulls(): HullTemplate[] {
+  getAvailableHulls(): Array<HullTemplate> {
     return this.eligibility.getAvailableHulls(this.store.techLevels());
   }
 
@@ -280,7 +280,7 @@ export class ShipDesignerService {
     design: ShipDesign,
     hull: HullTemplate | null,
     context: LogContext,
-  ): SlotAssignment[] {
+  ): Array<SlotAssignment> {
     if (!hull) {
       this.loggingService.warn(`Hull ${design.hullId} not found during loadDesign`, context);
       return design.slots.map((slot) => this.cloneSlot(slot));

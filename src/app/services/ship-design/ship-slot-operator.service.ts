@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { ShipDesign } from '../../models/game.model';
-import { ComponentStats } from '../../data/tech-atlas.types';
+import type { ShipDesign } from '../../models/game.model';
+import type { ComponentStats } from '../../data/tech-atlas.types';
 import { ShipDesignOperationsService } from './ship-design-operations.service';
-import { ComponentData } from '../../models/service-interfaces.model';
+import type { ComponentData } from '../../models/service-interfaces.model';
 
 @Injectable({
   providedIn: 'root',

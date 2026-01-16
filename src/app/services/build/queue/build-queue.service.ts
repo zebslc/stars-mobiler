@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState } from '../../../models/game.model';
+import type { BuildItem, GameState } from '../../../models/game.model';
 import { PlanetUtilityService } from '../../colony/planet-utility.service';
 
 @Injectable({ providedIn: 'root' })
@@ -35,7 +35,7 @@ export class BuildQueueService {
   /**
    * Handle item queue management after completion or partial completion.
    */
-  handleQueueProgression(item: BuildItem, queue: BuildItem[]): void {
+  handleQueueProgression(item: BuildItem, queue: Array<BuildItem>): void {
     if (item.count && item.count > 1) {
       item.count--;
       item.paid = undefined; // Reset for next unit

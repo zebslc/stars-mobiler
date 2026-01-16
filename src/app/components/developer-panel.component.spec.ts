@@ -1,9 +1,11 @@
 import * as fc from 'fast-check';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { DeveloperPanelComponent } from './developer-panel.component';
 import { LoggingService } from '../services/core/logging.service';
 import { SettingsService } from '../services/core/settings.service';
-import { LogLevel, LogEntry, LogContext } from '../models/logging.model';
+import type { LogEntry} from '../models/logging.model';
+import { LogLevel, LogContext } from '../models/logging.model';
 import { signal } from '@angular/core';
 
 describe('DeveloperPanelComponent', () => {

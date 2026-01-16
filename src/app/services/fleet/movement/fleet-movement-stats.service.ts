@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 import {
   DEFAULT_EFFICIENCY,
   DEFAULT_MASS,
@@ -9,7 +9,7 @@ import {
   COLONIST_MASS_DIVISOR,
 } from './fleet-movement.constants';
 import { FleetShipDesignService } from '../design/fleet-ship-design.service';
-import { MovementStats } from './fleet-movement.types';
+import type { MovementStats } from './fleet-movement.types';
 
 interface MovementAccumulator {
   maxWarp: number;

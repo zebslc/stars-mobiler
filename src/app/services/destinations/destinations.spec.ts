@@ -1,11 +1,13 @@
 import * as fc from 'fast-check';
-import {
-  LogLevel,
+import type {
   LogEntry,
   LogDestination,
   ConsoleDestinationConfig,
   ApplicationInsightsConfig,
   DeveloperPanelConfig
+} from '../../models/logging.model';
+import {
+  LogLevel
 } from '../../models/logging.model';
 import { ConsoleDestination } from './console.destination';
 import { ApplicationInsightsDestination } from './application-insights.destination';
@@ -141,7 +143,7 @@ describe('LogDestinations', () => {
 
             try {
               // Create array of destinations for routing simulation
-              const destinations: LogDestination[] = [
+              const destinations: Array<LogDestination> = [
                 consoleDestination,
                 applicationInsightsDestination,
                 developerPanelDestination
@@ -305,7 +307,7 @@ describe('LogDestinations', () => {
 
             try {
               // Simulate multi-destination routing with error isolation
-              const destinations: LogDestination[] = [
+              const destinations: Array<LogDestination> = [
                 consoleDestination,
                 applicationInsightsDestination,
                 developerPanelDestination

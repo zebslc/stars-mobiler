@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { TechService } from '../../services/tech/tech.service';
-import { Star } from '../../models/game.model';
+import type { Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';
 import { StarCardComponent } from './components/star-card.component';
@@ -127,9 +127,9 @@ export class StarsOverviewComponent {
   private techService = inject(TechService);
   private logging = inject(LoggingService);
 
-  filterMode = signal<'Normal' | 'Starbase'>('Normal');
+  readonly filterMode = signal<'Normal' | 'Starbase'>('Normal');
 
-  starbaseMap = computed(() => {
+  readonly starbaseMap = computed(() => {
     const game = this.gs.game();
     const map = new Map<string, { designId: string; name: string; imageClass: string }>();
     if (!game) return map;
@@ -188,7 +188,7 @@ export class StarsOverviewComponent {
     return map;
   });
 
-  stars = computed(() => {
+  readonly stars = computed(() => {
     const stars = this.gs.stars();
     const playerId = this.gs.player()?.id;
     const ownedStars = stars.filter((s) => s.ownerId === playerId);

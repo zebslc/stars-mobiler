@@ -1,9 +1,11 @@
 import { Injectable, signal, inject } from '@angular/core';
-import {
+import type {
   LogDestination,
   LogEntry,
-  LogLevel,
   DeveloperPanelConfig
+} from '../../models/logging.model';
+import {
+  LogLevel
 } from '../../models/logging.model';
 import { SettingsService } from '../core/settings.service';
 import { InternalLoggerService, normalizeError } from '../core/internal-logger.service';
@@ -34,7 +36,7 @@ export class DeveloperPanelDestination implements LogDestination {
   readonly lastEntry = this._lastEntry.asReadonly();
 
   // In-memory storage for developer panel display
-  private readonly _entries = signal<LogEntry[]>([]);
+  private readonly _entries = signal<Array<LogEntry>>([]);
   readonly entries = this._entries.asReadonly();
 
   // Statistics for developer panel
@@ -160,14 +162,14 @@ export class DeveloperPanelDestination implements LogDestination {
   /**
    * Get entries filtered by log level
    */
-  getEntriesByLevel(level: LogLevel): LogEntry[] {
+  getEntriesByLevel(level: LogLevel): Array<LogEntry> {
     return this._entries().filter(entry => entry.level === level);
   }
 
   /**
    * Get entries filtered by time range
    */
-  getEntriesByTimeRange(startTime: Date, endTime: Date): LogEntry[] {
+  getEntriesByTimeRange(startTime: Date, endTime: Date): Array<LogEntry> {
     return this._entries().filter(entry => 
       entry.timestamp >= startTime && entry.timestamp <= endTime
     );
@@ -176,14 +178,14 @@ export class DeveloperPanelDestination implements LogDestination {
   /**
    * Get entries filtered by source
    */
-  getEntriesBySource(source: string): LogEntry[] {
+  getEntriesBySource(source: string): Array<LogEntry> {
     return this._entries().filter(entry => entry.source === source);
   }
 
   /**
    * Search entries by message content
    */
-  searchEntries(searchTerm: string): LogEntry[] {
+  searchEntries(searchTerm: string): Array<LogEntry> {
     const lowerSearchTerm = searchTerm.toLowerCase();
     return this._entries().filter(entry => 
       entry.message.toLowerCase().includes(lowerSearchTerm) ||

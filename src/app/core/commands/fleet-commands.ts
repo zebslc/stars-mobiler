@@ -1,6 +1,6 @@
-import { GameCommand, GameCommandWithResult } from './game-command.interface';
-import { GameState, FleetOrder } from '../../models/game.model';
-import { FleetService } from '../../services/fleet/core/fleet.service';
+import type { GameCommand, GameCommandWithResult } from './game-command.interface';
+import type { GameState, FleetOrder } from '../../models/game.model';
+import type { FleetService } from '../../services/fleet/core/fleet.service';
 
 /**
  * Command to issue a single order to a fleet.
@@ -24,7 +24,7 @@ export class SetFleetOrdersCommand implements GameCommand {
   constructor(
     private fleetService: FleetService,
     private fleetId: string,
-    private orders: FleetOrder[]
+    private orders: Array<FleetOrder>
   ) {}
 
   execute(game: GameState): GameState {
@@ -98,7 +98,7 @@ export class SplitFleetCommand implements GameCommandWithResult<string | null> {
     private fleetService: FleetService,
     private fleetId: string,
     private transferSpec: {
-      ships: { designId: string; count: number; damage?: number }[];
+      ships: Array<{ designId: string; count: number; damage?: number }>;
       fuel: number;
       cargo: {
         resources: number;
@@ -164,7 +164,7 @@ export class TransferFleetCargoCommand implements GameCommand {
     private sourceId: string,
     private targetId: string,
     private transferSpec: {
-      ships: { designId: string; count: number; damage?: number }[];
+      ships: Array<{ designId: string; count: number; damage?: number }>;
       fuel: number;
       cargo: {
         resources: number;

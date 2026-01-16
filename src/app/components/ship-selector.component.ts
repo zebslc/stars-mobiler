@@ -1,9 +1,10 @@
 import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CompiledDesign } from '../data/ships.data';
+import type { CompiledDesign } from '../data/ships.data';
+import type {
+  ShipDesignDisplay} from './ship-design-item/ship-design-item.component';
 import {
-  ShipDesignItemComponent,
-  ShipDesignDisplay,
+  ShipDesignItemComponent
 } from './ship-design-item/ship-design-item.component';
 import { CompiledShipStats } from '../models/game.model';
 import { ClickOutsideDirective } from '../shared/directives';
@@ -279,11 +280,11 @@ export interface ShipOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipSelectorComponent {
-  readonly options = input<ShipOption[]>([]);
+  readonly options = input<Array<ShipOption>>([]);
   readonly selectedShip = input<ShipOption | null>(null);
   readonly shipSelected = output<ShipOption>();
 
-  isOpen = signal(false);
+  readonly isOpen = signal(false);
 
   toggleDropdown() {
     this.isOpen.update((v) => !v);

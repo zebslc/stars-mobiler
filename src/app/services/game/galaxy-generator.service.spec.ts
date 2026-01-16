@@ -1,5 +1,5 @@
 import { GalaxyGeneratorService } from './galaxy-generator.service';
-import { Species } from '../../models/game.model';
+import type { Species } from '../../models/game.model';
 
 describe('GalaxyGeneratorService', () => {
   let service: GalaxyGeneratorService;

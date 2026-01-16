@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TouchClickDirective } from '../../../shared/directives';
-import { MiniaturizedComponent } from '../../../utils/miniaturization.util';
-import { SlotDefinition } from '../../../data/tech-atlas.types';
+import type { MiniaturizedComponent } from '../../../utils/miniaturization.util';
+import type { SlotDefinition } from '../../../data/tech-atlas.types';
 import { getComponent } from '../../../utils/data-access.util';
 
 @Component({
@@ -247,7 +247,7 @@ import { getComponent } from '../../../utils/data-access.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerComponentSelectorComponent {
-  @Input({ required: true }) components: MiniaturizedComponent[] = [];
+  @Input({ required: true }) components: Array<MiniaturizedComponent> = [];
   @Input({ required: true }) selectedSlotId: string | null = null;
   @Input({ required: true }) selectedSlot: SlotDefinition | null = null;
   @Input() currentComponentId: string | null = null;
@@ -277,7 +277,7 @@ export class ShipDesignerComponentSelectorComponent {
     return `Slot ${slotId?.toUpperCase() || ''}`;
   }
 
-  getSlotTypeDisplay(allowedTypes: string[]): string {
+  getSlotTypeDisplay(allowedTypes: Array<string>): string {
     const typeMap: Record<string, string> = {
       engine: '🚀',
       weapon: '🗡️',
@@ -316,7 +316,7 @@ export class ShipDesignerComponentSelectorComponent {
     germanium?: number;
     resources?: number;
   }): string {
-    const parts: string[] = [];
+    const parts: Array<string> = [];
     if (cost.ironium) parts.push(`${cost.ironium} Fe`);
     if (cost.boranium) parts.push(`${cost.boranium} B`);
     if (cost.germanium) parts.push(`${cost.germanium} Ge`);
@@ -349,14 +349,14 @@ export class ShipDesignerComponentSelectorComponent {
     // Prefer most relevant stat by type or available fields
     if (base.stats.shield) return `Shields: ${base.stats.shield}`;
     if (base.stats.power) {
-      const parts: string[] = [`Damage: ${base.stats.power}`];
+      const parts: Array<string> = [`Damage: ${base.stats.power}`];
       if (base.stats.accuracy) parts.push(`Acc: ${base.stats.accuracy}%`);
       if (base.stats.range) parts.push(`Range: ${base.stats.range}`);
       return parts.join(' • ');
     }
     if (base.stats.armor) return `Armor: ${base.stats.armor}`;
     if (base.stats.enemyFleetScanDistance) {
-      const parts: string[] = [`Scan: ${base.stats.enemyFleetScanDistance}`];
+      const parts: Array<string> = [`Scan: ${base.stats.enemyFleetScanDistance}`];
       if (base.stats.planetScanDistance !== undefined) {
         if (base.stats.planetScanDistance === 0) parts.push('Planet: Orbit');
         else if (base.stats.planetScanDistance === -1) parts.push('Planet: None');

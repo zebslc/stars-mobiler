@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { GameState, ShipDesign, PlayerTech, Star, Player } from '../../models/game.model';
+import type { GameState, ShipDesign, PlayerTech, Star, Player } from '../../models/game.model';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
-import { ShipOption } from '../../components/ship-selector.component';
+import type { ShipOption } from '../../components/ship-selector.component';
 import { getComponent, getHull, getAllComponents } from '../../utils/data-access.util';
 import { HullTemplate } from '../../data/tech-atlas.types';
 import { compileShipStats } from '../../models/ship-design.model';
-import { CompiledDesign } from '../../data/ships.data';
+import type { CompiledDesign } from '../../data/ships.data';
 
 @Injectable({ providedIn: 'root' })
 export class ShipyardService {
@@ -13,7 +13,7 @@ export class ShipyardService {
 
   saveShipDesign(game: GameState, design: ShipDesign): GameState {
     const existingIndex = game.shipDesigns.findIndex((d) => d.id === design.id);
-    let nextDesigns: ShipDesign[];
+    let nextDesigns: Array<ShipDesign>;
 
     if (existingIndex >= 0) {
       // Update existing design
@@ -43,7 +43,7 @@ export class ShipyardService {
     };
   }
 
-  getPlayerShipDesigns(game: GameState): ShipDesign[] {
+  getPlayerShipDesigns(game: GameState): Array<ShipDesign> {
     if (!game) return [];
     return game.shipDesigns.filter((d) => d.playerId === game.humanPlayer.id);
   }
@@ -89,7 +89,7 @@ export class ShipyardService {
     return totalCost;
   }
 
-  getAvailableShipOptions(planet: Star, player: Player, game: GameState): ShipOption[] {
+  getAvailableShipOptions(planet: Star, player: Player, game: GameState): Array<ShipOption> {
     if (!player || !game) return [];
 
     const userDesigns = this.getPlayerShipDesigns(game);

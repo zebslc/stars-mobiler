@@ -1,15 +1,16 @@
-import { Injectable, WritableSignal, Signal } from '@angular/core';
+import type { WritableSignal, Signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { GalaxyWaypointVisualService } from './galaxy-waypoint-visual.service';
 import { GalaxyWaypointStateService } from './galaxy-waypoint-state.service';
 import { GalaxyWaypointOrderService } from './galaxy-waypoint-order.service';
-import {
+import type {
   DraggedWaypoint,
   FinalizeWaypointResult,
   FleetWaypoints,
   SnapTarget,
   WaypointSegment,
 } from './galaxy-waypoint.models';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class GalaxyWaypointService {
     private readonly orderService: GalaxyWaypointOrderService,
   ) {}
 
-  get fleetWaypoints(): Signal<FleetWaypoints[]> {
+  get fleetWaypoints(): Signal<Array<FleetWaypoints>> {
     return this.visualService.fleetWaypoints;
   }
 

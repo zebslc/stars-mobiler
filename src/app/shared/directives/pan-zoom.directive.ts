@@ -1,6 +1,6 @@
 import { Directive, ElementRef, OnInit, OnDestroy, input, output } from '@angular/core';
 import { InputInteractionService } from '../../services/core/input-interaction.service';
-import { 
+import type { 
   UnifiedInputEvent, 
   InputServiceConfig, 
   Point 

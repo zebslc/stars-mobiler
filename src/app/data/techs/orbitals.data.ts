@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const ORBITAL_COMPONENTS: ComponentStats[] = [
+export const ORBITAL_COMPONENTS: Array<ComponentStats> = [
   // Mass Drivers
   {
     id: 'driver_std',

@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ComponentStats } from '../../../data/tech-atlas.types';
+import type { ComponentStats } from '../../../data/tech-atlas.types';
 import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.component';
 
 @Component({

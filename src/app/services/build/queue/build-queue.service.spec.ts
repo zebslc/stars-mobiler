@@ -1,6 +1,6 @@
 import { BuildQueueService } from './build-queue.service';
-import { PlanetUtilityService } from '../../colony/planet-utility.service';
-import { BuildItem, GameState, Player, Star } from '../../../models/game.model';
+import type { PlanetUtilityService } from '../../colony/planet-utility.service';
+import type { BuildItem, GameState, Player, Star } from '../../../models/game.model';
 
 describe('BuildQueueService', () => {
   let service: BuildQueueService;

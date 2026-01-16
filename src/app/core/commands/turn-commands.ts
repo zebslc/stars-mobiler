@@ -1,6 +1,6 @@
-import { GameCommand } from './game-command.interface';
-import { GameState } from '../../models/game.model';
-import { TurnService } from '../../services/game/turn.service';
+import type { GameCommand } from './game-command.interface';
+import type { GameState } from '../../models/game.model';
+import type { TurnService } from '../../services/game/turn.service';
 
 /**
  * Command to end the current turn and process all game mechanics.

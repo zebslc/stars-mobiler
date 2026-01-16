@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ComponentStats } from '../../data/tech-atlas.types';
+import type { ComponentStats } from '../../data/tech-atlas.types';
 import { LoggingService } from '../core/logging.service';
-import { LogContext } from '../../models/service-interfaces.model';
-import { HullSlot } from './hull-slot-validation.service';
+import type { LogContext } from '../../models/service-interfaces.model';
+import type { HullSlot } from './hull-slot-validation.service';
 import { HullSlotValidationService } from './hull-slot-validation.service';
 
 /**
@@ -11,8 +11,8 @@ import { HullSlotValidationService } from './hull-slot-validation.service';
 export interface SlotOperationResult {
   success: boolean;
   slot: HullSlot;
-  errors: string[];
-  warnings: string[];
+  errors: Array<string>;
+  warnings: Array<string>;
 }
 
 /**
@@ -40,7 +40,7 @@ export interface SlotComponentAssignment {
  * Extended hull slot with component assignments
  */
 export interface HullSlotWithComponents extends HullSlot {
-  components: SlotComponentAssignment[];
+  components: Array<SlotComponentAssignment>;
 }
 
 /**
@@ -220,7 +220,7 @@ export class HullSlotOperationsService {
   /**
    * Get display representation for slot types
    */
-  getSlotTypeDisplay(allowedTypes: string[]): string {
+  getSlotTypeDisplay(allowedTypes: Array<string>): string {
     const context: LogContext = {
       service: 'HullSlotOperationsService',
       operation: 'getSlotTypeDisplay',
@@ -235,7 +235,7 @@ export class HullSlotOperationsService {
     return result;
   }
 
-  private generateSlotTypeIcons(allowedTypes: string[]): string {
+  private generateSlotTypeIcons(allowedTypes: Array<string>): string {
     const typeMap: Record<string, string> = {
       engine: '🚀', weapon: '🗡️', shield: '☔', armor: '🛡️',
       electronics: '⚡', elect: '⚡', computer: '⚡', scanner: '📡',

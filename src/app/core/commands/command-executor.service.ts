@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { GameCommand, GameCommandWithResult } from './game-command.interface';
-import { GameState, Star } from '../../models/game.model';
+import type { GameCommand, GameCommandWithResult } from './game-command.interface';
+import type { GameState, Star } from '../../models/game.model';
 
 /**
  * Service responsible for executing game commands and managing state transitions.
@@ -8,7 +8,7 @@ import { GameState, Star } from '../../models/game.model';
  */
 @Injectable({ providedIn: 'root' })
 export class CommandExecutorService {
-  private _game = signal<GameState | null>(null);
+  private readonly _game = signal<GameState | null>(null);
   readonly game = this._game.asReadonly();
 
   /**

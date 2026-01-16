@@ -2,10 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
 import { GalaxyWaypointStateService } from './galaxy-waypoint-state.service';
-import { DraggedWaypoint, FinalizeWaypointResult, SnapTarget } from './galaxy-waypoint.models';
-import { Fleet, FleetOrder } from '../../../../models/game.model';
+import type { DraggedWaypoint, FinalizeWaypointResult, SnapTarget } from './galaxy-waypoint.models';
+import type { Fleet, FleetOrder } from '../../../../models/game.model';
 import { FLEET_ORDER_TYPE } from '../../../../models/fleet-order.constants';
-import { LogContext } from '../../../../models/service-interfaces.model';
+import type { LogContext } from '../../../../models/service-interfaces.model';
 
 @Injectable({
   providedIn: 'root',
@@ -150,7 +150,7 @@ export class GalaxyWaypointOrderService {
     fleet: Fleet,
     waypoint: DraggedWaypoint,
     snap: SnapTarget | null,
-  ): { orders: FleetOrder[]; orderIndex: number; order: FleetOrder } | null {
+  ): { orders: Array<FleetOrder>; orderIndex: number; order: FleetOrder } | null {
     const warpSpeed = this.resolveExistingWarpSpeed(fleet, waypoint.orderIndex);
     const newOrder = this.createOrderFromContext(waypoint, snap, warpSpeed);
 
@@ -177,10 +177,10 @@ export class GalaxyWaypointOrderService {
   }
 
   private mergeOrders(
-    existingOrders: FleetOrder[] | undefined,
+    existingOrders: Array<FleetOrder> | undefined,
     newOrder: FleetOrder,
     orderIndex?: number,
-  ): { orders: FleetOrder[]; index: number } {
+  ): { orders: Array<FleetOrder>; index: number } {
     const orders = existingOrders ? [...existingOrders] : [];
 
     if (orderIndex !== undefined && orderIndex >= 0 && orderIndex < orders.length) {

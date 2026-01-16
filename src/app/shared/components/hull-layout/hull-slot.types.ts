@@ -1,4 +1,4 @@
-import { ComponentStats } from '../../../data/tech-atlas.types';
+import type { ComponentStats } from '../../../data/tech-atlas.types';
 
 /**
  * Component data interface for hull slot component

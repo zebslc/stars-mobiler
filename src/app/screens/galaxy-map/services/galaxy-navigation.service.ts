@@ -4,11 +4,11 @@ import { GameStateService } from '../../../services/game/game-state.service';
 import { LoggingService } from '../../../services/core/logging.service';
 import { GalaxyMapStateService } from './galaxy-map-state.service';
 import { GalaxyCoordinateService } from './galaxy-coordinate.service';
-import { 
+import type { 
   Star, 
   Fleet
 } from '../../../models/game.model';
-import { 
+import type { 
   GalaxyCoordinate,
   LogContext 
 } from '../../../models/service-interfaces.model';

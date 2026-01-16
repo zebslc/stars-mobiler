@@ -1,4 +1,5 @@
-import { TECH_ATLAS, TechRequirement } from './tech-atlas.data';
+import type { TechRequirement } from './tech-atlas.data';
+import { TECH_ATLAS } from './tech-atlas.data';
 
 export type TechField = 'Energy' | 'Kinetics' | 'Propulsion' | 'Construction';
 
@@ -6,7 +7,7 @@ export interface TechLevel {
   level: number;
   name: string;
   cost: number;
-  unlocks: string[];
+  unlocks: Array<string>;
 }
 
 export interface TechFieldInfo {
@@ -14,7 +15,7 @@ export interface TechFieldInfo {
   name: string;
   description: string;
   icon: string;
-  levels: TechLevel[];
+  levels: Array<TechLevel>;
 }
 
 // Standard Stars! Cost Curve: 50 * (1.75 ^ (Level - 1))
@@ -24,8 +25,8 @@ function calculateLevelCost(level: number): number {
   return Math.floor(50 * Math.pow(1.6, level - 1));
 }
 
-function getUnlocksForField(field: TechField): Record<number, string[]> {
-  const unlocks: Record<number, string[]> = {};
+function getUnlocksForField(field: TechField): Record<number, Array<string>> {
+  const unlocks: Record<number, Array<string>> = {};
 
   // Process Hulls
   TECH_ATLAS.hulls.forEach((hull) => {
@@ -51,9 +52,9 @@ function getUnlocksForField(field: TechField): Record<number, string[]> {
   return unlocks;
 }
 
-function generateLevels(field: TechField): TechLevel[] {
+function generateLevels(field: TechField): Array<TechLevel> {
   const unlocksByLevel = getUnlocksForField(field);
-  const levels: TechLevel[] = [];
+  const levels: Array<TechLevel> = [];
 
   // Find max level defined in unlocks or default to 26
   let maxLevel = 26;
@@ -104,4 +105,4 @@ export const TECH_FIELDS: Record<TechField, TechFieldInfo> = {
   },
 };
 
-export const TECH_FIELD_LIST: TechField[] = ['Energy', 'Kinetics', 'Propulsion', 'Construction'];
+export const TECH_FIELD_LIST: Array<TechField> = ['Energy', 'Kinetics', 'Propulsion', 'Construction'];

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Star, PlayerTech } from '../../../models/game.model';
+import type { BuildItem, GameState, Star, PlayerTech } from '../../../models/game.model';
 import { FleetService } from '../../fleet/core/fleet.service';
 import { PLANETARY_SCANNER_COMPONENTS } from '../../../data/techs/planetary.data';
-import { TechRequirement } from '../../../data/tech-atlas.types';
+import type { TechRequirement } from '../../../data/tech-atlas.types';
 
 const DEFAULT_SCANNER_RANGE = 50;
 

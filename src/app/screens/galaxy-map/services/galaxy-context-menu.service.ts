@@ -1,12 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { LoggingService } from '../../../services/core/logging.service';
-import { 
+import type { 
   IGalaxyContextMenuService,
   ScreenCoordinate,
   Waypoint,
   LogContext 
 } from '../../../models/service-interfaces.model';
-import { Fleet, Star } from '../../../models/game.model';
+import type { Fleet, Star } from '../../../models/game.model';
 
 export interface PlanetContextMenuState {
   visible: boolean;

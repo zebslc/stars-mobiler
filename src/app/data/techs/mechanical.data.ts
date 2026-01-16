@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const MECHANICAL_COMPONENTS: ComponentStats[] = [
+export const MECHANICAL_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'mech_fuel_tank',
     name: 'Fuel Tank',

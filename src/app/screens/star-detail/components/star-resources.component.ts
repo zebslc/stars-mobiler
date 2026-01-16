@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Star } from '../../../models/game.model';
+import type { Star } from '../../../models/game.model';
 
 @Component({
   standalone: true,
@@ -41,7 +41,7 @@ import { Star } from '../../../models/game.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarResourcesComponent {
-  star = input.required<Star>();
+  readonly star = input.required<Star>();
 
   maxFacilities() {
     return Math.floor(this.star().population / 10);

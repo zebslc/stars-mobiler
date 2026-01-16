@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Fleet } from '../../../models/game.model';
-import { FleetLocation, GalaxyCoordinate, MovementValidationResult } from '../../../models/service-interfaces.model';
+import type { Fleet } from '../../../models/game.model';
+import type { FleetLocation, GalaxyCoordinate, MovementValidationResult } from '../../../models/service-interfaces.model';
 import { FleetFuelCalculatorService } from '../fuel/fleet-fuel-calculator.service';
-import { MovementStats, MovementValidationAnalysis, MovementRequirement } from './fleet-movement.types';
+import type { MovementStats, MovementValidationAnalysis, MovementRequirement } from './fleet-movement.types';
 import { DEFAULT_COORDINATE } from './fleet-movement.constants';
 
 interface ValidationMessages {
-  errors: string[];
-  warnings: string[];
+  errors: Array<string>;
+  warnings: Array<string>;
 }
 
 @Injectable({ providedIn: 'root' })

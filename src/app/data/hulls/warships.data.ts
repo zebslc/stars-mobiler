@@ -1,6 +1,6 @@
-import { HullTemplate } from '../tech-atlas.types';
+import type { HullTemplate } from '../tech-atlas.types';
 
-export const WARSHIP_HULLS: HullTemplate[] = [
+export const WARSHIP_HULLS: Array<HullTemplate> = [
   {
     Name: 'Scout',
     Structure: ['E1,E1,GP1,GP1,SC1,SC1', 'E1,E1,GP1,GP1,SC1,SC1'],

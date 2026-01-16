@@ -124,7 +124,7 @@ export class FuelUsageGraphComponent {
     if (!usageMap) return null;
 
     // Convert map to array
-    const data: { warp: number; usage: number }[] = [];
+    const data: Array<{ warp: number; usage: number }> = [];
     let maxUsage = 0;
     for (let i = 1; i <= 10; i++) {
       const key = `warp${i}` as keyof typeof usageMap;
@@ -161,8 +161,8 @@ export class FuelUsageGraphComponent {
 
     // Find crossing point
     // We iterate through segments
-    const safePoints: {x: number, y: number}[] = [];
-    const unsafePoints: {x: number, y: number}[] = [];
+    const safePoints: Array<{x: number, y: number}> = [];
+    const unsafePoints: Array<{x: number, y: number}> = [];
 
     // Start point
     let wasSafe = data[0].usage <= threshold;

@@ -1,6 +1,7 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   Component,
-  OnInit,
   computed,
   signal,
   ChangeDetectionStrategy,
@@ -22,8 +23,8 @@ import { getHull } from '../../utils/data-access.util';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
-import { HullTemplate, SlotDefinition } from '../../data/tech-atlas.types';
-import { ComponentData } from '../../models/service-interfaces.model';
+import type { HullTemplate, SlotDefinition } from '../../data/tech-atlas.types';
+import type { ComponentData } from '../../models/service-interfaces.model';
 
 @Component({
   selector: 'app-ship-designer',
@@ -43,7 +44,7 @@ import { ComponentData } from '../../models/service-interfaces.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerComponent implements OnInit {
-  private hullFilterSig = signal<'starbases' | 'ships' | null>(null);
+  private readonly hullFilterSig = signal<'starbases' | 'ships' | null>(null);
   @Input() set hullFilter(value: 'starbases' | 'ships' | null) {
     this.hullFilterSig.set(value);
   }

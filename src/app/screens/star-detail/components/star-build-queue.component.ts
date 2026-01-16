@@ -10,11 +10,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { BuildItem, Star } from '../../../models/game.model';
-import { ShipSelectorComponent, ShipOption } from '../../../components/ship-selector.component';
+import type { BuildItem, Star } from '../../../models/game.model';
+import type { ShipOption } from '../../../components/ship-selector.component';
+import { ShipSelectorComponent } from '../../../components/ship-selector.component';
 import { getDesign } from '../../../data/ships.data';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { BUILD_COSTS, Cost } from '../../../data/costs.data';
+import type { Cost } from '../../../data/costs.data';
+import { BUILD_COSTS } from '../../../data/costs.data';
 
 export type BuildProject =
   | 'mine'
@@ -158,12 +160,12 @@ export class StarBuildQueueComponent {
 
   @ViewChild(ShipSelectorComponent) shipSelector?: ShipSelectorComponent;
 
-  star = input.required<Star>();
-  shipOptions = input.required<ShipOption[]>();
-  selectedShipOption = input.required<ShipOption | null>();
-  buildAmount = input.required<number>();
-  shouldShowTerraform = input.required<boolean>();
-  shouldShowScanner = input.required<boolean>();
+  readonly star = input.required<Star>();
+  readonly shipOptions = input.required<Array<ShipOption>>();
+  readonly selectedShipOption = input.required<ShipOption | null>();
+  readonly buildAmount = input.required<number>();
+  readonly shouldShowTerraform = input.required<boolean>();
+  readonly shouldShowScanner = input.required<boolean>();
 
   queue = output<BuildProject>();
   remove = output<number>();
@@ -171,13 +173,13 @@ export class StarBuildQueueComponent {
   onShipSelected = output<ShipOption>();
   setShipBuildAmount = output<number>();
 
-  selectedProject = signal<BuildProject>('mine');
+  readonly selectedProject = signal<BuildProject>('mine');
 
-  availableShipOptions = computed(() => {
+  readonly availableShipOptions = computed(() => {
     return this.shipOptions();
   });
 
-  shipBuildAmount = input<number>(1);
+  readonly shipBuildAmount = input<number>(1);
 
   onProjectChange(event: Event) {
     const value = (event.target as HTMLSelectElement).value as BuildProject;
@@ -217,7 +219,7 @@ export class StarBuildQueueComponent {
   }
 
   formatCost(cost: Cost): string {
-    const parts = [] as string[];
+    const parts = [] as Array<string>;
     if (cost.resources) parts.push(`${cost.resources}R`);
     if (cost.ironium) parts.push(`${cost.ironium}Fe`);
     if (cost.boranium) parts.push(`${cost.boranium}Bo`);

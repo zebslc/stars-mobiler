@@ -2,13 +2,14 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject
 import { CommonModule } from '@angular/common';
 import { TechService } from '../../../services/tech/tech.service';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { HullTemplate, ComponentStats, TechRequirement } from '../../../data/tech-atlas.types';
+import type { HullTemplate, ComponentStats, TechRequirement } from '../../../data/tech-atlas.types';
 import { TechField } from '../../../data/tech-tree.data';
 import { FuelUsageGraphComponent } from '../fuel-usage-graph/fuel-usage-graph.component';
 import { HullLayoutComponent } from '../hull-layout/hull-layout.component';
+import type {
+  Cost} from '../resource-cost/resource-cost.component';
 import {
-  ResourceCostComponent,
-  Cost,
+  ResourceCostComponent
 } from '../resource-cost/resource-cost.component';
 import { getHull } from '../../../utils/data-access.util';
 import { TouchClickDirective, ClickOutsideDirective } from '../../directives';
@@ -239,26 +240,26 @@ export class ResearchUnlockDetailsComponent {
 
   private techService = inject(TechService);
 
-  details = computed(() => {
+  readonly details = computed(() => {
     const name = this.unlockName;
     const hull = this.techService.getHullByName(name);
     if (hull) return hull;
     return this.techService.getComponentByName(name) || this.techService.getComponentById(name);
   });
 
-  displayName = computed(() => {
+  readonly displayName = computed(() => {
     const d = this.details();
     if (!d) return this.unlockName;
     return 'Name' in d ? (d as HullTemplate).Name : (d as ComponentStats).name;
   });
 
-  hullData = computed(() => {
+  readonly hullData = computed(() => {
     const d = this.details();
     if (!d || !('Slots' in d)) return null;
     return getHull(this.unlockName);
   });
 
-  techType = computed(() => {
+  readonly techType = computed(() => {
     const d = this.details();
     if (!d) return '';
 
@@ -272,7 +273,7 @@ export class ResearchUnlockDetailsComponent {
     return category ? `${category.category} Component` : 'Component';
   });
 
-  costData = computed<Cost | null>(() => {
+  readonly costData = computed<Cost | null>(() => {
     const d = this.details();
     if (!d) return null;
 
@@ -297,7 +298,7 @@ export class ResearchUnlockDetailsComponent {
     }
   });
 
-  techMass = computed(() => {
+  readonly techMass = computed(() => {
     const d = this.details();
     if (!d) return null;
     if ('Stats' in d) {
@@ -306,11 +307,11 @@ export class ResearchUnlockDetailsComponent {
     return (d as ComponentStats).mass ?? null;
   });
 
-  techStats = computed(() => {
+  readonly techStats = computed(() => {
     const d = this.details();
     if (!d) return [];
 
-    const stats: { key: string; value: string }[] = [];
+    const stats: Array<{ key: string; value: string }> = [];
     if ('Slots' in d) {
       const hull = d as HullTemplate;
       stats.push({
@@ -383,7 +384,7 @@ export class ResearchUnlockDetailsComponent {
     return stats;
   });
 
-  fuelUsageInfo = computed(() => {
+  readonly fuelUsageInfo = computed(() => {
     const d = this.details();
     if (!d || 'Slots' in d) return null;
     const comp = d as ComponentStats;
@@ -395,11 +396,11 @@ export class ResearchUnlockDetailsComponent {
     };
   });
 
-  techRequirements = computed(() => {
+  readonly techRequirements = computed(() => {
     const d = this.details();
     if (!d) return [];
 
-    const reqs: { field: string; level: number }[] = [];
+    const reqs: Array<{ field: string; level: number }> = [];
     let techReq: TechRequirement | undefined;
 
     if ('techReq' in d) {
@@ -419,7 +420,7 @@ export class ResearchUnlockDetailsComponent {
     return reqs;
   });
 
-  unlockDescription = computed(() => {
+  readonly unlockDescription = computed(() => {
     // Fallback if details not found
     const descriptions: Record<string, string> = {
       'Quick Jumper 5':

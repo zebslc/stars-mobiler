@@ -1,6 +1,6 @@
 import { FleetCargoService } from './fleet-cargo.service';
-import { LoggingService } from '../../core/logging.service';
-import { GameState, Fleet, Player, Star } from '../../../models/game.model';
+import type { LoggingService } from '../../core/logging.service';
+import type { GameState, Fleet, Player, Star } from '../../../models/game.model';
 
 describe('FleetCargoService', () => {
   let service: FleetCargoService;

@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game/game-state.service';
 import { TechService } from '../../services/tech/tech.service';
 import { HullPreviewModalComponent } from './hull-preview-modal.component';
-import { HullTemplate } from '../../data/tech-atlas.types';
+import type { HullTemplate } from '../../data/tech-atlas.types';
 import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
 import { getDesign } from '../../data/ships.data';
-import { ShipDesign } from '../../models/game.model';
-import { TouchClickDirective, TouchClickEvent } from '../directives';
+import type { ShipDesign } from '../../models/game.model';
+import type { TouchClickEvent } from '../directives';
+import { TouchClickDirective } from '../directives';
 
 @Component({
   selector: 'app-design-preview-button',
@@ -85,13 +86,13 @@ export class DesignPreviewButtonComponent {
   private gs = inject(GameStateService);
   private techService = inject(TechService);
 
-  previewOpen = signal(false);
-  previewHull = signal<HullTemplate | null>(null);
-  previewDesign = signal<ShipDesign | null>(null);
-  previewTitle = signal<string>('');
-  previewStats = signal<any>(null);
+  readonly previewOpen = signal(false);
+  readonly previewHull = signal<HullTemplate | null>(null);
+  readonly previewDesign = signal<ShipDesign | null>(null);
+  readonly previewTitle = signal<string>('');
+  readonly previewStats = signal<any>(null);
 
-  hullIcon = computed(() => {
+  readonly hullIcon = computed(() => {
     const designId = this.designId();
     if (!designId) return '';
 

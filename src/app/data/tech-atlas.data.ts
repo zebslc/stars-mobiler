@@ -29,20 +29,20 @@ import { SHIELD_COMPONENTS, ARMOR_COMPONENTS } from './techs/defenses.data';
 import { ORBITAL_COMPONENTS } from './techs/orbitals.data';
 import { MINE_COMPONENTS } from './techs/mines.data';
 
-import { HullTemplate, ComponentCategory } from './tech-atlas.types';
+import type { HullTemplate, ComponentCategory } from './tech-atlas.types';
 
 // ==========================================
 // Unified Exports
 // ==========================================
 
-export const ALL_HULLS: HullTemplate[] = [
+export const ALL_HULLS: Array<HullTemplate> = [
   ...FREIGHTER_HULLS,
   ...WARSHIP_HULLS,
   ...UTILITY_HULLS,
   ...STARBASE_HULLS,
 ];
 
-export const ALL_COMPONENTS: ComponentCategory[] = [
+export const ALL_COMPONENTS: Array<ComponentCategory> = [
   {
     id: 'engines',
     name: 'Engines',

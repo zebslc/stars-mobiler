@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Star, Fleet } from '../../../models/game.model';
+import type { Star, Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { getDesign } from '../../../data/ships.data';
 
@@ -81,10 +81,10 @@ import { getDesign } from '../../../data/ships.data';
 export class StarColonizationComponent {
   gs = inject(GameStateService);
 
-  star = input.required<Star>();
-  colonizersInOrbit = input.required<Fleet[]>();
-  colonizersEnRoute = input.required<Fleet[]>();
-  colonizersIdle = input.required<Fleet[]>();
+  readonly star = input.required<Star>();
+  readonly colonizersInOrbit = input.required<Array<Fleet>>();
+  readonly colonizersEnRoute = input.required<Array<Fleet>>();
+  readonly colonizersIdle = input.required<Array<Fleet>>();
 
   colonizeNow = output<string>();
   sendColonizer = output<string>();

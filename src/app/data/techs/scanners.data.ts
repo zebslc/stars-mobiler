@@ -18,9 +18,9 @@
 // | Robber Baron Scanner | 10 | 0 | 0 | 0 | 15 | 10 | 20 | 90 | 10 | 10 | 10 | 220 |
 // | Peerless Scanner     | 7 | 0 | 0 | 0 | 24 | 0 | 4 | 90 | 3 | 2 | 30 | 500 |
 
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const SCANNER_COMPONENTS: ComponentStats[] = [
+export const SCANNER_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'scan_bat_scanner',
     name: 'Bat Scanner',

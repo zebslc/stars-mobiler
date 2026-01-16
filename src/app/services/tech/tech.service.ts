@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { TECH_ATLAS, HullTemplate, ComponentStats, ComponentCategory } from '../../data/tech-atlas.data';
-import { Player, PlayerTech } from '../../models/game.model';
+import type { HullTemplate, ComponentStats, ComponentCategory } from '../../data/tech-atlas.data';
+import { TECH_ATLAS } from '../../data/tech-atlas.data';
+import type { Player, PlayerTech } from '../../models/game.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,14 +12,14 @@ export class TechService {
   /**
    * Get all tech streams (Energy, Kinetics, Propulsion, Construction)
    */
-  getTechStreams(): string[] {
+  getTechStreams(): Array<string> {
     return TECH_ATLAS.techStreams;
   }
 
   /**
    * Get all hulls from tech atlas
    */
-  getHulls(): HullTemplate[] {
+  getHulls(): Array<HullTemplate> {
     return TECH_ATLAS.hulls;
   }
 
@@ -40,14 +41,14 @@ export class TechService {
   /**
    * Get all component categories
    */
-  getComponentCategories(): ComponentCategory[] {
+  getComponentCategories(): Array<ComponentCategory> {
     return TECH_ATLAS.components;
   }
 
   /**
    * Get components by category (Engine, Scanner, Shield, Armor, Weapon)
    */
-  getComponentsByCategory(category: string): ComponentStats[] {
+  getComponentsByCategory(category: string): Array<ComponentStats> {
     const cat = TECH_ATLAS.components.find((c) => c.category === category);
     return cat ? cat.items : [];
   }

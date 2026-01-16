@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Star, Species } from '../../models/game.model';
+import type { Star, Species } from '../../models/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class HabitabilityService {

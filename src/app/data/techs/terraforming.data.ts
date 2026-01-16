@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const TERRAFORMING_COMPONENTS: ComponentStats[] = [
+export const TERRAFORMING_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'terraform_3',
     name: 'Total Terraform ±3',

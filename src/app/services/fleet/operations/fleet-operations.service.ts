@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, ShipDesign, Star } from '../../../models/game.model';
-import {
+import type { GameState, Fleet, ShipDesign, Star } from '../../../models/game.model';
+import type {
   IFleetOperationsService,
   FleetLocation,
-  ValidationResult,
-  LogContext,
+  LogContext} from '../../../models/service-interfaces.model';
+import {
+  ValidationResult
 } from '../../../models/service-interfaces.model';
-import { getDesign, CompiledDesign } from '../../../data/ships.data';
+import type { CompiledDesign } from '../../../data/ships.data';
+import { getDesign } from '../../../data/ships.data';
 import { LoggingService } from '../../core/logging.service';
 import { FleetNamingService } from '../naming/fleet-naming.service';
 import { FleetValidationService } from '../validation/fleet-validation.service';

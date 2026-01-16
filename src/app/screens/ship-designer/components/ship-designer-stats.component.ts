@@ -1,8 +1,8 @@
 import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { TouchClickDirective } from '../../../shared/directives';
-import { CompiledShipStats } from '../../../models/game.model';
-import { HullTemplate } from '../../../data/tech-atlas.types';
+import type { CompiledShipStats } from '../../../models/game.model';
+import type { HullTemplate } from '../../../data/tech-atlas.types';
 import { TechStatsComponent } from '../../../shared/components/tech-stats/tech-stats.component';
 import { ResourceCostComponent } from '../../../shared/components/resource-cost/resource-cost.component';
 
@@ -280,7 +280,7 @@ export class ShipDesignerStatsComponent {
   @Input({ required: true }) stats: CompiledShipStats | null = null;
   @Input() hoveredItem: any = null;
   @Input() hull: HullTemplate | null = null;
-  selectedTab = signal<'summary' | 'details'>('summary');
+  readonly selectedTab = signal<'summary' | 'details'>('summary');
 
   get hoveredComponent() {
     return this.hoveredItem?.component;

@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import {
+import type {
   LogDestination,
   LogEntry,
   LoggingConfiguration,
@@ -41,7 +41,7 @@ export class LogDestinationManager {
       return [];
     }
 
-    const enabled: LogDestination[] = [];
+    const enabled: Array<LogDestination> = [];
     
     // Check each destination's configuration
     if (config.destinations.console.enabled) {
@@ -168,14 +168,14 @@ export class LogDestinationManager {
   /**
    * Get all registered destinations
    */
-  getAllDestinations(): LogDestination[] {
+  getAllDestinations(): Array<LogDestination> {
     return Array.from(this._destinations.values());
   }
 
   /**
    * Get names of all enabled destinations
    */
-  getEnabledDestinationNames(): LogDestinationName[] {
+  getEnabledDestinationNames(): Array<LogDestinationName> {
     return this.enabledDestinations().map(dest => dest.name as LogDestinationName);
   }
 
@@ -229,7 +229,7 @@ export class LogDestinationManager {
   /**
    * Get destination health status
    */
-  getDestinationHealth(): { name: string; enabled: boolean; failures: number }[] {
+  getDestinationHealth(): Array<{ name: string; enabled: boolean; failures: number }> {
     const stats = this._stats();
     const config = this._configuration();
     
@@ -348,8 +348,8 @@ export class LogDestinationManager {
   getStatusSummary(): {
     totalMessages: number;
     successRate: number;
-    enabledDestinations: string[];
-    destinationHealth: { name: string; enabled: boolean; failures: number }[];
+    enabledDestinations: Array<string>;
+    destinationHealth: Array<{ name: string; enabled: boolean; failures: number }>;
   } {
     const stats = this._stats();
     

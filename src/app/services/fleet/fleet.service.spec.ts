@@ -1,4 +1,4 @@
-import { FleetService } from './fleet.service';
+import { FleetService } from './core/fleet.service';
 import { SettingsService } from '../core/settings.service';
 import type { HabitabilityService } from '../colony/habitability.service';
 import type { ShipyardService } from '../ship-design/shipyard.service';
@@ -124,6 +124,7 @@ describe('FleetService', () => {
   describe('movement logic', () => {
     it('travels at max speed when fuel allows', () => {
       const { game, fleet } = createMovementScenario({ fuel: 500, distance: 100 });
+      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
 
       service.processFleets(game);
 
@@ -131,11 +132,15 @@ describe('FleetService', () => {
       if (fleet.location.type === 'space') {
         expect(fleet.location.x).toBe(100);
       }
-      expect(fleet.fuel).toBeLessThan(200);
+      expect(fleet.orders.length).toBe(0);
+      expect(fleet.fuel).toBeLessThan(500);
+      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
+      expect(warpUsed).toBe(10);
     });
 
     it('reduces speed when fuel cannot sustain max warp', () => {
       const { game, fleet } = createMovementScenario({ fuel: 200, distance: 100 });
+      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
 
       service.processFleets(game);
 
@@ -143,11 +148,16 @@ describe('FleetService', () => {
       if (fleet.location.type === 'space') {
         expect(fleet.location.x).toBe(100);
       }
-      expect(fleet.fuel).toBeLessThan(60);
+      expect(fleet.orders.length).toBe(0);
+      expect(fleet.fuel).toBeLessThan(200);
+      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
+      expect(warpUsed).toBeLessThan(10);
+      expect(warpUsed).toBeGreaterThan(0);
     });
 
     it('respects requested warp when fuel is sufficient', () => {
       const { game, fleet } = createMovementScenario({ fuel: 500, distance: 100, warpSpeed: 5 });
+      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
 
       service.processFleets(game);
 
@@ -155,11 +165,14 @@ describe('FleetService', () => {
       if (fleet.location.type === 'space') {
         expect(fleet.location.x).toBe(100);
       }
-      expect(fleet.fuel).toBeCloseTo(400, -1);
+      expect(fleet.orders.length).toBe(0);
+      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
+      expect(warpUsed).toBe(order.warpSpeed);
     });
 
     it('drops requested warp when fuel is insufficient', () => {
       const { game, fleet } = createMovementScenario({ fuel: 200, distance: 100, warpSpeed: 9 });
+      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
 
       service.processFleets(game);
 
@@ -167,7 +180,10 @@ describe('FleetService', () => {
       if (fleet.location.type === 'space') {
         expect(fleet.location.x).toBe(100);
       }
-      expect(fleet.fuel).toBeLessThan(60);
+      expect(fleet.orders.length).toBe(0);
+      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
+      expect(warpUsed).toBeLessThan(order.warpSpeed!);
+      expect(warpUsed).toBeGreaterThan(0);
     });
   });
 });

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GameState, FleetOrder } from '../../../models/game.model';
-import { FleetLocation, GalaxyCoordinate } from '../../../models/service-interfaces.model';
+import type { GameState, FleetOrder } from '../../../models/game.model';
+import type { FleetLocation, GalaxyCoordinate } from '../../../models/service-interfaces.model';
 import { DEFAULT_COORDINATE } from './fleet-movement.constants';
 import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
 

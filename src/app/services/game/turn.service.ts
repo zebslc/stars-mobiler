@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, Star, Player } from '../../models/game.model';
+import type { GameState, Star, Player } from '../../models/game.model';
 import { EconomyService } from '../colony/economy.service';
 import { ResearchService } from '../tech/research.service';
 import { ColonyService } from '../colony/colony.service';
@@ -31,7 +31,7 @@ export class TurnService {
   /**
    * Get all stars owned by the human player.
    */
-  getOwnedStars(game: GameState): Star[] {
+  getOwnedStars(game: GameState): Array<Star> {
     return game.stars
       .map((s) => s)
       .filter((p) => p.ownerId === game.humanPlayer.id);
@@ -41,7 +41,7 @@ export class TurnService {
    * Process production for all owned planets.
    * Returns total research points generated.
    */
-  processProduction(planets: Star[], player: Player): number {
+  processProduction(planets: Array<Star>, player: Player): number {
     let totalResearch = 0;
     const researchModifier = this.getResearchModifier(player);
 
@@ -88,7 +88,7 @@ export class TurnService {
   /**
    * Process population growth or die-off for all owned planets.
    */
-  processPopulation(planets: Star[], player: Player): void {
+  processPopulation(planets: Array<Star>, player: Player): void {
     for (const planet of planets) {
       const habPct = this.hab.calculate(planet, player.species);
 

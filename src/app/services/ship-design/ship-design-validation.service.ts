@@ -1,13 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { LoggingService } from '../core/logging.service';
-import { 
+import type { 
   IShipDesignValidationService, 
   ValidationResult, 
   ComponentData, 
   LogContext 
 } from '../../models/service-interfaces.model';
-import { ShipDesign, PlayerTech } from '../../models/game.model';
-import { HullTemplate } from '../../data/tech-atlas.types';
+import type { ShipDesign, PlayerTech } from '../../models/game.model';
+import type { HullTemplate } from '../../data/tech-atlas.types';
 import { getHull, getComponent, getPrimaryTechField, getRequiredTechLevel } from '../../utils/data-access.util';
 import { canInstallComponent } from '../../models/ship-design.model';
 import { compileShipStats } from '../../models/ship-design.model';
@@ -39,8 +39,8 @@ export class ShipDesignValidationService implements IShipDesignValidationService
 
     this.loggingService.debug('Starting ship design validation', context);
 
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const errors: Array<string> = [];
+    const warnings: Array<string> = [];
 
     try {
       // Get hull for validation
@@ -127,8 +127,8 @@ export class ShipDesignValidationService implements IShipDesignValidationService
 
     this.loggingService.debug('Validating component placement', context);
 
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const errors: Array<string> = [];
+    const warnings: Array<string> = [];
 
     try {
       // Validate count is positive
@@ -169,8 +169,8 @@ export class ShipDesignValidationService implements IShipDesignValidationService
 
     this.loggingService.debug('Validating hull selection', context);
 
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const errors: Array<string> = [];
+    const warnings: Array<string> = [];
 
     try {
       const hull = getHull(hullId);
@@ -211,7 +211,7 @@ export class ShipDesignValidationService implements IShipDesignValidationService
   /**
    * Validate that all required slots are filled
    */
-  private validateRequiredSlots(hull: HullTemplate, design: ShipDesign, errors: string[], warnings: string[]): void {
+  private validateRequiredSlots(hull: HullTemplate, design: ShipDesign, errors: Array<string>, warnings: Array<string>): void {
     for (const hullSlot of hull.Slots) {
       if (hullSlot.Required) {
         const slotId = hullSlot.Code || `slot_${hull.Slots.indexOf(hullSlot)}`;
@@ -227,7 +227,7 @@ export class ShipDesignValidationService implements IShipDesignValidationService
   /**
    * Validate design stats and constraints
    */
-  private validateDesignStats(hull: HullTemplate, design: ShipDesign, techLevels: PlayerTech, errors: string[], warnings: string[]): void {
+  private validateDesignStats(hull: HullTemplate, design: ShipDesign, techLevels: PlayerTech, errors: Array<string>, warnings: Array<string>): void {
     try {
       const stats = compileShipStats(hull, design.slots, techLevels);
       

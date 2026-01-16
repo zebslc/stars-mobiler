@@ -1,6 +1,7 @@
-import { HullTemplate, ComponentStats, SlotType, SlotDefinition, getSlotTypeForComponentType } from '../data/tech-atlas.types';
+import type { HullTemplate, ComponentStats, SlotType, SlotDefinition} from '../data/tech-atlas.types';
+import { getSlotTypeForComponentType } from '../data/tech-atlas.types';
 import { getMiniaturizedMass, getMiniaturizedCost } from '../utils/miniaturization.util';
-import { SlotAssignment, CompiledShipStats, PlayerTech } from '../models/game.model';
+import type { SlotAssignment, CompiledShipStats, PlayerTech } from '../models/game.model';
 import { validateShipDesign } from '../services/core/validation.service';
 import { getComponentsLookup } from '../utils/data-access.util';
 
@@ -14,7 +15,7 @@ import { getComponentsLookup } from '../utils/data-access.util';
 // Helper interface for slot compatibility checking
 interface HullSlot {
   id: string;
-  allowedTypes: SlotType[];
+  allowedTypes: Array<SlotType>;
   max?: number;
   required?: boolean;
   editable?: boolean;
@@ -25,7 +26,7 @@ interface HullSlot {
 function convertSlotDefinition(slot: SlotDefinition, index: number): HullSlot {
   return {
     id: slot.Code || `slot_${index}`,
-    allowedTypes: slot.Allowed.map(type => getSlotTypeForComponentType(type)) as SlotType[],
+    allowedTypes: slot.Allowed.map(type => getSlotTypeForComponentType(type)) as Array<SlotType>,
     max: slot.Max,
     required: slot.Required,
     editable: slot.Editable,
@@ -39,10 +40,10 @@ function convertSlotDefinition(slot: SlotDefinition, index: number): HullSlot {
  */
 export function compileShipStats(
   hull: HullTemplate,
-  assignments: SlotAssignment[],
+  assignments: Array<SlotAssignment>,
   techLevels: PlayerTech,
 ): CompiledShipStats {
-  const errors: string[] = [];
+  const errors: Array<string> = [];
   const COMPONENTS = getComponentsLookup();
 
   // Start with hull base stats
@@ -303,7 +304,7 @@ export function createEmptyDesign(
   playerId: string,
   turn: number
 ): import('../models/game.model').ShipDesign {
-  const slots: SlotAssignment[] = hull.Slots.map((slot: SlotDefinition, index: number) => ({
+  const slots: Array<SlotAssignment> = hull.Slots.map((slot: SlotDefinition, index: number) => ({
     slotId: slot.Code || `slot_${index}`,
     components: [],
   }));

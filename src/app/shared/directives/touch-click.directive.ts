@@ -1,6 +1,6 @@
 import { Directive, ElementRef, OnInit, OnDestroy, input, output } from '@angular/core';
 import { InputInteractionService } from '../../services/core/input-interaction.service';
-import { UnifiedInputEvent, InputServiceConfig, Point } from '../../models/input-events.model';
+import type { UnifiedInputEvent, InputServiceConfig, Point } from '../../models/input-events.model';
 import { LoggingService } from '../../services/core/logging.service';
 
 export interface TouchClickEvent {

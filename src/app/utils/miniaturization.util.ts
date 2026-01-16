@@ -1,5 +1,5 @@
-import { ComponentStats } from '../data/tech-atlas.types';
-import { PlayerTech } from '../models/game.model';
+import type { ComponentStats } from '../data/tech-atlas.types';
+import type { PlayerTech } from '../models/game.model';
 import { getPrimaryTechField, getRequiredTechLevel } from './data-access.util';
 
 /**

@@ -1,11 +1,13 @@
 import { Injectable, NgZone } from '@angular/core';
-import {
-  Point,
+import type {
   UnifiedInputEvent,
   InputServiceConfig,
   InputHandler,
   GestureState,
   ManagedListener
+} from '../../models/input-events.model';
+import {
+  Point
 } from '../../models/input-events.model';
 import { GestureRecognitionService } from './gesture-recognition.service';
 import { LoggingService } from './logging.service';
@@ -28,7 +30,7 @@ export class InputInteractionService {
   };
 
   private gestureStates = new Map<string, GestureState>();
-  private managedListeners = new Map<Element, ManagedListener[]>();
+  private managedListeners = new Map<Element, Array<ManagedListener>>();
   private handlerRegistry = new Map<string, Set<InputHandler>>();
 
   constructor(
@@ -55,7 +57,7 @@ export class InputInteractionService {
     // Clean up existing listeners
     this.detachFromElement(element);
 
-    const listeners: ManagedListener[] = [];
+    const listeners: Array<ManagedListener> = [];
 
     // Use pointer events for unified handling where supported
     if ('PointerEvent' in window) {
@@ -133,7 +135,7 @@ export class InputInteractionService {
   private attachPointerEvents(
     element: Element, 
     config: InputServiceConfig, 
-    listeners: ManagedListener[],
+    listeners: Array<ManagedListener>,
     handlerId?: string
   ): void {
     const pointerDown = (event: Event) => {
@@ -158,7 +160,7 @@ export class InputInteractionService {
   private attachMouseEvents(
     element: Element, 
     config: InputServiceConfig, 
-    listeners: ManagedListener[],
+    listeners: Array<ManagedListener>,
     handlerId?: string
   ): void {
     const mouseDown = (event: Event) => {
@@ -183,7 +185,7 @@ export class InputInteractionService {
   private attachTouchEvents(
     element: Element, 
     config: InputServiceConfig, 
-    listeners: ManagedListener[],
+    listeners: Array<ManagedListener>,
     handlerId?: string
   ): void {
     const touchStart = (event: Event) => {
@@ -204,7 +206,7 @@ export class InputInteractionService {
   private attachWheelEvents(
     element: Element, 
     config: InputServiceConfig, 
-    listeners: ManagedListener[],
+    listeners: Array<ManagedListener>,
     handlerId?: string
   ): void {
     const wheel = (event: Event) => {
@@ -219,7 +221,7 @@ export class InputInteractionService {
     eventType: string,
     handler: (event: Event) => void,
     config: InputServiceConfig,
-    listeners: ManagedListener[],
+    listeners: Array<ManagedListener>,
     extraOptions: AddEventListenerOptions = {}
   ): void {
     const options = {

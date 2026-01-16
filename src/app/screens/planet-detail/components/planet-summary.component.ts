@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Star } from '../../../models/game.model';
+import type { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { inject } from '@angular/core';
 
@@ -97,16 +97,16 @@ import { inject } from '@angular/core';
 export class StarSummaryComponent {
   gs = inject(GameStateService);
 
-  star = input.required<Star>();
-  habitability = input.required<number>();
-  starTexture = input.required<string>(); // Used by parent now, but maybe we don't need it here?
+  readonly star = input.required<Star>();
+  readonly habitability = input.required<number>();
+  readonly starTexture = input.required<string>(); // Used by parent now, but maybe we don't need it here?
   // Actually, parent will use it for the header.
   // We can remove it from here if we don't use it.
-  projectionDelta = input.required<number>();
-  defenseCoverage = input.required<number>();
-  scannerRange = input.required<number>();
-  resourcesPerTurn = input.required<number>();
-  starbase = input<{ name: string; fleetId: string; imageClass: string } | null>(null);
+  readonly projectionDelta = input.required<number>();
+  readonly defenseCoverage = input.required<number>();
+  readonly scannerRange = input.required<number>();
+  readonly resourcesPerTurn = input.required<number>();
+  readonly starbase = input<{ name: string; fleetId: string; imageClass: string } | null>(null);
 
   onGovernorType = output<Event>();
   viewStarbase = output<string>();

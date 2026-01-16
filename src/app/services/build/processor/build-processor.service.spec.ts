@@ -1,10 +1,10 @@
 import { BuildProcessorService } from './build-processor.service';
-import { PlanetUtilityService } from '../../colony/planet-utility.service';
-import { BuildQueueService } from '../queue/build-queue.service';
-import { BuildPaymentService, ResourceAmount } from '../payment/build-payment.service';
-import { BuildProjectService } from '../project/build-project.service';
-import { StarbaseUpgradeService, StarbaseUpgradeInfo } from '../../ship-design/starbase-upgrade.service';
-import { BuildItem, GameState, Player, Star } from '../../../models/game.model';
+import type { PlanetUtilityService } from '../../colony/planet-utility.service';
+import type { BuildQueueService } from '../queue/build-queue.service';
+import type { BuildPaymentService, ResourceAmount } from '../payment/build-payment.service';
+import type { BuildProjectService } from '../project/build-project.service';
+import type { StarbaseUpgradeService, StarbaseUpgradeInfo } from '../../ship-design/starbase-upgrade.service';
+import type { BuildItem, GameState, Player, Star } from '../../../models/game.model';
 
 describe('BuildProcessorService', () => {
   let service: BuildProcessorService;
@@ -66,7 +66,7 @@ describe('BuildProcessorService', () => {
     ...overrides,
   });
 
-  const createGameState = (stars: Star[] = []): GameState => ({
+  const createGameState = (stars: Array<Star> = []): GameState => ({
     id: 'game1',
     seed: 123,
     turn: 1,
@@ -347,7 +347,7 @@ describe('BuildProcessorService', () => {
         paid: totalCost,
         isComplete: true,
       });
-      mockBuildQueue.handleQueueProgression.and.callFake((item: BuildItem, queue: BuildItem[]) => {
+      mockBuildQueue.handleQueueProgression.and.callFake((item: BuildItem, queue: Array<BuildItem>) => {
         queue.shift();
       });
 

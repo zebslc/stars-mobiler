@@ -1,10 +1,10 @@
 import { TurnService } from './turn.service';
-import { EconomyService } from '../colony/economy.service';
-import { ResearchService } from '../tech/research.service';
-import { ColonyService } from '../colony/colony.service';
-import { FleetService } from '../fleet/core/fleet.service';
-import { HabitabilityService } from '../colony/habitability.service';
-import { GameState, Star, Player } from '../../models/game.model';
+import type { EconomyService } from '../colony/economy.service';
+import type { ResearchService } from '../tech/research.service';
+import type { ColonyService } from '../colony/colony.service';
+import type { FleetService } from '../fleet/core/fleet.service';
+import type { HabitabilityService } from '../colony/habitability.service';
+import type { GameState, Star, Player } from '../../models/game.model';
 
 describe('TurnService', () => {
   let service: TurnService;
@@ -51,7 +51,7 @@ describe('TurnService', () => {
     ...overrides,
   });
 
-  const createGameState = (stars: Star[], player?: Player): GameState => {
+  const createGameState = (stars: Array<Star>, player?: Player): GameState => {
     return {
       id: 'game1',
       seed: 123,

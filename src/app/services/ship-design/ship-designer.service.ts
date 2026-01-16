@@ -1,6 +1,7 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
+import type {
+  HullTemplate} from '../../data/tech-atlas.types';
 import {
-  HullTemplate,
   getSlotTypeForComponentType,
 } from '../../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../../data/tech-atlas.data';
@@ -10,15 +11,16 @@ import {
   getPrimaryTechField,
   getRequiredTechLevel,
 } from '../../utils/data-access.util';
-import { PlayerTech, ShipDesign, SlotAssignment, Species } from '../../models/game.model';
+import type { PlayerTech, ShipDesign, SlotAssignment, Species } from '../../models/game.model';
 import {
   compileShipStats,
   canInstallComponent,
   createEmptyDesign,
 } from '../../models/ship-design.model';
-import { miniaturizeComponent, MiniaturizedComponent } from '../../utils/miniaturization.util';
+import type { MiniaturizedComponent } from '../../utils/miniaturization.util';
+import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { LoggingService } from '../core/logging.service';
-import { LogContext } from '../../models/service-interfaces.model';
+import type { LogContext } from '../../models/service-interfaces.model';
 
 /**
  * Ship Designer Service
@@ -31,14 +33,14 @@ import { LogContext } from '../../models/service-interfaces.model';
 export class ShipDesignerService {
   private readonly loggingService = inject(LoggingService);
 
-  private _currentDesign = signal<ShipDesign | null>(null);
-  private _techLevels = signal<PlayerTech>({
+  private readonly _currentDesign = signal<ShipDesign | null>(null);
+  private readonly _techLevels = signal<PlayerTech>({
     Energy: 0,
     Kinetics: 0,
     Propulsion: 0,
     Construction: 0,
   });
-  private _playerSpecies = signal<Species | null>(null);
+  private readonly _playerSpecies = signal<Species | null>(null);
 
   // Computed signals
   readonly currentDesign = this._currentDesign.asReadonly();
@@ -121,7 +123,7 @@ export class ShipDesignerService {
     this.loggingService.debug('Loading existing design for editing', context);
 
     const hull = getHull(design.hullId);
-    let slots: SlotAssignment[];
+    let slots: Array<SlotAssignment>;
 
     if (hull) {
       // Create slots based on hull to ensure all are present and in sync with hull definition
@@ -212,7 +214,7 @@ export class ShipDesignerService {
     // Convert SlotDefinition to HullSlot for compatibility checking
     const convertedSlot = {
       id: hullSlot.Code || slotId,
-      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as any[],
+      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as Array<any>,
       max: hullSlot.Max,
       required: hullSlot.Required,
       editable: hullSlot.Editable,
@@ -304,7 +306,7 @@ export class ShipDesignerService {
     // Convert SlotDefinition to HullSlot for compatibility
     const hullSlot = {
       id: hullSlotDef.Code || slotId,
-      allowedTypes: hullSlotDef.Allowed.map((type) => getSlotTypeForComponentType(type)) as any[],
+      allowedTypes: hullSlotDef.Allowed.map((type) => getSlotTypeForComponentType(type)) as Array<any>,
       max: hullSlotDef.Max,
       required: hullSlotDef.Required,
       editable: hullSlotDef.Editable,
@@ -415,7 +417,7 @@ export class ShipDesignerService {
   /**
    * Get available components for a specific slot
    */
-  getAvailableComponentsForSlot(slotId: string): MiniaturizedComponent[] {
+  getAvailableComponentsForSlot(slotId: string): Array<MiniaturizedComponent> {
     const hull = this.currentHull();
     const techLevels = this._techLevels();
     const species = this._playerSpecies();
@@ -514,7 +516,7 @@ export class ShipDesignerService {
       // Check slot compatibility - Convert SlotDefinition to HullSlot for compatibility
       const convertedSlot = {
         id: hullSlot.Code || slotId,
-        allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as any[],
+        allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as Array<any>,
         max: hullSlot.Max,
         required: hullSlot.Required,
         editable: hullSlot.Editable,
@@ -530,7 +532,7 @@ export class ShipDesignerService {
   /**
    * Get available hulls based on construction tech level
    */
-  getAvailableHulls(): HullTemplate[] {
+  getAvailableHulls(): Array<HullTemplate> {
     const techLevels = this._techLevels();
     const constructionLevel = techLevels.Construction;
 

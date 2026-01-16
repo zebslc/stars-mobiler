@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
+import type { CanActivateFn } from '@angular/router';
+import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 
 export const gameActiveGuard: CanActivateFn = () => {

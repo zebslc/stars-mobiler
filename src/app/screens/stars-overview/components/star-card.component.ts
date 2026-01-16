@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed, input, output } from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { Star } from '../../../models/game.model';
+import type { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 
@@ -241,11 +241,11 @@ export class StarCardComponent {
 
   private gs = inject(GameStateService);
 
-  buildQueue = computed(() => this.star().buildQueue || []);
+  readonly buildQueue = computed(() => this.star().buildQueue || []);
 
-  habitability = computed(() => this.gs.habitabilityFor(this.star().id));
+  readonly habitability = computed(() => this.gs.habitabilityFor(this.star().id));
 
-  habitabilityColor = computed(() => {
+  readonly habitabilityColor = computed(() => {
     return this.habitability() > 0 ? '#27ae60' : '#c0392b';
   });
 

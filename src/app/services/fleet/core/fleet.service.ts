@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, FleetOrder, Star, ShipDesign, ShipStack } from '../../../models/game.model';
-import { getDesign, CompiledDesign } from '../../../data/ships.data';
+import type { GameState, Fleet, FleetOrder, Star, ShipDesign, ShipStack } from '../../../models/game.model';
+import type { CompiledDesign } from '../../../data/ships.data';
+import { getDesign } from '../../../data/ships.data';
 import { ENGINE_COMPONENTS } from '../../../data/techs/engines.data';
-import { ComponentStats } from '../../../data/tech-atlas.types';
+import type { ComponentStats } from '../../../data/tech-atlas.types';
 import { SettingsService } from '../../core/settings.service';
 import { HabitabilityService } from '../../colony/habitability.service';
 import { ShipyardService } from '../../ship-design/shipyard.service';
-import { TransferSpec } from '../transfer/fleet-transfer.types';
+import type { TransferSpec } from '../transfer/fleet-transfer.types';
 
 export interface LoadManifest {
   resources?: number | 'all' | 'fill';
@@ -89,7 +90,7 @@ export class FleetService {
     return orbitFleets.find((f) => !this.hasStarbase(game, f));
   }
 
-  private getOrbitFleets(game: GameState, star: Star): Fleet[] {
+  private getOrbitFleets(game: GameState, star: Star): Array<Fleet> {
     return game.fleets.filter(
       (f) =>
         f.ownerId === game.humanPlayer.id &&
@@ -246,7 +247,7 @@ export class FleetService {
     );
   }
 
-  private transferShips(source: Fleet, target: Fleet, shipsToTransfer: ShipTransfer[]): void {
+  private transferShips(source: Fleet, target: Fleet, shipsToTransfer: Array<ShipTransfer>): void {
     for (const ship of shipsToTransfer) {
       const sourceStack = source.ships.find(
         (s) => s.designId === ship.designId && (s.damage || 0) === (ship.damage || 0),
@@ -347,8 +348,8 @@ export class FleetService {
     return fleet.ships.reduce((sum, s) => sum + s.count, 0);
   }
 
-  private getShipsToSeparate(source: Fleet): { designId: string; damage: number }[] {
-    const shipsToMove: { designId: string; damage: number }[] = [];
+  private getShipsToSeparate(source: Fleet): Array<{ designId: string; damage: number }> {
+    const shipsToMove: Array<{ designId: string; damage: number }> = [];
     let shipsAdded = 0;
     const totalShips = this.getTotalShips(source);
 
@@ -405,7 +406,7 @@ export class FleetService {
     return this.setFleetOrders(game, fleetId, [order]);
   }
 
-  setFleetOrders(game: GameState, fleetId: string, orders: FleetOrder[]): GameState {
+  setFleetOrders(game: GameState, fleetId: string, orders: Array<FleetOrder>): GameState {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     if (!fleet) return game;
     fleet.orders = orders;

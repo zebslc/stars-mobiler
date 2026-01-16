@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Fleet } from '../models/game.model';
+import type { Fleet } from '../models/game.model';
 
 export interface FleetContextMenuOption {
   label: string;
@@ -78,12 +78,12 @@ export interface FleetContextMenuOption {
   `]
 })
 export class FleetContextMenuComponent {
-  visible = input.required<boolean>();
-  x = input.required<number>();
-  y = input.required<number>();
-  fleet = input.required<Fleet | null>();
-  clickedPosition = input<{ x: number; y: number } | null>(null);
-  isFleetSelected = input<boolean>(false);
+  readonly visible = input.required<boolean>();
+  readonly x = input.required<number>();
+  readonly y = input.required<number>();
+  readonly fleet = input.required<Fleet | null>();
+  readonly clickedPosition = input<{ x: number; y: number } | null>(null);
+  readonly isFleetSelected = input<boolean>(false);
 
   close = output<void>();
   viewFleet = output<string>();
@@ -95,12 +95,12 @@ export class FleetContextMenuComponent {
   unloadCargo = output<string>();
   decommission = output<string>();
 
-  options = computed(() => {
+  readonly options = computed(() => {
     const fleet = this.fleet();
     const clickedPos = this.clickedPosition();
     const isSelected = this.isFleetSelected();
 
-    const opts: FleetContextMenuOption[] = [];
+    const opts: Array<FleetContextMenuOption> = [];
 
     // If context menu is opened on a fleet
     if (fleet) {

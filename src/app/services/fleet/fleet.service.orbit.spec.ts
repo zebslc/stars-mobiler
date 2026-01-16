@@ -1,4 +1,4 @@
-import { FleetService } from './fleet.service';
+import { FleetService } from './core/fleet.service';
 import { SettingsService } from '../core/settings.service';
 import type { HabitabilityService } from '../colony/habitability.service';
 import type { ShipyardService } from '../ship-design/shipyard.service';

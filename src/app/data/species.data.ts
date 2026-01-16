@@ -1,6 +1,6 @@
-import { Species } from '../models/game.model';
+import type { Species } from '../models/game.model';
 
-export const SPECIES: Species[] = [
+export const SPECIES: Array<Species> = [
   {
     id: 'terrans',
     name: 'Terrans',

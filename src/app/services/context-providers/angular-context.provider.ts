@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { AngularContext } from '../../models/logging.model';
+import type { AngularContext } from '../../models/logging.model';
 import { filter, map } from 'rxjs/operators';
 
 /**

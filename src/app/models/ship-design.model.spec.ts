@@ -1,7 +1,7 @@
 import { compileShipStats } from './ship-design.model';
 import { SCANNER_COMPONENTS } from '../data/techs/scanners.data';
-import { HullTemplate } from '../data/tech-atlas.types';
-import { PlayerTech } from './game.model';
+import type { HullTemplate } from '../data/tech-atlas.types';
+import type { PlayerTech } from './game.model';
 
 describe('ShipDesignModel', () => {
   it('should calculate scan range correctly for Rhino Scanner', () => {

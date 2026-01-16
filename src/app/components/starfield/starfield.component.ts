@@ -135,8 +135,8 @@ export class StarfieldComponent {
   readonly midStars = input(250);
   readonly seed = input(1337);
 
-  small: Star[] = [];
-  mid: Star[] = [];
+  small: Array<Star> = [];
+  mid: Array<Star> = [];
 
   private readonly regenerate = effect(() => {
     this.generate();
@@ -149,8 +149,8 @@ export class StarfieldComponent {
     const midCount = this.midStars();
     const rand = mulberry32(this.seed());
 
-    const genStars = (count: number, rMin: number, rMax: number, oMin: number, oMax: number): Star[] => {
-      const stars: Star[] = [];
+    const genStars = (count: number, rMin: number, rMax: number, oMin: number, oMax: number): Array<Star> => {
+      const stars: Array<Star> = [];
       for (let i = 0; i < count; i++) {
         const x = rand() * width;
         const y = rand() * height;

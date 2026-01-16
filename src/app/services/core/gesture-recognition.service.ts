@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Point, GestureState, GestureConfig, UnifiedInputEvent } from '../../models/input-events.model';
+import type { Point, GestureState, GestureConfig, UnifiedInputEvent } from '../../models/input-events.model';
 
 @Injectable({
   providedIn: 'root'

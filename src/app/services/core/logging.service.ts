@@ -1,12 +1,13 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import {
+import type {
   LogEntry,
-  LogLevel,
   LoggingConfiguration,
-  DEFAULT_LOGGING_CONFIG,
   LogEntryWithoutId,
   LogContext,
-  BrowserContext,
+  BrowserContext} from '../../models/logging.model';
+import {
+  LogLevel,
+  DEFAULT_LOGGING_CONFIG,
   GameContext,
   AngularContext,
 } from '../../models/logging.model';

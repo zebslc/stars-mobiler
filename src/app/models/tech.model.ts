@@ -34,12 +34,12 @@ export interface Cost {
 }
 
 export interface TechRequirements {
-    prtsDenied?: string[];
-    prtsRequired?: string[];
+    prtsDenied?: Array<string>;
+    prtsRequired?: Array<string>;
     lrtsRequired?: number;
     lrtsDenied?: number;
     techLevel?: Partial<Record<TechArea, number>>;
-    hullsAllowed?: string[];
+    hullsAllowed?: Array<string>;
     acquirable?: boolean;
 }
 
@@ -61,7 +61,7 @@ export interface TechHullComponent {
     idealSpeed?: number;
     freeSpeed?: number;
     maxSafeSpeed?: number;
-    fuelUsage?: number[];
+    fuelUsage?: Array<number>;
     power?: number;
     range?: number;
     damage?: number;

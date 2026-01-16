@@ -6,11 +6,12 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import type {
+  StarOption} from '../../../../components/star-selector.component';
 import {
-  StarSelectorComponent,
-  StarOption,
+  StarSelectorComponent
 } from '../../../../components/star-selector.component';
-import { Fleet } from '../../../../models/game.model';
+import type { Fleet } from '../../../../models/game.model';
 
 @Component({
   selector: 'app-fleet-orders',
@@ -65,7 +66,7 @@ import { Fleet } from '../../../../models/game.model';
 })
 export class FleetOrdersComponent {
   @Input({ required: true }) fleet!: Fleet;
-  @Input() starOptions: StarOption[] = [];
+  @Input() starOptions: Array<StarOption> = [];
   @Input() selectedStarOption: StarOption | null = null;
   @Input() showAll = false;
   @Input() canColonize = false;

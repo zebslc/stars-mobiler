@@ -2,7 +2,8 @@ import { Component, ChangeDetectionStrategy, inject, signal, computed, effect } 
 import { CommonModule } from '@angular/common';
 import { LoggingService } from '../services/core/logging.service';
 import { SettingsService } from '../services/core/settings.service';
-import { LogEntry, LogLevel } from '../models/logging.model';
+import type { LogEntry} from '../models/logging.model';
+import { LogLevel } from '../models/logging.model';
 
 @Component({
   standalone: true,
@@ -290,7 +291,7 @@ export class DeveloperPanelComponent {
   private readonly settingsService = inject(SettingsService);
 
   // Component state
-  private readonly _logEntries = signal<LogEntry[]>([]);
+  private readonly _logEntries = signal<Array<LogEntry>>([]);
   private readonly _isExpanded = signal<boolean>(false);
 
   // Computed properties

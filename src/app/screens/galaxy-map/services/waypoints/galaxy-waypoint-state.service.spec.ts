@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { signal, WritableSignal } from '@angular/core';
+import type { WritableSignal } from '@angular/core';
+import { signal } from '@angular/core';
 import { GalaxyWaypointStateService } from './galaxy-waypoint-state.service';
 import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
 import { GalaxyFleetPositionService } from '../galaxy-fleet-position.service';
 import { GalaxyWaypointVisualService } from './galaxy-waypoint-visual.service';
-import {
+import type {
   Fleet,
   FleetOrder,
   GameSettings,

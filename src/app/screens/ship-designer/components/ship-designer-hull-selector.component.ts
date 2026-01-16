@@ -11,14 +11,15 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TouchClickDirective } from '../../../shared/directives';
-import { HullTemplate } from '../../../data/tech-atlas.types';
+import type { HullTemplate } from '../../../data/tech-atlas.types';
 import {
   FilterRibbonComponent,
   FilterItem,
 } from '../../../shared/components/filter-ribbon/filter-ribbon.component';
+import type {
+  Cost} from '../../../shared/components/resource-cost/resource-cost.component';
 import {
-  ResourceCostComponent,
-  Cost,
+  ResourceCostComponent
 } from '../../../shared/components/resource-cost/resource-cost.component';
 import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../../shared/constants/ship-roles.const';
 
@@ -358,8 +359,8 @@ import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../../shared/constants/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerHullSelectorComponent {
-  private hullsSig = signal<HullTemplate[]>([]);
-  @Input({ required: true }) set hulls(value: HullTemplate[]) {
+  private readonly hullsSig = signal<Array<HullTemplate>>([]);
+  @Input({ required: true }) set hulls(value: Array<HullTemplate>) {
     this.hullsSig.set(value);
   }
 
@@ -489,7 +490,7 @@ export class ShipDesignerHullSelectorComponent {
 
     if (groups.size === 0) return 'None';
 
-    const parts: string[] = [];
+    const parts: Array<string> = [];
     groups.forEach((count, type) => {
       parts.push(`${count}x ${type}`);
     });

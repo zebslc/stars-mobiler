@@ -1,4 +1,4 @@
-import { MovementValidationResult } from '../../../models/service-interfaces.model';
+import type { MovementValidationResult } from '../../../models/service-interfaces.model';
 
 export interface MovementStats {
   maxWarp: number;

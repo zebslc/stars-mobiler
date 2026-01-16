@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, Star } from '../../../models/game.model';
+import type { BuildItem, Star } from '../../../models/game.model';
 
 export type ResourceAmount = {
   resources: number;

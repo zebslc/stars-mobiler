@@ -1,5 +1,5 @@
-import { FleetOrder } from '../../../../models/game.model';
-import { GalaxyCoordinate } from '../../../../models/service-interfaces.model';
+import type { FleetOrder } from '../../../../models/game.model';
+import type { GalaxyCoordinate } from '../../../../models/service-interfaces.model';
 
 export interface WaypointSegment {
   x1: number;
@@ -15,7 +15,7 @@ export interface WaypointSegment {
 
 export interface FleetWaypoints {
   fleetId: string;
-  segments: WaypointSegment[];
+  segments: Array<WaypointSegment>;
   lastPos: GalaxyCoordinate;
 }
 

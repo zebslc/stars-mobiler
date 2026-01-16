@@ -1,10 +1,11 @@
 import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HullTemplate } from '../../data/tech-atlas.types';
+import type { HullTemplate } from '../../data/tech-atlas.types';
 import { getComponent } from '../../utils/data-access.util';
-import { ShipDesign } from '../../models/game.model';
+import type { ShipDesign } from '../../models/game.model';
 import { HullLayoutComponent } from './hull-layout/hull-layout.component';
-import { ResourceCostComponent, Cost } from './resource-cost/resource-cost.component';
+import type { Cost } from './resource-cost/resource-cost.component';
+import { ResourceCostComponent } from './resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from './research-unlock-details/research-unlock-details.component';
 import { TouchClickDirective, ClickOutsideDirective } from '../directives';
 
@@ -269,7 +270,7 @@ export class HullPreviewModalComponent {
   readonly title = input<string | null>(null);
   readonly close = output<void>();
 
-  previewComponentName = signal<string | null>(null);
+  readonly previewComponentName = signal<string | null>(null);
 
   onComponentInfoClick(slotId: string) {
     const design = this.design();
@@ -284,7 +285,7 @@ export class HullPreviewModalComponent {
     }
   }
 
-  get componentList(): { name: string; count: number; icon: string }[] {
+  get componentList(): Array<{ name: string; count: number; icon: string }> {
     const stats = this.stats();
     if (stats?.components) {
       return stats.components.map((c: any) => ({
@@ -296,7 +297,7 @@ export class HullPreviewModalComponent {
 
     const design = this.design();
     if (design) {
-      const comps: { name: string; count: number; icon: string }[] = [];
+      const comps: Array<{ name: string; count: number; icon: string }> = [];
       design.slots.forEach((slot) => {
         if (slot.components && slot.components.length > 0) {
           const c = slot.components[0];

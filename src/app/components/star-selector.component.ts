@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Star } from '../models/game.model';
+import type { Star } from '../models/game.model';
 import { ClickOutsideDirective } from '../shared/directives';
 
 export interface StarOption {
@@ -300,7 +300,7 @@ export interface StarOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarSelectorComponent {
-  readonly options = input<StarOption[]>([]);
+  readonly options = input<Array<StarOption>>([]);
   readonly selectedStar = input<StarOption | null>(null);
   readonly starSelected = output<StarOption>();
 

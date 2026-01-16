@@ -1,4 +1,4 @@
-import { GalaxyCoordinate } from '../../../models/service-interfaces.model';
+import type { GalaxyCoordinate } from '../../../models/service-interfaces.model';
 
 export const DEFAULT_COORDINATE: GalaxyCoordinate = { x: 0, y: 0 };
 export const FUEL_USAGE_DIVISOR = 2_000;

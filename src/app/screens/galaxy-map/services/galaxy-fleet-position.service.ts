@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { Fleet, FleetOrder, Star } from '../../../models/game.model';
+import type { Fleet, FleetOrder, Star } from '../../../models/game.model';
 import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
 import { getDesign } from '../../../data/ships.data';
 
@@ -110,14 +110,14 @@ export class GalaxyFleetPositionService {
     return moveOrder ? moveOrder.destination : null;
   }
 
-  pathMarkers(fleetId: string, star: Star): { x: number; y: number }[] | null {
+  pathMarkers(fleetId: string, star: Star): Array<{ x: number; y: number }> | null {
     return this.pathMarkersTo(fleetId, star.position);
   }
 
   pathMarkersTo(
     fleetId: string,
     dest: { x: number; y: number },
-  ): { x: number; y: number }[] {
+  ): Array<{ x: number; y: number }> {
     const fleet = this.findFleet(fleetId);
     if (!fleet) {
       return [];
@@ -138,7 +138,7 @@ export class GalaxyFleetPositionService {
     }
 
     const speed = maxWarp * maxWarp;
-    const markers: { x: number; y: number }[] = [];
+    const markers: Array<{ x: number; y: number }> = [];
     let currentDist = speed;
 
     while (currentDist < dist) {
@@ -166,7 +166,7 @@ export class GalaxyFleetPositionService {
     return star ? { ...star.position } : { x: 0, y: 0 };
   }
 
-  private fleetsAtStar(star: Star): Fleet[] {
+  private fleetsAtStar(star: Star): Array<Fleet> {
     const fleets = this.gs.game()?.fleets ?? [];
     return fleets.filter(
       (fleet) => fleet.location.type === 'orbit' && fleet.location.starId === star.id,

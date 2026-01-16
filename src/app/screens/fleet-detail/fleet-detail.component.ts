@@ -1,29 +1,32 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   Component,
   ChangeDetectionStrategy,
   inject,
   computed,
-  signal,
-  OnInit,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { ToastService } from '../../services/core/toast.service';
-import { Fleet, Star } from '../../models/game.model';
+import type { Fleet, Star } from '../../models/game.model';
 import { getDesign } from '../../data/ships.data';
 import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
-import { StarOption } from '../../components/star-selector.component';
+import type { StarOption } from '../../components/star-selector.component';
 import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
+import type {
+  TransferState} from './components/fleet-transfer/fleet-transfer.component';
 import {
-  FleetTransferComponent,
-  TransferState,
+  FleetTransferComponent
 } from './components/fleet-transfer/fleet-transfer.component';
+import type {
+  CargoTransferRequest} from './components/fleet-cargo/fleet-cargo.component';
 import {
-  FleetCargoComponent,
-  CargoTransferRequest,
+  FleetCargoComponent
 } from './components/fleet-cargo/fleet-cargo.component';
 
 @Component({
@@ -205,13 +208,13 @@ export class FleetDetailComponent implements OnInit {
 
   private fleetId = this.route.snapshot.paramMap.get('id');
 
-  fleet = computed(() => {
+  readonly fleet = computed(() => {
     this.gs.turn(); // Dependency on turn
     const f = this.gs.game()?.fleets.find((fl) => fl.id === this.fleetId) ?? null;
     return f ? { ...f } : null; // Shallow copy for change detection
   });
 
-  otherFleets = computed(() => {
+  readonly otherFleets = computed(() => {
     const f = this.fleet();
     const game = this.gs.game();
     if (!f || !game) return [];
@@ -232,7 +235,7 @@ export class FleetDetailComponent implements OnInit {
     });
   }
 
-  starOnSurface = computed(() => {
+  readonly starOnSurface = computed(() => {
     const f = this.fleet();
     if (!f || f.location.type !== 'orbit') return null;
     const starId = (f.location as { starId: string }).starId;
@@ -240,7 +243,7 @@ export class FleetDetailComponent implements OnInit {
   });
 
   // Transfer State
-  transferTarget = signal<Fleet | { name: string; id: 'new' } | null>(null);
+  readonly transferTarget = signal<Fleet | { name: string; id: 'new' } | null>(null);
   transferMode: 'split' | 'transfer' = 'transfer';
   splitMode: 'custom' | 'separate' = 'custom';
 
@@ -279,7 +282,7 @@ export class FleetDetailComponent implements OnInit {
     );
   }
 
-  totalShipCount = computed(() => {
+  readonly totalShipCount = computed(() => {
     const f = this.fleet();
     if (!f) return 0;
     return f.ships.reduce((acc, s) => acc + s.count, 0);
@@ -419,11 +422,11 @@ export class FleetDetailComponent implements OnInit {
     }
   }
 
-  stars = computed(() => this.gs.stars());
-  selectedStarId = signal('');
+  readonly stars = computed(() => this.gs.stars());
+  readonly selectedStarId = signal('');
   showAll = false;
 
-  rangeLy = computed(() => {
+  readonly rangeLy = computed(() => {
     const f = this.fleet();
     if (!f) return 0;
     let maxWarp = Infinity;
@@ -463,7 +466,7 @@ export class FleetDetailComponent implements OnInit {
     }
   }
 
-  starOptions = computed(() => {
+  readonly starOptions = computed(() => {
     const visibleStars = this.visibleStars();
     const playerId = this.gs.player()?.id;
     const f = this.fleet();
@@ -495,7 +498,7 @@ export class FleetDetailComponent implements OnInit {
       .sort((a, b) => a.star.name.localeCompare(b.star.name));
   });
 
-  selectedStarOption = computed(() => {
+  readonly selectedStarOption = computed(() => {
     return this.starOptions().find((opt) => opt.star.id === this.selectedStarId()) || null;
   });
 
@@ -569,7 +572,7 @@ export class FleetDetailComponent implements OnInit {
     history.back();
   }
 
-  visibleStars(): Star[] {
+  visibleStars(): Array<Star> {
     const f = this.fleet();
     if (this.showAll || !f) return this.stars();
     let curr: { x: number; y: number } | undefined;

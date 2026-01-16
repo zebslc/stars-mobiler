@@ -1,224 +1,96 @@
 import { TestBed } from '@angular/core/testing';
 import { ColonyService } from './colony.service';
-import { EconomyService } from './economy.service';
-import { ShipyardService } from '../ship-design/shipyard.service';
-import { GameState, Player, Fleet, ShipDesign, BuildItem, Star } from '../../models/game.model';
+import { BuildQueueService } from '../build/queue/build-queue.service';
+import { BuildProcessorService } from '../build/processor/build-processor.service';
+import { GovernorService } from './governor.service';
+import type { BuildItem, GameState, Star } from '../../models/game.model';
+
+class BuildQueueStub implements BuildQueueService {
+  addToBuildQueueCalls: Array<{ game: GameState; starId: string; item: BuildItem }> = [];
+  removeFromQueueCalls: Array<{ game: GameState; starId: string; index: number }> = [];
+  queuedGame: GameState | null = null;
+
+  addToBuildQueue(game: GameState, starId: string, item: BuildItem): GameState {
+    this.addToBuildQueueCalls.push({ game, starId, item });
+    this.queuedGame = game;
+    return game;
+  }
+
+  removeFromQueue(game: GameState, starId: string, index: number): GameState {
+    this.removeFromQueueCalls.push({ game, starId, index });
+    return game;
+  }
+}
+
+class BuildProcessorStub implements BuildProcessorService {
+  processedGames: Array<GameState> = [];
+
+  processBuildQueues(game: GameState): void {
+    this.processedGames.push(game);
+  }
+}
+
+class GovernorStub implements GovernorService {
+  processedGames: Array<GameState> = [];
+  setCalls: Array<{ game: GameState; starId: string; governor: Star['governor'] }> = [];
+
+  processGovernors(game: GameState): void {
+    this.processedGames.push(game);
+  }
+
+  setGovernor(game: GameState, starId: string, governor: Star['governor']): GameState {
+    this.setCalls.push({ game, starId, governor });
+    return game;
+  }
+}
 
 describe('ColonyService', () => {
   let service: ColonyService;
-  let mockEconomyService: any;
-  let mockShipyardService: any;
-
-  const mockPlayer: Player = {
-    id: 'p1',
-    name: 'Human',
-    species: {} as any,
-    techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy',
-    ownedStarIds: [],
-  };
-
-  const mockPlanet: Star = {
-    id: 'planet1',
-    name: 'Earth',
-    position: { x: 0, y: 0 },
-    ownerId: 'p1',
-    temperature: 50,
-    atmosphere: 50,
-    mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
-    surfaceMinerals: { ironium: 500, boranium: 300, germanium: 200 },
-    population: 10000,
-    maxPopulation: 1000000,
-    resources: 1000, // Rich planet
-    mines: 10,
-    factories: 10,
-    defenses: 0,
-    terraformOffset: { temperature: 0, atmosphere: 0 },
-    buildQueue: [],
-    scanner: 0,
-    research: 0,
-  };
-
-  const mockDesign: ShipDesign = {
-    id: 'scout',
-    name: 'Scout',
-    hullId: 'Scout',
-    slots: [],
-    createdTurn: 0,
-    playerId: 'p1',
-    spec: {
-      cost: { resources: 50, ironium: 10, boranium: 0, germanium: 0 },
-      isStarbase: false,
-    } as any,
-  };
-
-  const mockStarbaseDesign: ShipDesign = {
-    id: 'starbase1',
-    name: 'Starbase I',
-    hullId: 'Space Station',
-    slots: [],
-    createdTurn: 0,
-    playerId: 'p1',
-    spec: {
-      cost: { resources: 200, ironium: 100, boranium: 50, germanium: 50 },
-      isStarbase: true,
-    } as any,
-  };
-
-  const mockStarbaseDesign2: ShipDesign = {
-    id: 'starbase2',
-    name: 'Starbase II',
-    hullId: 'Space Station',
-    slots: [],
-    createdTurn: 0,
-    playerId: 'p1',
-    spec: {
-      cost: { resources: 400, ironium: 200, boranium: 100, germanium: 100 },
-      isStarbase: true,
-    } as any,
-  };
+  let queue: BuildQueueStub;
+  let processor: BuildProcessorStub;
+  let governor: GovernorStub;
 
   beforeEach(() => {
-    mockEconomyService = jasmine.createSpyObj('EconomyService', ['spend']);
-    mockShipyardService = jasmine.createSpyObj('ShipyardService', ['getShipCost']);
+    queue = new BuildQueueStub();
+    processor = new BuildProcessorStub();
+    governor = new GovernorStub();
 
     TestBed.configureTestingModule({
       providers: [
         ColonyService,
-        { provide: EconomyService, useValue: mockEconomyService },
-        { provide: ShipyardService, useValue: mockShipyardService },
+        { provide: BuildQueueService, useValue: queue },
+        { provide: BuildProcessorService, useValue: processor },
+        { provide: GovernorService, useValue: governor },
       ],
     });
+
     service = TestBed.inject(ColonyService);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('delegates build queue mutations to BuildQueueService', () => {
+    const game = {} as GameState;
+    const item = { project: 'ship' } as BuildItem;
+    const addResult = service.addToBuildQueue(game, 'alpha', item);
+    const removeResult = service.removeFromQueue(game, 'beta', 2);
+
+    expect(addResult).toBe(game);
+    expect(removeResult).toBe(game);
+    expect(queue.addToBuildQueueCalls).toEqual([{ game, starId: 'alpha', item }]);
+    expect(queue.removeFromQueueCalls).toEqual([{ game, starId: 'beta', index: 2 }]);
   });
 
-  describe('processBuildQueues', () => {
-    it('should process partial payment for expensive items', () => {
-      const planet = {
-        ...mockPlanet,
-        resources: 10,
-        surfaceMinerals: { ironium: 0, boranium: 0, germanium: 0 },
-      };
-      const item: BuildItem = {
-        project: 'ship',
-        cost: { resources: 100, ironium: 0, boranium: 0, germanium: 0 },
-        shipDesignId: 'scout',
-        count: 1,
-      };
-      planet.buildQueue = [item];
+  it('delegates processing to BuildProcessorService', () => {
+    const game = {} as GameState;
+    service.processBuildQueues(game);
+    expect(processor.processedGames).toEqual([game]);
+  });
 
-      const game: GameState = {
-        humanPlayer: mockPlayer,
-        stars: [planet],
-        shipDesigns: [mockDesign],
-        fleets: [],
-      } as any;
+  it('delegates governor behaviour', () => {
+    const game = {} as GameState;
+    service.processGovernors(game);
+    service.setGovernor(game, 'gamma', 'terraforming');
 
-      service.processBuildQueues(game);
-
-      expect(item.paid).toBeDefined();
-      expect(item.paid?.resources).toBe(10);
-      expect(planet.resources).toBe(0);
-      expect(planet.buildQueue?.length).toBe(1); // Still in queue
-      expect(game.fleets.length).toBe(0);
-    });
-
-    it('should complete item when fully paid', () => {
-      const planet = {
-        ...mockPlanet,
-        resources: 100,
-        surfaceMinerals: { ironium: 10, boranium: 0, germanium: 0 },
-      };
-      const item: BuildItem = {
-        project: 'ship',
-        cost: { resources: 50, ironium: 10, boranium: 0, germanium: 0 },
-        shipDesignId: 'scout',
-        count: 1,
-      };
-      planet.buildQueue = [item];
-
-      const game: GameState = {
-        humanPlayer: mockPlayer,
-        shipDesigns: [mockDesign],
-        fleets: [],
-        stars: [planet],
-      } as any;
-
-      service.processBuildQueues(game);
-
-      expect(planet.buildQueue?.length).toBe(0); // Removed from queue
-      expect(planet.resources).toBe(50); // 100 - 50
-      expect(game.fleets.length).toBe(1); // Fleet created
-    });
-
-    it('should apply 75% mineral recovery for starbase upgrades', () => {
-      const planet = {
-        ...mockPlanet,
-        resources: 1000,
-        surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
-      };
-
-      // Existing starbase fleet
-      const existingFleet: Fleet = {
-        id: 'f1',
-        ownerId: 'p1',
-        location: { type: 'orbit', starId: planet.id },
-        ships: [{ designId: 'starbase1', count: 1, damage: 0 }],
-        cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
-        fuel: 0,
-        orders: [],
-        name: 'Starbase',
-      };
-
-      // New starbase build item
-      const item: BuildItem = {
-        project: 'ship',
-        cost: mockStarbaseDesign2.spec!.cost, // 400 res, 200 Fe, 100 Bo, 100 Ge
-        shipDesignId: 'starbase2',
-        count: 1,
-      };
-      planet.buildQueue = [item];
-
-      const game: GameState = {
-        humanPlayer: mockPlayer,
-        shipDesigns: [mockStarbaseDesign, mockStarbaseDesign2],
-        fleets: [existingFleet],
-        stars: [planet],
-      } as any;
-
-      service.processBuildQueues(game);
-
-      // Calculation:
-      // Old cost: 200 Res, 100 Fe, 50 Bo, 50 Ge
-      // Credit (75%): 75 Fe, 37 Bo, 37 Ge (Resources not credited)
-      // New cost: 400 Res, 200 Fe, 100 Bo, 100 Ge
-      // Net needed: 400 Res, 125 Fe, 63 Bo, 63 Ge
-
-      // Paid:
-      // Resources: 400
-      // Ironium: 125
-      // Boranium: 63
-      // Germanium: 63
-
-      // Remaining on planet:
-      // Resources: 1000 - 400 = 600
-      // Ironium: 1000 - 125 = 875
-      // Boranium: 1000 - 63 = 937
-      // Germanium: 1000 - 63 = 937
-
-      expect(planet.buildQueue?.length).toBe(0);
-      expect(planet.resources).toBe(600);
-      expect(planet.surfaceMinerals.ironium).toBe(875);
-      expect(planet.surfaceMinerals.boranium).toBe(937);
-      expect(planet.surfaceMinerals.germanium).toBe(937);
-
-      expect(game.fleets.length).toBe(1);
-      expect(game.fleets[0].ships[0].designId).toBe('starbase2');
-    });
+    expect(governor.processedGames).toEqual([game]);
+    expect(governor.setCalls).toEqual([{ game, starId: 'gamma', governor: 'terraforming' }]);
   });
 });

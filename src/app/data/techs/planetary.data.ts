@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
+export const PLANETARY_SCANNER_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'planet_viewer_50',
     name: 'Viewer 50',
@@ -84,7 +84,7 @@ export const PLANETARY_SCANNER_COMPONENTS: ComponentStats[] = [
   }
 ];
 
-export const PLANETARY_DEFENSE_COMPONENTS: ComponentStats[] = [
+export const PLANETARY_DEFENSE_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'planet_sdi',
     name: 'SDI',

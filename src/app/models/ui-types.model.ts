@@ -5,8 +5,8 @@
  * any types found in the codebase during the refactoring process.
  */
 
-import { FleetOrder } from './game.model';
-import { ComponentData, GalaxyCoordinate } from './service-interfaces.model';
+import type { FleetOrder } from './game.model';
+import type { ComponentData, GalaxyCoordinate } from './service-interfaces.model';
 
 // ============================================================================
 // Image Event Types

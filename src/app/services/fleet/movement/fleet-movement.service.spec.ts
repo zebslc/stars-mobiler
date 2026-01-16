@@ -1,14 +1,7 @@
 import { FleetMovementService } from './fleet-movement.service';
 import type { LoggingService } from '../../core/logging.service';
-import type {
-  Fleet,
-  FleetLocation,
-  GameSettings,
-  GameState,
-  Player,
-  Species,
-  Star,
-} from '../../../models/game.model';
+import type { Fleet, GameSettings, GameState, Player, Species, Star } from '../../../models/game.model';
+import type { FleetLocation } from '../../../models/service-interfaces.model';
 import { FleetMovementOrderService } from './fleet-movement-order.service';
 import { FleetMovementStatsService } from './fleet-movement-stats.service';
 import { FleetFuelCalculatorService } from '../fuel/fleet-fuel-calculator.service';
@@ -125,9 +118,11 @@ describe('FleetMovementService calculateFuelConsumption', () => {
   });
 
   it('throws when no engine configuration is available', () => {
-    ctx.designSpy.and.callFake((designId: string): CompiledDesign =>
-      createCompiledDesign({ id: designId, engine: undefined }),
-    );
+    ctx.designSpy.and.callFake((designId: string): CompiledDesign => {
+      const design = createCompiledDesign({ id: designId });
+      delete (design as Record<string, unknown>).engine;
+      return design;
+    });
 
     expect(() => ctx.service.calculateFuelConsumption(fleet, 10)).toThrowError(/missing engine configuration/i);
   });

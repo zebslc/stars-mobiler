@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { LoggingService } from '../../../services/core/logging.service';
-import { 
+import type { 
   IGalaxyCoordinateService, 
   GalaxyMapState, 
   ScreenCoordinate, 

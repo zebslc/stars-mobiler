@@ -4,7 +4,7 @@ import { GalaxyWaypointVisualService } from './galaxy-waypoint-visual.service';
 import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
 import { GalaxyFleetPositionService } from '../galaxy-fleet-position.service';
-import {
+import type {
   Fleet,
   FleetOrder,
   GameSettings,
@@ -107,7 +107,7 @@ describe('GalaxyWaypointVisualService', () => {
     resources: 0,
   };
 
-  function playerFleet(orders: FleetOrder[]): Fleet {
+  function playerFleet(orders: Array<FleetOrder>): Fleet {
     return {
       id: 'fleet-player',
       name: 'Voyager',
@@ -141,7 +141,7 @@ describe('GalaxyWaypointVisualService', () => {
     };
   }
 
-  function buildGame(fleets: Fleet[], stars: Star[] = [orbitStar]): GameState {
+  function buildGame(fleets: Array<Fleet>, stars: Array<Star> = [orbitStar]): GameState {
     return {
       id: 'game-1',
       seed: 1,

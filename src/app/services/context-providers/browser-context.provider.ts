@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BrowserContext } from '../../models/logging.model';
+import type { BrowserContext } from '../../models/logging.model';
 
 /**
  * Provider for browser-specific context information.

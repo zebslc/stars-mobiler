@@ -12,7 +12,7 @@ export function randInt(rng: () => number, min: number, max: number): number {
   return Math.floor(rng() * (max - min + 1)) + min;
 }
 
-export function choice<T>(rng: () => number, arr: T[]): T {
+export function choice<T>(rng: () => number, arr: Array<T>): T {
   return arr[Math.floor(rng() * arr.length)];
 }
 

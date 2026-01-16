@@ -3,8 +3,8 @@ import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
 import { GalaxyFleetPositionService } from '../galaxy-fleet-position.service';
 import { GalaxyWaypointVisualService } from './galaxy-waypoint-visual.service';
-import { DraggedWaypoint, SnapTarget } from './galaxy-waypoint.models';
-import { Fleet, GameState } from '../../../../models/game.model';
+import type { DraggedWaypoint, SnapTarget } from './galaxy-waypoint.models';
+import type { Fleet, GameState } from '../../../../models/game.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,7 @@ export class GalaxyWaypointStateService {
   readonly navigationModeFleetId = signal<string | null>(null);
 
   // Resolver pipeline keeps snap detection composable for future targets.
-  private readonly snapResolvers: SnapResolver[] = [
+  private readonly snapResolvers: Array<SnapResolver> = [
     (context) => this.snapToStars(context),
     (context) => this.snapToFleets(context),
   ];

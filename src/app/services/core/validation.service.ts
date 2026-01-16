@@ -1,6 +1,6 @@
-import { HullTemplate, ComponentStats } from '../../data/tech-atlas.types';
-import { SlotAssignment } from '../../models/game.model';
-import { TraitType, ValidationRule } from '../../data/tech-atlas.types';
+import type { HullTemplate, ComponentStats } from '../../data/tech-atlas.types';
+import type { SlotAssignment } from '../../models/game.model';
+import type { TraitType, ValidationRule } from '../../data/tech-atlas.types';
 
 type InstalledComponent = {
   component: ComponentStats;
@@ -16,7 +16,7 @@ const getNumberParam = (params: unknown, key: string): number | undefined => {
   return typeof value === 'number' ? value : undefined;
 };
 
-const getStringArrayParam = (params: unknown, key: string): string[] | undefined => {
+const getStringArrayParam = (params: unknown, key: string): Array<string> | undefined => {
   if (!isRecord(params)) return undefined;
   const value = params[key];
   if (!Array.isArray(value)) return undefined;
@@ -30,13 +30,13 @@ const getTraitParam = (params: unknown): TraitType | undefined => {
   return typeof value === 'string' ? (value as TraitType) : undefined;
 };
 
-const hasTrait = (installed: InstalledComponent[], trait: TraitType): boolean =>
+const hasTrait = (installed: Array<InstalledComponent>, trait: TraitType): boolean =>
   installed.some(({ component }) => component.traits?.some((t) => t.type === trait));
 
 const getInstalledComponents = (
-  assignments: SlotAssignment[],
+  assignments: Array<SlotAssignment>,
   componentsById: Record<string, ComponentStats>,
-): InstalledComponent[] => {
+): Array<InstalledComponent> => {
   const counts = new Map<string, number>();
 
   for (const slot of assignments) {
@@ -48,7 +48,7 @@ const getInstalledComponents = (
     }
   }
 
-  const installed: InstalledComponent[] = [];
+  const installed: Array<InstalledComponent> = [];
   for (const [id, count] of counts.entries()) {
     const component = componentsById[id];
     if (component) {
@@ -62,7 +62,7 @@ const getInstalledComponents = (
 const validateRule = (
   rule: ValidationRule,
   subject: InstalledComponent,
-  installed: InstalledComponent[],
+  installed: Array<InstalledComponent>,
   hull: HullTemplate,
 ): string | null => {
   switch (rule.type) {
@@ -94,7 +94,7 @@ const validateRule = (
 
       const traitTypes = (getStringArrayParam(rule.params, 'traitTypes') ?? []).filter(
         (t): t is TraitType => typeof t === 'string',
-      ) as TraitType[];
+      ) as Array<TraitType>;
       if (traitTypes.length) {
         const forbiddenTraitInstalled = installed.some(({ component }) =>
           component.traits?.some((t) => traitTypes.includes(t.type)),
@@ -112,10 +112,10 @@ const validateRule = (
 
 export function validateShipDesign(
   hull: HullTemplate,
-  assignments: SlotAssignment[],
+  assignments: Array<SlotAssignment>,
   componentsById: Record<string, ComponentStats>,
-): string[] {
-  const errors: string[] = [];
+): Array<string> {
+  const errors: Array<string> = [];
   const installed = getInstalledComponents(assignments, componentsById);
 
   const isStarbase = !!hull.isStarbase;

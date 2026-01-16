@@ -1,15 +1,16 @@
 import { Injectable, computed } from '@angular/core';
-import {
+import type {
   GameSettings,
-  GameState,
   Star,
   BuildItem,
   ShipDesign,
-  FleetOrder,
+  FleetOrder} from '../../models/game.model';
+import {
+  GameState
 } from '../../models/game.model';
 import { GameInitializerService } from './game-initializer.service';
 import { HabitabilityService } from '../colony/habitability.service';
-import { TechField } from '../../data/tech-tree.data';
+import type { TechField } from '../../data/tech-tree.data';
 import { CommandExecutorService } from '../../core/commands/command-executor.service';
 import { CommandFactoryService } from '../../core/commands/command-factory.service';
 import { ShipyardService } from '../ship-design/shipyard.service';
@@ -90,7 +91,7 @@ export class GameStateService {
     this.commandExecutor.execute(command);
   }
 
-  setFleetOrders(fleetId: string, orders: FleetOrder[]) {
+  setFleetOrders(fleetId: string, orders: Array<FleetOrder>) {
     const command = this.commandFactory.createSetFleetOrdersCommand(fleetId, orders);
     this.commandExecutor.execute(command);
   }
@@ -138,7 +139,7 @@ export class GameStateService {
   splitFleet(
     fleetId: string,
     transferSpec: {
-      ships: { designId: string; count: number; damage?: number }[];
+      ships: Array<{ designId: string; count: number; damage?: number }>;
       fuel: number;
       cargo: {
         resources: number;
@@ -167,7 +168,7 @@ export class GameStateService {
     sourceId: string,
     targetId: string,
     transferSpec: {
-      ships: { designId: string; count: number; damage?: number }[];
+      ships: Array<{ designId: string; count: number; damage?: number }>;
       fuel: number;
       cargo: {
         resources: number;
@@ -199,7 +200,7 @@ export class GameStateService {
     this.commandExecutor.execute(command);
   }
 
-  getPlayerShipDesigns(): ShipDesign[] {
+  getPlayerShipDesigns(): Array<ShipDesign> {
     const game = this.commandExecutor.getCurrentGame();
     if (!game) return [];
     return this.shipyardService.getPlayerShipDesigns(game);

@@ -1,4 +1,4 @@
-import { SlotDefinition } from '../../../data/tech-atlas.types';
+import type { SlotDefinition } from '../../../data/tech-atlas.types';
 
 export interface GridSlot {
   id: string;

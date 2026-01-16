@@ -1,4 +1,4 @@
-import { GameState } from '../../models/game.model';
+import type { GameState } from '../../models/game.model';
 
 /**
  * Command interface for game operations.

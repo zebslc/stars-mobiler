@@ -27,7 +27,7 @@ export interface ShipStats {
 
 export interface SlotDefinition {
   Code: string;
-  Allowed: string[];
+  Allowed: Array<string>;
   Max?: number;
   Required?: boolean;
   Editable?: boolean;
@@ -37,8 +37,8 @@ export interface SlotDefinition {
 export interface HullTemplate {
   // Official hull-templates.json structure
   Name: string;
-  Structure: string[];
-  Slots: SlotDefinition[];
+  Structure: Array<string>;
+  Slots: Array<SlotDefinition>;
   Cost: ResourceCost;
   Stats: ShipStats;
 
@@ -89,7 +89,7 @@ export interface ComponentCost {
 export interface ComponentTypeConfig {
   slotType: string;
   category: string;
-  aliases?: string[];
+  aliases?: Array<string>;
   description?: string;
 }
 
@@ -200,7 +200,7 @@ export function isTraitImplemented(traitType: TraitType): boolean {
 /**
  * Get all implemented trait types
  */
-export function getImplementedTraitTypes(): TraitType[] {
+export function getImplementedTraitTypes(): Array<TraitType> {
   return Object.entries(TRAIT_TYPE_REGISTRY)
     .filter(([_, config]) => config.isImplemented)
     .map(([key, _]) => key as TraitType);
@@ -209,8 +209,8 @@ export function getImplementedTraitTypes(): TraitType[] {
 /**
  * Get all available slot types
  */
-export function getAllSlotTypes(): SlotType[] {
-  return Object.keys(COMPONENT_TYPE_REGISTRY) as SlotType[];
+export function getAllSlotTypes(): Array<SlotType> {
+  return Object.keys(COMPONENT_TYPE_REGISTRY) as Array<SlotType>;
 }
 
 /**
@@ -241,7 +241,7 @@ export function isValidationRuleImplemented(ruleType: ValidationRuleType): boole
 /**
  * Get all implemented validation rule types
  */
-export function getImplementedValidationRuleTypes(): ValidationRuleType[] {
+export function getImplementedValidationRuleTypes(): Array<ValidationRuleType> {
   return Object.entries(VALIDATION_RULE_REGISTRY)
     .filter(([_, config]) => config.isImplemented)
     .map(([key, _]) => key as ValidationRuleType);
@@ -348,15 +348,15 @@ export interface ComponentStats {
     stealth?: number;
   };
   description: string;
-  primaryRacialTraitRequired?: PrimaryRacialTrait[];
-  primaryRacialTraitUnavailable?: PrimaryRacialTrait[];
-  lesserRacialTraitRequired?: LesserRacialTrait[];
-  lesserRacialTraitUnavailable?: LesserRacialTrait[];
-  hullRestrictions?: string[];
+  primaryRacialTraitRequired?: Array<PrimaryRacialTrait>;
+  primaryRacialTraitUnavailable?: Array<PrimaryRacialTrait>;
+  lesserRacialTraitRequired?: Array<LesserRacialTrait>;
+  lesserRacialTraitUnavailable?: Array<LesserRacialTrait>;
+  hullRestrictions?: Array<string>;
   isRamscoop?: boolean;
   categoryId?: string;
-  traits?: ComponentTrait[];
-  constraints?: ValidationRule[];
+  traits?: Array<ComponentTrait>;
+  constraints?: Array<ValidationRule>;
   metadata?: {
     icon: string;
     color?: string;
@@ -367,10 +367,10 @@ export interface ComponentStats {
 export interface ComponentCategory {
   id?: string;
   name?: string;
-  allowedSlots?: string[];
+  allowedSlots?: Array<string>;
   displayOrder?: number;
   category: string;
-  items: ComponentStats[];
+  items: Array<ComponentStats>;
 }
 
 export type PrimaryRacialTrait =

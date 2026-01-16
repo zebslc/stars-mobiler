@@ -3,7 +3,7 @@ import { GalaxyVisibilityService } from './galaxy-visibility.service';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
-import { Fleet, GameState, Player, ShipDesign, Star } from '../../../models/game.model';
+import type { Fleet, GameState, Player, ShipDesign, Star } from '../../../models/game.model';
 import { signal } from '@angular/core';
 
 describe('GalaxyVisibilityService', () => {

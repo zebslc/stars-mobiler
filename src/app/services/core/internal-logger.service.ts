@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ConsoleDestination } from '../destinations/console.destination';
-import { LogEntry, LogLevel, LogContext } from '../../models/logging.model';
+import type { LogEntry, LogContext } from '../../models/logging.model';
+import { LogLevel } from '../../models/logging.model';
 
 type LogMetadata = Record<string, unknown> | undefined;
 

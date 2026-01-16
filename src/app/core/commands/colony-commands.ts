@@ -1,6 +1,6 @@
-import { GameCommand } from './game-command.interface';
-import { GameState, BuildItem, Star } from '../../models/game.model';
-import { ColonyService } from '../../services/colony/colony.service';
+import type { GameCommand } from './game-command.interface';
+import type { GameState, BuildItem, Star } from '../../models/game.model';
+import type { ColonyService } from '../../services/colony/colony.service';
 
 /**
  * Command to add an item to a star's build queue.

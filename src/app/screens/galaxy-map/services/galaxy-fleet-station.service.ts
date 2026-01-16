@@ -1,6 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 import { getDesign } from '../../../data/ships.data';
 
 @Injectable({

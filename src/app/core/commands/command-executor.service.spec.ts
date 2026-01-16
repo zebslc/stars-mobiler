@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { CommandExecutorService } from './command-executor.service';
-import { GameCommand, GameCommandWithResult } from './game-command.interface';
-import { GameState } from '../../models/game.model';
+import type { GameCommand, GameCommandWithResult } from './game-command.interface';
+import type { GameState } from '../../models/game.model';
 
 declare const describe: any;
 declare const it: any;

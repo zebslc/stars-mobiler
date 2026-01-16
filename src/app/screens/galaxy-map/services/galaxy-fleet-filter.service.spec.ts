@@ -4,7 +4,7 @@ import { GalaxyFleetFilterService } from './galaxy-fleet-filter.service';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetStationService } from './galaxy-fleet-station.service';
-import { Fleet, GameState, Player } from '../../../models/game.model';
+import type { Fleet, GameState, Player } from '../../../models/game.model';
 
 describe('GalaxyFleetFilterService', () => {
   let service: GalaxyFleetFilterService;
@@ -18,7 +18,7 @@ describe('GalaxyFleetFilterService', () => {
     ownedStarIds: [],
   };
 
-  const fleets: Fleet[] = [
+  const fleets: Array<Fleet> = [
     {
       id: 'fleet-1',
       name: 'Scout Wing',

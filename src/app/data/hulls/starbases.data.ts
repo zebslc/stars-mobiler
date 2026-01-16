@@ -1,6 +1,6 @@
-import { HullTemplate } from '../tech-atlas.types';
+import type { HullTemplate } from '../tech-atlas.types';
 
-export const STARBASE_HULLS: HullTemplate[] = [
+export const STARBASE_HULLS: Array<HullTemplate> = [
   {
     Name: 'Orbital Fort',
     Structure: [

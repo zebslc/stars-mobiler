@@ -1,6 +1,6 @@
-import { HullTemplate } from '../tech-atlas.types';
+import type { HullTemplate } from '../tech-atlas.types';
 
-export const FREIGHTER_HULLS: HullTemplate[] = [
+export const FREIGHTER_HULLS: Array<HullTemplate> = [
   {
     Name: 'Small Freighter',
     Structure: ['E1,E1,C1,C1,SA1,SA1,SCEM1,SCEM1', 'E1,E1,C1,C1,SA1,SA1,SCEM1,SCEM1'],

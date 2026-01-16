@@ -1,6 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ShipDesignerHullSelectorComponent } from './ship-designer-hull-selector.component';
-import { HullTemplate } from '../../../data/tech-atlas.types';
+import type { HullTemplate } from '../../../data/tech-atlas.types';
 
 declare const describe: any;
 declare const it: any;
@@ -11,7 +12,7 @@ describe('ShipDesignerHullSelectorComponent', () => {
   let component: ShipDesignerHullSelectorComponent;
   let fixture: ComponentFixture<ShipDesignerHullSelectorComponent>;
 
-  const mockHulls: HullTemplate[] = [
+  const mockHulls: Array<HullTemplate> = [
     { Name: 'Scout', type: 'scout', Cost: { Resources: 10 }, Stats: {}, Slots: [] } as any,
     { Name: 'Destroyer', type: 'warship', Cost: { Resources: 100 }, Stats: {}, Slots: [] } as any,
     { Name: 'Miner', type: 'miner', Cost: { Resources: 50 }, Stats: {}, Slots: [] } as any,

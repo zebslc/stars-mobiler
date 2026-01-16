@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Star } from '../../../models/game.model';
+import type { BuildItem, GameState, Star } from '../../../models/game.model';
 import { PlanetUtilityService } from '../../colony/planet-utility.service';
 import { BuildQueueService } from '../queue/build-queue.service';
 import { BuildPaymentService, ResourceAmount } from '../payment/build-payment.service';
 import { BuildProjectService } from '../project/build-project.service';
-import {
+import type {
   StarbaseUpgradeInfo,
-  StarbaseUpgradeService,
 } from '../../ship-design/starbase-upgrade.service';
+import { StarbaseUpgradeService } from '../../ship-design/starbase-upgrade.service';
 
 @Injectable({ providedIn: 'root' })
 export class BuildProcessorService {

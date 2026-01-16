@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
-import { Fleet } from '../../models/game.model';
+import type { Fleet } from '../../models/game.model';
 import { FleetCardComponent } from './components/fleet-card.component';
 import { getDesign } from '../../data/ships.data';
 
@@ -60,7 +60,7 @@ export class FleetsOverviewComponent {
   private gs = inject(GameStateService);
   private router = inject(Router);
 
-  fleets = computed(() => {
+  readonly fleets = computed(() => {
     const game = this.gs.game();
     const allFleets = game?.fleets || [];
     const playerId = this.gs.player()?.id;

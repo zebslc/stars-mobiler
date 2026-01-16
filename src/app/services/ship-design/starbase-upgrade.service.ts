@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BuildItem, GameState, Star, Fleet, ShipStack } from '../../models/game.model';
+import type { BuildItem, GameState, Star, Fleet, ShipStack } from '../../models/game.model';
 
 export type StarbaseUpgradeInfo = {
   scrapCredit: { resources: number; ironium: number; boranium: number; germanium: number };
@@ -62,7 +62,7 @@ export class StarbaseUpgradeService {
   /**
    * Get fleets orbiting the planet.
    */
-  private getOrbitFleets(game: GameState, planet: Star): Fleet[] {
+  private getOrbitFleets(game: GameState, planet: Star): Array<Fleet> {
     return game.fleets.filter(
       (f) =>
         f.ownerId === planet.ownerId &&

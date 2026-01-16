@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, Star, ShipStack, ShipDesign } from '../../../models/game.model';
-import { LogContext } from '../../../models/service-interfaces.model';
+import type { GameState, Fleet, Star, ShipStack, ShipDesign } from '../../../models/game.model';
+import type { LogContext } from '../../../models/service-interfaces.model';
 import { LoggingService } from '../../core/logging.service';
 import { HabitabilityService } from '../../colony/habitability.service';
 import { ShipyardService } from '../../ship-design/shipyard.service';

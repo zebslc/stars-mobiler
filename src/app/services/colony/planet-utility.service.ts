@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameState, Star } from '../../models/game.model';
+import type { GameState, Star } from '../../models/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlanetUtilityService {
@@ -26,7 +26,7 @@ export class PlanetUtilityService {
   /**
    * Get all owned stars that can have governors.
    */
-  getOwnedStars(game: GameState): Star[] {
+  getOwnedStars(game: GameState): Array<Star> {
     return game.stars.filter((s) => s.ownerId === game.humanPlayer.id);
   }
 

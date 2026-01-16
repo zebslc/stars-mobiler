@@ -2,9 +2,10 @@ import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../../services/core/settings.service';
+import type {
+  FilterItem} from '../../../shared/components/filter-ribbon/filter-ribbon.component';
 import {
-  FilterRibbonComponent,
-  FilterItem,
+  FilterRibbonComponent
 } from '../../../shared/components/filter-ribbon/filter-ribbon.component';
 import { SHIP_ROLE_CONFIG } from '../../../shared/constants/ship-roles.const';
 import { LoggingService } from '../../../services/core/logging.service';
@@ -411,7 +412,7 @@ export class GalaxyMapSettingsComponent {
   @Input() navigationMode = false;
   @Output() exitNavigation = new EventEmitter<void>();
 
-  fleetFilterItems: FilterItem<string>[] = Object.entries(SHIP_ROLE_CONFIG)
+  fleetFilterItems: Array<FilterItem<string>> = Object.entries(SHIP_ROLE_CONFIG)
     .filter(([key]) => key !== 'starbase')
     .map(([key, config]) => ({
       label: config.label,

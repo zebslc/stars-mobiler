@@ -1,20 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import { LoggingService } from '../core/logging.service';
-import {
+import type {
   IShipDesignOperationsService,
   ComponentData,
   ResourceCost,
   LogContext,
 } from '../../models/service-interfaces.model';
-import { ShipDesign, SlotAssignment } from '../../models/game.model';
-import { HullTemplate, SlotDefinition, ComponentStats } from '../../data/tech-atlas.types';
+import type { ShipDesign, SlotAssignment } from '../../models/game.model';
+import type { HullTemplate, SlotDefinition, ComponentStats } from '../../data/tech-atlas.types';
 import { getHull, getComponent } from '../../utils/data-access.util';
 import { canInstallComponent, createEmptyDesign } from '../../models/ship-design.model';
 import { getSlotTypeForComponentType } from '../../data/tech-atlas.types';
 
 interface NormalizedHullSlot {
   id: string;
-  allowedTypes: string[];
+  allowedTypes: Array<string>;
   max?: number;
   required?: boolean;
   editable?: boolean;
@@ -284,11 +284,11 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
   }
 
   private replaceSlotComponents(
-    slots: SlotAssignment[],
+    slots: Array<SlotAssignment>,
     slotId: string,
     componentId: string,
     count: number,
-  ): SlotAssignment[] {
+  ): Array<SlotAssignment> {
     return slots.map((slot) =>
       slot.slotId !== slotId
         ? slot
@@ -300,11 +300,11 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
   }
 
   private incrementSlotComponents(
-    slots: SlotAssignment[],
+    slots: Array<SlotAssignment>,
     slotId: string,
     componentId: string,
     count: number,
-  ): SlotAssignment[] {
+  ): Array<SlotAssignment> {
     return slots.map((slot) =>
       slot.slotId !== slotId
         ? slot
@@ -361,15 +361,15 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
     return { ...design, slots };
   }
 
-  private clearSlotAssignments(slots: SlotAssignment[], slotId: string): SlotAssignment[] {
+  private clearSlotAssignments(slots: Array<SlotAssignment>, slotId: string): Array<SlotAssignment> {
     return slots.map((slot) => (slot.slotId === slotId ? { ...slot, components: [] } : slot));
   }
 
   private decrementSlotComponent(
-    slots: SlotAssignment[],
+    slots: Array<SlotAssignment>,
     slotId: string,
     componentId: string,
-  ): SlotAssignment[] {
+  ): Array<SlotAssignment> {
     return slots.map((slot) => {
       if (slot.slotId !== slotId) return slot;
       const components = slot.components
@@ -430,7 +430,7 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
   ): NormalizedHullSlot {
     return {
       id: slotDef.Code || slotId,
-      allowedTypes: slotDef.Allowed.map((type) => getSlotTypeForComponentType(type)) as string[],
+      allowedTypes: slotDef.Allowed.map((type) => getSlotTypeForComponentType(type)) as Array<string>,
       max: slotDef.Max,
       required: slotDef.Required,
       editable: slotDef.Editable,

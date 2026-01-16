@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { GameContext } from '../../models/logging.model';
+import type { GameContext } from '../../models/logging.model';
 import { GameStateService } from '../game/game-state.service';
 
 /**

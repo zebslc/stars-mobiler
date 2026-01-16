@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const ENGINE_COMPONENTS: ComponentStats[] = [
+export const ENGINE_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'eng_settlers_delight',
     name: "Settler's Delight",

@@ -4,10 +4,11 @@ import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 import { LoggingService } from '../../../services/core/logging.service';
 import { GalaxyMapStateService } from './galaxy-map-state.service';
-import { GalaxyWaypointService, FinalizeWaypointResult } from './waypoints/galaxy-waypoint.service';
+import type { FinalizeWaypointResult } from './waypoints/galaxy-waypoint.service';
+import { GalaxyWaypointService } from './waypoints/galaxy-waypoint.service';
 import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
 import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
-import { Fleet, FleetOrder, GameState, Star } from '../../../models/game.model';
+import type { Fleet, FleetOrder, GameState, Star } from '../../../models/game.model';
 import { getDesign } from '../../../data/ships.data';
 
 export interface MenuAction {
@@ -418,7 +419,7 @@ export class GalaxyMapMenuService {
     this.closeMenus();
   }
 
-  getPlanetMenuActions(_star: Star): MenuAction[] {
+  getPlanetMenuActions(_star: Star): Array<MenuAction> {
     const selectedFleet = this.state.selectedFleetId();
     return [
       { action: 'viewPlanet', available: true, reason: 'Always available' },
@@ -430,8 +431,8 @@ export class GalaxyMapMenuService {
     ];
   }
 
-  getFleetMenuActions(fleet: Fleet): MenuAction[] {
-    const actions: MenuAction[] = [
+  getFleetMenuActions(fleet: Fleet): Array<MenuAction> {
+    const actions: Array<MenuAction> = [
       { action: 'viewFleet', available: true, reason: 'Always available' },
       { action: 'decommission', available: true, reason: 'Always available' },
     ];
@@ -581,8 +582,8 @@ export class GalaxyMapMenuService {
     return 'warpSpeed' in order ? order.warpSpeed : undefined;
   }
 
-  private getWaypointActionsStatus(fleet: Fleet): MenuAction[] {
-    const actions: MenuAction[] = [
+  private getWaypointActionsStatus(fleet: Fleet): Array<MenuAction> {
+    const actions: Array<MenuAction> = [
       { action: 'move', available: true, reason: 'Always available' },
       { action: 'delete', available: true, reason: 'Always available' },
     ];

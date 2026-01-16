@@ -1,5 +1,5 @@
 // Data access utilities for the new tech-atlas system
-import { ComponentStats, HullTemplate } from '../data/tech-atlas.types';
+import type { ComponentStats, HullTemplate } from '../data/tech-atlas.types';
 import { ALL_COMPONENTS, ALL_HULLS } from '../data/tech-atlas.data';
 
 /**
@@ -18,7 +18,7 @@ export function getComponent(componentId: string): ComponentStats | undefined {
 /**
  * Get all components as a flat array
  */
-export function getAllComponents(): ComponentStats[] {
+export function getAllComponents(): Array<ComponentStats> {
   return ALL_COMPONENTS.flatMap(category => category.items);
 }
 
@@ -49,7 +49,7 @@ export function getHull(hullId: string): HullTemplate | undefined {
 /**
  * Get all hulls
  */
-export function getAllHulls(): HullTemplate[] {
+export function getAllHulls(): Array<HullTemplate> {
   return ALL_HULLS;
 }
 

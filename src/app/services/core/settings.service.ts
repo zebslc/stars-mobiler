@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { GovernorType } from '../../models/game.model';
+import type { GovernorType } from '../../models/game.model';
 import { SHIP_ROLE_CONFIG } from '../../shared/constants/ship-roles.const';
 
 @Injectable({

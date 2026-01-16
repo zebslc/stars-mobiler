@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, Star } from '../../../models/game.model';
-import { LogContext } from '../../../models/service-interfaces.model';
+import type { GameState, Fleet, Star } from '../../../models/game.model';
+import type { LogContext } from '../../../models/service-interfaces.model';
 import { LoggingService } from '../../core/logging.service';
 
 export interface CargoManifest {

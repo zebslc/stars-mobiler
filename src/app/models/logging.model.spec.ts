@@ -1,7 +1,8 @@
 import * as fc from 'fast-check';
+import type {
+  LogEntry} from './logging.model';
 import {
   LogLevel,
-  LogEntry,
   LogContext,
   BrowserContext,
   GameContext,

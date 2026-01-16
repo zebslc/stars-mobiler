@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { ComponentStats, SlotDefinition, SlotType, getSlotTypeForComponentType } from '../../data/tech-atlas.types';
+import type { ComponentStats, SlotDefinition, SlotType} from '../../data/tech-atlas.types';
+import { getSlotTypeForComponentType } from '../../data/tech-atlas.types';
 import { LoggingService } from '../core/logging.service';
-import { LogContext } from '../../models/service-interfaces.model';
+import type { LogContext } from '../../models/service-interfaces.model';
 
 /**
  * Interface for hull slot validation operations
  */
 export interface HullSlot {
   id: string;
-  allowedTypes: SlotType[];
+  allowedTypes: Array<SlotType>;
   max?: number;
   required?: boolean;
   editable?: boolean;
@@ -20,8 +21,8 @@ export interface HullSlot {
  */
 export interface ComponentValidationResult {
   isValid: boolean;
-  errors: string[];
-  warnings: string[];
+  errors: Array<string>;
+  warnings: Array<string>;
 }
 
 /**
@@ -83,7 +84,7 @@ export class HullSlotValidationService {
   /**
    * Validate slot capacity constraints
    */
-  validateSlotCapacity(slot: HullSlot, components: ComponentStats[]): boolean {
+  validateSlotCapacity(slot: HullSlot, components: Array<ComponentStats>): boolean {
     const context: LogContext = {
       service: 'HullSlotValidationService',
       operation: 'validateSlotCapacity',
@@ -119,7 +120,7 @@ export class HullSlotValidationService {
     this.loggingService.debug('Performing comprehensive component placement validation', context);
 
     const errors = this.collectValidationErrors(slot, component, count);
-    const warnings: string[] = [];
+    const warnings: Array<string> = [];
 
     return {
       isValid: errors.length === 0,
@@ -128,8 +129,8 @@ export class HullSlotValidationService {
     };
   }
 
-  private collectValidationErrors(slot: HullSlot, component: ComponentStats, count: number): string[] {
-    const errors: string[] = [];
+  private collectValidationErrors(slot: HullSlot, component: ComponentStats, count: number): Array<string> {
+    const errors: Array<string> = [];
 
     if (!this.validateComponentFit(slot, component)) {
       errors.push(`Component ${component.name} (${component.type}) cannot be installed in slot ${slot.id}`);
@@ -167,7 +168,7 @@ export class HullSlotValidationService {
 
     return {
       id: slot.Code || `slot_${index}`,
-      allowedTypes: slot.Allowed.map(type => getSlotTypeForComponentType(type)) as SlotType[],
+      allowedTypes: slot.Allowed.map(type => getSlotTypeForComponentType(type)) as Array<SlotType>,
       max: slot.Max,
       required: slot.Required,
       editable: slot.Editable,
@@ -179,7 +180,7 @@ export class HullSlotValidationService {
    * Validate required slots are filled in a design
    */
   validateRequiredSlots(
-    slots: HullSlot[], 
+    slots: Array<HullSlot>, 
     assignments: Array<{slotId: string, hasComponents: boolean}>
   ): ComponentValidationResult {
     const context: LogContext = {
@@ -192,7 +193,7 @@ export class HullSlotValidationService {
     this.loggingService.debug('Validating required slots', context);
 
     const errors = this.findEmptyRequiredSlots(slots, assignments);
-    const warnings: string[] = [];
+    const warnings: Array<string> = [];
 
     return {
       isValid: errors.length === 0,
@@ -202,10 +203,10 @@ export class HullSlotValidationService {
   }
 
   private findEmptyRequiredSlots(
-    slots: HullSlot[], 
+    slots: Array<HullSlot>, 
     assignments: Array<{slotId: string, hasComponents: boolean}>
-  ): string[] {
-    const errors: string[] = [];
+  ): Array<string> {
+    const errors: Array<string> = [];
 
     for (const slot of slots) {
       if (slot.required) {

@@ -49,7 +49,7 @@ describe('SettingsService', () => {
       fc.assert(
         fc.property(
           fc.array(fc.boolean(), { minLength: 1, maxLength: 10 }),
-          (toggleSequence: boolean[]) => {
+          (toggleSequence: Array<boolean>) => {
             // Reset to known state for each test run
             service.toggleDeveloperMode(false);
             expect(service.developerMode()).toBe(false);
@@ -116,7 +116,7 @@ describe('SettingsService', () => {
       fc.assert(
         fc.property(
           fc.array(fc.boolean(), { minLength: 2, maxLength: 5 }),
-          (operations: boolean[]) => {
+          (operations: Array<boolean>) => {
             // Track expected state through operations
             let expectedState = false; // Initial state
 

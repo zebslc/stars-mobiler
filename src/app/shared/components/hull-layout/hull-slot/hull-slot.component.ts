@@ -1,9 +1,10 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GridSlot } from '../hull-layout.types';
-import { HullSlotComponentData, ComponentActionEvent, SlotTouchEvent } from '../hull-slot.types';
+import type { GridSlot } from '../hull-layout.types';
+import type { HullSlotComponentData, ComponentActionEvent, SlotTouchEvent } from '../hull-slot.types';
 import { HullSlotOperationsService } from '../../../../services/ship-design/hull-slot-operations.service';
-import { TouchClickDirective, TouchClickEvent } from '../../../directives';
+import type { TouchClickEvent } from '../../../directives';
+import { TouchClickDirective } from '../../../directives';
 import { LoggingService } from '../../../../services/core/logging.service';
 
 @Component({
@@ -451,7 +452,7 @@ export class HullSlotComponent {
     this.componentInfoClick.emit(actionEvent);
   }
 
-  getSlotTypeDisplay(allowedTypes: string[]): string {
+  getSlotTypeDisplay(allowedTypes: Array<string>): string {
     // Delegate to the operations service for business logic
     return this.hullSlotOperationsService.getSlotTypeDisplay(allowedTypes);
   }

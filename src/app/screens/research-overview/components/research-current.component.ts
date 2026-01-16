@@ -10,8 +10,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { TechService } from '../../../services/tech/tech.service';
-import { TechField, TECH_FIELDS } from '../../../data/tech-tree.data';
-import { TechRequirement } from '../../../data/tech-atlas.data';
+import type { TechField} from '../../../data/tech-tree.data';
+import { TECH_FIELDS } from '../../../data/tech-tree.data';
+import type { TechRequirement } from '../../../data/tech-atlas.data';
 
 @Component({
   selector: 'app-research-current',
@@ -336,16 +337,16 @@ import { TechRequirement } from '../../../data/tech-atlas.data';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResearchCurrentComponent {
-  selectedField = input.required<TechField>();
+  readonly selectedField = input.required<TechField>();
   @Output() showTechTree = new EventEmitter<void>();
   @Output() showUnlockDetails = new EventEmitter<string>();
 
   private gs = inject(GameStateService);
   private techService = inject(TechService);
 
-  fieldInfo = computed(() => TECH_FIELDS[this.selectedField()]);
+  readonly fieldInfo = computed(() => TECH_FIELDS[this.selectedField()]);
 
-  fieldIcon = computed(() => {
+  readonly fieldIcon = computed(() => {
     const icons: Record<TechField, string> = {
       Energy: '⚡',
       Kinetics: '🚀',
@@ -355,33 +356,33 @@ export class ResearchCurrentComponent {
     return icons[this.selectedField()];
   });
 
-  currentLevel = computed(() => {
+  readonly currentLevel = computed(() => {
     return this.gs.player()?.techLevels[this.selectedField()] ?? 0;
   });
 
-  currentUnlocks = computed(() => {
+  readonly currentUnlocks = computed(() => {
     const currentLevel = this.currentLevel();
     return this.fieldInfo().levels[currentLevel]?.unlocks ?? [];
   });
 
-  researchProgress = computed(() => {
+  readonly researchProgress = computed(() => {
     return Math.floor(this.gs.player()?.researchProgress[this.selectedField()] ?? 0);
   });
 
-  nextLevelCost = computed(() => {
+  readonly nextLevelCost = computed(() => {
     const currentLevel = this.currentLevel();
     if (currentLevel >= 26) return 0;
     return this.fieldInfo().levels[currentLevel + 1]?.cost ?? 0;
   });
 
-  progressPercent = computed(() => {
+  readonly progressPercent = computed(() => {
     const progress = this.researchProgress();
     const cost = this.nextLevelCost();
     if (cost === 0) return 100;
     return Math.min(100, (progress / cost) * 100);
   });
 
-  totalLabs = computed(() => {
+  readonly totalLabs = computed(() => {
     const game = this.gs.game();
     if (!game) return 0;
     return game.stars
@@ -390,7 +391,7 @@ export class ResearchCurrentComponent {
       .reduce((sum, p) => sum + (p.research || 0), 0);
   });
 
-  researchPerTurn = computed(() => {
+  readonly researchPerTurn = computed(() => {
     const game = this.gs.game();
     if (!game) return 0;
     const researchTrait =
@@ -398,7 +399,7 @@ export class ResearchCurrentComponent {
     return Math.floor(this.totalLabs() * (1 + researchTrait));
   });
 
-  turnsToNextLevel = computed(() => {
+  readonly turnsToNextLevel = computed(() => {
     const cost = this.nextLevelCost();
     if (cost === 0) return 0;
 
@@ -411,7 +412,7 @@ export class ResearchCurrentComponent {
     return Math.ceil(remaining / perTurn);
   });
 
-  nextUnlocks = computed(() => {
+  readonly nextUnlocks = computed(() => {
     const currentLevel = this.currentLevel();
     if (currentLevel >= 26) return [];
     return this.fieldInfo().levels[currentLevel + 1]?.unlocks ?? [];
@@ -434,7 +435,7 @@ export class ResearchCurrentComponent {
 
   getExternalDependenciesWithStatus(
     name: string,
-  ): { label: string; status: 'met' | 'close' | 'far' }[] {
+  ): Array<{ label: string; status: 'met' | 'close' | 'far' }> {
     const hull = this.techService.getHullByName(name);
     const comp = this.techService.getComponentByName(name);
     const details = hull || comp;
@@ -453,7 +454,7 @@ export class ResearchCurrentComponent {
     const player = this.gs.player();
     if (!player) return [];
 
-    const reqs: { field: string; level: number }[] = [];
+    const reqs: Array<{ field: string; level: number }> = [];
     Object.entries(techReq).forEach(([field, level]) => {
       reqs.push({ field, level: Number(level) });
     });

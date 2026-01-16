@@ -2,7 +2,7 @@ import { Injectable, inject, computed } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 import { getDesign } from '../../../data/ships.data';
 
 @Injectable({
@@ -72,7 +72,7 @@ export class GalaxyVisibilityService {
     }
 
     // 2. Calculate scanner sources
-    const scanners: { x: number; y: number; r: number }[] = [];
+    const scanners: Array<{ x: number; y: number; r: number }> = [];
 
     // Planet Scanners
     for (const star of stars) {
@@ -119,7 +119,7 @@ export class GalaxyVisibilityService {
   readonly scannerRanges = computed(() => {
     if (!this.settings.showScannerRanges()) return [];
 
-    const ranges: { x: number; y: number; r: number; type: 'planet' | 'fleet' }[] = [];
+    const ranges: Array<{ x: number; y: number; r: number; type: 'planet' | 'fleet' }> = [];
     const player = this.gs.player();
     if (!player) return ranges;
 
@@ -163,7 +163,7 @@ export class GalaxyVisibilityService {
   readonly cloakedRanges = computed(() => {
     if (!this.settings.showScannerRanges() || !this.settings.showCloakedRanges()) return [];
 
-    const ranges: { x: number; y: number; r: number; type: 'planet' | 'fleet' }[] = [];
+    const ranges: Array<{ x: number; y: number; r: number; type: 'planet' | 'fleet' }> = [];
     const player = this.gs.player();
     if (!player) return ranges;
 

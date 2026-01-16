@@ -11,17 +11,19 @@ import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game/game-state.service';
 import { ShipDesignerService } from '../../services/ship-designer.service';
 import { ShipDesignerComponent } from '../ship-designer/ship-designer.component';
+import type {
+  ShipDesignDisplay} from '../../components/ship-design-item/ship-design-item.component';
 import {
-  ShipDesignItemComponent,
-  ShipDesignDisplay,
+  ShipDesignItemComponent
 } from '../../components/ship-design-item/ship-design-item.component';
 import { getHull } from '../../utils/data-access.util';
 import { compileShipStats } from '../../models/ship-design.model';
-import { ShipDesign } from '../../models/game.model';
+import type { ShipDesign } from '../../models/game.model';
 import { HullPreviewModalComponent } from '../../shared/components/hull-preview-modal.component';
+import type {
+  FilterItem} from '../../shared/components/filter-ribbon/filter-ribbon.component';
 import {
-  FilterRibbonComponent,
-  FilterItem,
+  FilterRibbonComponent
 } from '../../shared/components/filter-ribbon/filter-ribbon.component';
 import { SHIP_ROLE_CONFIG, getDisplayCategory } from '../../shared/constants/ship-roles.const';
 
@@ -49,7 +51,7 @@ export class ShipDesignOverviewComponent {
   private gameState = inject(GameStateService);
   private designer = inject(ShipDesignerService);
 
-  private mode = signal<DesignerMode>('list');
+  private readonly mode = signal<DesignerMode>('list');
   readonly isDesignerMode = computed(() => this.mode() === 'designer');
 
   readonly activeTab = signal<DesignTab>('ships');
@@ -103,7 +105,7 @@ export class ShipDesignOverviewComponent {
       .sort((a, b) => a.config.label.localeCompare(b.config.label));
   });
 
-  readonly ribbonItems = computed<FilterItem<string>[]>(() => {
+  readonly ribbonItems = computed<Array<FilterItem<string>>>(() => {
     return this.availableCategories().map((cat) => ({
       label: cat.config.label,
       icon: cat.config.icon,

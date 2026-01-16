@@ -3,7 +3,7 @@ import { GalaxyWaypointService } from './waypoints/galaxy-waypoint.service';
 import { GalaxyMapMenuService } from './galaxy-map-menu.service';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { GalaxyMapStateService } from './galaxy-map-state.service';
-import { Fleet, FleetOrder } from '../../../models/game.model';
+import type { Fleet, FleetOrder } from '../../../models/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class GalaxyWaypointInteractionService {

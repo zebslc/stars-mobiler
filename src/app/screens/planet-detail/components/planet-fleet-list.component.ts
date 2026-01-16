@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { getDesign } from '../../../data/ships.data';
 import { getHull } from '../../../utils/data-access.util';
@@ -42,8 +42,8 @@ export class StarFleetListComponent {
   gs = inject(GameStateService);
   private router = inject(Router);
 
-  fleets = input.required<Fleet[]>();
-  starOwnerId = input<string | null>(null);
+  readonly fleets = input.required<Array<Fleet>>();
+  readonly starOwnerId = input<string | null>(null);
 
   colonize = output<string>();
 

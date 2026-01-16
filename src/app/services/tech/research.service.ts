@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { GameState } from '../../models/game.model';
-import { TECH_FIELDS, TechField } from '../../data/tech-tree.data';
+import type { GameState } from '../../models/game.model';
+import type { TechField } from '../../data/tech-tree.data';
+import { TECH_FIELDS } from '../../data/tech-tree.data';
 import { LoggingService } from '../core/logging.service';
 
 @Injectable({ providedIn: 'root' })

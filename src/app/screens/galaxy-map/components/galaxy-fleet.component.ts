@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 
@@ -58,15 +58,15 @@ export class GalaxyFleetComponent {
     this.fleetDown.emit({ originalEvent: event });
   }
 
-  isOwner = computed(() => this.fleet.ownerId === this.gs.player()?.id);
+  readonly isOwner = computed(() => this.fleet.ownerId === this.gs.player()?.id);
 
-  showCount = computed(() => this.settings.showFleetCounts());
+  readonly showCount = computed(() => this.settings.showFleetCounts());
 
-  shipCount = computed(() => {
+  readonly shipCount = computed(() => {
     return this.fleet.ships.reduce((acc, stack) => acc + stack.count, 0);
   });
 
-  rotation = computed(() => {
+  readonly rotation = computed(() => {
     if (this.isOrbit) {
       return `rotate(45 ${this.position.x} ${this.position.y})`;
     }

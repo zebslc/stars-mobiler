@@ -44,7 +44,7 @@ export class AppComponent {
   private router = inject(Router);
   private gs = inject(GameStateService);
 
-  showNav = computed(() => {
+  readonly showNav = computed(() => {
     const game = this.gs.game();
     return game !== null;
   });

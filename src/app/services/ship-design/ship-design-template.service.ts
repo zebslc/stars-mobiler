@@ -1,12 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { LoggingService } from '../core/logging.service';
-import { 
+import type { 
   IShipDesignTemplateService, 
   ShipDesignTemplate,
   LogContext 
 } from '../../models/service-interfaces.model';
-import { ShipDesign, PlayerTech, Species } from '../../models/game.model';
-import { HullTemplate } from '../../data/tech-atlas.types';
+import type { ShipDesign, PlayerTech} from '../../models/game.model';
+import { Species } from '../../models/game.model';
+import type { HullTemplate } from '../../data/tech-atlas.types';
 import { ALL_HULLS } from '../../data/tech-atlas.data';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 import { getHull } from '../../utils/data-access.util';
@@ -27,7 +28,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
   /**
    * Get available design templates based on tech levels
    */
-  getAvailableTemplates(techLevels: PlayerTech): ShipDesignTemplate[] {
+  getAvailableTemplates(techLevels: PlayerTech): Array<ShipDesignTemplate> {
     const context: LogContext = {
       service: 'ShipDesignTemplateService',
       operation: 'getAvailableTemplates',
@@ -41,7 +42,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
       // This can be expanded to include saved user templates
       const availableHulls = this.getAvailableHulls(techLevels);
       
-      const templates: ShipDesignTemplate[] = availableHulls.map(hull => ({
+      const templates: Array<ShipDesignTemplate> = availableHulls.map(hull => ({
         id: `template_${hull.id}`,
         name: `Basic ${hull.Name}`,
         hullId: hull.id,
@@ -132,7 +133,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
   /**
    * Get available hulls based on construction tech level
    */
-  getAvailableHulls(techLevels: PlayerTech): HullTemplate[] {
+  getAvailableHulls(techLevels: PlayerTech): Array<HullTemplate> {
     const context: LogContext = {
       service: 'ShipDesignTemplateService',
       operation: 'getAvailableHulls',
@@ -162,7 +163,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
   /**
    * Filter hulls by type (ships vs starbases)
    */
-  filterHullsByType(hulls: HullTemplate[], filter: 'starbases' | 'ships' | null): HullTemplate[] {
+  filterHullsByType(hulls: Array<HullTemplate>, filter: 'starbases' | 'ships' | null): Array<HullTemplate> {
     const context: LogContext = {
       service: 'ShipDesignTemplateService',
       operation: 'filterHullsByType',
@@ -245,7 +246,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
   /**
    * Validate design limits (ships vs starbases)
    */
-  validateDesignLimits(existingDesigns: ShipDesign[], newDesign: ShipDesign, isUpdate: boolean): { isValid: boolean; error?: string } {
+  validateDesignLimits(existingDesigns: Array<ShipDesign>, newDesign: ShipDesign, isUpdate: boolean): { isValid: boolean; error?: string } {
     const context: LogContext = {
       service: 'ShipDesignTemplateService',
       operation: 'validateDesignLimits',

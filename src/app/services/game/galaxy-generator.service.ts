@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Species, Star } from '../../models/game.model';
+import type { Species, Star } from '../../models/game.model';
 import { mulberry32, randInt, choice } from '../util/random.util';
 import { GALAXY_PADDING } from '../../core/constants/galaxy.constants';
 
 @Injectable({ providedIn: 'root' })
 export class GalaxyGeneratorService {
-  generateGalaxy(starCount: number, seed: number, width: number, height: number): Star[] {
+  generateGalaxy(starCount: number, seed: number, width: number, height: number): Array<Star> {
     const rng = mulberry32(seed);
     const positions: Array<{ x: number; y: number }> = [];
     const minDistance = (width / Math.sqrt(starCount)) * 0.6;
@@ -20,7 +20,7 @@ export class GalaxyGeneratorService {
         positions.push(candidate);
       }
     }
-    const stars: Star[] = positions.map((pos, i) => {
+    const stars: Array<Star> = positions.map((pos, i) => {
       const name = this.starName(seed, i);
       return this.generateStar(`star-${i}`, name, pos, rng);
     });
@@ -28,7 +28,7 @@ export class GalaxyGeneratorService {
   }
 
   assignStartPositions(
-    stars: Star[],
+    stars: Array<Star>,
     playerId: string,
     aiId: string,
     playerSpecies: Species,

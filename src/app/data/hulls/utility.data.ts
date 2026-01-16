@@ -1,6 +1,6 @@
-import { HullTemplate } from '../tech-atlas.types';
+import type { HullTemplate } from '../tech-atlas.types';
 
-export const UTILITY_HULLS: HullTemplate[] = [
+export const UTILITY_HULLS: Array<HullTemplate> = [
   // Multi-Role Ships
   {
     Name: 'Privateer',

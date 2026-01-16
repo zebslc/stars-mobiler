@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Star } from '../../models/game.model';
+import type { Star } from '../../models/game.model';
 
 export interface ProductionResult {
   resources: number;

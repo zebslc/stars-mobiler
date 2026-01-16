@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const BOMB_COMPONENTS: ComponentStats[] = [
+export const BOMB_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'bomb_lady_finger_bomb',
     name: 'Lady Finger',

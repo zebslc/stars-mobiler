@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const SHIELD_COMPONENTS: ComponentStats[] = [
+export const SHIELD_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'def_mole_skin_shield',
     name: 'Mole-skin Shield',
@@ -95,7 +95,7 @@ export const SHIELD_COMPONENTS: ComponentStats[] = [
   },
 ];
 
-export const ARMOR_COMPONENTS: ComponentStats[] = [
+export const ARMOR_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'def_tritanium',
     name: 'Tritanium',

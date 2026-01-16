@@ -1,20 +1,21 @@
+import type {
+  OnInit,
+  OnChanges,
+  SimpleChanges} from '@angular/core';
 import {
   Component,
   ChangeDetectionStrategy,
   Input,
   Output,
-  EventEmitter,
-  OnInit,
-  OnChanges,
-  SimpleChanges,
+  EventEmitter
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Fleet } from '../../../../models/game.model';
+import type { Fleet } from '../../../../models/game.model';
 import { DesignPreviewButtonComponent } from '../../../../shared/components/design-preview-button.component';
 
 export interface TransferState {
-  ships: { designId: string; damage: number; count: number; max: number }[];
+  ships: Array<{ designId: string; damage: number; count: number; max: number }>;
   fuel: number;
   resources: number;
   ironium: number;

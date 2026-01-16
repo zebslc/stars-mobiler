@@ -5,8 +5,8 @@ import {
   input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HullTemplate } from '../../../data/tech-atlas.types';
-import { ShipDesign } from '../../../models/game.model';
+import type { HullTemplate } from '../../../data/tech-atlas.types';
+import type { ShipDesign } from '../../../models/game.model';
 import { getComponent } from '../../../utils/data-access.util';
 import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull-layout.component';
 

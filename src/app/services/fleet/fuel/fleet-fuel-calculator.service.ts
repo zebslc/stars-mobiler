@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 import { LoggingService } from '../../core/logging.service';
 import { ENGINE_COMPONENTS } from '../../../data/techs/engines.data';
 import { FleetShipDesignService } from '../design/fleet-ship-design.service';
-import { MovementRequirement } from '../movement/fleet-movement.types';
+import type { MovementRequirement } from '../movement/fleet-movement.types';
 import { COLONIST_MASS_DIVISOR, DEFAULT_MASS, FUEL_USAGE_DIVISOR } from '../movement/fleet-movement.constants';
 
 interface EngineComponentDefinition {
@@ -19,7 +19,7 @@ interface ShipFuelCostSummary {
   weightedFactor: number;
 }
 
-const ENGINE_COMPONENT_DATA = ENGINE_COMPONENTS as unknown as EngineComponentDefinition[];
+const ENGINE_COMPONENT_DATA = ENGINE_COMPONENTS as unknown as Array<EngineComponentDefinition>;
 
 @Injectable({ providedIn: 'root' })
 export class FleetFuelCalculatorService {

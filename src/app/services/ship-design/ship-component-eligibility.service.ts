@@ -1,21 +1,23 @@
 import { Injectable } from '@angular/core';
-import {
+import type {
   ComponentStats,
-  HullTemplate,
+  HullTemplate} from '../../data/tech-atlas.types';
+import {
   getSlotTypeForComponentType,
 } from '../../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../../data/tech-atlas.data';
-import { PlayerTech, Species } from '../../models/game.model';
+import type { PlayerTech, Species } from '../../models/game.model';
 import {
   getPrimaryTechField,
   getRequiredTechLevel,
 } from '../../utils/data-access.util';
-import { miniaturizeComponent, MiniaturizedComponent } from '../../utils/miniaturization.util';
+import type { MiniaturizedComponent } from '../../utils/miniaturization.util';
+import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { canInstallComponent } from '../../models/ship-design.model';
 
 export type NormalizedHullSlot = {
   id: string;
-  allowedTypes: ReturnType<typeof getSlotTypeForComponentType>[];
+  allowedTypes: Array<ReturnType<typeof getSlotTypeForComponentType>>;
   max?: number;
   required?: boolean;
   editable?: boolean;
@@ -31,7 +33,7 @@ export class ShipComponentEligibilityService {
     slotId: string,
     techLevels: PlayerTech,
     species: Species | null,
-  ): MiniaturizedComponent[] {
+  ): Array<MiniaturizedComponent> {
     if (!hull) return [];
     const slotDefinition = this.findHullSlotDefinition(hull, slotId);
     if (!slotDefinition) return [];
@@ -43,7 +45,7 @@ export class ShipComponentEligibilityService {
       .map((component) => miniaturizeComponent(component, techLevels));
   }
 
-  getAvailableHulls(techLevels: PlayerTech): HullTemplate[] {
+  getAvailableHulls(techLevels: PlayerTech): Array<HullTemplate> {
     const constructionLevel = techLevels.Construction;
     return ALL_HULLS.filter((hull) => (hull.techReq?.Construction ?? 0) <= constructionLevel);
   }
@@ -54,9 +56,9 @@ export class ShipComponentEligibilityService {
   ): NormalizedHullSlot {
     return {
       id: hullSlot.Code ?? slotId,
-      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as ReturnType<
+      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as Array<ReturnType<
         typeof getSlotTypeForComponentType
-      >[],
+      >>,
       max: hullSlot.Max,
       required: hullSlot.Required,
       editable: hullSlot.Editable,
@@ -109,8 +111,8 @@ export class ShipComponentEligibilityService {
   }
 
   private hasAll(
-    source: readonly string[] | undefined | null,
-    required?: readonly string[],
+    source: ReadonlyArray<string> | undefined | null,
+    required?: ReadonlyArray<string>,
   ): boolean {
     if (!required || required.length === 0) return true;
     if (!source || source.length === 0) return false;
@@ -118,8 +120,8 @@ export class ShipComponentEligibilityService {
   }
 
   private lacksAny(
-    source: readonly string[] | undefined | null,
-    forbidden?: readonly string[],
+    source: ReadonlyArray<string> | undefined | null,
+    forbidden?: ReadonlyArray<string>,
   ): boolean {
     if (!forbidden || forbidden.length === 0) return true;
     if (!source || source.length === 0) return true;

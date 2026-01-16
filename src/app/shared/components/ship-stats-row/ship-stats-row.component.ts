@@ -1,6 +1,6 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CompiledShipStats } from '../../../models/game.model';
+import type { CompiledShipStats } from '../../../models/game.model';
 
 @Component({
   selector: 'app-ship-stats-row',

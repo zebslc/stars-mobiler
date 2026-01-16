@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Star } from '../../../models/game.model';
+import type { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 
 @Component({
@@ -96,14 +96,14 @@ import { GameStateService } from '../../../services/game/game-state.service';
 export class StarSummaryComponent {
   gs = inject(GameStateService);
 
-  star = input.required<Star>();
-  habitability = input.required<number>();
-  starTexture = input.required<string>();
-  projectionDelta = input.required<number>();
-  defenseCoverage = input.required<number>();
-  scannerRange = input.required<number>();
-  resourcesPerTurn = input.required<number>();
-  starbase = input<{ name: string; fleetId: string; imageClass: string } | null>(null);
+  readonly star = input.required<Star>();
+  readonly habitability = input.required<number>();
+  readonly starTexture = input.required<string>();
+  readonly projectionDelta = input.required<number>();
+  readonly defenseCoverage = input.required<number>();
+  readonly scannerRange = input.required<number>();
+  readonly resourcesPerTurn = input.required<number>();
+  readonly starbase = input<{ name: string; fleetId: string; imageClass: string } | null>(null);
 
   onGovernorType = output<Event>();
   viewStarbase = output<string>();

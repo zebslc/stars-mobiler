@@ -15,7 +15,7 @@ export interface ClickOutsideEvent {
   standalone: true
 })
 export class ClickOutsideDirective implements OnInit, OnDestroy {
-  readonly excludeElements = input<Element[]>([]);
+  readonly excludeElements = input<Array<Element>>([]);
   readonly includeTouch = input(true);
   readonly clickOutside = output<ClickOutsideEvent>();
   

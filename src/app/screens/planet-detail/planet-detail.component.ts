@@ -1,10 +1,11 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   Component,
   ChangeDetectionStrategy,
   inject,
   computed,
-  signal,
-  OnInit,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,11 +16,11 @@ import { TechService } from '../../services/tech/tech.service';
 import { getDesign } from '../../data/ships.data';
 import { BUILD_COSTS } from '../../data/costs.data';
 import { getHull } from '../../utils/data-access.util';
-import { ShipOption } from '../../components/ship-selector.component';
+import type { ShipOption } from '../../components/ship-selector.component';
 import { StarSummaryComponent } from './components/star-summary.component';
 import { StarBuildQueueComponent } from './components/star-build-queue.component';
 import { StarFleetListComponent } from './components/star-fleet-list.component';
-import { Fleet } from '../../models/game.model';
+import type { Fleet } from '../../models/game.model';
 
 @Component({
   standalone: true,
@@ -151,8 +152,8 @@ export class StarDetailComponent implements OnInit {
   private shipyardService = inject(ShipyardService);
   private techService = inject(TechService);
 
-  private starIdSignal = signal<string | null>(null);
-  activeTab = signal<'status' | 'queue' | 'fleet'>('status');
+  private readonly starIdSignal = signal<string | null>(null);
+  readonly activeTab = signal<'status' | 'queue' | 'fleet'>('status');
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
@@ -164,7 +165,7 @@ export class StarDetailComponent implements OnInit {
 
   ngOnInit() {}
 
-  star = computed(() => {
+  readonly star = computed(() => {
     this.gs.turn();
     const id = this.starIdSignal();
     if (!id) return null;
@@ -217,20 +218,20 @@ export class StarDetailComponent implements OnInit {
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  resourcesPerTurn = computed(() => {
+  readonly resourcesPerTurn = computed(() => {
     const star = this.star();
     if (!star) return 0;
     return Math.min(star.factories, Math.floor(star.population / 10));
   });
 
-  habitability = computed(() => {
+  readonly habitability = computed(() => {
     const p = this.star();
     const species = this.gs.playerSpecies();
     if (!p || !species) return 0;
     return this.hab.calculate(p, species);
   });
 
-  starTexture = computed(() => {
+  readonly starTexture = computed(() => {
     const hab = this.habitability();
     let color1 = '#555'; // Base
     if (hab >= 80)
@@ -251,7 +252,7 @@ export class StarDetailComponent implements OnInit {
     `;
   });
 
-  projectionDelta = computed(() => {
+  readonly projectionDelta = computed(() => {
     const p = this.star();
     if (!p) return 0;
     const habPct = this.habitability();
@@ -268,13 +269,13 @@ export class StarDetailComponent implements OnInit {
     }
   });
 
-  defenseCoverage = computed(() => {
+  readonly defenseCoverage = computed(() => {
     const p = this.star();
     if (!p) return 0;
     return Math.min(100, p.defenses);
   });
 
-  scannerRange = computed(() => {
+  readonly scannerRange = computed(() => {
     const p = this.star();
     if (!p || !p.scanner) return 0;
     return p.scanner;
@@ -302,7 +303,7 @@ export class StarDetailComponent implements OnInit {
     return getDesign(designId);
   }
 
-  starbaseFleet = computed(() => {
+  readonly starbaseFleet = computed(() => {
     const game = this.gs.game();
     const p = this.star();
     if (!game || !p) return null;
@@ -319,7 +320,7 @@ export class StarDetailComponent implements OnInit {
     });
   });
 
-  starbase = computed(() => {
+  readonly starbase = computed(() => {
     const fleet = this.starbaseFleet();
     if (!fleet) return null;
 
@@ -336,7 +337,7 @@ export class StarDetailComponent implements OnInit {
     };
   });
 
-  fleetsInOrbit = computed(() => {
+  readonly fleetsInOrbit = computed(() => {
     const game = this.gs.game();
     const p = this.star();
     if (!game || !p) return [];
@@ -348,14 +349,14 @@ export class StarDetailComponent implements OnInit {
         f.location.type === 'orbit' &&
         (f.location as any).starId === p.id &&
         (!sbFleet || f.id !== sbFleet.id),
-    ) as Fleet[];
+    ) as Array<Fleet>;
   });
 
   onViewStarbase(fleetId: string) {
     this.router.navigate(['/map'], { queryParams: { fleetId: fleetId } });
   }
 
-  shipOptions = computed(() => {
+  readonly shipOptions = computed(() => {
     const player = this.gs.player();
     const game = this.gs.game();
     const star = this.star();
@@ -377,13 +378,13 @@ export class StarDetailComponent implements OnInit {
     this.selectedDesign.set(option.design.id);
   }
 
-  selectedShipOption = computed(() => {
+  readonly selectedShipOption = computed(() => {
     return this.shipOptions().find((opt) => opt.design.id === this.selectedDesign()) || null;
   });
 
-  selectedDesign = signal<string | null>('scout');
-  buildAmount = signal(1);
-  shipBuildAmount = signal(1);
+  readonly selectedDesign = signal<string | null>('scout');
+  readonly buildAmount = signal(1);
+  readonly shipBuildAmount = signal(1);
 
   setBuildAmount(amount: number) {
     this.buildAmount.set(amount);

@@ -1,7 +1,7 @@
 import { BuildProjectService } from './build-project.service';
-import { FleetService } from '../../fleet/core/fleet.service';
-import { BuildItem, GameState, Player, PlayerTech, Star } from '../../../models/game.model';
-import { TechRequirement } from '../../../data/tech-atlas.types';
+import type { FleetService } from '../../fleet/core/fleet.service';
+import type { BuildItem, GameState, Player, PlayerTech, Star } from '../../../models/game.model';
+import type { TechRequirement } from '../../../data/tech-atlas.types';
 
 describe('BuildProjectService', () => {
   let service: BuildProjectService;

@@ -1,6 +1,6 @@
-import { GameCommand } from './game-command.interface';
-import { GameState, ShipDesign } from '../../models/game.model';
-import { ShipyardService } from '../../services/ship-design/shipyard.service';
+import type { GameCommand } from './game-command.interface';
+import type { GameState, ShipDesign } from '../../models/game.model';
+import type { ShipyardService } from '../../services/ship-design/shipyard.service';
 
 /**
  * Command to save a ship design.

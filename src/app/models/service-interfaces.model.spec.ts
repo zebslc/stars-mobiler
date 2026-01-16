@@ -1,17 +1,11 @@
 import * as fc from 'fast-check';
-import {
+import type {
   IFleetOperationsService,
   IFleetMovementService,
-  IFleetNamingService,
-  IFleetValidationService,
   IGalaxyInteractionService,
   IGalaxyCoordinateService,
-  IGalaxyContextMenuService,
   IShipDesignValidationService,
   IShipDesignOperationsService,
-  IShipDesignTemplateService,
-  IHullSlotValidationService,
-  IHullSlotOperationsService,
   FleetLocation,
   GalaxyMapState,
   ValidationResult,
@@ -23,11 +17,18 @@ import {
   ComponentData,
   SlotDisplayInfo,
   ResourceCost,
+  LogContext} from './service-interfaces.model';
+import {
+  IFleetNamingService,
+  IFleetValidationService,
+  IGalaxyContextMenuService,
+  IShipDesignTemplateService,
+  IHullSlotValidationService,
+  IHullSlotOperationsService,
   ShipDesignTemplate,
-  LogContext,
   ServiceLogEntry,
 } from './service-interfaces.model';
-import { GameState, Star, Fleet, ShipDesign, PlayerTech } from './game.model';
+import type { GameState, Star, Fleet, ShipDesign, PlayerTech } from './game.model';
 
 describe('ServiceInterfacesModel', () => {
   describe('Property 1: Service Interface Consistency', () => {

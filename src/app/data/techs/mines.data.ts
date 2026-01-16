@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const MINE_COMPONENTS: ComponentStats[] = [
+export const MINE_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'mine_dispenser_40',
     name: 'Mine Dispenser 40',

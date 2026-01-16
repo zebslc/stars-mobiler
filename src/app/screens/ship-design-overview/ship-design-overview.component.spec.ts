@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ShipDesignOverviewComponent } from './ship-design-overview.component';
 import { GameStateService } from '../../services/game/game-state.service';
 import { ShipDesignerService } from '../../services/ship-designer.service';

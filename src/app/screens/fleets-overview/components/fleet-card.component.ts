@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed, input, output } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { getDesign } from '../../../data/ships.data';
 import { getHull } from '../../../utils/data-access.util';
@@ -286,9 +286,9 @@ export class FleetCardComponent {
 
   private gs = inject(GameStateService);
 
-  orders = computed(() => this.fleet().orders ?? []);
+  readonly orders = computed(() => this.fleet().orders ?? []);
 
-  status = computed(() => {
+  readonly status = computed(() => {
     if (this.orders().length === 0) {
       return { type: 'idle', label: 'Idle' };
     }
@@ -302,7 +302,7 @@ export class FleetCardComponent {
     return { type: 'idle', label: 'Idle' };
   });
 
-  location = computed(() => {
+  readonly location = computed(() => {
     const fleet = this.fleet();
     if (fleet.location.type === 'orbit') {
       const location = fleet.location as { type: 'orbit'; starId: string };
@@ -361,14 +361,14 @@ export class FleetCardComponent {
     return getDesign(designId);
   }
 
-  maxFuel = computed(() => {
+  readonly maxFuel = computed(() => {
     return this.fleet().ships.reduce((sum, s) => {
       const design = this.getDesignDetails(s.designId);
       return sum + (design.fuelCapacity || 0) * s.count;
     }, 0);
   });
 
-  fuelColor = computed(() => {
+  readonly fuelColor = computed(() => {
     const max = this.maxFuel();
     const percent = max > 0 ? (this.fleet().fuel / max) * 100 : 100;
     if (percent < 20) return '#c0392b';
@@ -376,7 +376,7 @@ export class FleetCardComponent {
     return '#27ae60';
   });
 
-  cargo = computed(() => {
+  readonly cargo = computed(() => {
     const fleet = this.fleet();
     const r = fleet.cargo.resources;
     const m = fleet.cargo.minerals;
@@ -385,7 +385,7 @@ export class FleetCardComponent {
     return r + minerals + colonists;
   });
 
-  cargoCapacity = computed(() => {
+  readonly cargoCapacity = computed(() => {
     return this.fleet().ships.reduce((sum, s) => {
       const design = this.getDesignDetails(s.designId);
       return sum + (design.cargoCapacity || 0) * s.count;

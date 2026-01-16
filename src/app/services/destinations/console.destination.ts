@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import {
+import type {
   LogDestination,
   LogEntry,
-  LogLevel,
   ConsoleDestinationConfig
+} from '../../models/logging.model';
+import {
+  LogLevel
 } from '../../models/logging.model';
 
 /**
@@ -122,7 +124,7 @@ export class ConsoleDestination implements LogDestination {
     formattedMessage: string
   ): void {
     const style = this.getColorStyle(entry.level);
-    const args: any[] = [`%c${formattedMessage}`, style];
+    const args: Array<any> = [`%c${formattedMessage}`, style];
 
     // Add metadata if enabled
     if (this._config.includeMetadata && entry.metadata) {
@@ -145,7 +147,7 @@ export class ConsoleDestination implements LogDestination {
     entry: LogEntry,
     formattedMessage: string
   ): void {
-    const args: any[] = [formattedMessage];
+    const args: Array<any> = [formattedMessage];
 
     // Add metadata if enabled
     if (this._config.includeMetadata && entry.metadata) {

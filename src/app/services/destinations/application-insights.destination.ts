@@ -1,9 +1,11 @@
 import { Injectable, signal, inject } from '@angular/core';
-import {
+import type {
   LogDestination,
   LogEntry,
-  LogLevel,
   ApplicationInsightsConfig
+} from '../../models/logging.model';
+import {
+  LogLevel
 } from '../../models/logging.model';
 import { InternalLoggerService, normalizeError } from '../core/internal-logger.service';
 
@@ -28,12 +30,12 @@ export class ApplicationInsightsDestination implements LogDestination {
   };
 
   // Batching state
-  private _batchQueue: LogEntry[] = [];
+  private _batchQueue: Array<LogEntry> = [];
   private _flushTimer: number | null = null;
-  private _isFlushInProgress = signal(false);
+  private readonly _isFlushInProgress = signal(false);
 
   // Retry state
-  private _retryQueue: { entry: LogEntry; attempts: number }[] = [];
+  private _retryQueue: Array<{ entry: LogEntry; attempts: number }> = [];
   private _retryTimer: number | null = null;
 
   get isEnabled(): boolean {
@@ -137,7 +139,7 @@ export class ApplicationInsightsDestination implements LogDestination {
   /**
    * Send batch of log entries to Application Insights
    */
-  private async sendBatchToApplicationInsights(entries: LogEntry[]): Promise<void> {
+  private async sendBatchToApplicationInsights(entries: Array<LogEntry>): Promise<void> {
     if (!this._config.instrumentationKey) {
       throw new Error('Application Insights instrumentation key not configured');
     }
@@ -177,7 +179,7 @@ export class ApplicationInsightsDestination implements LogDestination {
   /**
    * Create properties object from log entries for Application Insights
    */
-  private createPropertiesFromEntries(entries: LogEntry[]): Record<string, string> {
+  private createPropertiesFromEntries(entries: Array<LogEntry>): Record<string, string> {
     const properties: Record<string, string> = {
       batchSize: entries.length.toString(),
       source: 'StellarRemnants',
@@ -220,7 +222,7 @@ export class ApplicationInsightsDestination implements LogDestination {
   /**
    * Create measurements object from log entries for Application Insights
    */
-  private createMeasurementsFromEntries(entries: LogEntry[]): Record<string, number> {
+  private createMeasurementsFromEntries(entries: Array<LogEntry>): Record<string, number> {
     const measurements: Record<string, number> = {
       entryCount: entries.length,
       errorCount: entries.filter(e => e.level === LogLevel.ERROR).length,

@@ -1,17 +1,19 @@
+import type {
+  OnInit,
+  ElementRef} from '@angular/core';
 import {
   Component,
   ChangeDetectionStrategy,
   inject,
-  OnInit,
   computed,
-  viewChild,
-  ElementRef,
+  viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import type { Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { SettingsService } from '../../services/core/settings.service';
-import { Star, Fleet, FleetOrder } from '../../models/game.model';
+import type { Star, Fleet, FleetOrder } from '../../models/game.model';
 import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
 import { FleetContextMenuComponent } from '../../components/fleet-context-menu.component';
 import { WaypointContextMenuComponent } from './components/waypoint-context-menu.component';

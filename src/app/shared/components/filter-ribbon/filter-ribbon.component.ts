@@ -105,8 +105,8 @@ export interface FilterItem<T = any> {
   ],
 })
 export class FilterRibbonComponent<T = any> {
-  readonly items = input.required<FilterItem<T>[]>();
-  readonly selected = input<T | Set<T> | T[] | null>(null);
+  readonly items = input.required<Array<FilterItem<T>>>();
+  readonly selected = input<T | Set<T> | Array<T> | null>(null);
   readonly showAll = input(false);
   readonly allLabel = input('All');
   readonly emptyMeansAll = input(true);

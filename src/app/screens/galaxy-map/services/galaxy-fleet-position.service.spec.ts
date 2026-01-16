@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { Fleet, GameState, Star } from '../../../models/game.model';
+import type { Fleet, GameState, Star } from '../../../models/game.model';
 
 describe('GalaxyFleetPositionService', () => {
   let service: GalaxyFleetPositionService;
@@ -65,7 +65,7 @@ describe('GalaxyFleetPositionService', () => {
   };
 
   const gameSignal = signal<GameState | null>(gameState);
-  const starsSignal = signal<Star[]>([star]);
+  const starsSignal = signal<Array<Star>>([star]);
 
   beforeEach(() => {
     gameSignal.set(gameState);

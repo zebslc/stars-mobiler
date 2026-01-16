@@ -183,9 +183,9 @@ export class NewGameComponent {
   private gs = inject(GameStateService);
   private router = inject(Router);
 
-  seed = signal(Math.floor(Math.random() * 100000));
-  size = signal<'small' | 'medium' | 'large'>('small');
-  speciesId = signal(SPECIES[0].id);
+  readonly seed = signal(Math.floor(Math.random() * 100000));
+  readonly size = signal<'small' | 'medium' | 'large'>('small');
+  readonly speciesId = signal(SPECIES[0].id);
 
   readonly species = SPECIES;
   readonly selectedSpecies = computed(() =>

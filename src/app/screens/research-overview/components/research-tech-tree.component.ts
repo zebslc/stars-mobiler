@@ -2,8 +2,9 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { TechService } from '../../../services/tech/tech.service';
-import { TECH_FIELDS, TechField, TechLevel } from '../../../data/tech-tree.data';
-import { TechRequirement } from '../../../data/tech-atlas.data';
+import type { TechField} from '../../../data/tech-tree.data';
+import { TECH_FIELDS, TechLevel } from '../../../data/tech-tree.data';
+import type { TechRequirement } from '../../../data/tech-atlas.data';
 
 @Component({
   selector: 'app-research-tech-tree',
@@ -301,9 +302,9 @@ export class ResearchTechTreeComponent {
   private gs = inject(GameStateService);
   private techService = inject(TechService);
 
-  fieldInfo = computed(() => TECH_FIELDS[this.selectedField]);
+  readonly fieldInfo = computed(() => TECH_FIELDS[this.selectedField]);
 
-  fieldIcon = computed(() => {
+  readonly fieldIcon = computed(() => {
     const icons: Record<TechField, string> = {
       Energy: '⚡',
       Kinetics: '🚀',
@@ -313,11 +314,11 @@ export class ResearchTechTreeComponent {
     return icons[this.selectedField];
   });
 
-  currentLevel = computed(() => {
+  readonly currentLevel = computed(() => {
     return this.gs.player()?.techLevels[this.selectedField] ?? 0;
   });
 
-  visibleLevels = computed(() => {
+  readonly visibleLevels = computed(() => {
     const allLevels = this.fieldInfo().levels;
     const player = this.gs.player();
 
@@ -356,7 +357,7 @@ export class ResearchTechTreeComponent {
 
   getExternalDependenciesWithStatus(
     name: string,
-  ): { label: string; status: 'met' | 'close' | 'far' }[] {
+  ): Array<{ label: string; status: 'met' | 'close' | 'far' }> {
     const hull = this.techService.getHullByName(name);
     const comp = this.techService.getComponentByName(name);
     const details = hull || comp;
@@ -375,7 +376,7 @@ export class ResearchTechTreeComponent {
     const player = this.gs.player();
     if (!player) return [];
 
-    const reqs: { field: string; level: number }[] = [];
+    const reqs: Array<{ field: string; level: number }> = [];
     Object.entries(techReq).forEach(([field, level]) => {
       reqs.push({ field, level: Number(level) });
     });

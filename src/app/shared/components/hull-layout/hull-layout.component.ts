@@ -1,20 +1,21 @@
 import {
+  ChangeDetectorRef,
   Component,
   signal,
   computed,
   input,
   effect,
-  ChangeDetectorRef,
   output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ComponentStats, HullTemplate, SlotDefinition } from '../../../data/tech-atlas.types';
-import { ShipDesign } from '../../../models/game.model';
+import type { ComponentStats, HullTemplate, SlotDefinition } from '../../../data/tech-atlas.types';
+import type { ShipDesign } from '../../../models/game.model';
 import { getComponent } from '../../../utils/data-access.util';
-import { GridSlot } from './hull-layout.types';
+import type { GridSlot } from './hull-layout.types';
 import { HullSlotComponent } from './hull-slot/hull-slot.component';
-import { ComponentActionEvent, HullSlotComponentData, SlotTouchEvent } from './hull-slot.types';
-import { PanZoomDirective, PanEvent, PanZoomEvent } from '../../directives';
+import type { ComponentActionEvent, HullSlotComponentData, SlotTouchEvent } from './hull-slot.types';
+import type { PanEvent, PanZoomEvent } from '../../directives';
+import { PanZoomDirective } from '../../directives';
 import { LoggingService } from '../../../services/core/logging.service';
 
 interface SlotHoverPayload {
@@ -144,14 +145,14 @@ export class HullLayoutComponent {
   readonly slotCleared = output<string>();
   readonly componentInfoClick = output<string>();
 
-  imageErrors = signal<Set<string>>(new Set());
-  showClearButton = signal<string | null>(null);
+  readonly imageErrors = signal<Set<string>>(new Set());
+  readonly showClearButton = signal<string | null>(null);
   longPressTimer: ReturnType<typeof setTimeout> | null = null;
   
   // Pan/zoom state - now managed by PanZoomDirective
-  zoom = signal(1);
-  offsetX = signal(0);
-  offsetY = signal(0);
+  readonly zoom = signal(1);
+  readonly offsetX = signal(0);
+  readonly offsetY = signal(0);
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -238,15 +239,15 @@ export class HullLayoutComponent {
   }
 
   private parseStructure(
-    structure: string[],
-    slots: SlotDefinition[],
+    structure: Array<string>,
+    slots: Array<SlotDefinition>,
     hull: HullTemplate,
-  ): GridSlot[] {
+  ): Array<GridSlot> {
     const grid = this.convertStructureToGrid(structure);
     const rows = grid.length;
     const cols = grid[0].length;
     const visited = new Set<string>();
-    const result: GridSlot[] = [];
+    const result: Array<GridSlot> = [];
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -277,12 +278,12 @@ export class HullLayoutComponent {
     return result;
   }
 
-  private convertStructureToGrid(structure: string[]): string[][] {
+  private convertStructureToGrid(structure: Array<string>): Array<Array<string>> {
     return structure.map((row) => row.split(','));
   }
 
   private calculateSlotDimensions(
-    grid: string[][],
+    grid: Array<Array<string>>,
     startRow: number,
     startCol: number,
     cellValue: string,

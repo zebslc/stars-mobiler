@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { GameState, BuildItem, Star, FleetOrder, ShipDesign } from '../../models/game.model';
-import { TechField } from '../../data/tech-tree.data';
+import type { BuildItem, Star, FleetOrder, ShipDesign } from '../../models/game.model';
+import { GameState } from '../../models/game.model';
+import type { TechField } from '../../data/tech-tree.data';
 
 // Import services
 import { ColonyService } from '../../services/colony/colony.service';
@@ -63,7 +64,7 @@ export class CommandFactoryService {
     return new IssueFleetOrderCommand(this.fleetService, fleetId, order);
   }
 
-  createSetFleetOrdersCommand(fleetId: string, orders: FleetOrder[]): SetFleetOrdersCommand {
+  createSetFleetOrdersCommand(fleetId: string, orders: Array<FleetOrder>): SetFleetOrdersCommand {
     return new SetFleetOrdersCommand(this.fleetService, fleetId, orders);
   }
 
@@ -102,7 +103,7 @@ export class CommandFactoryService {
   createSplitFleetCommand(
     fleetId: string,
     transferSpec: {
-      ships: { designId: string; count: number; damage?: number }[];
+      ships: Array<{ designId: string; count: number; damage?: number }>;
       fuel: number;
       cargo: {
         resources: number;
@@ -128,7 +129,7 @@ export class CommandFactoryService {
     sourceId: string,
     targetId: string,
     transferSpec: {
-      ships: { designId: string; count: number; damage?: number }[];
+      ships: Array<{ designId: string; count: number; damage?: number }>;
       fuel: number;
       cargo: {
         resources: number;

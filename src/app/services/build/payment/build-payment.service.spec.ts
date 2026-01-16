@@ -1,5 +1,6 @@
-import { BuildPaymentService, ResourceAmount } from './build-payment.service';
-import { BuildItem, Star } from '../../../models/game.model';
+import type { ResourceAmount } from './build-payment.service';
+import { BuildPaymentService } from './build-payment.service';
+import type { BuildItem, Star } from '../../../models/game.model';
 
 describe('BuildPaymentService', () => {
   let service: BuildPaymentService;

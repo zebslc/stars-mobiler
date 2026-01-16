@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TechService } from './tech.service';
-import { Player } from '../../models/game.model';
-import { ComponentStats, PrimaryRacialTrait, LesserRacialTrait } from '../../data/tech-atlas.types';
+import type { Player } from '../../models/game.model';
+import type { ComponentStats, PrimaryRacialTrait, LesserRacialTrait } from '../../data/tech-atlas.types';
 
 describe('TechService', () => {
   let service: TechService;
@@ -14,8 +14,8 @@ describe('TechService', () => {
   });
 
   const createMockPlayer = (
-    prt: PrimaryRacialTrait[],
-    lrt: LesserRacialTrait[],
+    prt: Array<PrimaryRacialTrait>,
+    lrt: Array<LesserRacialTrait>,
     techLevels = { Energy: 26, Kinetics: 26, Propulsion: 26, Construction: 26 },
   ): Player => ({
     id: 'test-player',

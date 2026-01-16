@@ -3,7 +3,7 @@ import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 import { getDesign } from '../../../data/ships.data';
 import { GalaxyFleetStationService } from './galaxy-fleet-station.service';
-import { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../models/game.model';
 
 @Injectable({
   providedIn: 'root',

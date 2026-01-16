@@ -5,7 +5,7 @@
  * during the refactoring process to break up god classes into focused services.
  */
 
-import { GameState, Fleet, Star, ShipDesign, PlayerTech } from './game.model';
+import type { GameState, Fleet, Star, ShipDesign, PlayerTech } from './game.model';
 
 // ============================================================================
 // Fleet Service Decomposition Interfaces
@@ -26,8 +26,8 @@ export interface FleetLocation {
  */
 export interface MovementValidationResult {
   isValid: boolean;
-  errors: string[];
-  warnings: string[];
+  errors: Array<string>;
+  warnings: Array<string>;
   fuelRequired: number;
   fuelAvailable: number;
   canMove: boolean;
@@ -38,8 +38,8 @@ export interface MovementValidationResult {
  */
 export interface ValidationResult {
   isValid: boolean;
-  errors: string[];
-  warnings: string[];
+  errors: Array<string>;
+  warnings: Array<string>;
 }
 
 /**
@@ -66,7 +66,7 @@ export interface IFleetMovementService {
 export interface IFleetNamingService {
   generateFleetName(game: GameState, ownerId: string, baseName: string): string;
   validateFleetName(name: string): boolean;
-  getAvailableFleetNames(game: GameState, ownerId: string): string[];
+  getAvailableFleetNames(game: GameState, ownerId: string): Array<string>;
 }
 
 /**
@@ -75,7 +75,7 @@ export interface IFleetNamingService {
 export interface IFleetValidationService {
   validateShipAddition(fleet: Fleet, shipDesignId: string, count: number): ValidationResult;
   validateFleetComposition(fleet: Fleet): ValidationResult;
-  checkFleetLimits(playerFleets: Fleet[], maxFleets: number): boolean;
+  checkFleetLimits(playerFleets: Array<Fleet>, maxFleets: number): boolean;
 }
 
 // ============================================================================
@@ -204,7 +204,7 @@ export interface IShipDesignOperationsService {
  * Ship design templates and presets service interface
  */
 export interface IShipDesignTemplateService {
-  getAvailableTemplates(techLevels: PlayerTech): ShipDesignTemplate[];
+  getAvailableTemplates(techLevels: PlayerTech): Array<ShipDesignTemplate>;
   applyTemplate(templateId: string, techLevels: PlayerTech): ShipDesign;
   saveAsTemplate(design: ShipDesign, name: string): void;
 }
@@ -218,7 +218,7 @@ export interface IShipDesignTemplateService {
  */
 export interface HullSlot {
   id: string;
-  allowedTypes: string[];
+  allowedTypes: Array<string>;
   max?: number;
   required?: boolean;
   editable?: boolean;
@@ -254,7 +254,7 @@ export interface SlotDisplayInfo {
 export interface IHullSlotValidationService {
   validateComponentFit(slot: HullSlot, component: ComponentData): boolean;
   getMaxComponentCount(slot: HullSlot, component: ComponentData): number;
-  validateSlotCapacity(slot: HullSlot, components: ComponentData[]): boolean;
+  validateSlotCapacity(slot: HullSlot, components: Array<ComponentData>): boolean;
 }
 
 /**

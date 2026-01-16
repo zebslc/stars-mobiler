@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GameState, Fleet, FleetOrder } from '../../../models/game.model';
-import {
+import type { GameState, Fleet, FleetOrder } from '../../../models/game.model';
+import type {
   IFleetMovementService,
   FleetLocation,
   MovementValidationResult,
@@ -11,7 +11,7 @@ import { FleetMovementOrderService } from './fleet-movement-order.service';
 import { FleetMovementStatsService } from './fleet-movement-stats.service';
 import { FleetFuelCalculatorService } from '../fuel/fleet-fuel-calculator.service';
 import { FleetMovementValidatorService } from './fleet-movement-validator.service';
-import { MovementRequirement } from './fleet-movement.types';
+import type { MovementRequirement } from './fleet-movement.types';
 
 @Injectable({ providedIn: 'root' })
 export class FleetMovementService implements IFleetMovementService {

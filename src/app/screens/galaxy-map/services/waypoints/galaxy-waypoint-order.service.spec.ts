@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { signal, WritableSignal } from '@angular/core';
+import type { WritableSignal } from '@angular/core';
+import { signal } from '@angular/core';
 import { GalaxyWaypointOrderService } from './galaxy-waypoint-order.service';
 import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
 import { GalaxyWaypointStateService } from './galaxy-waypoint-state.service';
-import { DraggedWaypoint, SnapTarget } from './galaxy-waypoint.models';
-import {
+import type { DraggedWaypoint, SnapTarget } from './galaxy-waypoint.models';
+import type {
   Fleet,
   FleetOrder,
   GameSettings,
@@ -90,7 +91,7 @@ describe('GalaxyWaypointOrderService', () => {
     };
   }
 
-  function buildGame(fleets: Fleet[], stars: Star[] = []): GameState {
+  function buildGame(fleets: Array<Fleet>, stars: Array<Star> = []): GameState {
     return {
       id: 'game-1',
       seed: 1,

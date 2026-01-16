@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { GalaxyMapStateService } from './galaxy-map-state.service';
-import { Fleet, FleetOrder } from '../../../models/game.model';
+import type { Fleet, FleetOrder } from '../../../models/game.model';
 import { GalaxyWaypointInteractionService } from './galaxy-waypoint-interaction.service';
 import { GalaxyMapMenuService } from './galaxy-map-menu.service';
 

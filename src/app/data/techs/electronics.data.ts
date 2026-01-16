@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const CLOAKING_COMPONENTS: ComponentStats[] = [
+export const CLOAKING_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'elec_transport_cloaking',
     name: 'Transport Cloaking',
@@ -45,7 +45,7 @@ export const CLOAKING_COMPONENTS: ComponentStats[] = [
   },
 ];
 
-export const COMPUTER_COMPONENTS: ComponentStats[] = [
+export const COMPUTER_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'elec_battle_computer',
     name: 'Battle Computer',
@@ -79,7 +79,7 @@ export const COMPUTER_COMPONENTS: ComponentStats[] = [
   },
 ];
 
-export const JAMMER_COMPONENTS: ComponentStats[] = [
+export const JAMMER_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'elec_jammer_10',
     name: 'Jammer 10',
@@ -124,7 +124,7 @@ export const JAMMER_COMPONENTS: ComponentStats[] = [
   },
 ];
 
-export const CAPACITOR_COMPONENTS: ComponentStats[] = [
+export const CAPACITOR_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'elec_energy_capacitor',
     name: 'Energy Capacitor',
@@ -148,7 +148,7 @@ export const CAPACITOR_COMPONENTS: ComponentStats[] = [
   },
 ];
 
-export const DAMPENER_COMPONENTS: ComponentStats[] = [
+export const DAMPENER_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'elec_energy_dampener',
     name: 'Energy Dampener',
@@ -173,7 +173,7 @@ export const DAMPENER_COMPONENTS: ComponentStats[] = [
   },
 ];
 
-export const GENERATOR_COMPONENTS: ComponentStats[] = [
+export const GENERATOR_COMPONENTS: Array<ComponentStats> = [
   {
     id: 'elec_anti_matter_generator',
     name: 'Anti-matter Generator',

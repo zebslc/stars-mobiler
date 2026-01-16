@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { Star } from '../../../models/game.model';
+import type { Star } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 
 @Component({
@@ -263,7 +263,7 @@ export class GalaxyStarComponent {
   @Input() showLabels = false;
   @Input() stationName?: string;
 
-  private _isVisible = signal(true);
+  private readonly _isVisible = signal(true);
   @Input() set isVisible(val: boolean) {
     this._isVisible.set(val);
   }
@@ -310,7 +310,7 @@ export class GalaxyStarComponent {
     return minR + (Math.min(harshness, 50) / 50) * maxAdd;
   }
 
-  planetDetails = computed(() => {
+  readonly planetDetails = computed(() => {
     if (!this._isVisible()) return null;
     const s = this.star;
     return {
@@ -328,7 +328,7 @@ export class GalaxyStarComponent {
     };
   });
 
-  colorForStar = computed(() => {
+  readonly colorForStar = computed(() => {
     if (!this._isVisible()) return '#bdc3c7';
     const s = this.star;
     const owned = s.ownerId === this.gs.player()?.id;
@@ -339,7 +339,7 @@ export class GalaxyStarComponent {
     return colonizable ? '#2ecc71' : '#bdc3c7';
   });
 
-  isIsolated = computed(() => {
+  readonly isIsolated = computed(() => {
     return false;
   });
 }

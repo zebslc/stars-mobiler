@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../services/game/game-state.service';
-import { TechField } from '../../data/tech-tree.data';
+import type { TechField } from '../../data/tech-tree.data';
 import { ResearchCurrentComponent } from './components/research-current.component';
 import { ResearchFieldSelectorComponent } from './components/research-field-selector.component';
 import { ResearchTechTreeComponent } from './components/research-tech-tree.component';
@@ -77,7 +77,7 @@ export class ResearchOverviewComponent {
   private gameState = inject(GameStateService);
 
   showTechTree = false;
-  selectedUnlock = signal<string | null>(null);
+  readonly selectedUnlock = signal<string | null>(null);
 
   readonly selectedField = computed(
     () => this.gameState.player()?.selectedResearchField ?? 'Propulsion',

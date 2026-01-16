@@ -1,6 +1,6 @@
-import { ComponentStats } from '../tech-atlas.types';
+import type { ComponentStats } from '../tech-atlas.types';
 
-export const WEAPON_COMPONENTS: ComponentStats[] = [
+export const WEAPON_COMPONENTS: Array<ComponentStats> = [
   // ========================================================================
   // BEAM WEAPONS
   // ========================================================================

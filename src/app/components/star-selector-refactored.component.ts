@@ -1,10 +1,10 @@
 import { Component, ChangeDetectionStrategy, ElementRef, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective, TouchClickDirective } from '../shared/directives';
-import { StarOption } from './star-selector.component'; // Assuming this interface exists
+import type { StarOption } from './star-selector.component'; // Assuming this interface exists
 
 export interface StarSelectorRefactoredOptions {
-  options: StarOption[];
+  options: Array<StarOption>;
   selectedStar: StarOption | null;
   placeholder?: string;
   disabled?: boolean;
@@ -302,14 +302,14 @@ export interface StarSelectorRefactoredOptions {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarSelectorRefactoredComponent {
-  readonly options = input<StarOption[]>([]);
+  readonly options = input<Array<StarOption>>([]);
   readonly selectedStar = input<StarOption | null>(null);
   readonly placeholder = input('Select a star...');
   readonly disabled = input(false);
   readonly starSelected = output<StarOption>();
 
   private elementRef = inject(ElementRef);
-  isOpen = signal(false);
+  readonly isOpen = signal(false);
 
   onToggleClick(_: Event): void {
     if (this.disabled()) return;

@@ -1,15 +1,16 @@
+import type {
+  OnChanges,
+  SimpleChanges} from '@angular/core';
 import {
   Component,
   ChangeDetectionStrategy,
   Input,
   Output,
-  EventEmitter,
-  OnChanges,
-  SimpleChanges,
+  EventEmitter
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Fleet, Star } from '../../../../models/game.model';
+import type { Fleet, Star } from '../../../../models/game.model';
 
 export interface OrbitTransferState {
   resources: number;

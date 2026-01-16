@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { PlayerTech, ShipDesign, SlotAssignment, Species } from '../../models/game.model';
+import type { PlayerTech, ShipDesign, SlotAssignment, Species } from '../../models/game.model';
 import { compileShipStats } from '../../models/ship-design.model';
-import { HullTemplate } from '../../data/tech-atlas.types';
+import type { HullTemplate } from '../../data/tech-atlas.types';
 import { getHull } from '../../utils/data-access.util';
 
 const INITIAL_TECH_LEVELS: PlayerTech = {
@@ -48,7 +48,7 @@ export class ShipDesignStore {
     this._currentDesign.set(mapper(design));
   }
 
-  updateSlots(mapper: (slots: SlotAssignment[]) => SlotAssignment[]): void {
+  updateSlots(mapper: (slots: Array<SlotAssignment>) => Array<SlotAssignment>): void {
     this.updateDesign((design) => ({ ...design, slots: mapper(design.slots) }));
   }
 

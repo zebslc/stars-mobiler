@@ -1,5 +1,5 @@
-import { PrimaryRacialTrait, LesserRacialTrait } from '../data/tech-atlas.types';
-import { FLEET_ORDER_TYPE } from './fleet-order.constants';
+import type { PrimaryRacialTrait, LesserRacialTrait } from '../data/tech-atlas.types';
+import type { FLEET_ORDER_TYPE } from './fleet-order.constants';
 
 export interface GameSettings {
   galaxySize: 'small' | 'medium' | 'large';
@@ -14,19 +14,19 @@ export interface GameState {
   seed: number;
   turn: number;
   settings: GameSettings;
-  stars: Star[];
+  stars: Array<Star>;
   humanPlayer: Player;
-  aiPlayers: AIPlayer[];
-  fleets: Fleet[];
+  aiPlayers: Array<AIPlayer>;
+  fleets: Array<Fleet>;
   playerEconomy: PlayerEconomy;
-  shipDesigns: ShipDesign[];
+  shipDesigns: Array<ShipDesign>;
 }
 
 export interface ShipDesign {
   id: string;
   name: string;
   hullId: string;
-  slots: SlotAssignment[];
+  slots: Array<SlotAssignment>;
   createdTurn: number;
   playerId: string;
   spec?: CompiledShipStats;
@@ -83,7 +83,7 @@ export interface CompiledShipStats {
 
   // Validation
   isValid: boolean;
-  validationErrors: string[];
+  validationErrors: Array<string>;
 
   // Installed Components Summary
   components: Array<{
@@ -95,7 +95,7 @@ export interface CompiledShipStats {
 
 export interface SlotAssignment {
   slotId: string;
-  components: ComponentAssignment[];
+  components: Array<ComponentAssignment>;
 }
 
 export interface ComponentAssignment {
@@ -115,7 +115,7 @@ export interface Player {
   id: string;
   name: string;
   species: Species;
-  ownedStarIds: string[];
+  ownedStarIds: Array<string>;
   techLevels: PlayerTech;
   researchProgress: PlayerTech; // Accumulated RP toward next level
   selectedResearchField: 'Energy' | 'Kinetics' | 'Propulsion' | 'Construction';
@@ -147,7 +147,7 @@ export interface Star {
   scanner: number;
   terraformOffset: { temperature: number; atmosphere: number };
   resources: number;
-  buildQueue?: BuildItem[];
+  buildQueue?: Array<BuildItem>;
   governor?: StarGovernor;
 }
 
@@ -165,8 +165,8 @@ export interface Species {
     | { type: 'research'; modifier: number }
     | { type: 'shipCost'; modifier: number }
   >;
-  primaryTraits?: PrimaryRacialTrait[];
-  lesserTraits?: LesserRacialTrait[];
+  primaryTraits?: Array<PrimaryRacialTrait>;
+  lesserTraits?: Array<LesserRacialTrait>;
 }
 
 export interface ShipStack {
@@ -195,14 +195,14 @@ export type Fleet = {
   name: string;
   ownerId: string;
   location: { type: 'orbit'; starId: string } | { type: 'space'; x: number; y: number };
-  ships: ShipStack[];
+  ships: Array<ShipStack>;
   fuel: number;
   cargo: {
     resources: number;
     minerals: { ironium: number; boranium: number; germanium: number };
     colonists: number;
   };
-  orders: FleetOrder[];
+  orders: Array<FleetOrder>;
 };
 
 export interface PlayerEconomy {

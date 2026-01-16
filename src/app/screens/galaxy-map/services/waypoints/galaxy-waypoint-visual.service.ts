@@ -2,10 +2,10 @@ import { Injectable, computed, inject } from '@angular/core';
 import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
 import { GalaxyFleetPositionService } from '../galaxy-fleet-position.service';
-import { Fleet, GameState, ShipDesign, Star, FleetOrder } from '../../../../models/game.model';
-import { GalaxyCoordinate, LogContext } from '../../../../models/service-interfaces.model';
+import type { Fleet, GameState, ShipDesign, Star, FleetOrder } from '../../../../models/game.model';
+import type { GalaxyCoordinate, LogContext } from '../../../../models/service-interfaces.model';
 import { FLEET_ORDER_TYPE } from '../../../../models/fleet-order.constants';
-import { FleetWaypoints, WaypointSegment } from './galaxy-waypoint.models';
+import type { FleetWaypoints, WaypointSegment } from './galaxy-waypoint.models';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class GalaxyWaypointVisualService {
     return this.fleetWaypointById(fleetId)?.lastPos ?? this.fleetPositions.fleetPos(fleetId);
   }
 
-  private computeFleetWaypoints(): FleetWaypoints[] {
+  private computeFleetWaypoints(): Array<FleetWaypoints> {
     const context: LogContext = {
       service: 'GalaxyWaypointVisualService',
       operation: 'fleetWaypoints',
@@ -49,7 +49,7 @@ export class GalaxyWaypointVisualService {
     return waypoints;
   }
 
-  private buildWaypointsForPlayer(game: GameState): FleetWaypoints[] {
+  private buildWaypointsForPlayer(game: GameState): Array<FleetWaypoints> {
     const playerId = this.gs.player()?.id;
     if (!playerId) {
       return [];
@@ -66,9 +66,9 @@ export class GalaxyWaypointVisualService {
 
   private buildFleetWaypoint(
     fleet: Fleet,
-    fleets: Fleet[],
-    stars: Star[],
-    shipDesigns: ShipDesign[],
+    fleets: Array<Fleet>,
+    stars: Array<Star>,
+    shipDesigns: Array<ShipDesign>,
   ): FleetWaypoints {
     const { segments, lastPos } = this.buildSegmentsForFleet(fleet, fleets, stars, shipDesigns);
     return { fleetId: fleet.id, segments, lastPos };
@@ -76,13 +76,13 @@ export class GalaxyWaypointVisualService {
 
   private buildSegmentsForFleet(
     fleet: Fleet,
-    fleets: Fleet[],
-    stars: Star[],
-    shipDesigns: ShipDesign[],
-  ): { segments: WaypointSegment[]; lastPos: GalaxyCoordinate } {
+    fleets: Array<Fleet>,
+    stars: Array<Star>,
+    shipDesigns: Array<ShipDesign>,
+  ): { segments: Array<WaypointSegment>; lastPos: GalaxyCoordinate } {
     const maxFleetSpeed = this.resolveMaxFleetSpeed(fleet, shipDesigns);
     let currentPos = this.fleetPositions.fleetPos(fleet.id);
-    const segments: WaypointSegment[] = [];
+    const segments: Array<WaypointSegment> = [];
 
     for (const order of fleet.orders || []) {
       const dest = this.resolveOrderDestination(order, fleets, stars);
@@ -119,7 +119,7 @@ export class GalaxyWaypointVisualService {
     return '#e74c3c';
   }
 
-  private resolveMaxFleetSpeed(fleet: Fleet, designs: ShipDesign[]): number {
+  private resolveMaxFleetSpeed(fleet: Fleet, designs: Array<ShipDesign>): number {
     let maxFleetSpeed = 10;
     for (const stack of fleet.ships) {
       const design = designs.find((d) => d.id === stack.designId);
@@ -132,8 +132,8 @@ export class GalaxyWaypointVisualService {
 
   private resolveOrderDestination(
     order: FleetOrder,
-    fleets: Fleet[],
-    stars: Star[],
+    fleets: Array<Fleet>,
+    stars: Array<Star>,
   ): GalaxyCoordinate | null {
     switch (order.type) {
       case FLEET_ORDER_TYPE.MOVE:
