@@ -13,6 +13,7 @@ export interface FilterItem<T = any> {
   selector: 'app-filter-ribbon',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="filter-ribbon">
       @if (showAll()) {
