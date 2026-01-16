@@ -1,14 +1,4 @@
-import type {
-  OnInit,
-  OnChanges,
-  SimpleChanges} from '@angular/core';
-import {
-  Component,
-  ChangeDetectionStrategy,
-  Input,
-  Output,
-  EventEmitter
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, effect, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import type { Fleet } from '../../../../models/game.model';
@@ -33,22 +23,24 @@ export interface TransferState {
       <div class="card transfer-modal">
         <h3>
           {{
-            transferMode === 'split' ? 'Split Fleet' : 'Transfer to ' + (targetName || 'Target')
+            transferMode() === 'split'
+              ? 'Split Fleet'
+              : 'Transfer to ' + (targetName() || 'Target')
           }}
         </h3>
 
-        @if (transferMode === 'split') {
+        @if (transferMode() === 'split') {
           <div style="display:flex;gap:var(--space-md);margin-bottom:var(--space-md)">
           <button
             class="btn-small"
-            [class.btn-primary]="splitMode === 'custom'"
+            [class.btn-primary]="splitMode() === 'custom'"
             (click)="setSplitMode('custom')"
           >
             Custom Split
           </button>
           <button
             class="btn-small"
-            [class.btn-primary]="splitMode === 'separate'"
+            [class.btn-primary]="splitMode() === 'separate'"
             (click)="setSplitMode('separate')"
           >
             Separate All
@@ -56,7 +48,7 @@ export interface TransferState {
         </div>
         }
 
-        @if (transferMode === 'transfer' || splitMode === 'custom') {
+        @if (transferMode() === 'transfer' || splitMode() === 'custom') {
           <div class="transfer-grid">
           <!-- Ships -->
           <div class="transfer-section">
@@ -84,72 +76,72 @@ export interface TransferState {
             }
           </div>
           <!-- Cargo -->
-          @if (transferMode === 'transfer') {
+          @if (transferMode() === 'transfer') {
             <div class="transfer-section">
             <h4>Cargo & Fuel</h4>
             <div class="transfer-row">
               <span>Fuel</span>
-              <span class="text-muted">Max: {{ fleet.fuel | number: '1.0-0' }}</span>
+              <span class="text-muted">Max: {{ fleet().fuel | number: '1.0-0' }}</span>
               <input
                 type="number"
                 [(ngModel)]="transferState.fuel"
                 min="0"
-                [max]="fleet.fuel"
+                  [max]="fleet().fuel"
                 class="qty-input"
               />
             </div>
             <div class="transfer-row">
               <span>Resources</span>
-              <span class="text-muted">Max: {{ fleet.cargo.resources }}</span>
+              <span class="text-muted">Max: {{ fleet().cargo.resources }}</span>
               <input
                 type="number"
                 [(ngModel)]="transferState.resources"
                 min="0"
-                [max]="fleet.cargo.resources"
+                [max]="fleet().cargo.resources"
                 class="qty-input"
               />
             </div>
             <div class="transfer-row">
               <span>Ironium</span>
-              <span class="text-muted">Max: {{ fleet.cargo.minerals.ironium }}</span>
+              <span class="text-muted">Max: {{ fleet().cargo.minerals.ironium }}</span>
               <input
                 type="number"
                 [(ngModel)]="transferState.ironium"
                 min="0"
-                [max]="fleet.cargo.minerals.ironium"
+                [max]="fleet().cargo.minerals.ironium"
                 class="qty-input"
               />
             </div>
             <div class="transfer-row">
               <span>Boranium</span>
-              <span class="text-muted">Max: {{ fleet.cargo.minerals.boranium }}</span>
+              <span class="text-muted">Max: {{ fleet().cargo.minerals.boranium }}</span>
               <input
                 type="number"
                 [(ngModel)]="transferState.boranium"
                 min="0"
-                [max]="fleet.cargo.minerals.boranium"
+                [max]="fleet().cargo.minerals.boranium"
                 class="qty-input"
               />
             </div>
             <div class="transfer-row">
               <span>Germanium</span>
-              <span class="text-muted">Max: {{ fleet.cargo.minerals.germanium }}</span>
+              <span class="text-muted">Max: {{ fleet().cargo.minerals.germanium }}</span>
               <input
                 type="number"
                 [(ngModel)]="transferState.germanium"
                 min="0"
-                [max]="fleet.cargo.minerals.germanium"
+                [max]="fleet().cargo.minerals.germanium"
                 class="qty-input"
               />
             </div>
             <div class="transfer-row">
               <span>Colonists</span>
-              <span class="text-muted">Max: {{ fleet.cargo.colonists }}</span>
+              <span class="text-muted">Max: {{ fleet().cargo.colonists }}</span>
               <input
                 type="number"
                 [(ngModel)]="transferState.colonists"
                 min="0"
-                [max]="fleet.cargo.colonists"
+                [max]="fleet().cargo.colonists"
                 class="qty-input"
               />
             </div>
@@ -158,7 +150,7 @@ export interface TransferState {
         </div>
         }
 
-        @if (transferMode === 'split' && splitMode === 'separate') {
+        @if (transferMode() === 'split' && splitMode() === 'separate') {
           <div style="padding:var(--space-lg);text-align:center">
             <p>Separate this fleet into {{ totalShipCount }} individual fleets?</p>
           </div>
@@ -168,8 +160,8 @@ export interface TransferState {
           <button (click)="onCancel()" class="btn-secondary">Cancel</button>
           <button (click)="onConfirm()" class="btn-primary">
             {{
-              transferMode === 'split'
-                ? splitMode === 'separate'
+              transferMode() === 'split'
+                ? splitMode() === 'separate'
                   ? 'Separate All'
                   : 'Split Fleet'
                 : 'Transfer'
@@ -261,20 +253,20 @@ export interface TransferState {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FleetTransferComponent implements OnInit, OnChanges {
-  @Input({ required: true }) fleet!: Fleet;
-  @Input() targetName: string | undefined;
-  @Input() transferMode: 'split' | 'transfer' = 'transfer';
-  @Input() splitMode: 'custom' | 'separate' = 'custom';
-  @Input() designNameResolver: (id: string) => string = (id) => id;
+export class FleetTransferComponent {
+  readonly fleet = input.required<Fleet>();
+  readonly targetName = input<string | undefined>(undefined);
+  readonly transferMode = input<'split' | 'transfer'>('transfer');
+  readonly splitMode = input<'custom' | 'separate'>('custom');
+  readonly designNameResolver = input<(id: string) => string>((id) => id);
 
-  @Output() cancel = new EventEmitter<void>();
-  @Output() confirm = new EventEmitter<{
+  readonly cancel = output<void>();
+  readonly confirm = output<{
     mode: 'split' | 'transfer';
     splitMode: 'custom' | 'separate';
     state: TransferState;
   }>();
-  @Output() splitModeChange = new EventEmitter<'custom' | 'separate'>();
+  readonly splitModeChange = output<'custom' | 'separate'>();
 
   transferState: TransferState = {
     ships: [],
@@ -286,24 +278,23 @@ export class FleetTransferComponent implements OnInit, OnChanges {
     colonists: 0,
   };
 
-  ngOnInit() {
-    this.initTransferState();
+  constructor() {
+    effect(() => {
+      const fleet = this.getFleet();
+      if (!fleet) {
+        return;
+      }
+      this.initTransferState(fleet);
+    });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['fleet']) {
-      this.initTransferState();
-    }
-  }
-
-  initTransferState() {
-    if (!this.fleet) return;
+  private initTransferState(fleet: Fleet): void {
     this.transferState = {
-      ships: this.fleet.ships.map((s) => ({
-        designId: s.designId,
-        damage: s.damage || 0,
+      ships: fleet.ships.map((ship) => ({
+        designId: ship.designId,
+        damage: ship.damage || 0,
         count: 0,
-        max: s.count,
+        max: ship.count,
       })),
       fuel: 0,
       resources: 0,
@@ -315,7 +306,6 @@ export class FleetTransferComponent implements OnInit, OnChanges {
   }
 
   setSplitMode(mode: 'custom' | 'separate') {
-    this.splitMode = mode;
     this.splitModeChange.emit(mode);
   }
 
@@ -325,17 +315,29 @@ export class FleetTransferComponent implements OnInit, OnChanges {
 
   onConfirm() {
     this.confirm.emit({
-      mode: this.transferMode,
-      splitMode: this.splitMode,
+      mode: this.transferMode(),
+      splitMode: this.splitMode(),
       state: this.transferState,
     });
   }
 
   getDesignName(id: string): string {
-    return this.designNameResolver(id);
+    return this.designNameResolver()(id);
   }
 
   get totalShipCount(): number {
-    return this.fleet?.ships.reduce((acc, s) => acc + s.count, 0) || 0;
+    const fleet = this.getFleet();
+    if (!fleet) {
+      return 0;
+    }
+    return fleet.ships.reduce((acc, ship) => acc + ship.count, 0);
+  }
+
+  private getFleet(): Fleet | null {
+    try {
+      return this.fleet();
+    } catch {
+      return null;
+    }
   }
 }

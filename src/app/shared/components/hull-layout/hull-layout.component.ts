@@ -18,6 +18,10 @@ import type { PanEvent, PanZoomEvent } from '../../directives';
 import { PanZoomDirective } from '../../directives';
 import { LoggingService } from '../../../services/core/logging.service';
 
+const LONG_PRESS_DELAY_MS = 500;
+const MIN_ZOOM_FACTOR = 0.5;
+const MAX_ZOOM_FACTOR = 3;
+
 interface SlotHoverPayload {
   slotId: string;
   slotDef: SlotDefinition;
@@ -233,7 +237,7 @@ export class HullLayoutComponent {
 
   onZoom(event: PanZoomEvent) {
     if (event.scale) {
-      const newZoom = Math.min(3, Math.max(0.5, event.scale));
+      const newZoom = Math.min(MAX_ZOOM_FACTOR, Math.max(MIN_ZOOM_FACTOR, event.scale));
       this.zoom.set(newZoom);
     }
   }
@@ -435,7 +439,7 @@ export class HullLayoutComponent {
     if (!this.editable() || !this.getComponentInSlot(slotId)) return;
     this.longPressTimer = setTimeout(() => {
       this.showClearButton.set(slotId);
-    }, 500);
+    }, LONG_PRESS_DELAY_MS);
   }
 
   onTouchEnd(_event: SlotTouchEvent): void {

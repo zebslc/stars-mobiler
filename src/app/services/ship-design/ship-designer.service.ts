@@ -1,9 +1,6 @@
-import { Injectable, computed, signal, inject } from '@angular/core';
-import type {
-  HullTemplate} from '../../data/tech-atlas.types';
-import {
-  getSlotTypeForComponentType,
-} from '../../data/tech-atlas.types';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import type { HullTemplate } from '../../data/tech-atlas.types';
+import { getSlotTypeForComponentType } from '../../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../../data/tech-atlas.data';
 import {
   getHull,

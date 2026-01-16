@@ -1,10 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  Input,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type {
   StarOption} from '../../../../components/star-selector.component';
@@ -25,15 +19,15 @@ import type { Fleet } from '../../../../models/game.model';
           <label>Move to star</label>
           <div style="display:flex;gap:var(--space-md);flex-wrap:wrap">
             <app-star-selector
-              [options]="starOptions"
-              [selectedStar]="selectedStarOption"
+              [options]="starOptions()"
+              [selectedStar]="selectedStarOption()"
               (starSelected)="starSelected.emit($event)"
               style="flex-grow:1;min-width:200px"
             ></app-star-selector>
             <button
               (click)="moveOrder.emit()"
               class="btn-primary"
-              [disabled]="!selectedStarOption"
+              [disabled]="!selectedStarOption()"
             >
               Set Move Order
             </button>
@@ -43,7 +37,7 @@ import type { Fleet } from '../../../../models/game.model';
           >
             <input
               type="checkbox"
-              [checked]="showAll"
+              [checked]="showAll()"
               (change)="onShowAll($event)"
             />
             <span class="text-small">Show all systems (including out of range)</span>
@@ -52,7 +46,7 @@ import type { Fleet } from '../../../../models/game.model';
         <div>
           <button
             (click)="colonizeOrder.emit()"
-            [disabled]="!canColonize"
+            [disabled]="!canColonize()"
             class="btn-success"
           >
             Colonize Current Planet
@@ -65,16 +59,16 @@ import type { Fleet } from '../../../../models/game.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FleetOrdersComponent {
-  @Input({ required: true }) fleet!: Fleet;
-  @Input() starOptions: Array<StarOption> = [];
-  @Input() selectedStarOption: StarOption | null = null;
-  @Input() showAll = false;
-  @Input() canColonize = false;
+  readonly fleet = input.required<Fleet>();
+  readonly starOptions = input<Array<StarOption>>([]);
+  readonly selectedStarOption = input<StarOption | null>(null);
+  readonly showAll = input(false);
+  readonly canColonize = input(false);
 
-  @Output() starSelected = new EventEmitter<StarOption>();
-  @Output() moveOrder = new EventEmitter<void>();
-  @Output() colonizeOrder = new EventEmitter<void>();
-  @Output() showAllChange = new EventEmitter<boolean>();
+  readonly starSelected = output<StarOption>();
+  readonly moveOrder = output<void>();
+  readonly colonizeOrder = output<void>();
+  readonly showAllChange = output<boolean>();
 
   onShowAll(event: Event) {
     this.showAllChange.emit((event.target as HTMLInputElement).checked);

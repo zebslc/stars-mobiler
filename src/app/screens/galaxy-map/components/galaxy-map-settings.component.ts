@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../../services/core/settings.service';
@@ -16,7 +16,7 @@ import { LoggingService } from '../../../services/core/logging.service';
   imports: [CommonModule, FormsModule, FilterRibbonComponent],
   template: `
     <div class="settings-container">
-      @if (!navigationMode) {
+      @if (!navigationMode()) {
         <button
           class="settings-toggle"
           (click)="toggleMenu()"
@@ -25,7 +25,7 @@ import { LoggingService } from '../../../services/core/logging.service';
           <span style="font-size: 20px;">👁️</span>
         </button>
       }
-      @if (navigationMode) {
+      @if (navigationMode()) {
         <button
           class="settings-toggle"
           style="background: #e74c3c; color: white;"
@@ -35,7 +35,7 @@ import { LoggingService } from '../../../services/core/logging.service';
         </button>
       }
 
-      @if (isOpen && !navigationMode) {
+      @if (isOpen && !navigationMode()) {
         <div class="dropdown-menu">
         <!-- Tabs -->
         <div class="tabs">
@@ -409,8 +409,8 @@ export class GalaxyMapSettingsComponent {
   isOpen = false;
   activeTab: 'scanner' | 'fleets' | 'planets' = 'scanner';
 
-  @Input() navigationMode = false;
-  @Output() exitNavigation = new EventEmitter<void>();
+  readonly navigationMode = input(false);
+  readonly exitNavigation = output<void>();
 
   fleetFilterItems: Array<FilterItem<string>> = Object.entries(SHIP_ROLE_CONFIG)
     .filter(([key]) => key !== 'starbase')

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,11 +6,11 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    @if (visible) {
+    @if (visible()) {
       <div
         class="context-menu"
-        [style.left.px]="x"
-        [style.top.px]="y"
+        [style.left.px]="x()"
+        [style.top.px]="y()"
         (click)="$event.stopPropagation()"
         (touchstart)="$event.stopPropagation()"
         (touchmove)="$event.stopPropagation()"
@@ -19,8 +19,8 @@ import { CommonModule } from '@angular/common';
         <div class="menu-item" (click)="onSetSpeed()"><span>🚀</span> Set Warp Speed</div>
         <div
           class="menu-item"
-          [class.disabled]="!canColonize"
-          (click)="canColonize && onColonize()"
+          [class.disabled]="!canColonize()"
+          (click)="canColonize() && onColonize()"
         >
           <span>🌱</span>
           Colonise
@@ -119,15 +119,15 @@ import { CommonModule } from '@angular/common';
   ],
 })
 export class WaypointContextMenuComponent {
-  @Input() visible = false;
-  @Input() x = 0;
-  @Input() y = 0;
-  @Input() canColonize = false;
-  @Output() close = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
-  @Output() move = new EventEmitter<void>();
-  @Output() setSpeed = new EventEmitter<void>();
-  @Output() colonize = new EventEmitter<void>();
+  readonly visible = input(false);
+  readonly x = input(0);
+  readonly y = input(0);
+  readonly canColonize = input(false);
+  readonly close = output<void>();
+  readonly delete = output<void>();
+  readonly move = output<void>();
+  readonly setSpeed = output<void>();
+  readonly colonize = output<void>();
 
   onDelete() {
     this.delete.emit();
