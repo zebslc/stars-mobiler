@@ -66,7 +66,7 @@ export class LoggingService {
    * Main logging method - accepts structured log data
    * Automatically includes timestamp, unique ID, and enriched context
    */
-  async log(entry: LogEntryWithoutId): Promise<void> {
+  log(entry: LogEntryWithoutId): void {
     // Check if log level meets minimum threshold
     if (entry.level < this.currentLogLevel()) {
       return;
@@ -81,7 +81,7 @@ export class LoggingService {
     };
 
     // Route to destinations using destination manager
-    await this.routeToDestinations(completeEntry);
+    void this.routeToDestinations(completeEntry);
 
     // Emit to developer panel if enabled (will be implemented in later tasks)
     this.emitToDeveloperPanel(completeEntry);
@@ -90,12 +90,12 @@ export class LoggingService {
   /**
    * Convenience methods for different log levels
    */
-  async debug(
+  debug(
     message: string,
     metadata?: Record<string, any>,
     context?: Partial<LogContext>,
-  ): Promise<void> {
-    await this.log({
+  ): void {
+    this.log({
       level: LogLevel.DEBUG,
       message,
       metadata,
@@ -103,12 +103,12 @@ export class LoggingService {
     });
   }
 
-  async info(
+  info(
     message: string,
     metadata?: Record<string, any>,
     context?: Partial<LogContext>,
-  ): Promise<void> {
-    await this.log({
+  ): void {
+    this.log({
       level: LogLevel.INFO,
       message,
       metadata,
@@ -116,12 +116,12 @@ export class LoggingService {
     });
   }
 
-  async warn(
+  warn(
     message: string,
     metadata?: Record<string, any>,
     context?: Partial<LogContext>,
-  ): Promise<void> {
-    await this.log({
+  ): void {
+    this.log({
       level: LogLevel.WARN,
       message,
       metadata,
@@ -129,12 +129,12 @@ export class LoggingService {
     });
   }
 
-  async error(
+  error(
     message: string,
     metadata?: Record<string, any>,
     context?: Partial<LogContext>,
-  ): Promise<void> {
-    await this.log({
+  ): void {
+    this.log({
       level: LogLevel.ERROR,
       message,
       metadata,
