@@ -26,7 +26,10 @@
       "Bash(npm run lint:*)",
       "Bash(npm install:*)",
       "Bash(npm info:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(while read f)",
+      "Bash(do grep -L OnPush $f)",
+      "Bash(done)"
     ]
   }
 }

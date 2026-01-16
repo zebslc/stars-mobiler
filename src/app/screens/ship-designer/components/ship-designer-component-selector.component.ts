@@ -19,7 +19,9 @@ import { getComponent } from '../../../utils/data-access.util';
         @if (currentComponentId) {
           <div class="current-component">
             <strong>Currently installed</strong>
-            <button appTouchClick (touchClick)="onRemove()" class="btn-danger">Remove Component</button>
+            <button appTouchClick (touchClick)="onRemove()" class="btn-danger">
+              Remove Component
+            </button>
           </div>
         }
 
@@ -301,11 +303,19 @@ export class ShipDesignerComponentSelectorComponent {
     return '/assets/tech-icons/placeholder.png';
   }
 
-  onImageError(event: any): void {
-    event.target.src = '/assets/tech-icons/placeholder.png';
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement | null;
+    if (target) {
+      target.src = '/assets/tech-icons/placeholder.png';
+    }
   }
 
-  formatCost(cost: { ironium?: number; boranium?: number; germanium?: number; resources?: number }): string {
+  formatCost(cost: {
+    ironium?: number;
+    boranium?: number;
+    germanium?: number;
+    resources?: number;
+  }): string {
     const parts: string[] = [];
     if (cost.ironium) parts.push(`${cost.ironium} Fe`);
     if (cost.boranium) parts.push(`${cost.boranium} B`);
@@ -316,7 +326,7 @@ export class ShipDesignerComponentSelectorComponent {
 
   getSlotSelectionTitle(slot: SlotDefinition | null): string {
     if (!slot) return 'Select component';
-    const types = (slot.Allowed || []).map((t: any) => String(t).toLowerCase());
+    const types = (slot.Allowed ?? []).map((type) => type.toLowerCase());
     const order = [
       'engine',
       'weapon',
@@ -348,9 +358,9 @@ export class ShipDesignerComponentSelectorComponent {
     if (base.stats.enemyFleetScanDistance) {
       const parts: string[] = [`Scan: ${base.stats.enemyFleetScanDistance}`];
       if (base.stats.planetScanDistance !== undefined) {
-         if (base.stats.planetScanDistance === 0) parts.push('Planet: Orbit');
-         else if (base.stats.planetScanDistance === -1) parts.push('Planet: None');
-         else parts.push(`Planet: ${base.stats.planetScanDistance}`);
+        if (base.stats.planetScanDistance === 0) parts.push('Planet: Orbit');
+        else if (base.stats.planetScanDistance === -1) parts.push('Planet: None');
+        else parts.push(`Planet: ${base.stats.planetScanDistance}`);
       }
       return parts.join(' • ');
     }

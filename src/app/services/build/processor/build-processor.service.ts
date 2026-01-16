@@ -2,25 +2,27 @@ import { Injectable } from '@angular/core';
 import { BuildItem, GameState, Star } from '../../../models/game.model';
 import { PlanetUtilityService } from '../../colony/planet-utility.service';
 import { BuildQueueService } from '../queue/build-queue.service';
-import { BuildPaymentService } from '../payment/build-payment.service';
+import { BuildPaymentService, ResourceAmount } from '../payment/build-payment.service';
 import { BuildProjectService } from '../project/build-project.service';
-import { StarbaseUpgradeService } from '../../ship-design/starbase-upgrade.service';
+import {
+  StarbaseUpgradeInfo,
+  StarbaseUpgradeService,
+} from '../../ship-design/starbase-upgrade.service';
 
 @Injectable({ providedIn: 'root' })
 export class BuildProcessorService {
-
   constructor(
     private planetUtility: PlanetUtilityService,
     private buildQueue: BuildQueueService,
     private buildPayment: BuildPaymentService,
     private buildProject: BuildProjectService,
-    private starbaseUpgrade: StarbaseUpgradeService
+    private starbaseUpgrade: StarbaseUpgradeService,
   ) {}
 
   /**
    * Process build queues for all owned stars.
    */
-  processBuildQueues(game: GameState) {
+  processBuildQueues(game: GameState): void {
     for (const star of game.stars) {
       if (star.ownerId !== game.humanPlayer.id) continue;
       this.processStarBuildQueue(game, star);
@@ -56,9 +58,20 @@ export class BuildProcessorService {
 
     const totalCost = this.buildPayment.calculateTotalCost(item);
     const starbaseInfo = this.starbaseUpgrade.handleStarbaseUpgrade(game, star, item);
-    const remaining = this.buildPayment.calculateRemainingCost(totalCost, item.paid!, starbaseInfo.scrapCredit);
+    const paid = item.paid!;
+    const remaining = this.buildPayment.calculateRemainingCost(
+      totalCost,
+      paid,
+      starbaseInfo.scrapCredit,
+    );
 
-    const paymentResult = this.buildPayment.processItemPayment(star, item, remaining, totalCost, starbaseInfo.scrapCredit);
+    const paymentResult = this.buildPayment.processItemPayment(
+      star,
+      item,
+      remaining,
+      totalCost,
+      starbaseInfo.scrapCredit,
+    );
 
     if (paymentResult.isComplete) {
       this.completeBuildItem(game, star, item, paymentResult.paid, starbaseInfo, totalCost);
@@ -75,12 +88,16 @@ export class BuildProcessorService {
     game: GameState,
     star: Star,
     item: BuildItem,
-    paid: any,
-    starbaseInfo: any,
-    totalCost: any
+    paid: ResourceAmount,
+    starbaseInfo: StarbaseUpgradeInfo,
+    totalCost: ResourceAmount,
   ): void {
     this.buildPayment.handleExcessRefunds(star, paid, starbaseInfo.scrapCredit, totalCost);
-    this.starbaseUpgrade.removeOldStarbase(game, starbaseInfo.existingFleet, starbaseInfo.existingStarbaseIndex);
+    this.starbaseUpgrade.removeOldStarbase(
+      game,
+      starbaseInfo.existingFleet,
+      starbaseInfo.existingStarbaseIndex,
+    );
     this.buildProject.executeBuildProject(game, star, item);
     this.buildQueue.handleQueueProgression(item, star.buildQueue ?? []);
   }

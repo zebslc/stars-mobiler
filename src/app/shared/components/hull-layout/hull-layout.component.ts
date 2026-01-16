@@ -8,14 +8,24 @@ import {
   output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HullTemplate, SlotDefinition } from '../../../data/tech-atlas.types';
+import { ComponentStats, HullTemplate, SlotDefinition } from '../../../data/tech-atlas.types';
 import { ShipDesign } from '../../../models/game.model';
 import { getComponent } from '../../../utils/data-access.util';
 import { GridSlot } from './hull-layout.types';
 import { HullSlotComponent } from './hull-slot/hull-slot.component';
-import { SlotTouchEvent } from './hull-slot.types';
+import { ComponentActionEvent, HullSlotComponentData, SlotTouchEvent } from './hull-slot.types';
 import { PanZoomDirective, PanEvent, PanZoomEvent } from '../../directives';
 import { LoggingService } from '../../../services/core/logging.service';
+
+interface SlotHoverPayload {
+  slotId: string;
+  slotDef: SlotDefinition;
+  component?: ComponentStats;
+  capacity?: number | 'Unlimited';
+  editable: boolean;
+  count: number;
+  name: string;
+}
 
 @Component({
   selector: 'app-hull-layout',
@@ -54,9 +64,9 @@ import { LoggingService } from '../../../services/core/logging.service';
                 (slotClick)="onSlotClick(slot.id)"
                 (slotHover)="onSlotHover(slot.id)"
                 (slotLeave)="onSlotLeave()"
-                (componentRemove)="removeComponent($event, slot.id)"
-                (componentIncrement)="incrementComponent($event, slot.id)"
-                (slotClear)="clearSlot($event, slot.id)"
+                (componentRemove)="removeComponent($event)"
+                (componentIncrement)="incrementComponent($event)"
+                (slotClear)="clearSlot($event)"
                 (slotTouchStart)="onTouchStart($event, slot.id)"
                 (slotTouchEnd)="onTouchEnd($event)"
                 (componentInfoClick)="onComponentInfoClick(slot.id)"
@@ -120,6 +130,7 @@ import { LoggingService } from '../../../services/core/logging.service';
     `,
   ],
 })
+
 export class HullLayoutComponent {
   readonly hull = input.required<HullTemplate | null>();
   readonly design = input.required<ShipDesign | null>();
@@ -127,7 +138,7 @@ export class HullLayoutComponent {
   readonly selectedSlotId = input<string | null>(null);
 
   readonly slotSelected = output<string>();
-  readonly slotHover = output<any>();
+  readonly slotHover = output<SlotHoverPayload | null>();
   readonly componentRemoved = output<{ slotId: string; componentId: string }>();
   readonly componentIncremented = output<{ slotId: string; componentId: string }>();
   readonly slotCleared = output<string>();
@@ -135,7 +146,7 @@ export class HullLayoutComponent {
 
   imageErrors = signal<Set<string>>(new Set());
   showClearButton = signal<string | null>(null);
-  longPressTimer: any;
+  longPressTimer: ReturnType<typeof setTimeout> | null = null;
   
   // Pan/zoom state - now managed by PanZoomDirective
   zoom = signal(1);
@@ -163,9 +174,9 @@ export class HullLayoutComponent {
 
   readonly slotComponents = computed(() => {
     const design = this.design();
-    if (!design) return new Map<string, { component: any; count: number }>();
+    if (!design) return new Map<string, HullSlotComponentData>();
 
-    const map = new Map<string, { component: any; count: number }>();
+    const map = new Map<string, HullSlotComponentData>();
 
     this.logging.debug('HullLayout design slots', {
       slotCount: design.slots.length,
@@ -362,24 +373,14 @@ export class HullLayoutComponent {
     this.slotSelected.emit(slotId);
   }
 
-  incrementComponent(event: any, slotId: string) {
-    if (event instanceof Event) {
-      event.stopPropagation();
-    }
-    const comp = this.getComponentInSlot(slotId);
-    if (comp) {
-      this.componentIncremented.emit({ slotId, componentId: comp });
-    }
+  incrementComponent(action: ComponentActionEvent) {
+    action.originalEvent.stopPropagation();
+    this.componentIncremented.emit({ slotId: action.slotId, componentId: action.componentId });
   }
 
-  removeComponent(event: any, slotId: string) {
-    if (event instanceof Event) {
-      event.stopPropagation();
-    }
-    const comp = this.getComponentInSlot(slotId);
-    if (comp) {
-      this.componentRemoved.emit({ slotId, componentId: comp });
-    }
+  removeComponent(action: ComponentActionEvent) {
+    action.originalEvent.stopPropagation();
+    this.componentRemoved.emit({ slotId: action.slotId, componentId: action.componentId });
   }
 
   getComponentInSlot(slotId: string): string | null {
@@ -387,22 +388,22 @@ export class HullLayoutComponent {
     return data ? data.component.id : null;
   }
 
-  getComponentData(slotId: string) {
+  getComponentData(slotId: string): HullSlotComponentData | null {
     return this.slotComponents().get(slotId) || null;
   }
 
   canIncrement(slotId: string): boolean {
     const hull = this.hull();
-    const slot = hull?.Slots.find((s: any) => s.Code === slotId);
+    const slot = hull?.Slots.find((s: SlotDefinition) => s.Code === slotId);
     if (!slot || !slot.Max) return false;
-    const currentCount = this.slotComponents().get(slotId)?.count || 0;
+    const currentCount = this.slotComponents().get(slotId)?.count ?? 0;
     return currentCount < slot.Max;
   }
 
   getSlotMaxCount(slotId: string): number {
     const hull = this.hull();
-    const slot = hull?.Slots.find((s: any) => s.Code === slotId);
-    return slot?.Max || 1;
+    const slot = hull?.Slots.find((s: SlotDefinition) => s.Code === slotId);
+    return slot?.Max ?? 1;
   }
 
   onSlotHover(slotId: string): void {
@@ -410,12 +411,14 @@ export class HullLayoutComponent {
     if (!slot) return;
     const compData = this.getComponentData(slotId);
     this.slotHover.emit({
+      slotId,
       slotDef: slot.slotDef,
       component: compData?.component,
       capacity: slot.capacity,
       editable: slot.editable && this.editable(),
-      count: compData?.count || 0,
-      name: compData?.component?.name || (slot.editable ? 'Empty Slot' : 'Structural Component'),
+      count: compData?.count ?? 0,
+      name:
+        compData?.component?.name ?? (slot.editable ? 'Empty Slot' : 'Structural Component'),
     });
     if (this.editable() && this.getComponentInSlot(slotId)) {
       this.showClearButton.set(slotId);
@@ -441,11 +444,9 @@ export class HullLayoutComponent {
     }
   }
 
-  clearSlot(event: any, slotId: string): void {
-    if (event instanceof Event) {
-      event.stopPropagation();
-    }
-    this.slotCleared.emit(slotId);
+  clearSlot(action: ComponentActionEvent): void {
+    action.originalEvent.stopPropagation();
+    this.slotCleared.emit(action.slotId);
     this.showClearButton.set(null);
   }
 

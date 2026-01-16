@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Star } from '../../../models/game.model';
+import { BuildItem, Star } from '../../../models/game.model';
 import { ShipSelectorComponent, ShipOption } from '../../../components/ship-selector.component';
 import { getDesign } from '../../../data/ships.data';
 import { GameStateService } from '../../../services/game/game-state.service';
@@ -231,7 +231,7 @@ export class StarBuildQueueComponent {
     return ` (${this.formatCost(cost)})`;
   }
 
-  getPercentComplete(item: any): number {
+  getPercentComplete(item: BuildItem): number {
     if (!item.paid) return 0;
     const total =
       (item.cost.resources || 0) +
@@ -247,7 +247,7 @@ export class StarBuildQueueComponent {
     return Math.min(100, (paid / total) * 100);
   }
 
-  queueColor(_: any, __: number): string {
+  queueColor(_item: BuildItem, _index: number): string {
     return 'inherit';
   }
 }
