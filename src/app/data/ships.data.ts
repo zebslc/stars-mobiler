@@ -21,6 +21,9 @@ export interface CompiledDesign {
   initiative: number;
   firepower: number;
   colonistCapacity?: number;
+  engine?: {
+    id: string;
+  };
   cost: {
     ironium: number;
     boranium: number;
@@ -42,7 +45,7 @@ export interface CompiledDesign {
 const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
   const designs: { [key: string]: CompiledDesign } = {};
 
-  ALL_HULLS.forEach((hull, index) => {
+  ALL_HULLS.forEach((hull) => {
     const designId = hull.id || hull.Name.toLowerCase().replace(/\s+/g, '_');
 
     designs[designId] = {
@@ -64,6 +67,7 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
       initiative: hull.Stats.Initiative || 0,
       firepower: 0,
       colonistCapacity: hull.Name.toLowerCase().includes('colony') ? 25000 : undefined, // 25kT = 25,000 colonists
+      engine: undefined,
       cost: {
         ironium: hull.Cost.Ironium,
         boranium: hull.Cost.Boranium,
@@ -180,6 +184,7 @@ export function getDesign(designId: string): CompiledDesign {
       scannerRange: 0,
       cloakedRange: 0,
       components: [],
+      engine: undefined,
     };
   }
   return design;

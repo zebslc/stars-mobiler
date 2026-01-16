@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BuildItem, GameState, Star } from '../../models/game.model';
-import { BuildQueueService } from '../build/build-queue.service';
-import { BuildProcessorService } from '../build/build-processor.service';
+import { BuildQueueService } from '../build/queue/build-queue.service';
+import { BuildProcessorService } from '../build/processor/build-processor.service';
 import { GovernorService } from './governor.service';
 
 @Injectable({ providedIn: 'root' })

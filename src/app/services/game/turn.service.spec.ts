@@ -2,7 +2,7 @@ import { TurnService } from './turn.service';
 import { EconomyService } from '../colony/economy.service';
 import { ResearchService } from '../tech/research.service';
 import { ColonyService } from '../colony/colony.service';
-import { FleetService } from '../fleet/fleet.service';
+import { FleetService } from '../fleet/core/fleet.service';
 import { HabitabilityService } from '../colony/habitability.service';
 import { GameState, Star, Player } from '../../models/game.model';
 

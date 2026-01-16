@@ -3,7 +3,7 @@ import { GameState, Star, Player } from '../../models/game.model';
 import { EconomyService } from '../colony/economy.service';
 import { ResearchService } from '../tech/research.service';
 import { ColonyService } from '../colony/colony.service';
-import { FleetService } from '../fleet/fleet.service';
+import { FleetService } from '../fleet/core/fleet.service';
 import { HabitabilityService } from '../colony/habitability.service';
 
 @Injectable({ providedIn: 'root' })

@@ -4,7 +4,7 @@ import { TechField } from '../../data/tech-tree.data';
 
 // Import services
 import { ColonyService } from '../../services/colony/colony.service';
-import { FleetService } from '../../services/fleet/fleet.service';
+import { FleetService } from '../../services/fleet/core/fleet.service';
 import { ResearchService } from '../../services/tech/research.service';
 import { ShipyardService } from '../../services/ship-design/shipyard.service';
 import { TurnService } from '../../services/game/turn.service';

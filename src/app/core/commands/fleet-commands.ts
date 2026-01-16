@@ -1,6 +1,6 @@
 import { GameCommand, GameCommandWithResult } from './game-command.interface';
 import { GameState, FleetOrder } from '../../models/game.model';
-import { FleetService } from '../../services/fleet/fleet.service';
+import { FleetService } from '../../services/fleet/core/fleet.service';
 
 /**
  * Command to issue a single order to a fleet.
