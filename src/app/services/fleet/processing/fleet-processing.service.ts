@@ -87,7 +87,7 @@ export class FleetProcessingService {
     }
 
     const staticDesign = this.shipDesigns.getDesign(designId);
-    return Boolean(staticDesign?.fuelEfficiency === 0 || staticDesign?.isRamscoop);
+    return Boolean(staticDesign?.fuelEfficiency === 0);
   }
 
   private hasLocalStardock(game: GameState, fleet: Fleet, starId: string): boolean {

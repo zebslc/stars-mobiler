@@ -27,13 +27,16 @@ export class FleetColonizationService {
     }
 
     const { fleet, star } = validationResult;
-    // fleet and star are guaranteed to exist due to validation above
-    const colonyShip = this.findColonyShip(game, fleet!, context);
-    if (!colonyShip.ship) {
+    if (!fleet || !star) {
       return [game, null];
     }
 
-    return this.executeColonization(game, fleet!, star!, colonyShip.ship, colonyShip.design, context);
+    const colonyShip = this.findColonyShip(game, fleet, context);
+    if (!colonyShip.ship || !colonyShip.design) {
+      return [game, null];
+    }
+
+    return this.executeColonization(game, fleet, star, colonyShip.ship, colonyShip.design, context);
   }
 
   canColonize(game: GameState, fleetId: string): { canColonize: boolean; reason?: string } {
@@ -130,7 +133,7 @@ export class FleetColonizationService {
     game: GameState, 
     fleetId: string, 
     context: LogContext
-  ): { isValid: boolean; fleet?: Fleet; planet?: Star } {
+  ): { isValid: boolean; fleet?: Fleet; star?: Star } {
     const fleet = game.fleets.find((f) => f.id === fleetId && f.ownerId === game.humanPlayer.id);
     if (!fleet || fleet.location.type !== 'orbit') {
       this.logging.error('Fleet not found or not in orbit for colonization', context);
@@ -138,16 +141,16 @@ export class FleetColonizationService {
     }
 
     const starIndex = this.buildStarIndex(game);
-    const planet = starIndex.get(
+    const star = starIndex.get(
       (fleet.location as { type: 'orbit'; starId: string }).starId
     );
     
-    if (!planet) {
+    if (!star) {
       this.logging.error('Star not found for colonization', context);
       return { isValid: false };
     }
 
-    return { isValid: true, fleet, planet };
+    return { isValid: true, fleet, star };
   }
 
   private findColonyShip(

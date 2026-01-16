@@ -1,302 +1,218 @@
-import { FleetService } from './fleet.service';
-import { SettingsService } from '../../core/settings.service';
-import type { HabitabilityService } from '../../colony/habitability.service';
-import type { ShipyardService } from '../../ship-design/shipyard.service';
+import { FleetService, type LoadManifest, type UnloadManifest } from './fleet.service';
+import { MAX_FLEETS_PER_PLAYER, MAX_SHIPS_PER_DESIGN } from './fleet.constants';
 import type {
-  CompiledShipStats,
   Fleet,
   FleetOrder,
   GameSettings,
   GameState,
   Player,
   PlayerTech,
-  ShipDesign,
-  SlotAssignment,
   Species,
   Star,
 } from '../../../models/game.model';
+import type { FleetLocation } from '../../../models/service-interfaces.model';
+import type { TransferSpec } from '../transfer/fleet-transfer.types';
+import type { FleetOperationsService } from '../operations/fleet-operations.service';
+import type { FleetTransferService } from '../transfer/fleet-transfer.service';
+import type { FleetCargoService } from '../cargo/fleet-cargo.service';
+import type { FleetColonizationService } from '../colonization/fleet-colonization.service';
+import type { FleetProcessingService } from '../processing/fleet-processing.service';
 
-type MoveOrder = Extract<FleetOrder, { type: 'move' }>;
-
-interface FleetLimitScenario {
-  game: GameState;
-  star: Star;
-  design: ShipDesign;
-}
-
-interface MovementScenario {
-  game: GameState;
-  fleet: Fleet;
-  design: ShipDesign;
-  order: MoveOrder;
-}
-
-const BASE_TECH: PlayerTech = {
-  Energy: 0,
-  Kinetics: 0,
-  Propulsion: 0,
-  Construction: 0,
-};
-
-const BASE_SPEC: CompiledShipStats = {
-  warpSpeed: 10,
-  fuelCapacity: 1000,
-  fuelEfficiency: 100,
-  idealWarp: 6,
-  isRamscoop: false,
-  firepower: 0,
-  maxWeaponRange: 0,
-  armor: 0,
-  shields: 0,
-  accuracy: 0,
-  initiative: 0,
-  cargoCapacity: 0,
-  colonistCapacity: 0,
-  scanRange: 0,
-  penScanRange: 0,
-  canDetectCloaked: false,
-  miningRate: 0,
-  terraformRate: 0,
-  bombing: { kill: 0, destroy: 0 },
-  massDriver: { speed: 0, catch: 0 },
-  mass: 100,
-  cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
-  hasEngine: true,
-  hasColonyModule: false,
-  isStarbase: false,
-  isValid: true,
-  validationErrors: [],
-  components: [],
+const BASE_TECH: PlayerTech = { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 };
+const DEFAULT_SETTINGS: GameSettings = {
+  galaxySize: 'small',
+  aiCount: 0,
+  aiDifficulty: 'easy',
+  seed: 1,
+  speciesId: 'species',
 };
 
 describe('FleetService', () => {
+  let operations: jasmine.SpyObj<FleetOperationsService>;
+  let transfer: jasmine.SpyObj<FleetTransferService>;
+  let cargo: jasmine.SpyObj<FleetCargoService>;
+  let colonization: jasmine.SpyObj<FleetColonizationService>;
+  let processing: jasmine.SpyObj<FleetProcessingService>;
   let service: FleetService;
-  let settingsService: SettingsService;
-  let habitabilityService: jasmine.SpyObj<HabitabilityService>;
-  let shipyardService: jasmine.SpyObj<ShipyardService>;
 
   beforeEach(() => {
-    settingsService = new SettingsService();
-    habitabilityService = jasmine.createSpyObj<HabitabilityService>('HabitabilityService', ['calculate']);
-    shipyardService = jasmine.createSpyObj<ShipyardService>('ShipyardService', ['getShipCost']);
-    service = new FleetService(settingsService, habitabilityService, shipyardService);
+    operations = jasmine.createSpyObj('FleetOperationsService', ['addShipToFleet', 'createFleet']);
+    transfer = jasmine.createSpyObj('FleetTransferService', ['transfer', 'splitFleet', 'separateFleet', 'mergeFleets']);
+    cargo = jasmine.createSpyObj('FleetCargoService', ['loadCargo', 'unloadCargo']);
+    colonization = jasmine.createSpyObj('FleetColonizationService', ['colonizeNow']);
+    processing = jasmine.createSpyObj('FleetProcessingService', ['processFleets']);
+
+    service = new FleetService(
+      operations as unknown as FleetOperationsService,
+      transfer as unknown as FleetTransferService,
+      cargo as unknown as FleetCargoService,
+      colonization as unknown as FleetColonizationService,
+      processing as unknown as FleetProcessingService,
+    );
   });
 
-  it('creates service instance', () => {
-    expect(service).toBeTruthy();
+  it('exposes fleet caps from constants', () => {
+    expect(service.MAX_FLEETS).toBe(MAX_FLEETS_PER_PLAYER);
+    expect(service.MAX_SHIPS_PER_DESIGN).toBe(MAX_SHIPS_PER_DESIGN);
   });
 
-  describe('fleet limits', () => {
-    let scenario: FleetLimitScenario;
+  it('delegates ship addition to operations service', () => {
+    const game = createGameState();
+    const star = createStar();
 
-    beforeEach(() => {
-      scenario = createFleetLimitScenario();
-    });
+    service.addShipToFleet(game, star, 'design', 3);
 
-    it('throws when creation exceeds fleet cap', () => {
-      fillFleetLimit(scenario.game, scenario.design.id);
-
-      expect(() => {
-        service.createFleet(scenario.game, { type: 'orbit', starId: scenario.star.id }, 'p1', scenario.design.id);
-      }).toThrowError(/Maximum of 512 fleets/);
-    });
-
-    it('throws when adding ships exceeds per design cap', () => {
-      const fleet = createFleetWithCount(scenario.design.id, 32000);
-      scenario.game.fleets.push(fleet);
-
-      expect(() => {
-        service.addShipToFleet(scenario.game, scenario.star, scenario.design.id, 1);
-      }).toThrowError(/Max: 32000/);
-    });
-
-    it('allows adding ships up to the cap', () => {
-      const fleet = createFleetWithCount(scenario.design.id, 31999);
-      scenario.game.fleets.push(fleet);
-
-      service.addShipToFleet(scenario.game, scenario.star, scenario.design.id, 1);
-
-      const stack = fleet.ships.find((s) => s.designId === scenario.design.id);
-      expect(stack?.count).toBe(32000);
-    });
+    expect(operations.addShipToFleet).toHaveBeenCalledWith(game, star, 'design', 3);
   });
 
-  describe('movement logic', () => {
-    it('travels at engine-limited max speed when fuel allows', () => {
-      const { game, fleet } = createMovementScenario({ fuel: 1000, distance: 100 });
-      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
+  it('delegates fleet creation to operations service', () => {
+    const game = createGameState();
+    const location: FleetLocation = { type: 'orbit', starId: 'star-1' };
+    const createdFleet = createFleet();
+    operations.createFleet.and.returnValue(createdFleet);
 
-      service.processFleets(game);
+    const result = service.createFleet(game, location, 'owner', 'base');
 
-      expect(fleet.location.type).toBe('space');
-      if (fleet.location.type === 'space') {
-        expect(fleet.location.x).toBe(100);
-      }
-      expect(fleet.orders.length).toBe(0);
-      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
-      expect(warpUsed).toBe(5);
-    });
+    expect(result).toBe(createdFleet);
+    expect(operations.createFleet).toHaveBeenCalledWith(game, location, 'owner', 'base');
+  });
 
-    it('reduces speed when fuel cannot sustain max warp', () => {
-      const { game, fleet } = createMovementScenario({ fuel: 50, distance: 400 });
-      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
+  it('delegates fleet transfer operations', () => {
+    const game = createGameState();
+    const transferResult = createGameState({ id: 'updated' });
+    const spec: TransferSpec = { ships: [], fuel: 0, cargo: { resources: 0, colonists: 0, ironium: 0, boranium: 0, germanium: 0 } };
+    transfer.transfer.and.returnValue(transferResult);
 
-      service.processFleets(game);
+    const result = service.transfer(game, 'source', 'target', spec);
 
-      expect(fleet.location.type).toBe('space');
-      if (fleet.location.type === 'space') {
-        expect(fleet.location.x).toBeLessThan(400);
-        expect(fleet.location.x).toBeGreaterThan(0);
-      }
-      expect(fleet.orders.length).toBe(1);
-      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
-      expect(warpUsed).toBeLessThan(5);
-      expect(warpUsed).toBeGreaterThan(0);
-    });
+    expect(result).toBe(transferResult);
+    expect(transfer.transfer).toHaveBeenCalledWith(game, 'source', 'target', spec);
+  });
 
-    it('respects requested warp when fuel is sufficient', () => {
-      const { game, fleet, order } = createMovementScenario({ fuel: 1200, distance: 100, warpSpeed: 5 });
-      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
+  it('delegates split fleet and returns new identifier', () => {
+    const game = createGameState();
+    const next = createGameState({ id: 'next' });
+    const spec: TransferSpec = { ships: [], fuel: 0, cargo: { resources: 0, colonists: 0, ironium: 0, boranium: 0, germanium: 0 } };
+    transfer.splitFleet.and.returnValue([next, 'new-fleet']);
 
-      service.processFleets(game);
+    const result = service.splitFleet(game, 'source', spec);
 
-      expect(fleet.location.type).toBe('space');
-      if (fleet.location.type === 'space') {
-        expect(fleet.location.x).toBe(100);
-      }
-      expect(fleet.orders.length).toBe(0);
-      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
-      expect(warpUsed).toBe(order.warpSpeed!);
-    });
+    expect(result).toEqual([next, 'new-fleet']);
+    expect(transfer.splitFleet).toHaveBeenCalledWith(game, 'source', spec);
+  });
 
-    it('drops requested warp when fuel is insufficient', () => {
-      const { game, fleet, order } = createMovementScenario({ fuel: 80, distance: 100, warpSpeed: 9 });
-      const warpSpy = spyOn<any>(service as any, 'calculateTravelWarp').and.callThrough();
+  it('delegates separation and merge flows', () => {
+    const current = createGameState();
+    const separated = createGameState({ id: 'separated' });
+    const merged = createGameState({ id: 'merged' });
+    transfer.separateFleet.and.returnValue(separated);
+    transfer.mergeFleets.and.returnValue(merged);
 
-      service.processFleets(game);
+    expect(service.separateFleet(current, 'fleet')).toBe(separated);
+    expect(service.mergeFleets(current, 'a', 'b')).toBe(merged);
+  });
 
-      expect(fleet.location.type).toBe('space');
-      if (fleet.location.type === 'space') {
-        expect(fleet.location.x).toBeLessThan(100);
-        expect(fleet.location.x).toBeGreaterThan(0);
-      }
-      expect(fleet.orders.length).toBe(1);
-      const warpUsed = warpSpy.calls.mostRecent().returnValue as number;
-      expect(warpUsed).toBeLessThan(order.warpSpeed!);
-      expect(warpUsed).toBeLessThanOrEqual(5);
-      expect(warpUsed).toBeGreaterThan(0);
-    });
+  it('sets single order via issueFleetOrder helper', () => {
+    const order: FleetOrder = { type: 'move', destination: { x: 1, y: 2 } };
+    const game = createGameState({ fleets: [createFleet({ id: 'fleet', ownerId: 'player', orders: [] })] });
+    const spy = spyOn(service, 'setFleetOrders').and.callThrough();
+
+    service.issueFleetOrder(game, 'fleet', order);
+
+    expect(spy).toHaveBeenCalledWith(game, 'fleet', [order]);
+  });
+
+  it('updates orders when fleet belongs to player', () => {
+    const fleet = createFleet({ id: 'fleet-1', ownerId: 'player', orders: [] });
+    const game = createGameState({ fleets: [fleet] });
+    const orders: Array<FleetOrder> = [{ type: 'move', destination: { x: 5, y: 5 } }];
+
+    const result = service.setFleetOrders(game, 'fleet-1', orders);
+
+    expect(result).not.toBe(game);
+    expect(fleet.orders).toEqual(orders);
+  });
+
+  it('ignores order updates for unknown fleets', () => {
+    const game = createGameState();
+    const orders: Array<FleetOrder> = [{ type: 'move', destination: { x: 1, y: 1 } }];
+
+    const result = service.setFleetOrders(game, 'missing', orders);
+
+    expect(result).toBe(game);
+  });
+
+  it('delegates colonization, cargo load, and unload', () => {
+    const game = createGameState();
+    const colonizeResult: [GameState, string | null] = [createGameState({ id: 'colonized' }), 'star-1'];
+    colonization.colonizeNow.and.returnValue(colonizeResult);
+    const loadResult = createGameState({ id: 'load' });
+    const unloadResult = createGameState({ id: 'unload' });
+    cargo.loadCargo.and.returnValue(loadResult);
+    cargo.unloadCargo.and.returnValue(unloadResult);
+    const manifest: LoadManifest = { resources: 'all' };
+    const unloadManifest: UnloadManifest = { resources: 'all' };
+
+    const colonize = service.colonizeNow(game, 'fleet');
+    const load = service.loadCargo(game, 'fleet', 'star', manifest);
+    const unload = service.unloadCargo(game, 'fleet', 'star', unloadManifest);
+
+    expect(colonize).toBe(colonizeResult);
+    expect(load).toBe(loadResult);
+    expect(unload).toBe(unloadResult);
+  });
+
+  it('removes fleet during decommissioning', () => {
+    const remaining = createFleet({ id: 'keep', ownerId: 'player' });
+    const target = createFleet({ id: 'remove', ownerId: 'player' });
+    const game = createGameState({ fleets: [remaining, target] });
+
+    const result = service.decommissionFleet(game, 'remove');
+
+    expect(result.fleets.some((f) => f.id === 'remove')).toBeFalse();
+    expect(result.fleets.some((f) => f.id === 'keep')).toBeTrue();
+  });
+
+  it('delegates processing to FleetProcessingService', () => {
+    const game = createGameState();
+
+    service.processFleets(game);
+
+    expect(processing.processFleets).toHaveBeenCalledWith(game);
   });
 });
 
-function createFleetLimitScenario(): FleetLimitScenario {
-  const star = createStar({ id: 'planet1', name: 'Earth', ownerId: 'p1' });
-  const player = createPlayer();
-  const design = createShipDesign({ id: 'scout', name: 'Scout', playerId: player.id, spec: buildSpec({ fuelCapacity: 100, mass: 10, cost: { ...BASE_SPEC.cost, resources: 50, ironium: 10 } }) });
-  const game: GameState = {
-    id: 'game1',
-    seed: 123,
-    turn: 1,
-    settings: createSettings(),
-    stars: [star],
-    humanPlayer: player,
-    aiPlayers: [],
-    fleets: [],
-    shipDesigns: [design],
-    playerEconomy: { freighterCapacity: 0, research: 0 },
-  };
-
-  return { game, star, design };
-}
-
-function fillFleetLimit(game: GameState, designId: string): void {
-  while (game.fleets.length < 512) {
-    game.fleets.push(createFleetWithCount(designId, 0));
-  }
-}
-
-function createFleetWithCount(designId: string, count: number): Fleet {
+function createGameState(overrides: Partial<GameState> = {}): GameState {
   return {
-    id: `fleet-${designId}-${count}`,
-    ownerId: 'p1',
-    name: `Fleet ${designId} ${count}`,
-    location: { type: 'orbit', starId: 'planet1' },
-    ships: [{ designId, count, damage: 0 }],
-    cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
-    fuel: 0,
-    orders: [],
+    id: overrides.id ?? 'game',
+    seed: overrides.seed ?? 1,
+    turn: overrides.turn ?? 1,
+    settings: overrides.settings ?? DEFAULT_SETTINGS,
+    stars: overrides.stars ?? [],
+    humanPlayer: overrides.humanPlayer ?? createPlayer(),
+    aiPlayers: overrides.aiPlayers ?? [],
+    fleets: overrides.fleets ?? [],
+    playerEconomy: overrides.playerEconomy ?? { freighterCapacity: 0, research: 0 },
+    shipDesigns: overrides.shipDesigns ?? [],
   };
 }
 
-function createMovementScenario({
-  fuel,
-  distance,
-  warpSpeed,
-}: {
-  fuel: number;
-  distance: number;
-  warpSpeed?: number;
-}): MovementScenario {
-  const player = createPlayer();
-  const design = createShipDesign({
-    id: 'move-ship',
-    name: 'Move Ship',
-    playerId: player.id,
-    spec: buildSpec(),
-  });
-  const order: MoveOrder = { type: 'move', destination: { x: distance, y: 0 }, warpSpeed };
-  const fleet: Fleet = {
-    id: 'fleet-move',
-    ownerId: player.id,
-    name: 'Fleet 1',
-    location: { type: 'space', x: 0, y: 0 },
-    ships: [{ designId: design.id, count: 1, damage: 0 }],
-    cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
-    fuel,
-    orders: [order],
-  };
-  const game: GameState = {
-    id: 'game-move',
-    seed: 456,
-    turn: 1,
-    settings: createSettings(),
-    stars: [],
-    humanPlayer: player,
-    aiPlayers: [],
-    fleets: [fleet],
-    shipDesigns: [design],
-    playerEconomy: { freighterCapacity: 0, research: 0 },
-  };
-
-  return { game, fleet, design, order };
-}
-
-function createSettings(): GameSettings {
+function createPlayer(overrides: Partial<Player> = {}): Player {
   return {
-    galaxySize: 'small',
-    aiCount: 0,
-    aiDifficulty: 'easy',
-    seed: 123,
-    speciesId: 'species-human',
-  };
-}
-
-function createPlayer(): Player {
-  return {
-    id: 'p1',
-    name: 'Human',
-    species: createSpecies(),
-    ownedStarIds: [],
-    techLevels: { ...BASE_TECH },
-    researchProgress: { ...BASE_TECH },
-    selectedResearchField: 'Energy',
+    id: overrides.id ?? 'player',
+    name: overrides.name ?? 'Player',
+    species: overrides.species ?? createSpecies(),
+    ownedStarIds: overrides.ownedStarIds ?? [],
+    techLevels: overrides.techLevels ?? { ...BASE_TECH },
+    researchProgress: overrides.researchProgress ?? { ...BASE_TECH },
+    selectedResearchField: overrides.selectedResearchField ?? 'Energy',
   };
 }
 
 function createSpecies(): Species {
   return {
-    id: 'species-human',
-    name: 'Human',
+    id: 'species',
+    name: 'Species',
     habitat: { idealTemperature: 50, idealAtmosphere: 50, toleranceRadius: 20 },
     traits: [],
     primaryTraits: [],
@@ -304,72 +220,49 @@ function createSpecies(): Species {
   };
 }
 
-function createShipDesign({
-  id,
-  name,
-  playerId,
-  spec,
-  slots,
-}: {
-  id: string;
-  name: string;
-  playerId: string;
-  spec?: CompiledShipStats;
-  slots?: Array<SlotAssignment>;
-}): ShipDesign {
+function createFleet(overrides: Partial<Fleet> = {}): Fleet {
   return {
-    id,
-    name,
-    hullId: 'Scout',
-    slots: slots ?? createEngineSlot(),
-    createdTurn: 0,
-    playerId,
-    spec,
+    id: overrides.id ?? 'fleet',
+    name: overrides.name ?? 'Fleet',
+    ownerId: overrides.ownerId ?? 'player',
+    location: overrides.location ?? { type: 'space', x: 0, y: 0 },
+    ships:
+      overrides.ships ?? [
+        { designId: 'design', count: 1, damage: 0 },
+      ],
+    fuel: overrides.fuel ?? 0,
+    cargo:
+      overrides.cargo ?? {
+        resources: 0,
+        minerals: { ironium: 0, boranium: 0, germanium: 0 },
+        colonists: 0,
+      },
+    orders: overrides.orders ?? [],
   };
 }
 
-function buildSpec(overrides: Partial<CompiledShipStats> = {}): CompiledShipStats {
+function createStar(overrides: Partial<Star> = {}): Star {
   return {
-    ...BASE_SPEC,
-    ...overrides,
-    bombing: { ...BASE_SPEC.bombing, ...overrides.bombing },
-    massDriver: { ...BASE_SPEC.massDriver, ...overrides.massDriver },
-    cost: { ...BASE_SPEC.cost, ...overrides.cost },
-    components: overrides.components ? [...overrides.components] : [...BASE_SPEC.components],
-    validationErrors: overrides.validationErrors
-      ? [...overrides.validationErrors]
-      : [...BASE_SPEC.validationErrors],
-  };
-}
-
-function createEngineSlot(): Array<SlotAssignment> {
-  return [
-    {
-      slotId: 'engine-slot',
-      components: [{ componentId: 'eng_quick_jump_5', count: 1 }],
-    },
-  ];
-}
-
-function createStar({ id, name, ownerId }: { id: string; name: string; ownerId: string }): Star {
-  return {
-    id,
-    name,
-    position: { x: 0, y: 0 },
-    temperature: 50,
-    atmosphere: 50,
-    mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
-    surfaceMinerals: { ironium: 1000, boranium: 1000, germanium: 1000 },
-    ownerId,
-    population: 10_000,
-    maxPopulation: 1_000_000,
-    mines: 10,
-    factories: 10,
-    defenses: 0,
-    research: 0,
-    scanner: 0,
-    terraformOffset: { temperature: 0, atmosphere: 0 },
-    resources: 1_000,
-    buildQueue: [],
+    id: overrides.id ?? 'star',
+    name: overrides.name ?? 'Star',
+    position: overrides.position ?? { x: 0, y: 0 },
+    temperature: overrides.temperature ?? 50,
+    atmosphere: overrides.atmosphere ?? 50,
+    mineralConcentrations:
+      overrides.mineralConcentrations ?? { ironium: 0, boranium: 0, germanium: 0 },
+    surfaceMinerals:
+      overrides.surfaceMinerals ?? { ironium: 0, boranium: 0, germanium: 0 },
+    ownerId: overrides.ownerId ?? null,
+    population: overrides.population ?? 0,
+    maxPopulation: overrides.maxPopulation ?? 0,
+    mines: overrides.mines ?? 0,
+    factories: overrides.factories ?? 0,
+    defenses: overrides.defenses ?? 0,
+    research: overrides.research ?? 0,
+    scanner: overrides.scanner ?? 0,
+    terraformOffset: overrides.terraformOffset ?? { temperature: 0, atmosphere: 0 },
+    resources: overrides.resources ?? 0,
+    buildQueue: overrides.buildQueue ?? [],
+    governor: overrides.governor,
   };
 }

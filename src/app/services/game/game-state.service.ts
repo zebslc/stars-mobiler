@@ -46,6 +46,7 @@ export class GameStateService {
 
   newGame(settings: GameSettings) {
     const state = this.gameInitializer.initializeGame(settings);
+    this.shipyardService.hydrateCompiledDesignCache(state);
     this.commandExecutor.setGame(state);
   }
 

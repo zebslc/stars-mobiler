@@ -129,6 +129,16 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
 // Export compiled designs
 export const COMPILED_DESIGNS = createBasicDesigns();
 
+export function registerCompiledDesign(design: CompiledDesign): void {
+  if (!design?.id) return;
+  COMPILED_DESIGNS[design.id] = design;
+}
+
+export function unregisterCompiledDesign(designId: string): void {
+  if (!designId) return;
+  delete COMPILED_DESIGNS[designId];
+}
+
 // Utility function to get design by ID
 export function getDesign(designId: string): CompiledDesign {
   let design = COMPILED_DESIGNS[designId];
