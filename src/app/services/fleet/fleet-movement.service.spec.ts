@@ -52,7 +52,7 @@ describe('FleetMovementService', () => {
   beforeEach(() => {
     mockLoggingService = jasmine.createSpyObj('LoggingService', ['debug', 'info', 'warn', 'error']);
     orderService = new FleetMovementOrderService();
-    shipDesignService = new FleetShipDesignService(mockLoggingService);
+    shipDesignService = new FleetShipDesignService();
     designSpy = spyOn(shipDesignService, 'getDesign').and.callFake((designId: string) => ({
       id: designId,
       warpSpeed: 5,

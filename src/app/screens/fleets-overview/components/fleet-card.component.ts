@@ -1,12 +1,4 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  ChangeDetectionStrategy,
-  inject,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, input, output } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
@@ -21,10 +13,11 @@ import { ShipStatsRowComponent } from '../../../shared/components/ship-stats-row
   standalone: true,
   imports: [CommonModule, DecimalPipe, DesignPreviewButtonComponent, ShipStatsRowComponent],
   template: `
+    @let currentFleet = fleet();
     <div class="fleet-card">
       <div class="fleet-header">
         <div class="fleet-title">
-          <h3>{{ fleet.name || 'Fleet ' + fleet.id.slice(-4) }}</h3>
+          <h3>{{ currentFleet.name || 'Fleet ' + currentFleet.id.slice(-4) }}</h3>
           <span class="fleet-status" [class]="'status-' + status().type">
             {{ status().label }}
           </span>
@@ -42,7 +35,7 @@ import { ShipStatsRowComponent } from '../../../shared/components/ship-stats-row
       <div class="fleet-composition">
         <div class="composition-header">Ships:</div>
         <div class="ships-list">
-          @for (ship of fleet.ships; track ship.designId) {
+          @for (ship of currentFleet.ships; track ship.designId) {
             <app-design-preview-button
               [designId]="ship.designId"
               buttonClass="ship-row"
@@ -73,7 +66,7 @@ import { ShipStatsRowComponent } from '../../../shared/components/ship-stats-row
         <div class="stat-row">
           <span class="stat-label">Fuel:</span>
           <span class="stat-value" [style.color]="fuelColor()">
-            {{ fleet.fuel | number: '1.0-0' }} / {{ maxFuel() | number: '1.0-0' }}
+            {{ currentFleet.fuel | number: '1.0-0' }} / {{ maxFuel() | number: '1.0-0' }}
           </span>
         </div>
         @if (cargo() > 0) {
@@ -287,13 +280,13 @@ import { ShipStatsRowComponent } from '../../../shared/components/ship-stats-row
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FleetCardComponent {
-  @Input({ required: true }) fleet!: Fleet;
-  @Output() jumpToFleet = new EventEmitter<void>();
-  @Output() viewDetails = new EventEmitter<void>();
+  readonly fleet = input.required<Fleet>();
+  readonly jumpToFleet = output<void>();
+  readonly viewDetails = output<void>();
 
   private gs = inject(GameStateService);
 
-  orders = computed(() => this.fleet.orders || []);
+  orders = computed(() => this.fleet().orders ?? []);
 
   status = computed(() => {
     if (this.orders().length === 0) {
@@ -310,12 +303,13 @@ export class FleetCardComponent {
   });
 
   location = computed(() => {
-    if (this.fleet.location.type === 'orbit') {
-      const location = this.fleet.location as { type: 'orbit'; starId: string };
+    const fleet = this.fleet();
+    if (fleet.location.type === 'orbit') {
+      const location = fleet.location as { type: 'orbit'; starId: string };
       const star = this.gs.starIndex().get(location.starId);
       return star ? `Orbiting ${star.name}` : 'In orbit';
     }
-    const location = this.fleet.location as { type: 'space'; x: number; y: number };
+    const location = fleet.location as { type: 'space'; x: number; y: number };
     return `Space (${location.x.toFixed(0)}, ${location.y.toFixed(0)})`;
   });
 
@@ -368,7 +362,7 @@ export class FleetCardComponent {
   }
 
   maxFuel = computed(() => {
-    return this.fleet.ships.reduce((sum, s) => {
+    return this.fleet().ships.reduce((sum, s) => {
       const design = this.getDesignDetails(s.designId);
       return sum + (design.fuelCapacity || 0) * s.count;
     }, 0);
@@ -376,22 +370,23 @@ export class FleetCardComponent {
 
   fuelColor = computed(() => {
     const max = this.maxFuel();
-    const percent = max > 0 ? (this.fleet.fuel / max) * 100 : 100;
+    const percent = max > 0 ? (this.fleet().fuel / max) * 100 : 100;
     if (percent < 20) return '#c0392b';
     if (percent < 50) return '#f39c12';
     return '#27ae60';
   });
 
   cargo = computed(() => {
-    const r = this.fleet.cargo.resources;
-    const m = this.fleet.cargo.minerals;
+    const fleet = this.fleet();
+    const r = fleet.cargo.resources;
+    const m = fleet.cargo.minerals;
     const minerals = m.ironium + m.boranium + m.germanium;
-    const colonists = Math.floor(this.fleet.cargo.colonists / 1000);
+    const colonists = Math.floor(fleet.cargo.colonists / 1000);
     return r + minerals + colonists;
   });
 
   cargoCapacity = computed(() => {
-    return this.fleet.ships.reduce((sum, s) => {
+    return this.fleet().ships.reduce((sum, s) => {
       const design = this.getDesignDetails(s.designId);
       return sum + (design.cargoCapacity || 0) * s.count;
     }, 0);

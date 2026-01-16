@@ -10,6 +10,7 @@
     "test:watch": "ng test --watch=true",
     "test:ci": "ng test --browsers=ChromeHeadless --watch=false --code-coverage",
     "lint": "eslint \"src/**/*.ts\"",
+    "template:check": "node scripts/template-typecheck.mjs",
     "analyze:functions": "node scripts/report-long-functions.mjs"
   },
   "dependencies": {
@@ -24,6 +25,8 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^21.0.0",
+    "@angular-eslint/eslint-plugin": "^21.1.0",
+    "@angular-eslint/template-parser": "^21.1.0",
     "@angular/cli": "^21.0.0",
     "@types/jasmine": "^5.1.13",
     "@typescript-eslint/eslint-plugin": "^8.7.0",

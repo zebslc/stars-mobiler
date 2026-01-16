@@ -1,5 +1,5 @@
 export interface TransferSpec {
-  ships: { designId: string; count: number; damage?: number }[];
+  ships: Array<{ designId: string; count: number; damage?: number }>;
   fuel: number;
   cargo: {
     resources: number;

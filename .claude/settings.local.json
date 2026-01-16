@@ -23,7 +23,10 @@
       "Bash(python3:*)",
       "Skill(code-review)",
       "mcp__ide__getDiagnostics",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(npm install:*)",
+      "Bash(npm info:*)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

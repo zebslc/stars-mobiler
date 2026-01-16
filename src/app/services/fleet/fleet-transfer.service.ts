@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { GameState, Fleet } from '../../models/game.model';
-import { LogContext } from '../../models/service-interfaces.model';
+import { Injectable, inject } from '@angular/core';
+import type { GameState, Fleet } from '../../models/game.model';
+import type { LogContext } from '../../models/service-interfaces.model';
 import { LoggingService } from '../core/logging.service';
 import { FleetOperationsService } from './fleet-operations.service';
-import { TransferSpec } from './fleet-transfer.types';
+import type { TransferSpec } from './fleet-transfer.types';
 
 const FLEET_TRANSFER_LOG_BASE = {
   service: 'FleetTransferService',
@@ -22,10 +22,8 @@ type FleetTransferOperation =
 
 @Injectable({ providedIn: 'root' })
 export class FleetTransferService {
-  constructor(
-    private logging: LoggingService,
-    private fleetOperations: FleetOperationsService,
-  ) {}
+  private readonly logging = inject(LoggingService);
+  private readonly fleetOperations = inject(FleetOperationsService);
 
   transfer(
     game: GameState,
@@ -37,7 +35,7 @@ export class FleetTransferService {
       targetId,
       transferSpec,
     });
-    this.logging.debug(`Transferring between fleets ${sourceId} -> ${targetId}`, context);
+    void this.logging.debug(`Transferring between fleets ${sourceId} -> ${targetId}`, context);
 
     const participants = this.resolveTransferParticipants(game, sourceId, targetId, context);
     if (!participants) {
@@ -52,7 +50,7 @@ export class FleetTransferService {
       context,
     );
 
-    this.logging.info(
+    void this.logging.info(
       `Transfer completed between ${participants.source.name} and ${participants.target.name}`,
       context,
     );
@@ -67,7 +65,7 @@ export class FleetTransferService {
     const context = this.createContext(FLEET_TRANSFER_OPERATION.SPLIT_FLEET, sourceId, {
       transferSpec,
     });
-    this.logging.debug(`Splitting fleet ${sourceId}`, context);
+    void this.logging.debug(`Splitting fleet ${sourceId}`, context);
 
     const source = this.requireFleet(game, sourceId, context, 'Source fleet not found for split');
     if (!source) {
@@ -79,7 +77,7 @@ export class FleetTransferService {
 
   separateFleet(game: GameState, fleetId: string): GameState {
     const context = this.createContext(FLEET_TRANSFER_OPERATION.SEPARATE_FLEET, fleetId);
-    this.logging.debug(`Separating fleet ${fleetId}`, context);
+    void this.logging.debug(`Separating fleet ${fleetId}`, context);
 
     const source = this.requireFleet(game, fleetId, context, 'Fleet not found for separation');
     if (!source) {
@@ -88,14 +86,14 @@ export class FleetTransferService {
 
     const totalShips = this.countShips(source);
     if (totalShips <= 1) {
-      this.logging.warn('Fleet has only 1 ship, cannot separate', context);
+      void this.logging.warn('Fleet has only 1 ship, cannot separate', context);
       return game;
     }
 
     const shipsToMove = this.collectShipsToSeparate(source, totalShips);
     const updatedGame = this.createSingleShipFleets(game, source, shipsToMove);
 
-    this.logging.info(`Fleet separation completed: created ${shipsToMove.length} new fleets`, {
+    void this.logging.info(`Fleet separation completed: created ${shipsToMove.length} new fleets`, {
       ...context,
       additionalData: { newFleetCount: shipsToMove.length, originalShipCount: totalShips },
     });
@@ -107,7 +105,7 @@ export class FleetTransferService {
     const context = this.createContext(FLEET_TRANSFER_OPERATION.MERGE_FLEETS, sourceId, {
       targetId,
     });
-    this.logging.debug(`Merging fleet ${sourceId} into ${targetId}`, context);
+    void this.logging.debug(`Merging fleet ${sourceId} into ${targetId}`, context);
 
     const source = this.requireFleet(game, sourceId, context, 'Source fleet not found for merge');
     if (!source) {
@@ -127,7 +125,7 @@ export class FleetTransferService {
       },
     });
 
-    this.logging.info(`Fleet merge completed: ${source.name} merged into target`, context);
+    void this.logging.info(`Fleet merge completed: ${source.name} merged into target`, context);
     return result;
   }
 
@@ -153,7 +151,7 @@ export class FleetTransferService {
   ): Fleet | null {
     const fleet = game.fleets.find((f) => f.id === fleetId);
     if (!fleet) {
-      this.logging.error(errorMessage, context);
+      void this.logging.error(errorMessage, context);
       return null;
     }
     return fleet;
@@ -162,7 +160,7 @@ export class FleetTransferService {
   private ensureSameLocation(source: Fleet, target: Fleet, context: LogContext): boolean {
     const sameLocation = this.fleetsAtSameLocation(source, target);
     if (!sameLocation) {
-      this.logging.error('Fleets must be at same location for transfer', context);
+      void this.logging.error('Fleets must be at same location for transfer', context);
     }
     return sameLocation;
   }
@@ -241,7 +239,7 @@ export class FleetTransferService {
     context: LogContext,
   ): sourceStack is Fleet['ships'][number] {
     if (!sourceStack || sourceStack.count < requested) {
-      this.logging.warn(`Insufficient ships for transfer: ${designId}`, {
+      void this.logging.warn(`Insufficient ships for transfer: ${designId}`, {
         ...context,
         additionalData: {
           ...(context.additionalData ?? {}),
@@ -284,7 +282,7 @@ export class FleetTransferService {
   }
 
   private logShipTransfer(ship: { designId: string; count: number }, context: LogContext): void {
-    this.logging.debug(`Transferred ${ship.count} ships of design ${ship.designId}`, {
+    void this.logging.debug(`Transferred ${ship.count} ships of design ${ship.designId}`, {
       ...context,
       additionalData: {
         ...(context.additionalData ?? {}),
@@ -305,7 +303,7 @@ export class FleetTransferService {
     target.fuel += fuelToMove;
 
     if (fuelToMove > 0) {
-      this.logging.debug(`Transferred ${fuelToMove} fuel`, {
+      void this.logging.debug(`Transferred ${fuelToMove} fuel`, {
         ...context,
         additionalData: { ...(context.additionalData ?? {}), fuel: fuelToMove },
       });
@@ -328,7 +326,7 @@ export class FleetTransferService {
   private removeFleetIfEmpty(game: GameState, source: Fleet, context: LogContext): void {
     if (source.ships.length === 0) {
       game.fleets = game.fleets.filter((f) => f.id !== source.id);
-      this.logging.info(`Removed empty source fleet ${source.name}`, context);
+      void this.logging.info(`Removed empty source fleet ${source.name}`, context);
     }
   }
 
@@ -339,8 +337,8 @@ export class FleetTransferService {
   private collectShipsToSeparate(
     source: Fleet,
     totalShips: number,
-  ): { designId: string; damage: number }[] {
-    const shipsToMove: { designId: string; damage: number }[] = [];
+  ): Array<{ designId: string; damage: number }> {
+    const shipsToMove: Array<{ designId: string; damage: number }> = [];
     let shipsAdded = 0;
 
     // Leaving one ship behind keeps the source fleet alive.
@@ -373,7 +371,7 @@ export class FleetTransferService {
 
     const nextGame = this.transfer(game, source.id, newFleet.id, transferSpec);
 
-    this.logging.info(`Fleet split completed: ${source.name} -> ${newFleet.name}`, {
+    void this.logging.info(`Fleet split completed: ${source.name} -> ${newFleet.name}`, {
       ...context,
       additionalData: {
         ...(context.additionalData ?? {}),
@@ -388,7 +386,7 @@ export class FleetTransferService {
   private createSingleShipFleets(
     game: GameState,
     source: Fleet,
-    shipsToMove: { designId: string; damage: number }[],
+    shipsToMove: Array<{ designId: string; damage: number }>,
   ): GameState {
     let currentGame = game;
     for (const ship of shipsToMove) {
@@ -417,15 +415,21 @@ export class FleetTransferService {
   }
 
   private fleetsAtSameLocation(source: Fleet, target: Fleet): boolean {
-    return (
-      (source.location.type === 'orbit' &&
-        target.location.type === 'orbit' &&
-        (source.location as any).starId === (target.location as any).starId) ||
-      (source.location.type === 'space' &&
-        target.location.type === 'space' &&
-        (source.location as any).x === (target.location as any).x &&
-        (source.location as any).y === (target.location as any).y)
-    );
+    if (source.location.type !== target.location.type) {
+      return false;
+    }
+
+    if (source.location.type === 'orbit' && target.location.type === 'orbit') {
+      return source.location.starId === target.location.starId;
+    }
+
+    if (source.location.type === 'space' && target.location.type === 'space') {
+      return (
+        source.location.x === target.location.x && source.location.y === target.location.y
+      );
+    }
+
+    return false;
   }
 
   private transferCargo(
@@ -440,7 +444,7 @@ export class FleetTransferService {
     target.cargo[key] += val;
 
     if (val > 0) {
-      this.logging.debug(`Transferred ${val} ${key}`, {
+      void this.logging.debug(`Transferred ${val} ${key}`, {
         ...context,
         additionalData: { ...(context.additionalData ?? {}), cargoType: key, amount: val },
       });
@@ -459,7 +463,7 @@ export class FleetTransferService {
     target.cargo.minerals[key] += val;
 
     if (val > 0) {
-      this.logging.debug(`Transferred ${val} ${key}`, {
+      void this.logging.debug(`Transferred ${val} ${key}`, {
         ...context,
         additionalData: { ...(context.additionalData ?? {}), mineral: key, amount: val },
       });

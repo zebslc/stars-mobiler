@@ -16,6 +16,12 @@ This document defines testing standards and best practices for the Stars Mobile 
    - Mock dependencies cleanly with smaller function interfaces
    - Use focused tests for focused functions
 
+## Template Typing Validation
+
+- Run `npm run template:check` before finishing a feature branch that adjusts templates or inputs.
+- The command executes an Angular build with template type checking and discards build artifacts automatically.
+- Treat failures as blocking; resolve template typing errors before pushing.
+
 ## Service Testing
 
 ### Direct Instantiation Over TestBed

@@ -6,7 +6,7 @@
     "project": ["tsconfig.json"],
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "@angular-eslint"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -20,7 +20,8 @@
     "@typescript-eslint/array-type": ["error", { "default": "generic" }],
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/no-floating-promises": "error",
-    "no-console": ["error", { "allow": [] }]
+    "no-console": ["error", { "allow": [] }],
+    "@angular-eslint/prefer-signals": "error"
   },
   "overrides": [
     {

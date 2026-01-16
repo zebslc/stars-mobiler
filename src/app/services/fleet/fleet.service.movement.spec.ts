@@ -1,216 +1,229 @@
-import { TestBed } from '@angular/core/testing';
 import { FleetService } from './fleet.service';
-import { SettingsService } from '../core/settings.service';
-import { HabitabilityService } from '../colony/habitability.service';
-import { ShipyardService } from '../ship-design/shipyard.service';
-import { GameState, Player, Fleet, ShipDesign, Star } from '../../models/game.model';
-import { ENGINE_COMPONENTS } from '../../data/techs/engines.data';
+import type { SettingsService } from '../core/settings.service';
+import type { HabitabilityService } from '../colony/habitability.service';
+import type { ShipyardService } from '../ship-design/shipyard.service';
+import type {
+  CompiledShipStats,
+  Fleet,
+  FleetOrder,
+  GameSettings,
+  GameState,
+  Player,
+  PlayerTech,
+  ShipDesign,
+  SlotAssignment,
+  Species,
+} from '../../models/game.model';
+
+type MoveOrder = Extract<FleetOrder, { type: 'move' }>;
+
+interface MovementScenario {
+  game: GameState;
+  fleet: Fleet;
+  moveOrder: MoveOrder;
+  design: ShipDesign;
+}
+
+const BASE_PLAYER_TECH: PlayerTech = {
+  Energy: 0,
+  Kinetics: 0,
+  Propulsion: 0,
+  Construction: 0,
+};
+
+const BASE_SPEC: CompiledShipStats = {
+  warpSpeed: 10,
+  fuelCapacity: 1000,
+  fuelEfficiency: 100,
+  idealWarp: 6,
+  isRamscoop: false,
+  firepower: 0,
+  maxWeaponRange: 0,
+  armor: 0,
+  shields: 0,
+  accuracy: 0,
+  initiative: 0,
+  cargoCapacity: 0,
+  colonistCapacity: 0,
+  scanRange: 0,
+  penScanRange: 0,
+  canDetectCloaked: false,
+  miningRate: 0,
+  terraformRate: 0,
+  bombing: { kill: 0, destroy: 0 },
+  massDriver: { speed: 0, catch: 0 },
+  mass: 100,
+  cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
+  hasEngine: true,
+  hasColonyModule: false,
+  isStarbase: false,
+  isValid: true,
+  validationErrors: [],
+  components: [],
+};
 
 describe('FleetService Movement NEW', () => {
   let service: FleetService;
-  let mockSettingsService: any;
-  let mockHabitabilityService: any;
-  let mockShipyardService: any;
+  let settingsService: jasmine.SpyObj<SettingsService>;
+  let habitabilityService: jasmine.SpyObj<HabitabilityService>;
+  let shipyardService: jasmine.SpyObj<ShipyardService>;
 
   beforeEach(() => {
-    mockSettingsService = jasmine.createSpyObj('SettingsService', [], {
-      game: {
-        fleets: [],
-        designs: [],
-      },
-    });
-    mockHabitabilityService = jasmine.createSpyObj('HabitabilityService', ['getGrowthRate']);
-    mockShipyardService = jasmine.createSpyObj('ShipyardService', ['getShipCost']);
-
-    TestBed.configureTestingModule({
-      providers: [
-        FleetService,
-        { provide: SettingsService, useValue: mockSettingsService },
-        { provide: HabitabilityService, useValue: mockHabitabilityService },
-        { provide: ShipyardService, useValue: mockShipyardService },
-      ],
-    });
-    service = TestBed.inject(FleetService);
+    settingsService = jasmine.createSpyObj<SettingsService>('SettingsService', [], { game: undefined });
+    habitabilityService = jasmine.createSpyObj<HabitabilityService>('HabitabilityService', ['getGrowthRate']);
+    shipyardService = jasmine.createSpyObj<ShipyardService>('ShipyardService', ['getShipCost']);
+    service = new FleetService(settingsService, habitabilityService, shipyardService);
   });
 
-  function createGame(fleetFuel: number, dist: number): GameState {
-    const mockPlayer: Player = {
-      id: 'p1',
-      name: 'Human',
-      species: {} as any,
-      techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-      researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-      selectedResearchField: 'Energy',
-    ownedStarIds: [],
-    };
+  it('rides Quick Jump 5 at warp two for 100 ly using six fuel', () => {
+    const { game, fleet, moveOrder, design } = createMovementScenario({ fuel: 50, distance: 100 });
 
-    const mockDesign: ShipDesign = {
-      id: 'test-ship',
-      name: 'Test Ship',
-      hullId: 'Scout',
-      slots: [],
-      createdTurn: 0,
-      playerId: 'p1',
-      spec: {
-        cost: { resources: 0 },
-        isStarbase: false,
-        mass: 100, // 100kT
-        fuelCapacity: 1000,
-        fuelEfficiency: 100, // Standard efficiency
-        warpSpeed: 10,
-        idealWarp: 6,
-        hasColonyModule: false,
-      } as any,
-    };
-
-    const fleet: Fleet = {
-      id: 'f1',
-      ownerId: 'p1',
-      name: 'Fleet 1',
-      location: { type: 'space', x: 0, y: 0 },
-      ships: [{ designId: 'test-ship', count: 1, damage: 0 }],
-      cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
-      fuel: fleetFuel,
-      orders: [{ type: 'move', destination: { x: dist, y: 0 } }],
-    };
-
-    return {
-      id: 'game1',
-      seed: 123,
-      turn: 1,
-      settings: {} as any,
-      stars: [],
-      humanPlayer: mockPlayer,
-      aiPlayers: [],
-      fleets: [fleet],
-      shipDesigns: [mockDesign],
-      playerEconomy: { freighterCapacity: 0, research: 0 },
-    };
-  }
-
-  it('should travel at Warp 2 with Quick Jump 5 engine for 100 LY (cost < 50 fuel)', () => {
-    // 1. Setup specific mock data for this test
-    // Setup Scout with Quick Jump 5
-    // Mass 8 (Hull) + 4 (Engine) = 12 kT
-    // Quick Jump 5 at Warp 2 = 25 mg/engine/LY (Table value)
-    // Stars! Formula: (Mass * Dist * TableVal) / 2000
-    // Cost = (12 * 100 * 25) / 2000 = 30000 / 2000 = 15 fuel.
-    // Scout Max Fuel = 50.
-    // 15 < 50, so it should work.
-
-    const dist = 100;
-    const game = createGame(50, dist);
-    const fleet = game.fleets[0];
-
-    const design = game.shipDesigns[0];
-    design.hullId = 'hull-scout'; // Scout
-    (design.spec as any).mass = 12; // 8 + 4
-    (design.spec as any).fuelCapacity = 50;
-
-    // Use slots to ensure proper engine lookup
-    design.slots = [
-      {
-        slotId: '1',
-        components: [
-          {
-            componentId: 'eng_quick_jump_5',
-            count: 1,
-          },
-        ],
-      },
-    ];
-
-    // Set order to Warp 2
-    (fleet.orders[0] as any).warpSpeed = 2;
+    const spec = design.spec ?? fail('spec missing');
+    design.hullId = 'hull-scout';
+    spec.mass = 12;
+    spec.fuelCapacity = 50;
+    design.slots = createEngineSlot('eng_quick_jump_5');
+    moveOrder.warpSpeed = 2;
 
     service.processFleets(game);
 
-    // Expect to arrive
-    if (fleet.location.type === 'space') {
-      expect(fleet.location.x).toBe(40); // Warp 2 * 20 = 40 LY per turn
-    }
-
-    // Fuel used:
-    // 40 LY traveled.
-    // Cost = (12 * 40 * 25) / 2000 = 12000 / 2000 = 6.
-    // Remaining = 50 - 6 = 44.
+    expect(fleet.location.type).toBe('space');
+    expect(fleet.location.type === 'space' ? fleet.location.x : 0).toBe(40);
     expect(fleet.fuel).toBe(44);
   });
 
-  it('should travel at max speed if fuel allows', () => {
-    const dist = 100;
-    // Cost at Warp 10: 100/100 * (10/6)^2.5 * 1 = 1 * 3.59 * 1 = ~3.6 per LY. Total 360.
-    // Let's give 500 fuel.
-    const game = createGame(500, dist);
+  it('arrives at max speed when fuel is ample', () => {
+    const { game, fleet } = createMovementScenario({ fuel: 500, distance: 100 });
 
     service.processFleets(game);
 
-    const fleet = game.fleets[0];
-    // Should arrive
     expect(fleet.location.type).toBe('space');
-    if (fleet.location.type === 'space') {
-      expect(fleet.location.x).toBe(100);
-    }
-    expect(fleet.orders.length).toBe(0); // Order completed
-    // Fuel used should be based on Warp 10
-    // Expected cost: 1 * (10/6)^2.5 * 1 = 3.59 per LY.
-    // Total cost for 100 LY = 359.
-    // Remaining: 500 - 359 = 141.
-    expect(fleet.fuel).toBeCloseTo(141, -1);
+    expect(fleet.location.type === 'space' ? fleet.location.x : 0).toBe(100);
+    expect(fleet.orders.length).toBe(0);
+    expect(fleet.fuel).toBeCloseTo(141, 0);
   });
 
-  it('should reduce speed to reach destination if fuel is insufficient at max speed', () => {
-    const dist = 100;
-    // Cost at Warp 10: ~400.
-    // Cost at Warp 6 (Ideal): 1 * 1 * 1 = 1 per LY. Total 100.
-    // Give 200 fuel. Enough for Warp 6, not for Warp 10.
-
-    const game = createGame(200, dist);
+  it('drops to a viable warp when fuel cannot sustain max speed', () => {
+    const { game, fleet } = createMovementScenario({ fuel: 200, distance: 100 });
 
     service.processFleets(game);
 
-    const fleet = game.fleets[0];
-    // Should arrive
     expect(fleet.location.type).toBe('space');
-    if (fleet.location.type === 'space') {
-      expect(fleet.location.x).toBe(100);
-    }
-    expect(fleet.orders.length).toBe(0); // Order completed
-
-    // Fuel used should be less than 200.
-    // It should pick highest speed possible.
-    // Warp 8: (8/6)^2.5 = 2.05 -> ceil(2.05) = 3 per LY. 300 > 200. No.
-    // Warp 7: (7/6)^2.5 = 1.49 -> ceil(1.49) = 2 per LY. 200 <= 200. Yes!
-    // So it should pick Warp 7. Cost 200.
-    // Remaining fuel ~0.
+    expect(fleet.location.type === 'space' ? fleet.location.x : 0).toBe(100);
+    expect(fleet.orders.length).toBe(0);
     expect(fleet.fuel).toBeGreaterThanOrEqual(0);
-    expect(fleet.fuel).toBeLessThan(100); // Should use significant fuel
+    expect(fleet.fuel).toBeLessThan(100);
   });
 
-  it('should reduce speed to 1 if fuel is insufficient even at ideal warp', () => {
-    const dist = 100;
-    // Cost at Warp 6 (Ideal): 100.
-    // Give 50 fuel. Not enough even at ideal warp.
-
-    const game = createGame(50, dist);
+  it('creeps along at warp one when fuel is scarce', () => {
+    const { game, fleet } = createMovementScenario({ fuel: 50, distance: 100 });
 
     service.processFleets(game);
 
-    const fleet = game.fleets[0];
-
-    // Should NOT arrive (or at least order not complete)
     expect(fleet.orders.length).toBe(1);
-
-    // Since we can't reach the destination at any speed with current fuel,
-    // the logic falls back to Warp 1 to conserve fuel per turn (giving player time to react).
-    // Per turn distance at Warp 1 = 20.
-    // Cost per LY at Warp 1 = 1.
-    // Fuel used = 20 * 1 = 20.
-    // Remaining fuel = 50 - 20 = 30.
-
-    if (fleet.location.type === 'space') {
-      expect(fleet.location.x).toBe(20);
-    }
+    expect(fleet.location.type).toBe('space');
+    expect(fleet.location.type === 'space' ? fleet.location.x : 0).toBe(20);
     expect(fleet.fuel).toBe(30);
   });
 });
+
+function createMovementScenario(params: { fuel: number; distance: number }): MovementScenario {
+  const player = createPlayer();
+  const design = createShipDesign();
+  const moveOrder: MoveOrder = {
+    type: 'move',
+    destination: { x: params.distance, y: 0 },
+  };
+  const fleet: Fleet = {
+    id: 'f1',
+    ownerId: player.id,
+    name: 'Fleet 1',
+    location: { type: 'space', x: 0, y: 0 },
+    ships: [{ designId: design.id, count: 1, damage: 0 }],
+    cargo: { resources: 0, minerals: { ironium: 0, boranium: 0, germanium: 0 }, colonists: 0 },
+    fuel: params.fuel,
+    orders: [moveOrder],
+  };
+  const game: GameState = {
+    id: 'game1',
+    seed: 123,
+    turn: 1,
+    settings: createGameSettings(),
+    stars: [],
+    humanPlayer: player,
+    aiPlayers: [],
+    fleets: [fleet],
+    shipDesigns: [design],
+    playerEconomy: { freighterCapacity: 0, research: 0 },
+  };
+
+  return { game, fleet, moveOrder, design };
+}
+
+function createGameSettings(): GameSettings {
+  return {
+    galaxySize: 'small',
+    aiCount: 0,
+    aiDifficulty: 'easy',
+    seed: 123,
+    speciesId: 'species-human',
+  };
+}
+
+function createPlayer(): Player {
+  return {
+    id: 'p1',
+    name: 'Human',
+    species: createSpecies(),
+    ownedStarIds: [],
+    techLevels: { ...BASE_PLAYER_TECH },
+    researchProgress: { ...BASE_PLAYER_TECH },
+    selectedResearchField: 'Energy',
+  };
+}
+
+function createSpecies(): Species {
+  return {
+    id: 'species-human',
+    name: 'Human',
+    habitat: { idealTemperature: 50, idealAtmosphere: 50, toleranceRadius: 20 },
+    traits: [],
+    primaryTraits: [],
+    lesserTraits: [],
+  };
+}
+
+function createShipDesign(): ShipDesign {
+  return {
+    id: 'test-ship',
+    name: 'Test Ship',
+    hullId: 'Scout',
+    slots: [],
+    createdTurn: 0,
+    playerId: 'p1',
+    spec: buildSpec(),
+  };
+}
+
+function buildSpec(overrides: Partial<CompiledShipStats> = {}): CompiledShipStats {
+  return {
+    ...BASE_SPEC,
+    ...overrides,
+    bombing: { ...BASE_SPEC.bombing, ...overrides.bombing },
+    massDriver: { ...BASE_SPEC.massDriver, ...overrides.massDriver },
+    cost: { ...BASE_SPEC.cost, ...overrides.cost },
+    components: overrides.components ? [...overrides.components] : [...BASE_SPEC.components],
+    validationErrors: overrides.validationErrors
+      ? [...overrides.validationErrors]
+      : [...BASE_SPEC.validationErrors],
+  };
+}
+
+function createEngineSlot(componentId: string): Array<SlotAssignment> {
+  return [
+    {
+      slotId: 'engine-slot',
+      components: [{ componentId, count: 1 }],
+    },
+  ];
+}
