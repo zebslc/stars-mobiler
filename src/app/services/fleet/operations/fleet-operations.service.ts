@@ -75,6 +75,15 @@ export class FleetOperationsService implements IFleetOperationsService {
     this.logging.debug(`Adding ${count} ships of design ${shipDesignId} to fleet`, metadata);
 
     const context = this.resolveDesignInfo(game, shipDesignId);
+    
+    // Check if ship design is valid
+    const shipDesign = context.shipDesign;
+    if (shipDesign && shipDesign.isValid === false) {
+      const error = `Cannot add ships: Design "${shipDesign.name}" is invalid (missing engine or required components)`;
+      this.logging.error(error, metadata);
+      throw new Error(error);
+    }
+
     const fleet = this.ensureFleetExists(game, star, shipDesignId, context.isNewShipStarbase);
 
     this.validateAdditionOrThrow(fleet, shipDesignId, count, metadata);

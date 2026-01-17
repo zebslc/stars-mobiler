@@ -30,6 +30,7 @@ export interface ShipDesign {
   createdTurn: number;
   playerId: string;
   spec?: CompiledShipStats;
+  isValid?: boolean;
 }
 
 export interface CompiledShipStats {

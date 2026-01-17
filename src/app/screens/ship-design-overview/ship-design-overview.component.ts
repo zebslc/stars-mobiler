@@ -347,4 +347,9 @@ export class ShipDesignOverviewComponent {
     }
     return count;
   }
+
+  getFullDesign(designId: string): ShipDesign | null {
+    const designs = this.gameState.game()?.shipDesigns || [];
+    return designs.find((d) => d.id === designId) || null;
+  }
 }

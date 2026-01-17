@@ -47,6 +47,11 @@ export interface ShipDesignDisplay {
         <div class="header-info">
           <h3>{{ design().name }}</h3>
           <span class="design-type">{{ hullName }}</span>
+          @if (isInvalid()) {
+            <div class="invalid-badge" title="This design is invalid: missing engine or required components. It cannot be built.">
+              ⚠️ Invalid Design
+            </div>
+          }
         </div>
         @if (count() !== undefined) {
           <div class="ship-count" title="Ships in service">
@@ -131,11 +136,17 @@ export interface ShipDesignDisplay {
       </div>
 
       @if (mode() === 'card') {
-        <div class="build-controls">
+        @if (isInvalid()) {
+          <div class="invalid-message">
+            This design is invalid and cannot be built. Missing engine or required components.
+          </div>
+        }
+        <div class="build-controls" [class.disabled]="isInvalid()">
           <select
             [ngModel]="selectedStarId()"
             (ngModelChange)="selectedStarId.set($event)"
             class="star-select"
+            [disabled]="isInvalid()"
           >
             <option value="" disabled selected>Build at...</option>
             @for (star of capableStars(); track star.id) {
@@ -148,7 +159,7 @@ export interface ShipDesignDisplay {
           <button
             type="button"
             class="btn-small btn-build"
-            [disabled]="!selectedStarId()"
+            [disabled]="!selectedStarId() || isInvalid()"
             (click)="addToQueue()"
           >
             Add
@@ -222,6 +233,29 @@ export interface ShipDesignDisplay {
       .design-type {
         font-size: var(--font-size-sm);
         color: var(--color-text-secondary);
+      }
+
+      .invalid-badge {
+        font-size: var(--font-size-xs);
+        color: var(--color-danger);
+        font-weight: bold;
+        margin-top: var(--space-xs);
+      }
+
+      .invalid-message {
+        padding: var(--space-sm);
+        background: rgba(var(--color-danger-rgb, 220, 53, 69), 0.1);
+        border: 1px solid var(--color-danger);
+        border-radius: var(--radius-md);
+        color: var(--color-danger);
+        font-size: var(--font-size-sm);
+        text-align: center;
+        margin-bottom: var(--space-sm);
+      }
+
+      .build-controls.disabled {
+        opacity: 0.5;
+        pointer-events: none;
       }
 
       .ship-count {
@@ -332,6 +366,7 @@ export interface ShipDesignDisplay {
 })
 export class ShipDesignItemComponent {
   readonly design = input.required<ShipDesignDisplay>();
+  readonly fullDesign = input<ShipDesign | null>(null);
   readonly count = input<number | undefined>();
   readonly mode = input<'card' | 'list' | 'selector'>('card');
 
@@ -342,6 +377,11 @@ export class ShipDesignItemComponent {
 
   private gameState = inject(GameStateService);
   readonly selectedStarId = signal<string>('');
+
+  readonly isInvalid = computed(() => {
+    const full = this.fullDesign();
+    return full ? full.isValid === false : false;
+  });
 
   readonly capableStars = computed(() => {
     const game = this.gameState.game();

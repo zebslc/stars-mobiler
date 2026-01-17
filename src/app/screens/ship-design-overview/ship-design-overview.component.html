@@ -69,6 +69,7 @@
       @for (design of designDisplays(); track design.id) {
         <app-ship-design-item
            [design]="design"
+           [fullDesign]="getFullDesign(design.id)"
            [count]="getShipCount(design.id)"
            (edit)="onEditDesign($event)"
            (delete)="onDeleteDesign($event)"

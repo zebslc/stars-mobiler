@@ -20,12 +20,23 @@ export class ShipyardService {
     let nextDesigns: Array<ShipDesign>;
     let persistedDesign: ShipDesign;
 
+    // Compile design stats to determine if it's valid
+    const hull = getHull(design.hullId);
+    const compiledStats = hull ? compileShipStats(hull, design.slots, this.getTechLevelsForPlayer(game, design.playerId)) : null;
+    
+    // Set isValid based on compiled stats
+    const designWithValidity: ShipDesign = {
+      ...design,
+      spec: compiledStats ?? undefined,
+      isValid: compiledStats?.isValid ?? false,
+    };
+
     if (existingIndex >= 0) {
       nextDesigns = [...game.shipDesigns];
-      persistedDesign = { ...design };
+      persistedDesign = { ...designWithValidity };
       nextDesigns[existingIndex] = persistedDesign;
     } else {
-      persistedDesign = { ...design };
+      persistedDesign = { ...designWithValidity };
       nextDesigns = [...game.shipDesigns, persistedDesign];
     }
 
@@ -296,6 +307,11 @@ export class ShipyardService {
       return game.humanPlayer;
     }
     return game.aiPlayers.find((candidate) => candidate.id === playerId) ?? null;
+  }
+
+  private getTechLevelsForPlayer(game: GameState, playerId: string): PlayerTech {
+    const owner = this.findDesignOwner(game, playerId);
+    return owner?.techLevels ?? this.createDefaultTechLevels();
   }
 
   private createDefaultTechLevels(): PlayerTech {

@@ -43,7 +43,8 @@ export class FleetFuelCalculatorService {
 
   private calculateFleetFuelCostPerLy(fleet: Fleet, warp: number): number {
     const summary = fleet.ships.reduce<ShipFuelCostSummary>(
-      (aggregate, stack) => this.accumulateShipFuelCost(aggregate, stack.designId, stack.count, warp),
+      (aggregate, stack) =>
+        this.accumulateShipFuelCost(aggregate, stack.designId, stack.count, warp),
       { totalCost: 0, totalMass: 0, weightedFactor: 0 },
     );
 
@@ -61,8 +62,24 @@ export class FleetFuelCalculatorService {
     warp: number,
   ): ShipFuelCostSummary {
     const design = this.shipDesigns.getDesign(designId);
+
+    // Ships without engines (starbases, orbital structures, or incomplete designs) don't consume fuel
+    if (!design.engine?.id) {
+      this.logging.debug('Ship design has no engine - skipping fuel calculation', {
+        service: 'FleetFuelCalculatorService',
+        operation: 'accumulateShipFuelCost',
+        entityId: designId,
+        entityType: 'shipDesign',
+        additionalData: {
+          isStarbase: design.isStarbase,
+          mass: design.mass,
+        },
+      });
+      return summary;
+    }
+
     const mass = (design.mass ?? DEFAULT_MASS) * count;
-    const engineFactor = this.resolveEngineFactor(design.id ?? designId, design.engine?.id, warp);
+    const engineFactor = this.resolveEngineFactor(design.id ?? designId, design.engine.id, warp);
     const stackCost = (mass * engineFactor) / FUEL_USAGE_DIVISOR;
 
     return {
@@ -72,17 +89,13 @@ export class FleetFuelCalculatorService {
     };
   }
 
-  private resolveEngineFactor(designId: string, engineId: string | undefined, warp: number): number {
+  private resolveEngineFactor(designId: string, engineId: string, warp: number): number {
     const engine = this.getEngineComponent(designId, engineId);
     const fuelUsage = this.getEngineFuelUsage(designId, engine.id, engine.stats.fuelUsage);
     return this.getFuelUsageForWarp(designId, engine.id, fuelUsage, warp);
   }
 
-  private getEngineComponent(designId: string, engineId: string | undefined): EngineComponentDefinition {
-    if (!engineId) {
-      this.reportEngineDataError(designId, `Ship design ${designId} is missing engine configuration`);
-    }
-
+  private getEngineComponent(designId: string, engineId: string): EngineComponentDefinition {
     const engine = ENGINE_COMPONENT_DATA.find((component) => component.id === engineId);
     if (!engine) {
       this.reportEngineDataError(
