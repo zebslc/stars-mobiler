@@ -1,12 +1,5 @@
-import type {
-  OnInit} from '@angular/core';
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  computed,
-  signal
-} from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
@@ -17,6 +10,8 @@ import { DataAccessService } from '../../services/data/data-access.service';
 import { ShipDesignRegistry } from '../../services/data/ship-design-registry.service';
 import { BuildCostsRegistry } from '../../services/data/build-costs-registry.service';
 import type { ShipOption } from '../../components/ship-selector.component';
+import type { StarVisibility } from '../../models/scanning.model';
+import { ScanningService } from '../../services/game/scanning.service';
 import { StarSummaryComponent } from './components/star-summary.component';
 import { StarBuildQueueComponent } from './components/star-build-queue.component';
 import { StarFleetListComponent } from './components/star-fleet-list.component';
@@ -25,12 +20,7 @@ import type { Fleet } from '../../models/game.model';
 @Component({
   standalone: true,
   selector: 'app-star-detail',
-  imports: [
-    CommonModule,
-    StarSummaryComponent,
-    StarBuildQueueComponent,
-    StarFleetListComponent,
-  ],
+  imports: [CommonModule, StarSummaryComponent, StarBuildQueueComponent, StarFleetListComponent],
   template: `
     @if (star(); as s) {
       <main class="star-detail-container">
@@ -51,6 +41,11 @@ import type { Fleet } from '../../models/game.model';
               <div class="coords">
                 X: {{ getStarCoordinates(s)?.x }} Y: {{ getStarCoordinates(s)?.y }}
               </div>
+              @if (intelAgeText(); as msg) {
+                <div class="intel-message">
+                  {{ msg }}
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -89,18 +84,24 @@ import type { Fleet } from '../../models/game.model';
           @switch (activeTab()) {
             @case ('status') {
               <section class="summary-section">
-                <app-star-summary
-                  [star]="s"
-                  [habitability]="habitability()"
-                  [starTexture]="starTexture()"
-                  [projectionDelta]="projectionDelta()"
-                  [defenseCoverage]="defenseCoverage()"
-                  [scannerRange]="scannerRange()"
-                  [resourcesPerTurn]="resourcesPerTurn()"
-                  [starbase]="starbase()"
-                  (onGovernorType)="onGovernorType($event)"
-                  (viewStarbase)="onViewStarbase($event)"
-                ></app-star-summary>
+                @if (canSeeDetails()) {
+                  <app-star-summary
+                    [star]="s"
+                    [habitability]="habitability()"
+                    [starTexture]="starTexture()"
+                    [projectionDelta]="projectionDelta()"
+                    [defenseCoverage]="defenseCoverage()"
+                    [scannerRange]="scannerRange()"
+                    [resourcesPerTurn]="resourcesPerTurn()"
+                    [starbase]="starbase()"
+                    (onGovernorType)="onGovernorType($event)"
+                    (viewStarbase)="onViewStarbase($event)"
+                  ></app-star-summary>
+                } @else {
+                  <div class="intel-message">
+                    You have not scanned this planet yet. Detailed information is unavailable.
+                  </div>
+                }
               </section>
             }
             @case ('queue') {
@@ -154,6 +155,7 @@ export class StarDetailComponent implements OnInit {
   private readonly dataAccess = inject(DataAccessService);
   private readonly shipDesignRegistry = inject(ShipDesignRegistry);
   private readonly buildCostsRegistry = inject(BuildCostsRegistry);
+  private readonly scanningService = inject(ScanningService);
 
   private readonly starIdSignal = signal<string | null>(null);
   readonly activeTab = signal<'status' | 'queue' | 'fleet'>('status');
@@ -174,6 +176,37 @@ export class StarDetailComponent implements OnInit {
     if (!id) return null;
     const star = this.gs.starIndex().get(id) || null;
     return star ? { ...star } : null;
+  });
+
+  readonly visibility = computed<StarVisibility>(() => {
+    const game = this.gs.game();
+    const player = this.gs.player();
+    const id = this.starIdSignal();
+    if (!game || !player || !id) {
+      return { status: 'unexplored', age: 0 };
+    }
+    return this.scanningService.getStarVisibility(game, player.id, id);
+  });
+
+  readonly canSeeDetails = computed(() => {
+    const s = this.star();
+    const playerId = this.gs.player()?.id;
+    if (!s || !playerId) return false;
+    if (s.ownerId === playerId) return true;
+    const vis = this.visibility();
+    return !!vis.scan;
+  });
+
+  readonly intelAgeText = computed(() => {
+    const s = this.star();
+    const playerId = this.gs.player()?.id;
+    const vis = this.visibility();
+    if (!s || !playerId) return null;
+    if (s.ownerId === playerId) return null;
+    if (!vis.scan) return null;
+    if (vis.age <= 0) return 'Scan intel is current.';
+    if (vis.age === 1) return 'Scan intel is 1 year old.';
+    return `Scan intel is ${vis.age} years old.`;
   });
 
   getStarCoordinates(star: any) {
@@ -424,7 +457,9 @@ export class StarDetailComponent implements OnInit {
     const shipOption = this.selectedShipOption();
     const shipCost = shipOption ? shipOption.cost : { resources: 0 };
 
-    const cost = this.buildCostsRegistry.getCost(project) || (project === 'ship' ? shipCost : { resources: 0 });
+    const cost =
+      this.buildCostsRegistry.getCost(project) ||
+      (project === 'ship' ? shipCost : { resources: 0 });
 
     let item = {
       project,
