@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../../services/game/game-state.service';
 import type { TechField } from '../../../data/tech-tree.data';
@@ -18,7 +18,7 @@ import { TECH_FIELDS, TECH_FIELD_LIST } from '../../../data/tech-tree.data';
         @for (fieldId of techFieldList; track fieldId) {
           <button
             class="field-button"
-            [class.active]="selectedField === fieldId"
+            [class.active]="selectedField() === fieldId"
             (click)="onSelectField(fieldId)"
           >
             <div class="field-icon-large">{{ getFieldIcon(fieldId) }}</div>
@@ -106,8 +106,8 @@ import { TECH_FIELDS, TECH_FIELD_LIST } from '../../../data/tech-tree.data';
   ],
 })
 export class ResearchFieldSelectorComponent {
-  @Input({ required: true }) selectedField!: TechField;
-  @Output() selectField = new EventEmitter<TechField>();
+  readonly selectedField = input.required<TechField>();
+  readonly selectField = output<TechField>();
 
   private gs = inject(GameStateService);
   readonly techFieldList = TECH_FIELD_LIST;

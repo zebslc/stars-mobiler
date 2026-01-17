@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TechService } from '../../../services/tech/tech.service';
 import { GameStateService } from '../../../services/game/game-state.service';
@@ -235,13 +235,13 @@ import { TouchClickDirective, ClickOutsideDirective } from '../../directives';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResearchUnlockDetailsComponent {
-  @Input({ required: true }) unlockName!: string;
-  @Output() close = new EventEmitter<void>();
+  readonly unlockName = input.required<string>();
+  readonly close = output<void>();
 
   private techService = inject(TechService);
 
   readonly details = computed(() => {
-    const name = this.unlockName;
+    const name = this.unlockName();
     const hull = this.techService.getHullByName(name);
     if (hull) return hull;
     return this.techService.getComponentByName(name) || this.techService.getComponentById(name);
@@ -249,14 +249,14 @@ export class ResearchUnlockDetailsComponent {
 
   readonly displayName = computed(() => {
     const d = this.details();
-    if (!d) return this.unlockName;
+    if (!d) return this.unlockName();
     return 'Name' in d ? (d as HullTemplate).Name : (d as ComponentStats).name;
   });
 
   readonly hullData = computed(() => {
     const d = this.details();
     if (!d || !('Slots' in d)) return null;
-    return getHull(this.unlockName);
+    return getHull(this.unlockName());
   });
 
   readonly techType = computed(() => {
@@ -433,7 +433,7 @@ export class ResearchUnlockDetailsComponent {
     };
     const name = this.displayName();
     return (
-      descriptions[this.unlockName] ??
+      descriptions[this.unlockName()] ??
       descriptions[name] ??
       `${name} - Technology from the Stars! universe. This component will be available once this tech level is reached.`
     );

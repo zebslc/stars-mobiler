@@ -1,14 +1,23 @@
 import {
   Component,
-  EventEmitter,
-  Output,
+  output,
   input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import type { HullTemplate } from '../../../data/tech-atlas.types';
+import type { HullTemplate, SlotDefinition, ComponentStats } from '../../../data/tech-atlas.types';
 import type { ShipDesign } from '../../../models/game.model';
 import { getComponent } from '../../../utils/data-access.util';
 import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull-layout.component';
+
+interface SlotHoverPayload {
+  slotId: string;
+  slotDef: SlotDefinition;
+  component?: ComponentStats;
+  capacity?: number | 'Unlimited';
+  editable: boolean;
+  count: number;
+  name: string;
+}
 
 @Component({
   selector: 'app-ship-designer-slots',
@@ -60,18 +69,18 @@ export class ShipDesignerSlotsComponent {
   readonly design = input.required<ShipDesign | null>();
   readonly selectedSlotId = input<string | null>(null);
 
-  @Output() slotSelected = new EventEmitter<string>();
-  @Output() slotHover = new EventEmitter<any>();
-  @Output() componentRemoved = new EventEmitter<{ slotId: string; componentId: string }>();
-  @Output() componentIncremented = new EventEmitter<{ slotId: string; componentId: string }>();
-  @Output() slotCleared = new EventEmitter<string>();
-  @Output() componentInfoClick = new EventEmitter<string>();
+  readonly slotSelected = output<string>();
+  readonly slotHover = output<SlotHoverPayload | null>();
+  readonly componentRemoved = output<{ slotId: string; componentId: string }>();
+  readonly componentIncremented = output<{ slotId: string; componentId: string }>();
+  readonly slotCleared = output<string>();
+  readonly componentInfoClick = output<string>();
 
   onSlotClick(slotId: string) {
     this.slotSelected.emit(slotId);
   }
 
-  onSlotHover(event: any) {
+  onSlotHover(event: SlotHoverPayload | null) {
     this.slotHover.emit(event);
   }
 

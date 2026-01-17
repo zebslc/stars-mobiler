@@ -1,8 +1,7 @@
 import {
   Component,
-  EventEmitter,
+  output,
   Input,
-  Output,
   ChangeDetectionStrategy,
   signal,
   computed,
@@ -364,9 +363,9 @@ export class ShipDesignerHullSelectorComponent {
     this.hullsSig.set(value);
   }
 
-  @Output() hullSelected = new EventEmitter<string>();
-  @Output() previewHull = new EventEmitter<string>();
-  @Output() close = new EventEmitter<void>();
+  readonly hullSelected = output<string>();
+  readonly previewHull = output<string>();
+  readonly close = output<void>();
 
   readonly selectedCategories = signal<Set<string>>(new Set());
   readonly selectedHullId = signal<string | null>(null);

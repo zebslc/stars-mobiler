@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, input } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -37,8 +37,8 @@ import { CommonModule } from '@angular/common';
   `,
 })
 export class GalaxyMapControlsComponent {
-  @Output() zoomIn = new EventEmitter<void>();
-  @Output() zoomOut = new EventEmitter<void>();
-  @Output() pan = new EventEmitter<{ x: number; y: number }>();
-  @Output() reset = new EventEmitter<void>();
+  readonly zoomIn = output<void>();
+  readonly zoomOut = output<void>();
+  readonly pan = output<{ x: number; y: number }>();
+  readonly reset = output<void>();
 }

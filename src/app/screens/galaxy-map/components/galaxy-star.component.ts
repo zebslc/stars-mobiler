@@ -2,8 +2,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   Input,
-  Output,
-  EventEmitter,
+  output,
   inject,
   computed,
   signal,
@@ -271,9 +270,9 @@ export class GalaxyStarComponent {
     return this._isVisible();
   }
 
-  @Output() starClick = new EventEmitter<MouseEvent>();
-  @Output() starDoubleClick = new EventEmitter<MouseEvent>();
-  @Output() starContext = new EventEmitter<MouseEvent>();
+  readonly starClick = output<MouseEvent>();
+  readonly starDoubleClick = output<MouseEvent>();
+  readonly starContext = output<MouseEvent>();
 
   private gs = inject(GameStateService);
 

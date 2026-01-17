@@ -5,8 +5,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   Input,
-  Output,
-  EventEmitter
+  output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -205,9 +204,9 @@ export class FleetCargoComponent implements OnChanges {
   @Input() star: Star | null = null;
   @Input() cargoCapacity: number = 0;
 
-  @Output() transferCargo = new EventEmitter<CargoTransferRequest>();
-  @Output() loadFill = new EventEmitter<void>();
-  @Output() unloadAll = new EventEmitter<void>();
+  readonly transferCargo = output<CargoTransferRequest>();
+  readonly loadFill = output<void>();
+  readonly unloadAll = output<void>();
 
   orbitTransferState: OrbitTransferState = {
     resources: 0,

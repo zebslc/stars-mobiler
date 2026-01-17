@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { TechService } from '../../../services/tech/tech.service';
@@ -295,14 +295,14 @@ import type { TechRequirement } from '../../../data/tech-atlas.data';
   ],
 })
 export class ResearchTechTreeComponent {
-  @Input({ required: true }) selectedField!: TechField;
-  @Output() close = new EventEmitter<void>();
-  @Output() showUnlockDetails = new EventEmitter<string>();
+  readonly selectedField = input.required<TechField>();
+  readonly close = output<void>();
+  readonly showUnlockDetails = output<string>();
 
   private gs = inject(GameStateService);
   private techService = inject(TechService);
 
-  readonly fieldInfo = computed(() => TECH_FIELDS[this.selectedField]);
+  readonly fieldInfo = computed(() => TECH_FIELDS[this.selectedField()]);
 
   readonly fieldIcon = computed(() => {
     const icons: Record<TechField, string> = {
@@ -311,11 +311,11 @@ export class ResearchTechTreeComponent {
       Propulsion: '✈️',
       Construction: '🏗️',
     };
-    return icons[this.selectedField];
+    return icons[this.selectedField()];
   });
 
   readonly currentLevel = computed(() => {
-    return this.gs.player()?.techLevels[this.selectedField] ?? 0;
+    return this.gs.player()?.techLevels[this.selectedField()] ?? 0;
   });
 
   readonly visibleLevels = computed(() => {
@@ -383,7 +383,7 @@ export class ResearchTechTreeComponent {
 
     // Filter out requirements that match the current field and have level > 0
     return reqs
-      .filter((r) => r.field !== this.selectedField && r.level > 0)
+      .filter((r) => r.field !== this.selectedField() && r.level > 0)
       .map((r) => {
         const currentLevel = player.techLevels[r.field as TechField] ?? 0;
         const requiredLevel = r.level;

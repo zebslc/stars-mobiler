@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, output, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TouchClickDirective } from '../../../shared/directives';
 import type { MiniaturizedComponent } from '../../../utils/miniaturization.util';
@@ -252,10 +252,10 @@ export class ShipDesignerComponentSelectorComponent {
   @Input({ required: true }) selectedSlot: SlotDefinition | null = null;
   @Input() currentComponentId: string | null = null;
 
-  @Output() componentSelected = new EventEmitter<string>();
-  @Output() componentRemoved = new EventEmitter<void>();
-  @Output() previewComponent = new EventEmitter<MiniaturizedComponent>();
-  @Output() close = new EventEmitter<void>();
+  readonly componentSelected = output<string>();
+  readonly componentRemoved = output<void>();
+  readonly previewComponent = output<MiniaturizedComponent>();
+  readonly close = output<void>();
 
   onSelect(componentId: string) {
     this.componentSelected.emit(componentId);

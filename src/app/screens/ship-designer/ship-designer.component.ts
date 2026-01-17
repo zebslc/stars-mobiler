@@ -5,8 +5,7 @@ import {
   computed,
   signal,
   ChangeDetectionStrategy,
-  Output,
-  EventEmitter,
+  output,
   Input,
   inject,
 } from '@angular/core';
@@ -23,8 +22,17 @@ import { getHull } from '../../utils/data-access.util';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
-import type { HullTemplate, SlotDefinition } from '../../data/tech-atlas.types';
-import type { ComponentData } from '../../models/service-interfaces.model';
+import type { HullTemplate, SlotDefinition, ComponentStats } from '../../data/tech-atlas.types';
+
+interface SlotHoverPayload {
+  slotId: string;
+  slotDef: SlotDefinition;
+  component?: ComponentStats;
+  capacity?: number | 'Unlimited';
+  editable: boolean;
+  count: number;
+  name: string;
+}
 
 @Component({
   selector: 'app-ship-designer',
@@ -53,8 +61,8 @@ export class ShipDesignerComponent implements OnInit {
   }
 
   @Input() openHullSelectorOnInit = false;
-  @Output() save = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  readonly save = output<void>();
+  readonly cancel = output<void>();
 
   private designer = inject(ShipDesignerService);
   private gameState = inject(GameStateService);
@@ -101,7 +109,7 @@ export class ShipDesignerComponent implements OnInit {
   readonly hullSelectOpen = signal(false);
   readonly componentSelectOpen = signal(false);
   readonly designNameEditing = signal(false);
-  readonly hoveredItem = signal<ComponentData | null>(null);
+  readonly hoveredItem = signal<SlotHoverPayload | null>(null);
 
   private isStarbaseHull(hull: HullTemplate): boolean {
     const name = hull?.Name ?? '';
@@ -195,7 +203,7 @@ export class ShipDesignerComponent implements OnInit {
     this.designer.clearSlot(slotId);
   }
 
-  onSlotHover(item: ComponentData | null) {
+  onSlotHover(item: SlotHoverPayload | null) {
     this.hoveredItem.set(item);
   }
 

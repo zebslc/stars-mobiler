@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, output, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
@@ -45,10 +45,10 @@ export class GalaxyFleetComponent {
   @Input({ required: true }) position!: { x: number; y: number };
   @Input() isOrbit = false;
 
-  @Output() fleetClick = new EventEmitter<MouseEvent>();
-  @Output() fleetDoubleClick = new EventEmitter<MouseEvent>();
-  @Output() fleetContext = new EventEmitter<MouseEvent>();
-  @Output() fleetDown = new EventEmitter<{ originalEvent: MouseEvent | TouchEvent }>();
+  readonly fleetClick = output<MouseEvent>();
+  readonly fleetDoubleClick = output<MouseEvent>();
+  readonly fleetContext = output<MouseEvent>();
+  readonly fleetDown = output<{ originalEvent: MouseEvent | TouchEvent }>();
 
   private gs = inject(GameStateService);
   private settings = inject(SettingsService);

@@ -1,7 +1,6 @@
 import {
   Component,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
   inject,
   computed,
@@ -338,8 +337,8 @@ import { TechStatusService } from '../../../services/tech/tech-status.service';
 })
 export class ResearchCurrentComponent {
   readonly selectedField = input.required<TechField>();
-  @Output() showTechTree = new EventEmitter<void>();
-  @Output() showUnlockDetails = new EventEmitter<string>();
+  readonly showTechTree = output<void>();
+  readonly showUnlockDetails = output<string>();
 
   private techService = inject(TechService);
   private researchCalc = inject(ResearchCalculationService);
