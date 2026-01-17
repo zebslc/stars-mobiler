@@ -250,6 +250,31 @@ describe('GalaxyWaypointVisualService', () => {
     expect(fleetWaypoint?.lastPos).toEqual({ x: 300, y: 300 });
   });
 
+  it('does not show speed warning when warp speed is not set', () => {
+    const service = initService(
+      buildGame([
+        playerFleet([
+          {
+            type: FLEET_ORDER_TYPE.MOVE,
+            destination: { x: 100, y: 100 },
+          },
+        ]),
+      ]),
+      {
+        'fleet-player': { x: 0, y: 0 },
+      },
+    );
+
+    const fleetWaypoint = service.fleetWaypointById('fleet-player');
+
+    expect(fleetWaypoint).toBeDefined();
+    expect(fleetWaypoint?.segments.length).toBe(1);
+
+    const [segment] = fleetWaypoint!.segments;
+    expect(segment.warning).toBeUndefined();
+    expect(segment.color).toBe('#3498db');
+  });
+
   it('falls back to fleet positions when no waypoints exist', () => {
     const service = initService(
       buildGame([playerFleet([])]),

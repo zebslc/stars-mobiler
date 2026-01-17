@@ -92,7 +92,8 @@ export class GalaxyWaypointVisualService {
 
       const orderSpeed = this.resolveOrderSpeed(order);
       const distance = Math.round(Math.hypot(dest.x - currentPos.x, dest.y - currentPos.y));
-      const warning = orderSpeed > maxFleetSpeed ? 'Speed too high' : undefined;
+      const warning =
+        orderSpeed !== undefined && orderSpeed > maxFleetSpeed ? 'Speed too high' : undefined;
 
       segments.push({
         x1: currentPos.x,
@@ -152,7 +153,7 @@ export class GalaxyWaypointVisualService {
     }
   }
 
-  private resolveOrderSpeed(order: FleetOrder): number {
-    return 'warpSpeed' in order && order.warpSpeed ? order.warpSpeed : 9;
+  private resolveOrderSpeed(order: FleetOrder): number | undefined {
+    return 'warpSpeed' in order ? order.warpSpeed : undefined;
   }
 }
