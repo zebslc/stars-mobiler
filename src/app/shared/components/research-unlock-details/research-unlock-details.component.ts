@@ -70,7 +70,7 @@ import { TouchClickDirective, ClickOutsideDirective } from '../../directives';
 
               <div class="detail-section">
                 <h4>Stats</h4>
-                @for (stat of techStats(); track stat.key) {
+                @for (stat of techStats(); track $index) {
                   <div class="detail-row">
                     <span class="label">{{ stat.key }}:</span>
                     <span class="value">{{ stat.value }}</span>
@@ -89,7 +89,7 @@ import { TouchClickDirective, ClickOutsideDirective } from '../../directives';
 
               <div class="detail-section">
                 <h4>Requirements</h4>
-                @for (req of techRequirements(); track req.field) {
+                @for (req of techRequirements(); track $index) {
                   <div class="detail-row">
                     <span class="label">{{ req.field }}:</span>
                     <span class="value">Level {{ req.level }}</span>

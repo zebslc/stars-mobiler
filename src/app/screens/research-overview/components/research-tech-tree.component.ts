@@ -48,7 +48,7 @@ import type { TechRequirement } from '../../../data/tech-atlas.data';
                 </div>
                 @if (level.unlocks.length > 0) {
                   <div class="level-unlocks">
-                    @for (unlock of level.unlocks; track unlock) {
+                    @for (unlock of level.unlocks; track $index) {
                       <button class="unlock-chip" (click)="onShowUnlockDetails(unlock)">
                         <span
                           class="tech-icon"
@@ -59,7 +59,7 @@ import type { TechRequirement } from '../../../data/tech-atlas.data';
                           "
                         ></span>
                         {{ unlock }}
-                        @for (dep of getExternalDependenciesWithStatus(unlock); track dep.label) {
+                        @for (dep of getExternalDependenciesWithStatus(unlock); track $index) {
                           <span class="dep-badge" [class]="'dep-badge-' + dep.status">{{
                             dep.label
                           }}</span>
