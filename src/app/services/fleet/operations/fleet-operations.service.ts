@@ -7,8 +7,7 @@ import type {
 import {
   ValidationResult
 } from '../../../models/service-interfaces.model';
-import type { CompiledDesign } from '../../../data/ships.data';
-import { ShipDesignRegistry } from '../../data/ship-design-registry.service';
+import { ShipDesignRegistry, type CompiledDesign } from '../../data/ship-design-registry.service';
 import { LoggingService } from '../../core/logging.service';
 import { FleetNamingService } from '../naming/fleet-naming.service';
 import { FleetValidationService } from '../validation/fleet-validation.service';

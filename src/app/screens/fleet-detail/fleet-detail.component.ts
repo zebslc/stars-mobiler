@@ -12,21 +12,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { ToastService } from '../../services/core/toast.service';
 import { ShipDesignResolverService } from '../../services/ship-design';
+import { FleetMathService } from '../../services/fleet/fleet-math.service';
 import type { Fleet, Star } from '../../models/game.model';
 import type { CompiledDesign } from '../../services/data/ship-design-registry.service';
 import type { StarOption } from '../../components/star-selector.component';
 import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
-import type {
-  TransferState} from './components/fleet-transfer/fleet-transfer.component';
-import {
-  FleetTransferComponent
-} from './components/fleet-transfer/fleet-transfer.component';
-import type {
-  CargoTransferRequest} from './components/fleet-cargo/fleet-cargo.component';
-import {
-  FleetCargoComponent
-} from './components/fleet-cargo/fleet-cargo.component';
+import type { TransferState } from './components/fleet-transfer/fleet-transfer.component';
+import { FleetTransferComponent } from './components/fleet-transfer/fleet-transfer.component';
+import type { CargoTransferRequest } from './components/fleet-cargo/fleet-cargo.component';
+import { FleetCargoComponent } from './components/fleet-cargo/fleet-cargo.component';
+import { FleetTransferService } from '../../services/fleet/fleet-transfer.service';
+import { DestinationSelectorComponent } from './components/destination-selector/destination-selector.component';
 
 @Component({
   standalone: true,
@@ -36,6 +33,7 @@ import {
     DesignPreviewButtonComponent,
     ShipStatsRowComponent,
     FleetTransferComponent,
+    DestinationSelectorComponent,
   ],
   template: `
     @if (fleet()) {
@@ -74,87 +72,93 @@ import {
         }
 
         <section class="card" style="display:grid;gap:var(--space-md)">
-        <div>
-          <div class="text-small text-muted">Location</div>
-          <div class="font-medium">
-            @if (fleet()!.location.type === 'orbit') {
-              <span>Orbiting planet {{ $any(fleet()!.location).starId }}</span>
-            }
-            @if (fleet()!.location.type === 'space') {
-              <span>In space ({{ $any(fleet()!.location).x | number: '1.0-0' }},
-              {{ $any(fleet()!.location).y | number: '1.0-0' }})</span>
-            }
-          </div>
-        </div>
-        <div>
-          <div class="text-small text-muted">Fuel & Range</div>
-          <div class="font-medium">
-            {{ fleet()!.fuel | number: '1.0-0' }} fuel • {{ rangeLy() | number: '1.0-0' }} ly range
-          </div>
-        </div>
-        <div>
-          <div class="text-small text-muted">Ships</div>
-          <div
-            style="display:flex;flex-direction:column;gap:var(--space-xs);margin-top:var(--space-xs)"
-          >
-            @for (s of fleet()!.ships; track s.designId) {
-              <app-design-preview-button
-                [designId]="s.designId"
-                buttonClass="ship-row"
-                title="View hull layout"
-              >
-              <span class="ship-count" style="margin-right:4px">{{ s.count }}x</span>
-              <span class="ship-name" style="margin-right: 8px; flex: initial">{{
-                getDesignName(s.designId)
-              }}</span>
-
-              <app-ship-stats-row [stats]="getShipDesign(s.designId)"></app-ship-stats-row>
-
-              <span style="flex: 1"></span>
-
-              @if (s.damage) {
-                <span class="ship-damage" style="color:var(--color-danger)"
-                  >{{ s.damage }}% dmg</span
+          <div>
+            <div class="text-small text-muted">Location</div>
+            <div class="font-medium">
+              @if (fleet()!.location.type === 'orbit') {
+                <span>Orbiting planet {{ $any(fleet()!.location).starId }}</span>
+              }
+              @if (fleet()!.location.type === 'space') {
+                <span
+                  >In space ({{ $any(fleet()!.location).x | number: '1.0-0' }},
+                  {{ $any(fleet()!.location).y | number: '1.0-0' }})</span
                 >
               }
-            </app-design-preview-button>
+            </div>
+          </div>
+          <div>
+            <div class="text-small text-muted">Fuel & Range</div>
+            <div class="font-medium">
+              {{ fleet()!.fuel | number: '1.0-0' }} fuel • {{ rangeLy() | number: '1.0-0' }} ly
+              range
+            </div>
+          </div>
+          <div>
+            <div class="text-small text-muted">Ships</div>
+            <div
+              style="display:flex;flex-direction:column;gap:var(--space-xs);margin-top:var(--space-xs)"
+            >
+              @for (s of fleet()!.ships; track s.designId) {
+                <app-design-preview-button
+                  [designId]="s.designId"
+                  buttonClass="ship-row"
+                  title="View hull layout"
+                >
+                  <span class="ship-count" style="margin-right:4px">{{ s.count }}x</span>
+                  <span class="ship-name" style="margin-right: 8px; flex: initial">{{
+                    getDesignName(s.designId)
+                  }}</span>
+
+                  <app-ship-stats-row [stats]="getShipDesign(s.designId)"></app-ship-stats-row>
+
+                  <span style="flex: 1"></span>
+
+                  @if (s.damage) {
+                    <span class="ship-damage" style="color:var(--color-danger)"
+                      >{{ s.damage }}% dmg</span
+                    >
+                  }
+                </app-design-preview-button>
+              }
+            </div>
+          </div>
+
+          <!-- Fleet Actions -->
+          <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-sm)">
+            @if (totalShipCount() > 1) {
+              <button (click)="startSplit()" class="btn-secondary">Split Fleet</button>
             }
           </div>
-        </div>
-
-        <!-- Fleet Actions -->
-        <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-sm)">
-          @if (totalShipCount() > 1) {
-            <button (click)="startSplit()" class="btn-secondary">
-              Split Fleet
-            </button>
-          }
-        </div>
-      </section>
-
-      <!-- Other Fleets Section -->
-      @if (otherFleets().length > 0) {
-        <section class="card" style="margin-top:var(--space-xl)">
-          <h3 style="margin-bottom:var(--space-md)">Other Fleets Here</h3>
-          <div style="display:grid; gap:var(--space-sm)">
-            @for (f of otherFleets(); track f.id) {
-              <div
-                style="display:flex; justify-content:space-between; align-items:center; background:var(--color-bg-tertiary); padding:var(--space-md); border-radius:var(--radius-sm)"
-              >
-                <div>
-                  <div class="font-medium">{{ f.name }}</div>
-                  <div class="text-small text-muted">{{ f.ships.length }} ship stacks</div>
-                </div>
-                <div style="display:flex; gap:var(--space-xs)">
-                  <button (click)="startTransfer(f)" class="btn-small">Transfer</button>
-                  <button (click)="mergeInto(f)" class="btn-small btn-warning">Merge Into</button>
-                </div>
-              </div>
-            }
-          </div>
+          <app-destination-selector
+            [fleet]="fleet()!"
+            [stars]="stars()"
+            (move)="onDestinationMove($event)"
+          ></app-destination-selector>
         </section>
-      }
-    </main>
+
+        <!-- Other Fleets Section -->
+        @if (otherFleets().length > 0) {
+          <section class="card" style="margin-top:var(--space-xl)">
+            <h3 style="margin-bottom:var(--space-md)">Other Fleets Here</h3>
+            <div style="display:grid; gap:var(--space-sm)">
+              @for (f of otherFleets(); track f.id) {
+                <div
+                  style="display:flex; justify-content:space-between; align-items:center; background:var(--color-bg-tertiary); padding:var(--space-md); border-radius:var(--radius-sm)"
+                >
+                  <div>
+                    <div class="font-medium">{{ f.name }}</div>
+                    <div class="text-small text-muted">{{ f.ships.length }} ship stacks</div>
+                  </div>
+                  <div style="display:flex; gap:var(--space-xs)">
+                    <button (click)="startTransfer(f)" class="btn-small">Transfer</button>
+                    <button (click)="mergeInto(f)" class="btn-small btn-warning">Merge Into</button>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+        }
+      </main>
     } @else {
       <main style="padding:var(--space-lg)">
         <h2>Fleet not found</h2>
@@ -204,6 +208,8 @@ export class FleetDetailComponent implements OnInit {
   private router = inject(Router);
   private toast = inject(ToastService);
   private shipDesignResolver = inject(ShipDesignResolverService);
+  private fleetMath = inject(FleetMathService);
+  private fleetTransfer = inject(FleetTransferService);
   readonly gs = inject(GameStateService);
 
   private fleetId = this.route.snapshot.paramMap.get('id');
@@ -223,14 +229,14 @@ export class FleetDetailComponent implements OnInit {
       (other) =>
         other.id !== f.id &&
         other.ownerId === f.ownerId &&
-        this.isSameLocation(f, other) &&
+        this.fleetMath.isSameLocation(f, other) &&
         !this.isFleetStarbase(other),
     );
   });
 
   isFleetStarbase(f: Fleet): boolean {
     return f.ships.some((s) => {
-      const d = this.getShipDesign(s.designId);
+      const d = this.fleetMath.getShipDesign(s.designId);
       return !!d.isStarbase;
     });
   }
@@ -271,53 +277,18 @@ export class FleetDetailComponent implements OnInit {
     }
   }
 
-  isSameLocation(f1: Fleet, f2: Fleet): boolean {
-    if (f1.location.type !== f2.location.type) return false;
-    if (f1.location.type === 'orbit') {
-      return (f1.location as { starId: string }).starId === (f2.location as { starId: string }).starId;
-    }
-    return (
-      (f1.location as any).x === (f2.location as any).x &&
-      (f1.location as any).y === (f2.location as any).y
-    );
-  }
-
   readonly totalShipCount = computed(() => {
     const f = this.fleet();
-    if (!f) return 0;
-    return f.ships.reduce((acc, s) => acc + s.count, 0);
+    return this.fleetMath.totalShipCount(f);
   });
 
   getDesignName(designId: string): string {
-    const d = this.getShipDesign(designId);
+    const d = this.fleetMath.getShipDesign(designId);
     return d?.name || 'Unknown Design';
   }
 
   public getShipDesign(designId: string): CompiledDesign {
-    return (
-      this.shipDesignResolver.resolve(designId, this.gs.game()) ?? {
-        id: designId,
-        name: 'Unknown Design',
-        hullId: designId,
-        hullName: 'Unknown',
-        mass: 0,
-        cargoCapacity: 0,
-        fuelCapacity: 0,
-        fuelEfficiency: 100,
-        warpSpeed: 0,
-        idealWarp: 0,
-        armor: 0,
-        shields: 0,
-        initiative: 0,
-        firepower: 0,
-        colonistCapacity: 0,
-        colonyModule: false,
-        scannerRange: 0,
-        cloakedRange: 0,
-        cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
-        components: [],
-      }
-    );
+    return this.fleetMath.getShipDesign(designId);
   }
 
   startSplit() {
@@ -343,7 +314,7 @@ export class FleetDetailComponent implements OnInit {
     const f = this.fleet();
     if (!f) return;
     if (confirm(`Merge ${f.name} into ${target.name}?`)) {
-      this.gs.mergeFleets(f.id, target.id);
+      this.fleetTransfer.mergeFleets(f.id, target.id);
       this.toast.success('Fleets merged');
       this.router.navigateByUrl('/map');
     }
@@ -361,94 +332,27 @@ export class FleetDetailComponent implements OnInit {
     const target = this.transferTarget();
     const f = this.fleet();
     if (!target || !f) return;
-
-    if (event.mode === 'split') {
-      if (event.splitMode === 'separate') {
-        this.gs.separateFleet(f.id);
-        this.toast.success('Fleet separated');
-        this.transferTarget.set(null);
-        return;
-      }
-
-      // Custom Split
-      const spec = {
-        ships: event.state.ships
-          .filter((s) => s.count > 0)
-          .map((s) => ({ designId: s.designId, count: s.count, damage: s.damage })),
-        fuel: 0,
-        cargo: { resources: 0, ironium: 0, boranium: 0, germanium: 0, colonists: 0 },
-      };
-
-      if (spec.ships.length === 0) {
+    const result = this.fleetTransfer.applyTransfer(f.id, target, event);
+    if (!result.success) {
+      if (event.mode === 'split' && event.splitMode === 'custom') {
         this.toast.error('Select ships to split');
-        return;
       }
-
-      const newId = this.gs.splitFleet(f.id, spec);
-      if (newId) {
-        this.toast.success('Fleet split created');
-        this.transferTarget.set(null);
-      }
-    } else {
-      // Transfer
-      const spec = {
-        ships: event.state.ships
-          .filter((s) => s.count > 0)
-          .map((s) => ({ designId: s.designId, count: s.count, damage: s.damage })),
-        fuel: event.state.fuel,
-        cargo: {
-          resources: event.state.resources,
-          ironium: event.state.ironium,
-          boranium: event.state.boranium,
-          germanium: event.state.germanium,
-          colonists: event.state.colonists,
-        },
-      };
-
-      if (target && 'id' in target && target.id !== 'new') {
-        this.gs.transferFleetCargo(f.id, target.id, spec);
-        this.toast.success('Transfer complete');
-        this.transferTarget.set(null);
-      }
+      return;
+    }
+    if (result.kind === 'split-separate') {
+      this.toast.success('Fleet separated');
+      this.transferTarget.set(null);
+    } else if (result.kind === 'split-custom') {
+      this.toast.success('Fleet split created');
+      this.transferTarget.set(null);
+    } else if (result.kind === 'transfer') {
+      this.toast.success('Transfer complete');
+      this.transferTarget.set(null);
     }
   }
 
   readonly stars = computed(() => this.gs.stars());
-  readonly selectedStarId = signal('');
-  showAll = false;
-
-  readonly rangeLy = computed(() => {
-    const f = this.fleet();
-    if (!f) return 0;
-    let maxWarp = Infinity;
-    let idealWarp = Infinity;
-    let totalMass = 0;
-    let worstEfficiency = -Infinity;
-    for (const s of f.ships) {
-      const d = this.getShipDesign(s.designId);
-      maxWarp = Math.min(maxWarp, d.warpSpeed);
-      idealWarp = Math.min(idealWarp, d.idealWarp);
-      totalMass += d.mass * s.count;
-      worstEfficiency = Math.max(worstEfficiency, d.fuelEfficiency);
-    }
-    totalMass +=
-      f.cargo.minerals.ironium +
-      f.cargo.minerals.boranium +
-      f.cargo.minerals.germanium +
-      f.cargo.colonists;
-    totalMass = Math.max(1, totalMass);
-    const basePerLy = totalMass / 100;
-    const speedRatio = Math.max(1, maxWarp / Math.max(1, idealWarp));
-    const speedMultiplier = speedRatio <= 1 ? 1 : Math.pow(speedRatio, 2.5);
-    const efficiencyMultiplier = worstEfficiency / 100;
-    const perLy =
-      worstEfficiency === 0 ? 0 : Math.ceil(basePerLy * speedMultiplier * efficiencyMultiplier);
-    return perLy === 0 ? 1000 : f.fuel / perLy;
-  });
-
-  constructor() {
-    if (this.gs.stars().length) this.selectedStarId.set(this.gs.stars()[0].id);
-  }
+  readonly rangeLy = computed(() => this.fleetMath.rangeLy(this.fleet()));
 
   ngOnInit() {
     if (!this.fleet()) {
@@ -457,76 +361,12 @@ export class FleetDetailComponent implements OnInit {
     }
   }
 
-  readonly starOptions = computed(() => {
-    const visibleStars = this.visibleStars();
-    const playerId = this.gs.player()?.id;
-    const f = this.fleet();
-    if (!f) return [];
 
-    return visibleStars
-      .map((star) => {
-        const isHome = star.ownerId === playerId;
-        const isEnemy = star.ownerId && star.ownerId !== playerId;
-        const isUnoccupied = !star.ownerId;
-        const habitability = this.gs.habitabilityFor(star.id);
 
-        const fleetPos = this.getFleetPosition();
-        const distance = Math.hypot(star.position.x - fleetPos.x, star.position.y - fleetPos.y);
-        const turnsAway = this.calculateTurns(distance);
-        const isInRange = distance <= this.rangeLy();
-
-        return {
-          star,
-          isHome,
-          isEnemy,
-          isUnoccupied,
-          habitability,
-          turnsAway,
-          isInRange,
-          distance,
-        } as StarOption;
-      })
-      .sort((a, b) => a.star.name.localeCompare(b.star.name));
-  });
-
-  readonly selectedStarOption = computed(() => {
-    return this.starOptions().find((opt) => opt.star.id === this.selectedStarId()) || null;
-  });
-
-  private getFleetPosition(): { x: number; y: number } {
-    const f = this.fleet();
-    if (!f) return { x: 0, y: 0 };
-    if (f.location.type === 'orbit') {
-      const orbitLocation = f.location as { type: 'orbit'; starId: string };
-      const star = this.stars().find((s) => s.id === orbitLocation.starId);
-      return star ? star.position : { x: 0, y: 0 };
-    }
-    const spaceLocation = f.location as { type: 'space'; x: number; y: number };
-    return { x: spaceLocation.x, y: spaceLocation.y };
-  }
-
-  private calculateTurns(distance: number): number {
-    const f = this.fleet();
-    if (!f || distance === 0) return 0;
-    let maxWarp = Infinity;
-    for (const s of f.ships) {
-      const d = this.getShipDesign(s.designId);
-      maxWarp = Math.min(maxWarp, d.warpSpeed);
-    }
-    const speed = Math.max(1, maxWarp * 20);
-    return Math.ceil(distance / speed);
-  }
-
-  onStarSelected(option: StarOption) {
-    this.selectedStarId.set(option.star.id);
-  }
-
-  move() {
+  onDestinationMove(star: Star) {
     const f = this.fleet();
     if (!f) return;
-    const selectedOption = this.selectedStarOption();
-    if (!selectedOption) return;
-    this.gs.issueFleetOrder(f.id, { type: 'move', destination: selectedOption.star.position });
+    this.gs.issueFleetOrder(f.id, { type: 'move', destination: star.position });
     this.router.navigateByUrl('/map');
   }
 
@@ -563,32 +403,8 @@ export class FleetDetailComponent implements OnInit {
     history.back();
   }
 
-  visibleStars(): Array<Star> {
-    const f = this.fleet();
-    if (this.showAll || !f) return this.stars();
-    let curr: { x: number; y: number } | undefined;
-    if (f.location.type === 'orbit') {
-      const starId = (f.location as { type: 'orbit'; starId: string }).starId;
-      const star = this.gs.stars().find((s) => s.id === starId);
-      curr = star?.position;
-    } else {
-      const loc = f.location as { type: 'space'; x: number; y: number };
-      curr = { x: loc.x, y: loc.y };
-    }
-    if (!curr) return this.stars();
-    return this.stars().filter((s) => {
-      const dist = Math.hypot(s.position.x - curr!.x, s.position.y - curr!.y);
-      return dist <= this.rangeLy();
-    });
-  }
-
   cargoCapacity(): number {
-    const f = this.fleet();
-    if (!f) return 0;
-    return f.ships.reduce(
-      (sum, s) => sum + this.getShipDesign(s.designId).cargoCapacity * s.count,
-      0,
-    );
+    return this.fleetMath.cargoCapacity(this.fleet());
   }
 
   loadFill() {

@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import type { CompiledDesign } from '../../../data/ships.data';
-import { ShipDesignRegistry } from '../../data/ship-design-registry.service';
+import { ShipDesignRegistry, type CompiledDesign } from '../../data/ship-design-registry.service';
 import { LoggingService } from '../../core/logging.service';
 
 @Injectable({ providedIn: 'root' })
