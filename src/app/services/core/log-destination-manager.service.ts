@@ -32,7 +32,7 @@ export class LogDestinationManager {
 
   // Configuration signal for reactive updates
   private readonly _configuration = signal<LoggingConfiguration | null>(null);
-  readonly configuration = this._configuration.asReadonly();
+  readonly configuration = computed(() => this._configuration());
 
   // Computed signal for enabled destinations
   readonly enabledDestinations = computed(() => {
@@ -66,7 +66,7 @@ export class LogDestinationManager {
     failedDeliveries: 0,
     destinationFailures: new Map<string, number>()
   });
-  readonly stats = this._stats.asReadonly();
+  readonly stats = computed(() => this._stats());
 
   /**
    * Configure all destinations based on logging configuration

@@ -9,7 +9,7 @@ import type { GameState, Star } from '../../models/game.model';
 @Injectable({ providedIn: 'root' })
 export class CommandExecutorService {
   private readonly _game = signal<GameState | null>(null);
-  readonly game = this._game.asReadonly();
+  readonly game = computed(() => this._game());
 
   /**
    * Star index for O(1) lookups by star ID.

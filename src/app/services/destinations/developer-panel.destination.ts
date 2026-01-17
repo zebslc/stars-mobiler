@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import type {
   LogDestination,
   LogEntry,
@@ -33,11 +33,11 @@ export class DeveloperPanelDestination implements LogDestination {
 
   // Real-time event signal for developer panel
   private readonly _lastEntry = signal<LogEntry | null>(null);
-  readonly lastEntry = this._lastEntry.asReadonly();
+  readonly lastEntry = computed(() => this._lastEntry());
 
   // In-memory storage for developer panel display
   private readonly _entries = signal<Array<LogEntry>>([]);
-  readonly entries = this._entries.asReadonly();
+  readonly entries = computed(() => this._entries());
 
   // Statistics for developer panel
   private readonly _stats = signal({
@@ -48,7 +48,7 @@ export class DeveloperPanelDestination implements LogDestination {
     debugCount: 0,
     lastEntryTime: null as Date | null
   });
-  readonly stats = this._stats.asReadonly();
+  readonly stats = computed(() => this._stats());
 
   get isEnabled(): boolean {
     // For now, assume developer mode is enabled if the destination is configured as enabled

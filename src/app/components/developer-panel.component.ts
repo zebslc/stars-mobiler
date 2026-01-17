@@ -295,8 +295,8 @@ export class DeveloperPanelComponent {
   private readonly _isExpanded = signal<boolean>(false);
 
   // Computed properties
-  readonly logEntries = this._logEntries.asReadonly();
-  readonly isExpanded = this._isExpanded.asReadonly();
+  readonly logEntries = computed(() => this._logEntries());
+  readonly isExpanded = computed(() => this._isExpanded());
   
   // Check if panel should be visible (developer mode enabled)
   readonly isVisible = computed(() => this.settingsService.developerMode());

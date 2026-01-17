@@ -24,18 +24,18 @@ export class LoggingService {
 
   // Configuration signal for reactive updates
   private readonly _configuration = signal<LoggingConfiguration>(DEFAULT_LOGGING_CONFIG);
-  readonly configuration = this._configuration.asReadonly();
+  readonly configuration = computed(() => this._configuration());
 
   // Current log level computed from configuration
   readonly currentLogLevel = computed(() => this._configuration().level);
 
   // Developer mode events signal for real-time display
   private readonly _developerEvents = signal<LogEntry | null>(null);
-  readonly developerEvents = this._developerEvents.asReadonly();
+  readonly developerEvents = computed(() => this._developerEvents());
 
   // Internal state for tracking
   private readonly _isInitialized = signal<boolean>(false);
-  readonly isInitialized = this._isInitialized.asReadonly();
+  readonly isInitialized = computed(() => this._isInitialized());
 
   constructor() {
     this._isInitialized.set(true);

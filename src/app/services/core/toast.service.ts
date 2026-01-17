@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 
 export interface Toast {
   id: number;
@@ -11,7 +11,7 @@ export class ToastService {
   private readonly toasts = signal<Array<Toast>>([]);
   private nextId = 0;
 
-  readonly toasts$ = this.toasts.asReadonly();
+  readonly toasts$ = computed(() => this.toasts());
 
   show(message: string, type: Toast['type'] = 'info', duration = 3000) {
     const id = this.nextId++;

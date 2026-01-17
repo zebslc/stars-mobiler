@@ -26,9 +26,9 @@ export class ShipDesignStateService {
   });
   private readonly _playerSpecies = signal<Species | null>(null);
 
-  readonly currentDesign = this._currentDesign.asReadonly();
-  readonly techLevels = this._techLevels.asReadonly();
-  readonly playerSpecies = this._playerSpecies.asReadonly();
+  readonly currentDesign = computed(() => this._currentDesign());
+  readonly techLevels = computed(() => this._techLevels());
+  readonly playerSpecies = computed(() => this._playerSpecies());
 
   readonly currentHull = computed(() => {
     const design = this._currentDesign();
