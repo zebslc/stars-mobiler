@@ -1,5 +1,5 @@
 import { ALL_HULLS } from './tech-atlas.data';
-import { logInternalWarn } from '../services/core/internal-logger.service';
+import { logInternalWarn, logInternalInfo } from '../services/core/internal-logger.service';
 
 // CompiledDesign interface - represents a fully compiled ship design with calculated stats
 export interface CompiledDesign {
@@ -46,7 +46,8 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
   const designs: { [key: string]: CompiledDesign } = {};
 
   ALL_HULLS.forEach((hull) => {
-    const designId = hull.id || hull.Name.toLowerCase().replace(/\s+/g, '_');
+    const normalizedName = hull.Name.toLowerCase().replace(/\s+/g, '_');
+    const designId = hull.id || normalizedName;
 
     designs[designId] = {
       id: designId,
@@ -80,6 +81,12 @@ const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
       cloakedRange: 0,
       components: [],
     };
+
+    // Add a generic alias using normalized hull name for broader compatibility
+    // This ensures lookups like 'frigate', 'privateer', etc., resolve even if callers use names instead of IDs
+    if (designId !== normalizedName) {
+      designs[normalizedName] = { ...designs[designId], id: normalizedName };
+    }
   });
 
   // Add additional design entries for backward compatibility with tests
@@ -132,6 +139,10 @@ export const COMPILED_DESIGNS = createBasicDesigns();
 export function registerCompiledDesign(design: CompiledDesign): void {
   if (!design?.id) return;
   COMPILED_DESIGNS[design.id] = design;
+  logInternalInfo('Design registered in COMPILED_DESIGNS', {
+    designId: design.id,
+    totalDesigns: Object.keys(COMPILED_DESIGNS).length
+  }, 'ShipDesignRegistry');
 }
 
 export function unregisterCompiledDesign(designId: string): void {
@@ -142,10 +153,11 @@ export function unregisterCompiledDesign(designId: string): void {
 // Utility function to get design by ID
 export function getDesign(designId: string): CompiledDesign {
   let design = COMPILED_DESIGNS[designId];
+  let normalizedId = '';
 
   if (!design) {
     // Try normalizing the ID to handle cases where name is passed as ID
-    const normalizedId = designId.toLowerCase().replace(/[\s-]+/g, '_');
+    normalizedId = designId.toLowerCase().replace(/[\s-]+/g, '_');
     design = COMPILED_DESIGNS[normalizedId];
 
     // Fallback for legacy starbase IDs (starbase1, starbase2, etc.)
@@ -169,9 +181,15 @@ export function getDesign(designId: string): CompiledDesign {
   }
 
   if (!design) {
-    // Only warn if this looks like a legacy design ID, not a user-created one
-    if (!designId.startsWith('design_')) {
-      logInternalWarn('Design not found in COMPILED_DESIGNS', { designId }, 'ShipDesignRegistry');
+    // Only warn if this looks like a legacy design ID, not a dynamic (user/system-created) one
+    // Dynamic designs start with design_ or design- (initial/seed-based)
+    if (!designId.startsWith('design_') && !designId.startsWith('design-')) {
+      logInternalWarn('Design not found in COMPILED_DESIGNS', { 
+        designId, 
+        normalizedId: normalizedId || designId,
+        availableKeys: Object.keys(COMPILED_DESIGNS).length,
+        sampleKeys: Object.keys(COMPILED_DESIGNS).slice(0, 5)
+      }, 'ShipDesignRegistry');
     }
     // Return a default design to prevent crashes
     return {

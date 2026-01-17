@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { BuildItem, GameState, Star, PlayerTech } from '../../../models/game.model';
 import { FleetService } from '../../fleet/core/fleet.service';
 import { PLANETARY_SCANNER_COMPONENTS } from '../../../data/techs/planetary.data';
 import type { TechRequirement } from '../../../data/tech-atlas.types';
+import { LoggingService } from '../../core/logging.service';
 
 const DEFAULT_SCANNER_RANGE = 50;
 
 @Injectable({ providedIn: 'root' })
 export class BuildProjectService {
+  private readonly logging = inject(LoggingService);
   
   constructor(private fleet: FleetService) {}
 
@@ -116,6 +118,17 @@ export class BuildProjectService {
    */
   private buildShip(game: GameState, planet: Star, item: BuildItem): void {
     const designId = item.shipDesignId ?? 'scout';
+    this.logging.debug('Building ship', {
+      service: 'BuildProjectService',
+      operation: 'buildShip',
+      entityId: planet.id,
+      entityType: 'star',
+      additionalData: {
+        designId,
+        planetName: planet.name,
+        hasDesignInGame: game.shipDesigns.some(d => d.id === designId)
+      }
+    });
     this.fleet.addShipToFleet(game, planet, designId, 1);
   }
 }

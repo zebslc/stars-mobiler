@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { GameState, ShipDesign, PlayerTech, Star, Player, CompiledShipStats } from '../../models/game.model';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import type { ShipOption } from '../../components/ship-selector.component';
@@ -7,9 +7,12 @@ import { HullTemplate } from '../../data/tech-atlas.types';
 import { compileShipStats } from '../../models/ship-design.model';
 import type { CompiledDesign } from '../../data/ships.data';
 import { registerCompiledDesign, unregisterCompiledDesign } from '../../data/ships.data';
+import { LoggingService } from '../core/logging.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShipyardService {
+  private readonly logging = inject(LoggingService);
+  
   constructor() {}
 
   saveShipDesign(game: GameState, design: ShipDesign): GameState {
@@ -203,6 +206,27 @@ export class ShipyardService {
     const compiled = this.toCompiledDesign(game, design);
     if (compiled) {
       registerCompiledDesign(compiled);
+      this.logging.debug('Registered compiled design', {
+        service: 'ShipyardService',
+        operation: 'cacheCompiledDesign',
+        entityId: compiled.id,
+        entityType: 'shipDesign',
+        additionalData: {
+          name: compiled.name,
+          hasSpec: !!design.spec,
+          warpSpeed: compiled.warpSpeed,
+          mass: compiled.mass,
+          fuelCapacity: compiled.fuelCapacity
+        }
+      });
+    } else {
+      this.logging.warn('Failed to compile design', {
+        service: 'ShipyardService',
+        operation: 'cacheCompiledDesign',
+        entityId: design.id,
+        entityType: 'shipDesign',
+        additionalData: { name: design.name }
+      });
     }
   }
 
@@ -291,6 +315,7 @@ export class ShipyardService {
   }
 
   private isDynamicDesign(designId: string): boolean {
-    return designId.startsWith('design_');
+    // Match both design_ (user-created) and design- (initial/seed-based) formats
+    return designId.startsWith('design_') || designId.startsWith('design-');
   }
 }
