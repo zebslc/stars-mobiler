@@ -111,11 +111,12 @@ export class GalaxyNavigationService {
 
     if (fleet.location.type === 'space') {
       position = { x: fleet.location.x, y: fleet.location.y };
-    } else {
+    } else if (fleet.location.type === 'orbit') {
       // Fleet is in orbit - find the associated star
+      const orbitStarId = fleet.location.starId;
       const star = this.gs
         .stars()
-        .find((candidate) => candidate.id === fleet.location.starId);
+        .find((candidate) => candidate.id === orbitStarId);
 
       if (star) {
         position = star.position;
@@ -124,11 +125,15 @@ export class GalaxyNavigationService {
           ...context,
           additionalData: {
             ...context.additionalData,
-            attemptedStarId: fleet.location.starId
+            attemptedStarId: orbitStarId
           }
         });
         return;
       }
+    } else {
+      // Unknown location type
+      this.logging.warn('Unknown fleet location type', context);
+      return;
     }
 
     this.centerOnPoint(position.x, position.y, viewportWidth, viewportHeight);
@@ -193,6 +198,28 @@ export class GalaxyNavigationService {
 
     this.logging.debug('Starting new game', context);
     this.router.navigateByUrl('/');
+  }
+
+  /**
+   * Alias for startNewGame for simpler template binding.
+   */
+  newGame(): void {
+    this.startNewGame();
+  }
+
+  /**
+   * Opens fleet detail view by ID.
+   */
+  openFleet(fleetId: string): void {
+    const context: LogContext = {
+      service: 'GalaxyNavigationService',
+      operation: 'openFleet',
+      entityId: fleetId,
+      entityType: 'fleet'
+    };
+
+    this.logging.debug('Opening fleet detail', context);
+    this.router.navigateByUrl(`/fleet/${fleetId}`);
   }
 
   /**

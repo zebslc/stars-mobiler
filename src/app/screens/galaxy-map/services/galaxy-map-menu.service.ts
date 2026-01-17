@@ -204,6 +204,10 @@ export class GalaxyMapMenuService {
     this.closeMenus();
   }
 
+  handleViewPlanet(starId: string): void {
+    this.handleStarView(starId);
+  }
+
   handleFleetView(fleetId: string): void {
     this.router.navigateByUrl(`/fleet/${fleetId}`);
     this.closeMenus();
