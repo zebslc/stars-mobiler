@@ -77,6 +77,7 @@ export class ShipDesignResolverService {
       cost: stats.cost,
       colonyModule: stats.hasColonyModule,
       scannerRange: stats.scanRange,
+      planetScanRange: stats.planetScanRange,
       cloakedRange: stats.penScanRange,
       components: stats.components ?? [],
     };

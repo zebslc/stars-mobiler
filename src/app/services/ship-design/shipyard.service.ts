@@ -171,6 +171,7 @@ export class ShipyardService {
           },
           colonyModule: stats.hasColonyModule,
           scannerRange: stats.scanRange,
+          planetScanRange: stats.planetScanRange ?? 0,
           cloakedRange: stats.canDetectCloaked ? stats.scanRange : 0,
           components: [],
         };
@@ -288,6 +289,7 @@ export class ShipyardService {
       },
       colonyModule: stats.hasColonyModule,
       scannerRange: stats.scanRange,
+      planetScanRange: stats.planetScanRange ?? 0,
       cloakedRange: stats.canDetectCloaked ? stats.scanRange : 0,
       components: (stats.components ?? []).map((component) => ({
         id: component.id,

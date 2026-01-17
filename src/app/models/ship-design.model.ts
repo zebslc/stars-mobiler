@@ -63,8 +63,11 @@ export function compileShipStats(
   let fuelCapacity = hull.Stats['Max Fuel'] || 0;
   let colonistCapacity = 0;
   let totalScanPower4 = 0;
+  let totalPlanetScanPower4 = 0;
   let totalPenScanPower4 = 0;
   let scanRange = 0;
+  let planetScanRange = -1; // Default to -1 (No scanner)
+  let hasPlanetScanner = false;
   let penScanRange = 0;
   let canDetectCloaked = false;
   let hasEngine = false;
@@ -113,8 +116,18 @@ export function compileShipStats(
       // Add miniaturized mass and cost (multiplied by count)
       const techField = techFieldLookup?.[baseComponent.id] || 'Energy';
       const requiredLevel = requiredLevelLookup?.[baseComponent.id] || 0;
-      const miniaturizedMass = getMiniaturizedMass(baseComponent, techLevels, techField, requiredLevel);
-      const miniaturizedCost = getMiniaturizedCost(baseComponent, techLevels, techField, requiredLevel);
+      const miniaturizedMass = getMiniaturizedMass(
+        baseComponent,
+        techLevels,
+        techField,
+        requiredLevel,
+      );
+      const miniaturizedCost = getMiniaturizedCost(
+        baseComponent,
+        techLevels,
+        techField,
+        requiredLevel,
+      );
 
       totalMass += miniaturizedMass * count;
       if (miniaturizedCost.ironium) cost.ironium += miniaturizedCost.ironium * count;
@@ -213,9 +226,25 @@ export function compileShipStats(
 
         case 'scanner':
           // Scanners are cumulative: 4th root of sum of 4th powers
-          const range = baseComponent.stats.scan || baseComponent.stats.enemyFleetScanDistance || 0;
-          if (range > 0) {
-            totalScanPower4 += count * Math.pow(range, 4);
+
+          // Fleet Scan Range
+          const fleetRange =
+            baseComponent.stats.enemyFleetScanDistance || baseComponent.stats.scan || 0;
+          if (fleetRange > 0) {
+            totalScanPower4 += count * Math.pow(fleetRange, 4);
+          }
+
+          // Planet Scan Range
+          let planetRange = baseComponent.stats.planetScanDistance;
+          if (planetRange === undefined) {
+            planetRange = baseComponent.stats.scan;
+          }
+
+          if (planetRange !== undefined && planetRange >= 0) {
+            hasPlanetScanner = true;
+            if (planetRange > 0) {
+              totalPlanetScanPower4 += count * Math.pow(planetRange, 4);
+            }
           }
 
           const pen = baseComponent.stats.pen || 0;
@@ -238,6 +267,11 @@ export function compileShipStats(
   // Final calculations
   if (totalScanPower4 > 0) {
     scanRange = Math.pow(totalScanPower4, 0.25);
+  }
+  if (totalPlanetScanPower4 > 0) {
+    planetScanRange = Math.pow(totalPlanetScanPower4, 0.25);
+  } else if (hasPlanetScanner) {
+    planetScanRange = 0;
   }
   if (totalPenScanPower4 > 0) {
     penScanRange = Math.pow(totalPenScanPower4, 0.25);
@@ -264,6 +298,7 @@ export function compileShipStats(
     cargoCapacity,
     colonistCapacity,
     scanRange,
+    planetScanRange,
     penScanRange,
     canDetectCloaked,
     miningRate,

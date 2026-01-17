@@ -54,6 +54,7 @@ export interface CompiledShipStats {
   cargoCapacity: number;
   colonistCapacity: number;
   scanRange: number;
+  planetScanRange: number;
   penScanRange: number;
   canDetectCloaked: boolean;
   miningRate: number;

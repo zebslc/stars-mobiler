@@ -18,7 +18,7 @@ import { ShipDesignRegistry } from '../../services/data/ship-design-registry.ser
 import { BuildCostsRegistry } from '../../services/data/build-costs-registry.service';
 import type { ShipOption } from '../../components/ship-selector.component';
 import { StarSummaryComponent } from './components/star-summary.component';
-import { StarBuildQueueComponent } from './components/star-build-queue.component';
+import { StarBuildQueueComponent, type BuildProject } from './components/planet-build-queue.component';
 import { StarFleetListComponent } from './components/star-fleet-list.component';
 import type { Fleet } from '../../models/game.model';
 
@@ -355,7 +355,8 @@ export class StarDetailComponent implements OnInit {
     ) as Array<Fleet>;
   });
 
-  onViewStarbase(fleetId: string) {
+  onViewStarbase(eventOrId: Event | string) {
+    const fleetId = typeof eventOrId === 'string' ? eventOrId : (eventOrId as any);
     this.router.navigate(['/map'], { queryParams: { fleetId: fleetId } });
   }
 
@@ -377,10 +378,6 @@ export class StarDetailComponent implements OnInit {
     return options;
   });
 
-  onShipSelected(option: ShipOption) {
-    this.selectedDesign.set(option.design.id);
-  }
-
   readonly selectedShipOption = computed(() => {
     return this.shipOptions().find((opt) => opt.design.id === this.selectedDesign()) || null;
   });
@@ -389,15 +386,23 @@ export class StarDetailComponent implements OnInit {
   readonly buildAmount = signal(1);
   readonly shipBuildAmount = signal(1);
 
-  setBuildAmount(amount: number) {
+  setBuildAmount(amountOrEvent: number | Event) {
+    const amount = typeof amountOrEvent === 'number' ? amountOrEvent : (amountOrEvent as any);
     this.buildAmount.set(amount);
   }
 
-  setShipBuildAmount(amount: number) {
+  setShipBuildAmount(amountOrEvent: number | Event) {
+    const amount = typeof amountOrEvent === 'number' ? amountOrEvent : (amountOrEvent as any);
     this.shipBuildAmount.set(amount);
   }
 
-  colonizeNow(fleetId: string) {
+  onShipSelected(option: ShipOption | Event) {
+    const shipOption = typeof option === 'object' && 'design' in option ? option : (option as any);
+    this.selectedDesign.set(shipOption.design.id);
+  }
+
+  colonizeNow(fleetIdOrEvent: string | Event) {
+    const fleetId = typeof fleetIdOrEvent === 'string' ? fleetIdOrEvent : (fleetIdOrEvent as any);
     if (!this.star()) return;
     this.gs.colonizeNow(fleetId);
   }
@@ -416,7 +421,8 @@ export class StarDetailComponent implements OnInit {
     return player.techLevels.Energy >= 1;
   }
 
-  queue(project: 'mine' | 'factory' | 'defense' | 'research' | 'terraform' | 'scanner' | 'ship') {
+  queue(projectOrEvent: BuildProject | Event) {
+    const project = typeof projectOrEvent === 'string' ? projectOrEvent : (projectOrEvent as any);
     const p = this.star();
     if (!p) return;
 
@@ -450,7 +456,8 @@ export class StarDetailComponent implements OnInit {
     history.back();
   }
 
-  remove(index: number) {
+  remove(indexOrEvent: number | Event) {
+    const index = typeof indexOrEvent === 'number' ? indexOrEvent : (indexOrEvent as any);
     const p = this.star();
     if (!p) return;
     this.gs.removeFromQueue(p.id, index);

@@ -129,11 +129,27 @@ export class ScanningService {
     game.fleets
       .filter(f => f.ownerId === playerId)
       .forEach(f => {
-        const fleetRange = this.getFleetScanRange(game, f);
-        if (fleetRange > 0) {
+        // Check if fleet is in orbit at a planet
+        if (f.location.type === 'orbit') {
+          // Fleet is in orbit - use planetScanRange for scanning the planet
+          const planetScanRange = this.getFleetScanRange(game, f);
+          // planetScanRange >= 0 means the fleet CAN scan the planet
+          // -1 means no planet scanning capability (don't add scanner)
+          if (planetScanRange >= 0) {
+            const orbitLocation = f.location as { type: 'orbit'; starId: string };
+            const star = game.stars.find(s => s.id === orbitLocation.starId);
+            if (star) {
+              scanners.push({ x: star.position.x, y: star.position.y, range: planetScanRange });
+            }
+          }
+        } else if (f.location.type === 'space') {
+          // Fleet is in space - use regular scanner range (not planetary scan range)
+          // Note: For now, we're only using planetScanRange. Ships in space might have a different
+          // scanner type, but that's not yet implemented. This is a TODO for regular space scanning.
           const position = this.getFleetPosition(game, f);
           if (position) {
-            scanners.push({ x: position.x, y: position.y, range: fleetRange });
+            // For space scanning, we'd need a different stat (scanRange) which isn't yet used
+            // TODO: Implement regular space scanner range for ships in space
           }
         }
       });
@@ -143,14 +159,19 @@ export class ScanningService {
 
   private getFleetScanRange(game: GameState, fleet: Fleet): number {
     // Return the max scan range of ships in the fleet
-    // We need to look up ship designs
-    let maxRange = 0;
+    // This specifically handles planetScanRange which applies when a ship is in orbit at a planet
+    // -1 = Cannot scan planets (no planet scanning capability)
+    //  0 = Can scan the planet itself (range 0)
+    // >0 = Can scan planets at that range
+    let maxRange = -1;
     
     fleet.ships.forEach(shipStack => {
       const design = game.shipDesigns.find(d => d.id === shipStack.designId);
       if (design && design.spec) {
-        if (design.spec.scanRange > maxRange) {
-          maxRange = design.spec.scanRange;
+        // planetScanRange of -1 means no capability; skip it
+        // Otherwise, take the maximum range (0 or greater means some capability)
+        if (design.spec.planetScanRange !== undefined && design.spec.planetScanRange > maxRange) {
+          maxRange = design.spec.planetScanRange;
         }
       }
     });

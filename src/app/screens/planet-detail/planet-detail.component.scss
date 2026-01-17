@@ -1,0 +1,135 @@
+// Planet Detail Component Styles
+
+.planet-detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.planet-header {
+  background: linear-gradient(135deg, #1a3a52 0%, #0b1f3a 100%);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.planet-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-btn {
+  padding: 0.5rem 1rem;
+  background: #2a5a7a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: #3a6a8a;
+  }
+}
+
+.back-btn {
+  padding: 0.5rem 1rem;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: #555;
+  }
+}
+
+.planet-info-banner {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.planet-visual {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+}
+
+.planet-text {
+  flex: 1;
+
+  h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #fff;
+  }
+
+  .coords {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-top: 0.5rem;
+  }
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid #333;
+}
+
+.tab-btn {
+  padding: 0.75rem 1rem;
+  background: #222;
+  color: #888;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: #ccc;
+  }
+
+  &.active {
+    color: #2ecc71;
+    border-bottom-color: #2ecc71;
+  }
+}
+
+.tab-content {
+  padding: 1rem;
+  background: #111;
+  border-radius: 8px;
+  min-height: 200px;
+}
+
+.summary-section {
+  margin: 0;
+}
+
+.error-container {
+  padding: 2rem;
+  text-align: center;
+  background: #1a1a1a;
+  border-radius: 8px;
+
+  h2 {
+    color: #e74c3c;
+  }
+}

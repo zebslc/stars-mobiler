@@ -35,6 +35,7 @@ export interface CompiledDesign {
   };
   colonyModule: boolean;
   scannerRange: number;
+  planetScanRange: number;
   cloakedRange: number;
   components: Array<{
     id: string;
@@ -249,6 +250,7 @@ export class ShipDesignRegistry {
         colonyModule:
           hull.Name.toLowerCase().includes('colony') || hull.Name.toLowerCase().includes('settler'),
         scannerRange: 0,
+        planetScanRange: 0,
         cloakedRange: 0,
         components: [],
       };
@@ -324,6 +326,7 @@ export class ShipDesignRegistry {
       cost: { ironium: 10, boranium: 0, germanium: 10, resources: 25 },
       colonyModule: false,
       scannerRange: 0,
+      planetScanRange: 0,
       cloakedRange: 0,
       components: [],
       engine: undefined,

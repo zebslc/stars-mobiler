@@ -1,0 +1,129 @@
+// Planet Build Queue Component Styles
+
+.build-queue-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.build-controls-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.project-select,
+.amount-select {
+  padding: 0.5rem 0.75rem;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &:hover {
+    border-color: #555;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #2ecc71;
+    box-shadow: 0 0 4px rgba(46, 204, 113, 0.3);
+  }
+}
+
+.project-select {
+  flex: 1;
+  min-width: 200px;
+}
+
+.amount-select {
+  min-width: 80px;
+}
+
+.build-btn {
+  padding: 0.5rem 1.5rem;
+  background: #2ecc71;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #27ae60;
+  }
+
+  &:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+}
+
+.ship-construction-section {
+  background: #0a0a0a;
+  border-left: 3px solid #2ecc71;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.title {
+  color: #2ecc71;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem;
+  background: #2ecc71;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #27ae60;
+  }
+}
+
+.build-queue {
+  margin-top: 1rem;
+}
+
+.queue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #1a1a1a;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 20px;
+  background: #222;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 1rem;
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    transition: width 0.3s ease;
+  }
+}
