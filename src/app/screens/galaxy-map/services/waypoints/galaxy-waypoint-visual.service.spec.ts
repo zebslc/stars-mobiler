@@ -71,6 +71,7 @@ describe('GalaxyWaypointVisualService', () => {
       cargoCapacity: 0,
       colonistCapacity: 0,
       scanRange: 0,
+      planetScanRange: 0,
       penScanRange: 0,
       canDetectCloaked: false,
       miningRate: 0,

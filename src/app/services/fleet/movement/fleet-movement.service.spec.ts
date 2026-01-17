@@ -412,6 +412,7 @@ function createCompiledDesign(overrides: Partial<CompiledDesign> = {}): Compiled
     cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
     colonyModule: false,
     scannerRange: 0,
+    planetScanRange: 0,
     cloakedRange: 0,
     components: [],
     engine: { id: 'eng_fuel_mizer' },
