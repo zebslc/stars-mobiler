@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import type { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { getDesign } from '../../../data/ships.data';
-import { getHull } from '../../../utils/data-access.util';
-import { compileShipStats } from '../../../models/ship-design.model';
+import { ShipDesignResolverService } from '../../../services/ship-design';
 import { FleetCardComponent } from '../../fleets-overview/components/fleet-card.component';
 
 @Component({
@@ -41,6 +39,7 @@ import { FleetCardComponent } from '../../fleets-overview/components/fleet-card.
 export class StarFleetListComponent {
   gs = inject(GameStateService);
   private router = inject(Router);
+  private shipDesignResolver = inject(ShipDesignResolverService);
 
   readonly fleets = input.required<Array<Fleet>>();
   readonly starOwnerId = input<string | null>(null);
@@ -59,54 +58,23 @@ export class StarFleetListComponent {
     return fleet.ships.reduce((acc, s) => acc + s.count, 0);
   }
 
-  private getShipDesign(designId: string): any {
-    const game = this.gs.game();
-    const dynamicDesign = game?.shipDesigns.find((d) => d.id === designId);
-
-    if (dynamicDesign) {
-      if (dynamicDesign.spec) {
-        return {
-          ...dynamicDesign.spec,
-          colonyModule: dynamicDesign.spec.hasColonyModule,
-        };
-      }
-
-      const hull = getHull(dynamicDesign.hullId);
-      if (hull) {
-        const player = this.gs.player();
-        const techLevels = player?.techLevels || {
-          Energy: 0,
-          Kinetics: 0,
-          Propulsion: 0,
-          Construction: 0,
-        };
-        const stats = compileShipStats(hull, dynamicDesign.slots, techLevels);
-        return {
-          ...stats,
-          colonyModule: stats.hasColonyModule,
-        };
-      }
-    }
-    return getDesign(designId);
-  }
-
   hasColonyShip(fleet: Fleet): boolean {
     return fleet.ships.some((s) => {
-      const d = this.getShipDesign(s.designId);
+      const d = this.shipDesignResolver.resolve(s.designId, this.gs.game());
       return !!d?.colonyModule;
     });
   }
 
   hasCargo(fleet: Fleet): boolean {
     return fleet.ships.some((s) => {
-      const d = this.getShipDesign(s.designId);
+      const d = this.shipDesignResolver.resolve(s.designId, this.gs.game());
       return (d?.cargoCapacity ?? 0) > 0;
     });
   }
 
   hasWeapons(fleet: Fleet): boolean {
     return fleet.ships.some((s) => {
-      const d = this.getShipDesign(s.designId);
+      const d = this.shipDesignResolver.resolve(s.designId, this.gs.game());
       return (d?.firepower ?? 0) > 0;
     });
   }

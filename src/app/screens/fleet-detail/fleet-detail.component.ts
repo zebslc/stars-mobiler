@@ -11,10 +11,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { ToastService } from '../../services/core/toast.service';
+import { ShipDesignResolverService } from '../../services/ship-design';
 import type { Fleet, Star } from '../../models/game.model';
-import { getDesign } from '../../data/ships.data';
-import { getHull } from '../../utils/data-access.util';
-import { compileShipStats } from '../../models/ship-design.model';
+import type { CompiledDesign } from '../../data/ships.data';
 import type { StarOption } from '../../components/star-selector.component';
 import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
@@ -203,8 +202,9 @@ import {
 export class FleetDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  readonly gs = inject(GameStateService);
   private toast = inject(ToastService);
+  private shipDesignResolver = inject(ShipDesignResolverService);
+  readonly gs = inject(GameStateService);
 
   private fleetId = this.route.snapshot.paramMap.get('id');
 
@@ -293,40 +293,31 @@ export class FleetDetailComponent implements OnInit {
     return d?.name || 'Unknown Design';
   }
 
-  public getShipDesign(designId: string): any {
-    const game = this.gs.game();
-    const dynamicDesign = game?.shipDesigns.find((d) => d.id === designId);
-
-    if (dynamicDesign) {
-      if (dynamicDesign.spec) {
-        return {
-          ...dynamicDesign.spec,
-          name: dynamicDesign.name,
-          colonyModule: dynamicDesign.spec.hasColonyModule,
-          fuelEfficiency: dynamicDesign.spec.fuelEfficiency ?? 100,
-        };
+  public getShipDesign(designId: string): CompiledDesign {
+    return (
+      this.shipDesignResolver.resolve(designId, this.gs.game()) ?? {
+        id: designId,
+        name: 'Unknown Design',
+        hullId: designId,
+        hullName: 'Unknown',
+        mass: 0,
+        cargoCapacity: 0,
+        fuelCapacity: 0,
+        fuelEfficiency: 100,
+        warpSpeed: 0,
+        idealWarp: 0,
+        armor: 0,
+        shields: 0,
+        initiative: 0,
+        firepower: 0,
+        colonistCapacity: 0,
+        colonyModule: false,
+        scannerRange: 0,
+        cloakedRange: 0,
+        cost: { ironium: 0, boranium: 0, germanium: 0, resources: 0 },
+        components: [],
       }
-
-      // Fallback: Compile stats on the fly
-      const hull = getHull(dynamicDesign.hullId);
-      if (hull) {
-        const player = this.gs.player();
-        const techLevels = player?.techLevels || {
-          Energy: 0,
-          Kinetics: 0,
-          Propulsion: 0,
-          Construction: 0,
-        };
-        const stats = compileShipStats(hull, dynamicDesign.slots, techLevels);
-        return {
-          ...stats,
-          name: dynamicDesign.name,
-          colonyModule: stats.hasColonyModule,
-          fuelEfficiency: stats.fuelEfficiency ?? 100,
-        };
-      }
-    }
-    return getDesign(designId);
+    );
   }
 
   startSplit() {

@@ -5,6 +5,42 @@
 
 import { logInternalWarn } from '../services/core/internal-logger.service';
 
+// ==========================================
+// Racial Trait Types
+// ==========================================
+
+export type PrimaryRacialTrait =
+  | 'Hyper Expansion'
+  | 'Super Stealth'
+  | 'War Monger'
+  | 'Claim Adjuster'
+  | 'Inner Strength'
+  | 'Space Demolition'
+  | 'Packet Physics'
+  | 'Interstellar Traveler'
+  | 'Alternate Reality'
+  | 'Jack of All Trades';
+
+export type LesserRacialTrait =
+  | 'Improved Fuel Efficiency'
+  | 'Total Terraforming'
+  | 'Advanced Remote Mining'
+  | 'Improved Starbases'
+  | 'Generalized Research'
+  | 'Ultimate Recycling'
+  | 'Mineral Alchemy'
+  | 'No Ramscoop Engines'
+  | 'Cheap Engines'
+  | 'Only Basic Remote Mining'
+  | 'No Advanced Sensors'
+  | 'Low Starting Population'
+  | 'Bleeding Edge Technology'
+  | 'Regenerating Shields';
+
+// ==========================================
+// Core Data Structures
+// ==========================================
+
 export interface ResourceCost {
   Ironium: number;
   Boranium: number;
@@ -59,6 +95,12 @@ export interface HullTemplate {
     | 'utility'
     | 'bomber'
     | 'mine-layer';
+  primaryRacialTraitRequired?: Array<PrimaryRacialTrait>;
+  primaryRacialTraitUnavailable?: Array<PrimaryRacialTrait>;
+  lesserRacialTraitRequired?: Array<LesserRacialTrait>;
+  lesserRacialTraitUnavailable?: Array<LesserRacialTrait>;
+  requiresPrimaryRacialTrait?: Array<PrimaryRacialTrait>;
+  notAvailableForRaceDisadvantage?: Array<string>;
 }
 
 // Compatibility alias for legacy code
@@ -346,6 +388,10 @@ export interface ComponentStats {
     deflectedShieldDamageReduction?: number;
     noDefenceColonistKill?: number;
     stealth?: number;
+    // Weapon-specific stats
+    shieldOnlyDamage?: boolean;
+    hitsAllTargets?: boolean;
+    minesweeping?: number;
   };
   description: string;
   primaryRacialTraitRequired?: Array<PrimaryRacialTrait>;
@@ -372,31 +418,3 @@ export interface ComponentCategory {
   category: string;
   items: Array<ComponentStats>;
 }
-
-export type PrimaryRacialTrait =
-  | 'Hyper Expansion'
-  | 'Super Stealth'
-  | 'War Monger'
-  | 'Claim Adjuster'
-  | 'Inner Strength'
-  | 'Space Demolition'
-  | 'Packet Physics'
-  | 'Interstellar Traveler'
-  | 'Alternate Reality'
-  | 'Jack of All Trades';
-
-export type LesserRacialTrait =
-  | 'Improved Fuel Efficiency'
-  | 'Total Terraforming'
-  | 'Advanced Remote Mining'
-  | 'Improved Starbases'
-  | 'Generalized Research'
-  | 'Ultimate Recycling'
-  | 'Mineral Alchemy'
-  | 'No Ramscoop Engines'
-  | 'Cheap Engines'
-  | 'Only Basic Remote Mining'
-  | 'No Advanced Sensors'
-  | 'Low Starting Population'
-  | 'Bleeding Edge Technology'
-  | 'Regenerating Shields';

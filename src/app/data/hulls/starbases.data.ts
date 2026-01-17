@@ -18,7 +18,7 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
       { Code: 'W1', Allowed: ['Weapon'], Max: 12 },
       { Code: 'W2', Allowed: ['Weapon'], Max: 12 },
     ],
-    Cost: { Ironium: 24, Boranium: 0, Germanium: 34, Resources: 80 },
+    Cost: { Ironium: 24, Boranium: 0, Germanium: 34, Resources: 250 },
     Stats: { Mass: 0, 'Max Fuel': 0, Armor: 100, Cargo: 0, Initiative: 10 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     id: 'hull-orbital-fort',
@@ -49,7 +49,7 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
       { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
       { Code: 'SD1', Allowed: ['Dock'], Size: 200, Editable: false },
     ],
-    Cost: { Ironium: 40, Boranium: 10, Germanium: 50, Resources: 200 },
+    Cost: { Ironium: 40, Boranium: 10, Germanium: 50, Resources: 1000 },
     Stats: {
       Mass: 0,
       'Max Fuel': 0,
@@ -64,6 +64,7 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
     description: 'Repair and construction facility.',
     isStarbase: true,
     type: 'starbase',
+    lesserRacialTraitRequired: ['Improved Starbases'],
   },
   {
     Name: 'Space Station',
@@ -94,7 +95,7 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
       { Code: 'W3', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W4', Allowed: ['Weapon'], Max: 16 },
     ],
-    Cost: { Ironium: 240, Boranium: 160, Germanium: 500, Resources: 1200 },
+    Cost: { Ironium: 240, Boranium: 160, Germanium: 500, Resources: 5000 },
     Stats: {
       Mass: 0,
       'Max Fuel': 0,
@@ -143,7 +144,7 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
       { Code: 'W5', Allowed: ['Weapon'], Max: 16 },
       { Code: 'W6', Allowed: ['Weapon'], Max: 16 },
     ],
-    Cost: { Ironium: 240, Boranium: 160, Germanium: 600, Resources: 1200 },
+    Cost: { Ironium: 240, Boranium: 160, Germanium: 600, Resources: 100000 },
     Stats: {
       Mass: 0,
       'Max Fuel': 0,
@@ -157,6 +158,8 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
     id: 'hull-ultra-station',
     description: 'Advanced orbital fortress.',
     type: 'starbase',
+    lesserRacialTraitRequired: ['Improved Starbases'],
+    isStarbase: true,
   },
   {
     Name: 'Death Star',
@@ -191,7 +194,7 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
       { Code: 'W3', Allowed: ['Weapon'], Max: 32 },
       { Code: 'W4', Allowed: ['Weapon'], Max: 32 },
     ],
-    Cost: { Ironium: 240, Boranium: 160, Germanium: 700, Resources: 1500 },
+    Cost: { Ironium: 240, Boranium: 160, Germanium: 700, Resources: 100000 },
     Stats: {
       Mass: 0,
       'Max Fuel': 0,
@@ -206,5 +209,6 @@ export const STARBASE_HULLS: Array<HullTemplate> = [
     description: 'Ultimate power in the universe.',
     isStarbase: true,
     type: 'starbase',
+    primaryRacialTraitRequired: ['Alternate Reality'],
   },
 ];

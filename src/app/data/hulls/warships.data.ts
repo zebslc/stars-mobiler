@@ -105,7 +105,8 @@ export const WARSHIP_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 120, 'Max Fuel': 1400, Armor: 1000, Cargo: 0, Initiative: 5 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
     id: 'hull-battle-cruiser',
-    type: 'warship'
+    type: 'warship',
+    primaryRacialTraitRequired: ['War Monger'],
   },
   {
     Name: 'Battleship',
@@ -170,5 +171,6 @@ export const WARSHIP_HULLS: Array<HullTemplate> = [
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 13 },
     id: 'hull-dreadnought',
     type: 'warship',
+    primaryRacialTraitRequired: ['War Monger'],
   },
 ];

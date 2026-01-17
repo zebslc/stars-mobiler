@@ -12,3 +12,4 @@ export * from './shipyard.service';
 export * from './starbase-upgrade.service';
 export * from './ship-component-eligibility.service';
 export * from './ship-slot-operator.service';
+export * from './ship-design-resolver.service';

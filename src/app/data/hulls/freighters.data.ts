@@ -71,6 +71,7 @@ export const FREIGHTER_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 175, 'Max Fuel': 8000, Armor: 400, Cargo: 3000, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 9 },
     id: 'hull-freight-super',
-    type: 'freighter'
+    type: 'freighter',
+    primaryRacialTraitRequired: ['Inner Strength'],
   },
 ];

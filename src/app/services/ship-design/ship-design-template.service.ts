@@ -47,7 +47,12 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
         name: `Basic ${hull.Name}`,
         hullId: hull.id,
         description: `Basic ${hull.Name} design template`,
-        techRequirements: hull.techReq || { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 }
+        techRequirements: {
+          Energy: hull.techReq?.Energy ?? 0,
+          Kinetics: hull.techReq?.Kinetics ?? 0,
+          Propulsion: hull.techReq?.Propulsion ?? 0,
+          Construction: hull.techReq?.Construction ?? 0,
+        }
       }));
 
       this.loggingService.debug(`Found ${templates.length} available templates`, {
@@ -201,7 +206,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
    * Check if a hull is a starbase hull
    */
   isStarbaseHull(hull: HullTemplate): boolean {
-    const name = hull?.name ?? hull?.Name ?? '';
+    const name = hull?.Name ?? '';
     return (
       !!hull?.isStarbase || 
       hull?.type === 'starbase' || 

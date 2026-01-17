@@ -55,6 +55,7 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
     id: 'hull-rogue',
     type: 'utility',
+    primaryRacialTraitRequired: ['Super Stealth'],
   },
   {
     Name: 'Galleon',
@@ -142,7 +143,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 85, 'Max Fuel': 700, Armor: 500, Cargo: 300, Initiative: 2 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
     id: 'hull-meta-morph',
-    type: 'utility'
+    type: 'utility',
+    primaryRacialTraitRequired: ['Hyper Expansion'],
   },
 
   // Colony Ships
@@ -158,7 +160,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 8, 'Max Fuel': 150, Armor: 10, Cargo: 10, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     id: 'hull-mini-colony',
-    type: 'utility'
+    type: 'utility',
+    primaryRacialTraitRequired: ['Hyper Expansion'],
   },
   {
     Name: 'Colony Ship',
@@ -223,7 +226,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 70, 'Max Fuel': 750, Armor: 225, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },
     id: 'hull-stealth-bomber',
-    type: 'bomber'
+    type: 'bomber',
+    primaryRacialTraitRequired: ['Super Stealth'],
   },
   {
     Name: 'B-52 Bomber',
@@ -263,7 +267,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 10, 'Max Fuel': 210, Armor: 100, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     id: 'hull-midget-miner',
-    type: 'miner'
+    type: 'miner',
+    lesserRacialTraitRequired: ['Advanced Remote Mining'],
   },
   {
     Name: 'Mini-Miner',
@@ -283,7 +288,7 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 80, 'Max Fuel': 210, Armor: 130, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 2 },
     id: 'hull-mini-miner',
-    type: 'miner'
+    type: 'miner',
   },
   {
     Name: 'Miner',
@@ -305,7 +310,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 110, 'Max Fuel': 500, Armor: 475, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
     id: 'hull-miner',
-    type: 'miner'
+    type: 'miner',
+    lesserRacialTraitRequired: ['Advanced Remote Mining'],
   },
   {
     Name: 'Maxi-Miner',
@@ -327,7 +333,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 110, 'Max Fuel': 850, Armor: 1400, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 6 },
     id: 'hull-maxi-miner',
-    type: 'miner'
+    type: 'miner',
+    notAvailableForRaceDisadvantage: ['Only basic remote mining'],
   },
   {
     Name: 'Ultra-Miner',
@@ -349,7 +356,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     Stats: { Mass: 100, 'Max Fuel': 1300, Armor: 1500, Cargo: 0, Initiative: 0 },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 8 },
     id: 'hull-ultra-miner',
-    type: 'miner'
+    type: 'miner',
+    lesserRacialTraitRequired: ['Advanced Remote Mining'],
   },
 
   // Support Ships
@@ -372,7 +380,9 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     id: 'hull-fuel-transport',
-    type: 'utility'
+    type: 'utility',
+    description: 'This hull will manufacture 200 units of fuel each year. Ships in the same fleet will heal 5% faster.',
+    primaryRacialTraitRequired: ['Inner Strength'],
   },
   {
     Name: 'Super-Fuel Export',
@@ -394,7 +404,9 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
     id: 'hull-super-fuel-xport',
-    type: 'utility'
+    type: 'utility',
+    description: 'This hull will manufacture 200 units of fuel each year. Ships in the same fleet will heal 10% faster.'
+
   },
   {
     Name: 'Mini-Mine Layer',
@@ -421,7 +433,8 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     id: 'hull-mini-mine-layer',
-    type: 'mine-layer'
+    type: 'mine-layer',
+    requiresPrimaryRacialTrait: ['Space Demolition'],
   },
   {
     Name: 'Super-Mine Layer',
@@ -450,6 +463,7 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 5 },
     id: 'hull-super-mine-layer',
-    type: 'mine-layer'
+    type: 'mine-layer',
+    requiresPrimaryRacialTrait: ['Space Demolition'],
   },
 ];

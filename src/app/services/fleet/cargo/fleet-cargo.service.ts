@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ShipDesignResolverService } from '../../ship-design';
 import type { GameState, Fleet, Star } from '../../../models/game.model';
 import type { LogContext } from '../../../models/service-interfaces.model';
 import { LoggingService } from '../../core/logging.service';
@@ -13,7 +14,10 @@ export interface CargoManifest {
 
 @Injectable({ providedIn: 'root' })
 export class FleetCargoService {
-  constructor(private logging: LoggingService) {}
+  constructor(
+    private logging: LoggingService,
+    private shipDesignResolver: ShipDesignResolverService,
+  ) {}
 
   loadCargo(game: GameState, fleetId: string, starId: string, manifest: CargoManifest): GameState {
     const context: LogContext = {
@@ -247,8 +251,8 @@ export class FleetCargoService {
 
   private calculateCargoCapacity(game: GameState, fleet: Fleet): number {
     return fleet.ships.reduce((sum, s) => {
-      const d = this.getShipDesign(game, s.designId);
-      return sum + (d.cargoCapacity || 0) * s.count;
+      const d = this.shipDesignResolver.resolve(s.designId, game);
+      return sum + (d?.cargoCapacity || 0) * s.count;
     }, 0);
   }
 
@@ -258,17 +262,5 @@ export class FleetCargoService {
       fleet.cargo.minerals.ironium + fleet.cargo.minerals.boranium + fleet.cargo.minerals.germanium;
     const colonistUsed = Math.floor(fleet.cargo.colonists / 1000); // 1 kT per 1000 colonists
     return resourcesUsed + mineralsUsed + colonistUsed;
-  }
-
-  private getShipDesign(game: GameState, designId: string): any {
-    const dynamicDesign = game.shipDesigns.find((d) => d.id === designId);
-    if (dynamicDesign?.spec) {
-      return {
-        ...dynamicDesign.spec,
-        cargoCapacity: dynamicDesign.spec.cargoCapacity || 0,
-      };
-    }
-    // Fallback for legacy designs
-    return { cargoCapacity: 0 };
   }
 }
