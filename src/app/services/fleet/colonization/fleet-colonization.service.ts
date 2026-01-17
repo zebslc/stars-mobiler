@@ -1,21 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { GameState, Fleet, Star, ShipStack, ShipDesign } from '../../../models/game.model';
 import type { LogContext } from '../../../models/service-interfaces.model';
 import { LoggingService } from '../../core/logging.service';
 import { HabitabilityService } from '../../colony/habitability.service';
 import { ShipyardService } from '../../ship-design/shipyard.service';
 import { SettingsService } from '../../core/settings.service';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../data/ship-design-registry.service';
 
 @Injectable({ providedIn: 'root' })
 export class FleetColonizationService {
-
-  constructor(
-    private logging: LoggingService,
-    private habitability: HabitabilityService,
-    private shipyard: ShipyardService,
-    private settings: SettingsService
-  ) {}
+  private readonly logging = inject(LoggingService);
+  private readonly habitability = inject(HabitabilityService);
+  private readonly shipyard = inject(ShipyardService);
+  private readonly settings = inject(SettingsService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
 
   colonizeNow(game: GameState, fleetId: string): [GameState, string | null] {
     const context = this.createContext('colonizeNow', fleetId);
@@ -105,7 +103,7 @@ export class FleetColonizationService {
   private checkForColonyShips(game: GameState, fleet: Fleet): boolean {
     return fleet.ships.some((s) => {
       const design = game.shipDesigns.find((d) => d.id === s.designId);
-      return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
+      return design && this.shipDesignRegistry.getDesign(design.hullId)?.colonyModule && s.count > 0;
     });
   }
 
@@ -160,7 +158,7 @@ export class FleetColonizationService {
   ): { ship: ShipStack | null; design: ShipDesign | null } {
     const colonyStack = fleet.ships.find((s) => {
       const design = game.shipDesigns.find((d) => d.id === s.designId);
-      return design && getDesign(design.hullId)?.colonyModule && s.count > 0;
+      return design && this.shipDesignRegistry.getDesign(design.hullId)?.colonyModule && s.count > 0;
     });
 
     if (!colonyStack) {

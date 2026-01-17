@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { GameState } from '../../../models/game.model';
 import type { IFleetNamingService, LogContext } from '../../../models/service-interfaces.model';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../data/ship-design-registry.service';
 import { LoggingService } from '../../core/logging.service';
 
 @Injectable({ providedIn: 'root' })
 export class FleetNamingService implements IFleetNamingService {
-
-  constructor(private logging: LoggingService) {}
+  private readonly logging = inject(LoggingService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
 
   generateFleetName(game: GameState, ownerId: string, baseName: string): string {
     const context: LogContext = {
@@ -24,7 +24,7 @@ export class FleetNamingService implements IFleetNamingService {
     let actualBaseName = baseName;
     if (baseName !== 'Fleet') {
       const userDesign = game.shipDesigns.find((d) => d.id === baseName);
-      const legacyDesign = getDesign(baseName);
+      const legacyDesign = this.shipDesignRegistry.getDesign(baseName);
       actualBaseName = userDesign?.name || legacyDesign?.name || baseName;
     }
 

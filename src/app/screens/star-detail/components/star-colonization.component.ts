@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, output, inject } from '@angu
 import { CommonModule } from '@angular/common';
 import type { Star, Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
 
 @Component({
   standalone: true,
@@ -80,6 +80,7 @@ import { getDesign } from '../../../data/ships.data';
 })
 export class StarColonizationComponent {
   gs = inject(GameStateService);
+  shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly star = input.required<Star>();
   readonly colonizersInOrbit = input.required<Array<Fleet>>();
@@ -110,7 +111,7 @@ export class StarColonizationComponent {
 
     let maxWarp = Infinity;
     for (const s of fleet.ships) {
-      const d = getDesign(s.designId);
+      const d = this.shipDesignRegistry.getDesign(s.designId);
       if (d) {
         maxWarp = Math.min(maxWarp, d.warpSpeed);
       }

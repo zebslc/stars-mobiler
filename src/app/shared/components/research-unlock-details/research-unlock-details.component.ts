@@ -11,7 +11,7 @@ import type {
 import {
   ResourceCostComponent
 } from '../resource-cost/resource-cost.component';
-import { getHull } from '../../../utils/data-access.util';
+import { DataAccessService } from '../../../services/data/data-access.service';
 import { TouchClickDirective, ClickOutsideDirective } from '../../directives';
 
 @Component({
@@ -239,6 +239,7 @@ export class ResearchUnlockDetailsComponent {
   readonly close = output<void>();
 
   private techService = inject(TechService);
+  private readonly dataAccess = inject(DataAccessService);
 
   readonly details = computed(() => {
     const name = this.unlockName();
@@ -256,7 +257,7 @@ export class ResearchUnlockDetailsComponent {
   readonly hullData = computed(() => {
     const d = this.details();
     if (!d || !('Slots' in d)) return null;
-    return getHull(this.unlockName());
+    return this.dataAccess.getHull(this.unlockName());
   });
 
   readonly techType = computed(() => {

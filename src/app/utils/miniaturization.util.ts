@@ -1,6 +1,5 @@
 import type { ComponentStats } from '../data/tech-atlas.types';
 import type { PlayerTech } from '../models/game.model';
-import { getPrimaryTechField, getRequiredTechLevel } from './data-access.util';
 
 /**
  * Represents a component with miniaturized properties
@@ -53,11 +52,16 @@ export function calculateMiniaturizationFactor(playerLevel: number, requiredLeve
  * Get miniaturized mass for a component
  * @param component The base component
  * @param techLevels Player's current tech levels
+ * @param primaryField The primary tech field for this component
+ * @param requiredLevel The required tech level to build this component
  * @returns Miniaturized mass value
  */
-export function getMiniaturizedMass(component: ComponentStats, techLevels: PlayerTech): number {
-  const primaryField = getPrimaryTechField(component);
-  const requiredLevel = getRequiredTechLevel(component);
+export function getMiniaturizedMass(
+  component: ComponentStats, 
+  techLevels: PlayerTech,
+  primaryField: string,
+  requiredLevel: number,
+): number {
   const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
   const factor = calculateMiniaturizationFactor(playerLevel, requiredLevel);
   
@@ -68,14 +72,16 @@ export function getMiniaturizedMass(component: ComponentStats, techLevels: Playe
  * Get miniaturized cost for a component
  * @param component The base component
  * @param techLevels Player's current tech levels
+ * @param primaryField The primary tech field for this component
+ * @param requiredLevel The required tech level to build this component
  * @returns Miniaturized cost object
  */
 export function getMiniaturizedCost(
   component: ComponentStats, 
-  techLevels: PlayerTech
+  techLevels: PlayerTech,
+  primaryField: string,
+  requiredLevel: number,
 ): { ironium?: number; boranium?: number; germanium?: number; resources?: number } {
-  const primaryField = getPrimaryTechField(component);
-  const requiredLevel = getRequiredTechLevel(component);
   const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
   const factor = calculateMiniaturizationFactor(playerLevel, requiredLevel);
 
@@ -106,11 +112,16 @@ export function getMiniaturizedCost(
  * Get miniaturization level (tech levels above requirement)
  * @param component The base component
  * @param techLevels Player's current tech levels
+ * @param primaryField The primary tech field for this component
+ * @param requiredLevel The required tech level to build this component
  * @returns Number of tech levels above requirement
  */
-export function getMiniaturizationLevel(component: ComponentStats, techLevels: PlayerTech): number {
-  const primaryField = getPrimaryTechField(component);
-  const requiredLevel = getRequiredTechLevel(component);
+export function getMiniaturizationLevel(
+  component: ComponentStats, 
+  techLevels: PlayerTech,
+  primaryField: string,
+  requiredLevel: number,
+): number {
   const playerLevel = techLevels[primaryField as keyof PlayerTech] || 0;
   
   return Math.max(0, playerLevel - requiredLevel);
@@ -120,14 +131,18 @@ export function getMiniaturizationLevel(component: ComponentStats, techLevels: P
  * Get miniaturization description for UI display
  * @param component The base component
  * @param techLevels Player's current tech levels
+ * @param primaryField The primary tech field for this component
+ * @param requiredLevel The required tech level to build this component
  * @returns Human-readable description
  */
 export function getMiniaturizationDescription(
   component: ComponentStats,
-  techLevels: PlayerTech
+  techLevels: PlayerTech,
+  primaryField: string,
+  requiredLevel: number,
 ): string {
   const baseMass = component.mass;
-  const miniaturizedMass = getMiniaturizedMass(component, techLevels);
+  const miniaturizedMass = getMiniaturizedMass(component, techLevels, primaryField, requiredLevel);
   
   if (baseMass === miniaturizedMass) {
     return 'No miniaturization';
@@ -141,16 +156,20 @@ export function getMiniaturizationDescription(
  * Calculate mass savings from miniaturization for a single component
  * @param component The base component
  * @param techLevels Player's current tech levels
+ * @param primaryField The primary tech field for this component
+ * @param requiredLevel The required tech level to build this component
  * @param count Number of components
  * @returns Mass saved
  */
 export function calculateComponentMassSavings(
   component: ComponentStats,
   techLevels: PlayerTech,
+  primaryField: string,
+  requiredLevel: number,
   count: number = 1
 ): number {
   const baseMass = component.mass * count;
-  const miniaturizedMass = getMiniaturizedMass(component, techLevels) * count;
+  const miniaturizedMass = getMiniaturizedMass(component, techLevels, primaryField, requiredLevel) * count;
   return baseMass - miniaturizedMass;
 }
 
@@ -158,17 +177,21 @@ export function calculateComponentMassSavings(
  * Create a miniaturized version of a component
  * @param component The base component
  * @param techLevels Player's current tech levels
+ * @param primaryField The primary tech field for this component
+ * @param requiredLevel The required tech level to build this component
  * @returns Miniaturized component with all calculated properties
  */
 export function miniaturizeComponent(
   component: ComponentStats,
-  techLevels: PlayerTech
+  techLevels: PlayerTech,
+  primaryField: string,
+  requiredLevel: number,
 ): MiniaturizedComponent {
   return {
     ...component,
-    miniaturizedMass: getMiniaturizedMass(component, techLevels),
-    miniaturizedCost: getMiniaturizedCost(component, techLevels),
-    miniaturizationLevel: getMiniaturizationLevel(component, techLevels),
-    miniaturizationDescription: getMiniaturizationDescription(component, techLevels)
+    miniaturizedMass: getMiniaturizedMass(component, techLevels, primaryField, requiredLevel),
+    miniaturizedCost: getMiniaturizedCost(component, techLevels, primaryField, requiredLevel),
+    miniaturizationLevel: getMiniaturizationLevel(component, techLevels, primaryField, requiredLevel),
+    miniaturizationDescription: getMiniaturizationDescription(component, techLevels, primaryField, requiredLevel)
   };
 }

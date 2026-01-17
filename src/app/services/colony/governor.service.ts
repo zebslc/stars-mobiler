@@ -1,16 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { GameState, Star } from '../../models/game.model';
 import { PlanetUtilityService } from './planet-utility.service';
 import { BuildQueueService } from '../build/queue/build-queue.service';
-import { BUILD_COSTS } from '../../data/costs.data';
+import { BuildCostsRegistry } from '../data/build-costs-registry.service';
 
 @Injectable({ providedIn: 'root' })
 export class GovernorService {
-
-  constructor(
-    private planetUtility: PlanetUtilityService,
-    private buildQueue: BuildQueueService
-  ) {}
+  private readonly planetUtility = inject(PlanetUtilityService);
+  private readonly buildQueue = inject(BuildQueueService);
+  private readonly buildCosts = inject(BuildCostsRegistry);
 
   /**
    * Process governors for all owned stars.
@@ -86,9 +84,10 @@ export class GovernorService {
    * Queue a specific project for a star.
    */
   private queueProject(game: GameState, starId: string, project: string): void {
+    const cost = this.buildCosts.getCost(project) || { resources: 0 };
     this.buildQueue.addToBuildQueue(game, starId, {
       project: project as any,
-      cost: BUILD_COSTS[project],
+      cost: cost,
       isAuto: true,
     });
   }

@@ -1,33 +1,33 @@
-import { Injectable } from '@angular/core';
-import type { HullTemplate, ComponentStats, ComponentCategory } from '../../data/tech-atlas.data';
-import { TECH_ATLAS } from '../../data/tech-atlas.data';
+import { Injectable, inject } from '@angular/core';
+import type { HullTemplate, ComponentStats, ComponentCategory } from '../../data/tech-atlas.types';
+import { TechAtlasService } from '../data/tech-atlas.service';
 import type { Player, PlayerTech } from '../../models/game.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TechService {
-  constructor() {}
+  private readonly techAtlas = inject(TechAtlasService);
 
   /**
    * Get all tech streams (Energy, Kinetics, Propulsion, Construction)
    */
   getTechStreams(): Array<string> {
-    return TECH_ATLAS.techStreams;
+    return ['Energy', 'Kinetics', 'Propulsion', 'Construction'];
   }
 
   /**
    * Get all hulls from tech atlas
    */
-  getHulls(): Array<HullTemplate> {
-    return TECH_ATLAS.hulls;
+  getHulls(): ReadonlyArray<HullTemplate> {
+    return this.techAtlas.getAllHulls();
   }
 
   /**
    * Get hull by name
    */
   getHullByName(name: string): HullTemplate | undefined {
-    return TECH_ATLAS.hulls.find((h) => h.Name === name);
+    return this.techAtlas.getAllHulls().find((h) => h.Name === name);
   }
 
   /**
@@ -41,15 +41,15 @@ export class TechService {
   /**
    * Get all component categories
    */
-  getComponentCategories(): Array<ComponentCategory> {
-    return TECH_ATLAS.components;
+  getComponentCategories(): ReadonlyArray<ComponentCategory> {
+    return this.techAtlas.getAllComponentCategories();
   }
 
   /**
    * Get components by category (Engine, Scanner, Shield, Armor, Weapon)
    */
   getComponentsByCategory(category: string): Array<ComponentStats> {
-    const cat = TECH_ATLAS.components.find((c) => c.category === category);
+    const cat = this.techAtlas.getAllComponentCategories().find((c) => c.category === category);
     return cat ? cat.items : [];
   }
 
@@ -57,7 +57,7 @@ export class TechService {
    * Get component by name
    */
   getComponentByName(name: string): ComponentStats | undefined {
-    for (const category of TECH_ATLAS.components) {
+    for (const category of this.techAtlas.getAllComponentCategories()) {
       const component = category.items.find((item) => item.name === name);
       if (component) {
         return component;
@@ -70,7 +70,7 @@ export class TechService {
    * Get component by ID
    */
   getComponentById(id: string): ComponentStats | undefined {
-    for (const category of TECH_ATLAS.components) {
+    for (const category of this.techAtlas.getAllComponentCategories()) {
       const component = category.items.find((item) => item.id === id);
       if (component) {
         return component;

@@ -1,219 +1,58 @@
-import { ALL_HULLS } from './tech-atlas.data';
-import { logInternalWarn, logInternalInfo } from '../services/core/internal-logger.service';
+/**
+ * DEPRECATION NOTICE: This file is deprecated. Use ShipDesignRegistry from services/data/ship-design-registry.service.ts instead.
+ * 
+ * This file is maintained for backward compatibility only.
+ * All new code should use the injectable ShipDesignRegistry service.
+ */
 
-// CompiledDesign interface - represents a fully compiled ship design with calculated stats
-export interface CompiledDesign {
-  id: string;
-  name: string;
-  image?: string;
-  hullId: string;
-  hullName: string;
-  isStarbase?: boolean;
-  type?: string;
-  mass: number;
-  cargoCapacity: number;
-  fuelCapacity: number;
-  fuelEfficiency: number;
-  warpSpeed: number;
-  idealWarp: number;
-  armor: number;
-  shields: number;
-  initiative: number;
-  firepower: number;
-  colonistCapacity?: number;
-  engine?: {
-    id: string;
-  };
-  cost: {
-    ironium: number;
-    boranium: number;
-    germanium: number;
-    resources: number;
-  };
-  colonyModule: boolean;
-  scannerRange: number;
-  cloakedRange: number;
-  components: Array<{
-    id: string;
-    name: string;
-    quantity: number;
-  }>;
-}
+// Re-export the service interface and types for backward compatibility
+export { ShipDesignRegistry, type CompiledDesign } from '../services/data/ship-design-registry.service';
 
-// Sample compiled designs - these would normally be computed from player designs
-// For now, creating basic designs from hulls for compatibility
-const createBasicDesigns = (): { [key: string]: CompiledDesign } => {
-  const designs: { [key: string]: CompiledDesign } = {};
+// Legacy helper to maintain backward compatibility with old code patterns
+import { inject } from '@angular/core';
+import { ShipDesignRegistry, type CompiledDesign } from '../services/data/ship-design-registry.service';
 
-  ALL_HULLS.forEach((hull) => {
-    const normalizedName = hull.Name.toLowerCase().replace(/\s+/g, '_');
-    const designId = hull.id || normalizedName;
+/**
+ * DEPRECATED: Use inject(ShipDesignRegistry) instead
+ * This is a function wrapper for backward compatibility with old code
+ * that calls getDesign() directly without dependency injection.
+ * 
+ * @deprecated Use ShipDesignRegistry service via inject()
+ */
+let _legacyRegistry: ShipDesignRegistry | null = null;
 
-    designs[designId] = {
-      id: designId,
-      name: hull.Name,
-      image: hull.id,
-      hullId: designId,
-      hullName: hull.Name,
-      isStarbase: hull.isStarbase,
-      type: hull.type,
-      mass: hull.Stats.Mass,
-      cargoCapacity: hull.Stats.Cargo || 0,
-      fuelCapacity: hull.Stats['Max Fuel'] || 0,
-      fuelEfficiency: 100, // Default fuel efficiency
-      warpSpeed: 6, // Default warp speed
-      idealWarp: 6, // Default ideal warp
-      armor: hull.Stats.Armor || 0,
-      shields: 0,
-      initiative: hull.Stats.Initiative || 0,
-      firepower: 0,
-      colonistCapacity: hull.Name.toLowerCase().includes('colony') ? 25000 : undefined, // 25kT = 25,000 colonists
-      engine: undefined,
-      cost: {
-        ironium: hull.Cost.Ironium,
-        boranium: hull.Cost.Boranium,
-        germanium: hull.Cost.Germanium,
-        resources: hull.Cost.Resources,
-      },
-      colonyModule:
-        hull.Name.toLowerCase().includes('colony') || hull.Name.toLowerCase().includes('settler'),
-      scannerRange: 0,
-      cloakedRange: 0,
-      components: [],
-    };
-
-    // Add a generic alias using normalized hull name for broader compatibility
-    // This ensures lookups like 'frigate', 'privateer', etc., resolve even if callers use names instead of IDs
-    if (designId !== normalizedName) {
-      designs[normalizedName] = { ...designs[designId], id: normalizedName };
-    }
-  });
-
-  // Add additional design entries for backward compatibility with tests
-  // Scout design should be available as both 'hull-scout' and 'scout'
-  if (designs['hull-scout']) {
-    designs['scout'] = {
-      ...designs['hull-scout'],
-      id: 'scout',
-      scannerRange: 50,
-      components: [
-        { id: 'scan_rhino', name: 'Rhino Scanner', quantity: 1 }
-      ]
-    };
-  }
-
-  // Colony ship aliases
-  if (designs['hull-mini-colony']) {
-    designs['mini_colony_ship'] = { ...designs['hull-mini-colony'], id: 'mini_colony_ship' };
-    // Also add an entry for the raw name if it gets normalized
-    designs['mini_colony'] = { ...designs['hull-mini-colony'], id: 'mini_colony' };
-  }
-  if (designs['hull-colony']) {
-    designs['colony_ship'] = { ...designs['hull-colony'], id: 'colony_ship' };
-    designs['colony'] = { ...designs['hull-colony'], id: 'colony' };
-  }
-
-  // Starbase designs should be available with simpler names for mapping
-  if (designs['hull-orbital-fort']) {
-    designs['orbital_fort'] = { ...designs['hull-orbital-fort'], id: 'orbital_fort' };
-  }
-  if (designs['hull-space-dock']) {
-    designs['space_dock'] = { ...designs['hull-space-dock'], id: 'space_dock' };
-  }
-  if (designs['hull-space-station']) {
-    designs['space_station'] = { ...designs['hull-space-station'], id: 'space_station' };
-  }
-  if (designs['hull-ultra-station']) {
-    designs['ultra_station'] = { ...designs['hull-ultra-station'], id: 'ultra_station' };
-  }
-  if (designs['hull-death-star']) {
-    designs['death_star'] = { ...designs['hull-death-star'], id: 'death_star' };
-  }
-
-  return designs;
-};
-
-// Export compiled designs
-export const COMPILED_DESIGNS = createBasicDesigns();
-
-export function registerCompiledDesign(design: CompiledDesign): void {
-  if (!design?.id) return;
-  COMPILED_DESIGNS[design.id] = design;
-  logInternalInfo('Design registered in COMPILED_DESIGNS', {
-    designId: design.id,
-    totalDesigns: Object.keys(COMPILED_DESIGNS).length
-  }, 'ShipDesignRegistry');
-}
-
-export function unregisterCompiledDesign(designId: string): void {
-  if (!designId) return;
-  delete COMPILED_DESIGNS[designId];
-}
-
-// Utility function to get design by ID
 export function getDesign(designId: string): CompiledDesign {
-  let design = COMPILED_DESIGNS[designId];
-  let normalizedId = '';
-
-  if (!design) {
-    // Try normalizing the ID to handle cases where name is passed as ID
-    normalizedId = designId.toLowerCase().replace(/[\s-]+/g, '_');
-    design = COMPILED_DESIGNS[normalizedId];
-
-    // Fallback for legacy starbase IDs (starbase1, starbase2, etc.)
-    if (!design && normalizedId.startsWith('starbase')) {
-      const match = normalizedId.match(/starbase_?(\d+)/);
-      if (match) {
-        const level = parseInt(match[1], 10);
-        const starbaseMap: { [key: number]: string } = {
-          1: 'orbital_fort',
-          2: 'space_dock',
-          3: 'space_station',
-          4: 'ultra_station',
-          5: 'death_star',
-        };
-        const mappedId = starbaseMap[level];
-        if (mappedId) {
-          design = COMPILED_DESIGNS[mappedId];
-        }
-      }
-    }
+  if (!_legacyRegistry) {
+    _legacyRegistry = inject(ShipDesignRegistry);
   }
-
-  if (!design) {
-    // Only warn if this looks like a legacy design ID, not a dynamic (user/system-created) one
-    // Dynamic designs start with design_ or design- (initial/seed-based)
-    if (!designId.startsWith('design_') && !designId.startsWith('design-')) {
-      logInternalWarn('Design not found in COMPILED_DESIGNS', { 
-        designId, 
-        normalizedId: normalizedId || designId,
-        availableKeys: Object.keys(COMPILED_DESIGNS).length,
-        sampleKeys: Object.keys(COMPILED_DESIGNS).slice(0, 5)
-      }, 'ShipDesignRegistry');
-    }
-    // Return a default design to prevent crashes
-    return {
-      id: designId,
-      name: 'Unknown Design',
-      hullId: 'unknown',
-      hullName: 'Unknown Hull',
-      mass: 100,
-      cargoCapacity: 0,
-      fuelCapacity: 100,
-      fuelEfficiency: 100,
-      warpSpeed: 6,
-      idealWarp: 6,
-      armor: 25,
-      shields: 0,
-      initiative: 0,
-      firepower: 0,
-      cost: { ironium: 10, boranium: 0, germanium: 10, resources: 25 },
-      colonyModule: false,
-      scannerRange: 0,
-      cloakedRange: 0,
-      components: [],
-      engine: undefined,
-    };
-  }
-  return design;
+  return _legacyRegistry.getDesign(designId);
 }
+
+/**
+ * DEPRECATED: Use inject(ShipDesignRegistry).register() instead
+ * @deprecated Use ShipDesignRegistry service via inject()
+ */
+export function registerCompiledDesign(design: CompiledDesign): void {
+  if (!_legacyRegistry) {
+    _legacyRegistry = inject(ShipDesignRegistry);
+  }
+  _legacyRegistry.register(design);
+}
+
+/**
+ * DEPRECATED: Use inject(ShipDesignRegistry).unregister() instead
+ * @deprecated Use ShipDesignRegistry service via inject()
+ */
+export function unregisterCompiledDesign(designId: string): void {
+  if (!_legacyRegistry) {
+    _legacyRegistry = inject(ShipDesignRegistry);
+  }
+  _legacyRegistry.unregister(designId);
+}
+
+/**
+ * DEPRECATED: Use inject(ShipDesignRegistry).designs for reactive access
+ * This creates an object snapshot, not reactive. Use the service signal instead.
+ * @deprecated Use ShipDesignRegistry service via inject()
+ */
+export const COMPILED_DESIGNS: Record<string, CompiledDesign> = {};

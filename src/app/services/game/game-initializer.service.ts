@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type {
   GameSettings,
   GameState,
@@ -11,16 +11,15 @@ import type {
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
 import { GalaxyGeneratorService } from './galaxy-generator.service';
 import { SPECIES } from '../../data/species.data';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../data/data-access.service';
 import { createEmptyDesign } from '../../models/ship-design.model';
 import { LoggingService } from '../core/logging.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameInitializerService {
-  constructor(
-    private galaxy: GalaxyGeneratorService,
-    private logging: LoggingService
-  ) {}
+  private readonly galaxy = inject(GalaxyGeneratorService);
+  private readonly logging = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
 
   initializeGame(settings: GameSettings): GameState {
     const starCount =
@@ -107,7 +106,7 @@ export class GameInitializerService {
     const ssFleetId = `fleet-${settings.seed}-init`;
 
     // Use createEmptyDesign to ensure slots are properly initialized from the hull definition
-    const ssHull = getHull('Space Station');
+    const ssHull = this.dataAccess.getHull('Space Station');
     let ssDesign: ShipDesign;
 
     if (ssHull) {

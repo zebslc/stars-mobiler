@@ -13,9 +13,9 @@ import { GameStateService } from '../../services/game/game-state.service';
 import { HabitabilityService } from '../../services/colony/habitability.service';
 import { ShipyardService } from '../../services/ship-design/shipyard.service';
 import { TechService } from '../../services/tech/tech.service';
-import { getDesign } from '../../data/ships.data';
-import { BUILD_COSTS } from '../../data/costs.data';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../../services/data/data-access.service';
+import { ShipDesignRegistry } from '../../services/data/ship-design-registry.service';
+import { BuildCostsRegistry } from '../../services/data/build-costs-registry.service';
 import type { ShipOption } from '../../components/ship-selector.component';
 import { StarSummaryComponent } from './components/star-summary.component';
 import { StarBuildQueueComponent } from './components/star-build-queue.component';
@@ -151,6 +151,9 @@ export class StarDetailComponent implements OnInit {
   private hab = inject(HabitabilityService);
   private shipyardService = inject(ShipyardService);
   private techService = inject(TechService);
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
+  private readonly buildCostsRegistry = inject(BuildCostsRegistry);
 
   private readonly starIdSignal = signal<string | null>(null);
   readonly activeTab = signal<'status' | 'queue' | 'fleet'>('status');
@@ -286,7 +289,7 @@ export class StarDetailComponent implements OnInit {
     const dynamicDesign = playerDesigns.find((d) => d.id === designId);
 
     if (dynamicDesign) {
-      const hull = getHull(dynamicDesign.hullId);
+      const hull = this.dataAccess.getHull(dynamicDesign.hullId);
       return {
         id: dynamicDesign.id,
         name: dynamicDesign.name,
@@ -300,7 +303,7 @@ export class StarDetailComponent implements OnInit {
       };
     }
 
-    return getDesign(designId);
+    return this.shipDesignRegistry.getDesign(designId);
   }
 
   readonly starbaseFleet = computed(() => {
@@ -421,7 +424,7 @@ export class StarDetailComponent implements OnInit {
     const shipOption = this.selectedShipOption();
     const shipCost = shipOption ? shipOption.cost : { resources: 0 };
 
-    const cost = BUILD_COSTS[project] || (project === 'ship' ? shipCost : { resources: 0 });
+    const cost = this.buildCostsRegistry.getCost(project) || (project === 'ship' ? shipCost : { resources: 0 });
 
     let item = {
       project,

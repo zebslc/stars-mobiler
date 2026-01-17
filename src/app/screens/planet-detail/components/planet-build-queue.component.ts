@@ -13,10 +13,11 @@ import { Router } from '@angular/router';
 import type { BuildItem, Star } from '../../../models/game.model';
 import type { ShipOption } from '../../../components/ship-selector.component';
 import { ShipSelectorComponent } from '../../../components/ship-selector.component';
-import { getDesign } from '../../../data/ships.data';
 import { GameStateService } from '../../../services/game/game-state.service';
-import type { Cost } from '../../../data/costs.data';
-import { BUILD_COSTS } from '../../../data/costs.data';
+import type { Cost } from '../../../services/data/build-costs-registry.service';
+import { DataAccessService } from '../../../services/data/data-access.service';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
+import { BuildCostsRegistry } from '../../../services/data/build-costs-registry.service';
 
 export type BuildProject =
   | 'mine'
@@ -157,6 +158,8 @@ export type BuildProject =
 export class StarBuildQueueComponent {
   private router = inject(Router);
   private gs = inject(GameStateService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
+  private readonly buildCostsRegistry = inject(BuildCostsRegistry);
 
   @ViewChild(ShipSelectorComponent) shipSelector?: ShipSelectorComponent;
 
@@ -216,7 +219,7 @@ export class StarBuildQueueComponent {
     if (userDesign) return userDesign.name;
 
     // Fallback to compiled designs (built-in)
-    const design = getDesign(id);
+    const design = this.shipDesignRegistry.getDesign(id);
     return design?.name || id;
   }
 
@@ -230,7 +233,7 @@ export class StarBuildQueueComponent {
   }
 
   getProjectCostLabel(project: string): string {
-    const cost = BUILD_COSTS[project];
+    const cost = this.buildCostsRegistry.getCost(project as any);
     if (!cost) return '';
     return ` (${this.formatCost(cost)})`;
   }

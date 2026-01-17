@@ -14,11 +14,11 @@ import { Router } from '@angular/router';
 import { TouchClickDirective } from '../../shared/directives';
 import { ShipDesignerService } from '../../services/ship-design/ship-designer.service';
 import { GameStateService } from '../../services/game/game-state.service';
+import { DataAccessService } from '../../services/data/data-access.service';
 import { ShipDesignerStatsComponent } from './components/ship-designer-stats.component';
 import { ShipDesignerSlotsComponent } from './components/ship-designer-slots.component';
 import { ShipDesignerHullSelectorComponent } from './components/ship-designer-hull-selector.component';
 import { ShipDesignerComponentSelectorComponent } from './components/ship-designer-component-selector.component';
-import { getHull } from '../../utils/data-access.util';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
 import { ResourceCostComponent } from '../../shared/components/resource-cost/resource-cost.component';
 import { ResearchUnlockDetailsComponent } from '../../shared/components/research-unlock-details/research-unlock-details.component';
@@ -66,6 +66,7 @@ export class ShipDesignerComponent implements OnInit {
 
   private designer = inject(ShipDesignerService);
   private gameState = inject(GameStateService);
+  private dataAccess = inject(DataAccessService);
   private router = inject(Router);
 
   readonly selectedSlotId = signal<string | null>(null);
@@ -237,12 +238,12 @@ export class ShipDesignerComponent implements OnInit {
       const isStarbase = STARBASE_HULLS.some((h) => h.Name === currentHull.Name);
 
       const starbaseDesigns = existingDesigns.filter((d) => {
-        const h = getHull(d.hullId);
+        const h = this.dataAccess.getHull(d.hullId);
         return h && STARBASE_HULLS.some((sh) => sh.Name === h.Name);
       });
 
       const shipDesigns = existingDesigns.filter((d) => {
-        const h = getHull(d.hullId);
+        const h = this.dataAccess.getHull(d.hullId);
         return h && !STARBASE_HULLS.some((sh) => sh.Name === h.Name);
       });
 

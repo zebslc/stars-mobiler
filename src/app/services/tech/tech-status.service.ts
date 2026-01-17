@@ -2,7 +2,7 @@ import { Injectable, inject, computed } from '@angular/core';
 import { GameStateService } from '../game/game-state.service';
 import { TechService } from '../tech/tech.service';
 import type { TechField } from '../../data/tech-tree.data';
-import type { TechRequirement } from '../../data/tech-atlas.data';
+import type { TechRequirement } from '../../data/tech-atlas.types';
 
 @Injectable({ providedIn: 'root' })
 export class TechStatusService {

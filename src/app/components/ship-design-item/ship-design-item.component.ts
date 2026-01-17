@@ -13,9 +13,9 @@ import { ResourceCostComponent } from '../../shared/components/resource-cost/res
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';
 import type { CompiledShipStats} from '../../models/game.model';
 import { ShipDesign } from '../../models/game.model';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../../services/data/data-access.service';
+import { ShipDesignRegistry } from '../../services/data/ship-design-registry.service';
 import { GameStateService } from '../../services/game/game-state.service';
-import { getDesign } from '../../data/ships.data';
 
 export interface ShipDesignDisplay {
   id: string;
@@ -376,6 +376,8 @@ export class ShipDesignItemComponent {
   readonly preview = output<string>();
 
   private gameState = inject(GameStateService);
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
   readonly selectedStarId = signal<string>('');
 
   readonly isInvalid = computed(() => {
@@ -409,7 +411,7 @@ export class ShipDesignItemComponent {
             let shipDesign = game.shipDesigns.find((d) => d.id === ship.designId);
 
             if (!shipDesign) {
-              const legacy = getDesign(ship.designId);
+              const legacy = this.shipDesignRegistry.getDesign(ship.designId);
               if (legacy) {
                 shipDesign = { hullId: legacy.hullId } as any;
               }
@@ -417,7 +419,7 @@ export class ShipDesignItemComponent {
 
             if (!shipDesign) return false;
 
-            const hull = getHull(shipDesign.hullId);
+            const hull = this.dataAccess.getHull(shipDesign.hullId);
             if (!hull) return false;
 
             if (!hull.Stats?.CanBuildShips) return false;
@@ -450,12 +452,12 @@ export class ShipDesignItemComponent {
   }
 
   get hullName(): string {
-    const hull = getHull(this.design().hullId);
+    const hull = this.dataAccess.getHull(this.design().hullId);
     return hull ? hull.Name : this.design().hullId;
   }
 
   get hullIcon(): string {
-    const hull = getHull(this.design().hullId);
+    const hull = this.dataAccess.getHull(this.design().hullId);
     if (hull && hull.id) {
       return `/assets/tech-icons/${hull.id}.png`;
     }

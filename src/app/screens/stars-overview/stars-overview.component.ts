@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import { TechService } from '../../services/tech/tech.service';
 import type { Star } from '../../models/game.model';
-import { getDesign } from '../../data/ships.data';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../../services/data/data-access.service';
+import { ShipDesignRegistry } from '../../services/data/ship-design-registry.service';
 import { StarCardComponent } from './components/star-card.component';
 import { LoggingService } from '../../services/core/logging.service';
 
@@ -126,6 +126,8 @@ export class StarsOverviewComponent {
   private router = inject(Router);
   private techService = inject(TechService);
   private logging = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly filterMode = signal<'Normal' | 'Starbase'>('Normal');
 
@@ -149,7 +151,7 @@ export class StarsOverviewComponent {
         let hullName = '';
 
         if (dynamicDesign) {
-          const hull = getHull(dynamicDesign.hullId);
+          const hull = this.dataAccess.getHull(dynamicDesign.hullId);
           if (hull) {
             isStarbase =
               hull.isStarbase ||
@@ -167,7 +169,7 @@ export class StarsOverviewComponent {
           }
         } else {
           // Predefined
-          const design = getDesign(ship.designId);
+          const design = this.shipDesignRegistry.getDesign(ship.designId);
           if (design) {
             isStarbase = design.isStarbase || false;
             designName = design.name;

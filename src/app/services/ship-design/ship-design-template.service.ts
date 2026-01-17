@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { LoggingService } from '../core/logging.service';
+import { DataAccessService } from '../data/data-access.service';
+import { TechAtlasService } from '../data/tech-atlas.service';
 import type {
   IShipDesignTemplateService,
   ShipDesignTemplate,
@@ -11,9 +13,7 @@ import type {
   PrimaryRacialTrait,
   LesserRacialTrait,
 } from '../../data/tech-atlas.types';
-import { ALL_HULLS } from '../../data/tech-atlas.data';
 import { STARBASE_HULLS } from '../../data/hulls/starbases.data';
-import { getHull } from '../../utils/data-access.util';
 import { createEmptyDesign } from '../../models/ship-design.model';
 import { hasAll, lacksAny } from '../../utils/trait-validation.util';
 
@@ -28,6 +28,8 @@ import { hasAll, lacksAny } from '../../utils/trait-validation.util';
 })
 export class ShipDesignTemplateService implements IShipDesignTemplateService {
   private readonly loggingService = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly techAtlas = inject(TechAtlasService);
 
   /**
    * Get available design templates based on tech levels
@@ -92,7 +94,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
     try {
       // Extract hull ID from template ID (basic implementation)
       const hullId = templateId.replace('template_', '');
-      const hull = getHull(hullId);
+      const hull = this.dataAccess.getHull(hullId);
 
       if (!hull) {
         const error = `Hull ${hullId} not found for template ${templateId}`;
@@ -158,7 +160,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
 
     try {
       const constructionLevel = techLevels.Construction;
-      const availableHulls = ALL_HULLS.filter((hull) => {
+      const availableHulls = this.techAtlas.getAllHulls().filter((hull) => {
         // Check tech requirement
         if ((hull.techReq?.Construction || 0) > constructionLevel) return false;
         // Check racial trait requirements
@@ -283,7 +285,7 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
         return { isValid: true };
       }
 
-      const hull = getHull(newDesign.hullId);
+      const hull = this.dataAccess.getHull(newDesign.hullId);
       if (!hull) {
         return { isValid: false, error: 'Hull not found' };
       }
@@ -291,12 +293,12 @@ export class ShipDesignTemplateService implements IShipDesignTemplateService {
       const isStarbase = this.isStarbaseHull(hull);
 
       const starbaseDesigns = existingDesigns.filter((d) => {
-        const h = getHull(d.hullId);
+        const h = this.dataAccess.getHull(d.hullId);
         return h && this.isStarbaseHull(h);
       });
 
       const shipDesigns = existingDesigns.filter((d) => {
-        const h = getHull(d.hullId);
+        const h = this.dataAccess.getHull(d.hullId);
         return h && !this.isStarbaseHull(h);
       });
 

@@ -3,7 +3,6 @@ import { getSlotTypeForComponentType } from '../data/tech-atlas.types';
 import { getMiniaturizedMass, getMiniaturizedCost } from '../utils/miniaturization.util';
 import type { SlotAssignment, CompiledShipStats, PlayerTech } from '../models/game.model';
 import { validateShipDesign } from '../services/core/validation.service';
-import { getComponentsLookup } from '../utils/data-access.util';
 
 /**
  * Ship Design Models
@@ -42,9 +41,12 @@ export function compileShipStats(
   hull: HullTemplate,
   assignments: Array<SlotAssignment>,
   techLevels: PlayerTech,
+  componentsLookup: Record<string, ComponentStats>,
+  techFieldLookup?: Record<string, string>,
+  requiredLevelLookup?: Record<string, number>,
 ): CompiledShipStats {
   const errors: Array<string> = [];
-  const COMPONENTS = getComponentsLookup();
+  const COMPONENTS = componentsLookup;
 
   // Start with hull base stats
   let totalMass = hull.Stats.Mass;
@@ -109,8 +111,10 @@ export function compileShipStats(
       }
 
       // Add miniaturized mass and cost (multiplied by count)
-      const miniaturizedMass = getMiniaturizedMass(baseComponent, techLevels);
-      const miniaturizedCost = getMiniaturizedCost(baseComponent, techLevels);
+      const techField = techFieldLookup?.[baseComponent.id] || 'Energy';
+      const requiredLevel = requiredLevelLookup?.[baseComponent.id] || 0;
+      const miniaturizedMass = getMiniaturizedMass(baseComponent, techLevels, techField, requiredLevel);
+      const miniaturizedCost = getMiniaturizedCost(baseComponent, techLevels, techField, requiredLevel);
 
       totalMass += miniaturizedMass * count;
       if (miniaturizedCost.ironium) cost.ironium += miniaturizedCost.ironium * count;
@@ -241,7 +245,7 @@ export function compileShipStats(
 
   // Validation
   const isStarbase = !!hull.isStarbase;
-  errors.push(...validateShipDesign(hull, assignments, getComponentsLookup()));
+  errors.push(...validateShipDesign(hull, assignments, componentsLookup));
 
   const isValid = errors.length === 0;
 

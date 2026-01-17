@@ -9,7 +9,7 @@ import { GalaxyWaypointService } from './waypoints/galaxy-waypoint.service';
 import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
 import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
 import type { Fleet, FleetOrder, GameState, Star } from '../../../models/game.model';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
 
 export interface MenuAction {
   action: string;
@@ -37,6 +37,7 @@ export class GalaxyMapMenuService {
   private readonly state = inject(GalaxyMapStateService);
   private readonly waypoints = inject(GalaxyWaypointService);
   private readonly fleetPositions = inject(GalaxyFleetPositionService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly planetMenu = signal<PlanetMenuState>({ visible: false, x: 0, y: 0, star: null });
   readonly fleetMenu = signal<FleetMenuState>({ visible: false, x: 0, y: 0, fleet: null });
@@ -577,7 +578,7 @@ export class GalaxyMapMenuService {
       if (dynamicDesign?.spec?.hasColonyModule && ship.count > 0) {
         return true;
       }
-      const compiled = getDesign(ship.designId);
+      const compiled = this.shipDesignRegistry.getDesign(ship.designId);
       return !!compiled?.colonyModule && ship.count > 0;
     });
   }
@@ -596,7 +597,7 @@ export class GalaxyMapMenuService {
       const dynamicDesign = this.gs
         .game()
         ?.shipDesigns.find((design) => design.id === ship.designId);
-      const stock = getDesign(ship.designId);
+      const stock = this.shipDesignRegistry.getDesign(ship.designId);
       return ship.count > 0 && (dynamicDesign?.spec?.hasColonyModule || stock?.colonyModule);
     });
 

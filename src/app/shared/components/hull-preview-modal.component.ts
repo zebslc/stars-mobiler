@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { HullTemplate } from '../../data/tech-atlas.types';
-import { getComponent } from '../../utils/data-access.util';
+import { DataAccessService } from '../../services/data/data-access.service';
 import type { ShipDesign } from '../../models/game.model';
 import { HullLayoutComponent } from './hull-layout/hull-layout.component';
 import type { Cost } from './resource-cost/resource-cost.component';
@@ -270,6 +270,8 @@ export class HullPreviewModalComponent {
   readonly title = input<string | null>(null);
   readonly close = output<void>();
 
+  private readonly dataAccess = inject(DataAccessService);
+
   readonly previewComponentName = signal<string | null>(null);
 
   onComponentInfoClick(slotId: string) {
@@ -278,7 +280,7 @@ export class HullPreviewModalComponent {
     const slot = design.slots.find((s) => s.slotId === slotId);
     if (slot && slot.components && slot.components.length > 0) {
       const componentId = slot.components[0].componentId;
-      const component = getComponent(componentId);
+      const component = this.dataAccess.getComponent(componentId);
       if (component) {
         this.previewComponentName.set(component.name);
       }
@@ -305,7 +307,7 @@ export class HullPreviewModalComponent {
           // This assumes we have access to component data or helper
           // Since we don't have getComponent here, we rely on the parent or need to import it
           // Let's import getComponent
-          const compDef = getComponent(c.componentId);
+          const compDef = this.dataAccess.getComponent(c.componentId);
           if (compDef) {
             comps.push({
               name: compDef.name,
@@ -322,7 +324,7 @@ export class HullPreviewModalComponent {
 
   getComponentIcon(nameOrId: string): string {
     // Simple mapping or check
-    const comp = getComponent(nameOrId);
+    const comp = this.dataAccess.getComponent(nameOrId);
     return comp?.id || 'placeholder';
   }
 

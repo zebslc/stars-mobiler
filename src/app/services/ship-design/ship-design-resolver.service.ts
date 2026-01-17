@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
-import { getDesign, type CompiledDesign } from '../../data/ships.data';
+import { Injectable, inject } from '@angular/core';
+import type { CompiledDesign } from '../../data/ships.data';
 import { compileShipStats } from '../../models/ship-design.model';
 import type { CompiledShipStats, GameState, PlayerTech, ShipDesign } from '../../models/game.model';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../data/data-access.service';
+import { ShipDesignRegistry } from '../data/ship-design-registry.service';
 
 const DEFAULT_TECH_LEVELS: PlayerTech = {
   Energy: 0,
@@ -13,6 +14,8 @@ const DEFAULT_TECH_LEVELS: PlayerTech = {
 
 @Injectable({ providedIn: 'root' })
 export class ShipDesignResolverService {
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
 
   /**
    * Resolve a ship design from game state or static data
@@ -33,16 +36,16 @@ export class ShipDesignResolverService {
     }
 
     // Fall back to static designs
-    return getDesign(designId) ?? null;
+    return this.shipDesignRegistry.getDesign(designId) ?? null;
   }
 
   private compileDynamicDesign(design: ShipDesign, gameState: GameState): CompiledShipStats | null {
-    const hull = getHull(design.hullId);
+    const hull = this.dataAccess.getHull(design.hullId);
     if (!hull) return null;
 
     const player = gameState.humanPlayer;
     const techLevels = player?.techLevels ?? DEFAULT_TECH_LEVELS;
-    return compileShipStats(hull, design.slots, techLevels);
+    return compileShipStats(hull, design.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
   }
 
   private toCompiledDesign(
@@ -50,7 +53,7 @@ export class ShipDesignResolverService {
     design: ShipDesign,
     stats: CompiledShipStats,
   ): CompiledDesign {
-    const hull = getHull(design.hullId);
+    const hull = this.dataAccess.getHull(design.hullId);
 
     return {
       id: designId,

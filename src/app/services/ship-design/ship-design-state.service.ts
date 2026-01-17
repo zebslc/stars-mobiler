@@ -3,7 +3,7 @@ import type { PlayerTech, ShipDesign, SlotAssignment, Species } from '../../mode
 import type { HullTemplate } from '../../data/tech-atlas.types';
 import type { LogContext } from '../../models/service-interfaces.model';
 import { compileShipStats, createEmptyDesign } from '../../models/ship-design.model';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../data/data-access.service';
 import { LoggingService } from '../core/logging.service';
 
 /**
@@ -16,6 +16,7 @@ import { LoggingService } from '../core/logging.service';
 })
 export class ShipDesignStateService {
   private readonly loggingService = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
 
   private readonly _currentDesign = signal<ShipDesign | null>(null);
   private readonly _techLevels = signal<PlayerTech>({
@@ -33,7 +34,7 @@ export class ShipDesignStateService {
   readonly currentHull = computed(() => {
     const design = this._currentDesign();
     if (!design) return null;
-    return getHull(design.hullId) ?? null;
+    return this.dataAccess.getHull(design.hullId) ?? null;
   });
 
   readonly compiledStats = computed(() => {
@@ -41,7 +42,7 @@ export class ShipDesignStateService {
     const hull = this.currentHull();
     const techLevels = this._techLevels();
     if (!design || !hull) return null;
-    return compileShipStats(hull, design.slots, techLevels);
+    return compileShipStats(hull, design.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
   });
 
   setTechLevels(techLevels: PlayerTech): void {
@@ -63,7 +64,7 @@ export class ShipDesignStateService {
 
     this.loggingService.debug('Starting new ship design', context);
 
-    const hull = getHull(hullId);
+    const hull = this.dataAccess.getHull(hullId);
     if (!hull) {
       const error = `Hull ${hullId} not found`;
       this.loggingService.error(error, context);
@@ -90,7 +91,7 @@ export class ShipDesignStateService {
 
     this.loggingService.debug('Loading existing design for editing', context);
 
-    const hull = getHull(design.hullId);
+    const hull = this.dataAccess.getHull(design.hullId);
     const slots = hull
       ? this.buildSlotsFromHull(design, hull.Slots)
       : this.cloneSlots(design.slots);

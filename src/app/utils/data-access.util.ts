@@ -1,76 +1,76 @@
-// Data access utilities for the new tech-atlas system
+/**
+ * DEPRECATION NOTICE: This file is deprecated.
+ * Use DataAccessService from services/data/data-access.service.ts instead.
+ * 
+ * This file is maintained for backward compatibility only.
+ * All new code should use the injectable DataAccessService.
+ */
+
+import { inject } from '@angular/core';
 import type { ComponentStats, HullTemplate } from '../data/tech-atlas.types';
-import { ALL_COMPONENTS, ALL_HULLS } from '../data/tech-atlas.data';
+import { DataAccessService } from '../services/data/data-access.service';
+
+let _dataAccessService: DataAccessService | null = null;
+
+function _getService(): DataAccessService {
+  if (!_dataAccessService) {
+    _dataAccessService = inject(DataAccessService);
+  }
+  return _dataAccessService;
+}
 
 /**
+ * DEPRECATED: Use inject(DataAccessService).getComponent() instead
  * Get a component by ID from the tech atlas
  */
 export function getComponent(componentId: string): ComponentStats | undefined {
-  for (const category of ALL_COMPONENTS) {
-    const component = category.items.find(item => item.id === componentId);
-    if (component) {
-      return component;
-    }
-  }
-  return undefined;
+  return _getService().getComponent(componentId);
 }
 
 /**
+ * DEPRECATED: Use inject(DataAccessService).getAllComponents() instead
  * Get all components as a flat array
  */
 export function getAllComponents(): Array<ComponentStats> {
-  return ALL_COMPONENTS.flatMap(category => category.items);
+  return _getService().getAllComponents();
 }
 
 /**
+ * DEPRECATED: Use inject(DataAccessService).getComponentsLookup() instead
  * Get all components as a lookup object for O(1) access
  */
 export function getComponentsLookup(): Record<string, ComponentStats> {
-  const lookup: Record<string, ComponentStats> = {};
-  for (const category of ALL_COMPONENTS) {
-    for (const component of category.items) {
-      lookup[component.id] = component;
-    }
-  }
-  return lookup;
+  return _getService().getComponentsLookup();
 }
 
 /**
+ * DEPRECATED: Use inject(DataAccessService).getHull() instead
  * Get a hull by ID from the tech atlas
  */
 export function getHull(hullId: string): HullTemplate | undefined {
-  return ALL_HULLS.find(hull => 
-    hull.id === hullId || 
-    hull.Name === hullId ||
-    hull.Name.toLowerCase().replace(/\s+/g, '_') === hullId
-  );
+  return _getService().getHull(hullId);
 }
 
 /**
+ * DEPRECATED: Use inject(DataAccessService).getAllHulls() instead
  * Get all hulls
  */
 export function getAllHulls(): Array<HullTemplate> {
-  return ALL_HULLS;
+  return _getService().getAllHulls();
 }
 
 /**
+ * DEPRECATED: Use inject(DataAccessService).getRequiredTechLevel() instead
  * Get the required tech level for a component
  */
 export function getRequiredTechLevel(component: ComponentStats): number {
-  const techLevels = Object.values(component.tech);
-  return Math.max(...techLevels, 0);
+  return _getService().getRequiredTechLevel(component);
 }
 
 /**
+ * DEPRECATED: Use inject(DataAccessService).getPrimaryTechField() instead
  * Get the primary tech field for a component
  */
 export function getPrimaryTechField(component: ComponentStats): string {
-  const techEntries = Object.entries(component.tech);
-  if (techEntries.length === 0) return 'Construction';
-  
-  // Return the field with the highest requirement
-  return techEntries.reduce((max, [field, level]) => 
-    level > (component.tech[max as keyof typeof component.tech] || 0) ? field : max,
-    techEntries[0][0]
-  );
+  return _getService().getPrimaryTechField(component);
 }

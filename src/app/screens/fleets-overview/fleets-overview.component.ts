@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameStateService } from '../../services/game/game-state.service';
 import type { Fleet } from '../../models/game.model';
+import { ShipDesignRegistry } from '../../services/data/ship-design-registry.service';
 import { FleetCardComponent } from './components/fleet-card.component';
-import { getDesign } from '../../data/ships.data';
 
 @Component({
   standalone: true,
@@ -59,6 +59,7 @@ import { getDesign } from '../../data/ships.data';
 export class FleetsOverviewComponent {
   private gs = inject(GameStateService);
   private router = inject(Router);
+  private shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly fleets = computed(() => {
     const game = this.gs.game();
@@ -84,7 +85,7 @@ export class FleetsOverviewComponent {
         if (starbaseIds.has(s.designId)) return true;
 
         // Check static data as fallback
-        const staticDesign = getDesign(s.designId);
+        const staticDesign = this.shipDesignRegistry.getDesign(s.designId);
         return !!staticDesign.isStarbase;
       });
 

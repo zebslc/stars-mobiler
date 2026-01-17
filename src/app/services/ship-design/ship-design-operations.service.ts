@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { LoggingService } from '../core/logging.service';
+import { DataAccessService } from '../data/data-access.service';
 import type {
   IShipDesignOperationsService,
   ComponentData,
@@ -8,7 +9,6 @@ import type {
 } from '../../models/service-interfaces.model';
 import type { ShipDesign, SlotAssignment } from '../../models/game.model';
 import type { HullTemplate, SlotDefinition, ComponentStats } from '../../data/tech-atlas.types';
-import { getHull, getComponent } from '../../utils/data-access.util';
 import { canInstallComponent, createEmptyDesign } from '../../models/ship-design.model';
 import { getSlotTypeForComponentType } from '../../data/tech-atlas.types';
 
@@ -39,6 +39,7 @@ interface SlotContext {
 })
 export class ShipDesignOperationsService implements IShipDesignOperationsService {
   private readonly loggingService = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
 
   /**
    * Set a component in a slot (replaces any existing components)
@@ -219,7 +220,7 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
   }
 
   private getHullOrThrow(hullId: string, context: LogContext): HullTemplate {
-    const hull = getHull(hullId);
+    const hull = this.dataAccess.getHull(hullId);
     if (!hull) {
       const error = `Hull ${hullId} not found`;
       this.loggingService.error(error, context);
@@ -243,7 +244,7 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
   }
 
   private getComponentOrThrow(componentId: string, context: LogContext): ComponentStats {
-    const component = getComponent(componentId);
+    const component = this.dataAccess.getComponent(componentId);
     if (!component) {
       const error = `Component ${componentId} not found`;
       this.loggingService.error(error, context);
@@ -386,7 +387,7 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
   }
 
   private addHullCost(total: ResourceCost, hullId: string): void {
-    const hull = getHull(hullId);
+    const hull = this.dataAccess.getHull(hullId);
     const hullCost = hull?.Cost;
     if (!hullCost) return;
     total.resources += hullCost.Resources || 0;
@@ -402,7 +403,7 @@ export class ShipDesignOperationsService implements IShipDesignOperationsService
   }
 
   private addComponentCost(total: ResourceCost, componentId: string, count: number): void {
-    const component = getComponent(componentId);
+    const component = this.dataAccess.getComponent(componentId);
     const cost = component?.cost;
     if (!cost) return;
     total.resources += (cost.resources || 0) * count;

@@ -2,11 +2,12 @@ import {
   Component,
   output,
   input,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { HullTemplate, SlotDefinition, ComponentStats } from '../../../data/tech-atlas.types';
 import type { ShipDesign } from '../../../models/game.model';
-import { getComponent } from '../../../utils/data-access.util';
+import { DataAccessService } from '../../../services/data/data-access.service';
 import { HullLayoutComponent } from '../../../shared/components/hull-layout/hull-layout.component';
 
 interface SlotHoverPayload {
@@ -65,6 +66,8 @@ interface SlotHoverPayload {
   ],
 })
 export class ShipDesignerSlotsComponent {
+  private readonly dataAccess = inject(DataAccessService);
+
   readonly hull = input.required<HullTemplate | null>();
   readonly design = input.required<ShipDesign | null>();
   readonly selectedSlotId = input<string | null>(null);

@@ -2,8 +2,8 @@ import { Component, ChangeDetectionStrategy, inject, computed, input, output } f
 import { CommonModule, DecimalPipe } from '@angular/common';
 import type { Fleet } from '../../../models/game.model';
 import { GameStateService } from '../../../services/game/game-state.service';
-import { getDesign } from '../../../data/ships.data';
-import { getHull } from '../../../utils/data-access.util';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
+import { DataAccessService } from '../../../services/data/data-access.service';
 import { compileShipStats } from '../../../models/ship-design.model';
 import { DesignPreviewButtonComponent } from '../../../shared/components/design-preview-button.component';
 import { ShipStatsRowComponent } from '../../../shared/components/ship-stats-row/ship-stats-row.component';
@@ -285,6 +285,8 @@ export class FleetCardComponent {
   readonly viewDetails = output<void>();
 
   private gs = inject(GameStateService);
+  private dataAccess = inject(DataAccessService);
+  private shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly orders = computed(() => this.fleet().orders ?? []);
 
@@ -321,7 +323,7 @@ export class FleetCardComponent {
 
     if (dynamicDesign) {
       // Return a partial compiled object or map it
-      const hull = getHull(dynamicDesign.hullId);
+      const hull = this.dataAccess.getHull(dynamicDesign.hullId);
       // We need to compile stats on the fly if not cached, or use what's available
       // For basic display (name, hull image), we just need name and hullId
 
@@ -339,7 +341,7 @@ export class FleetCardComponent {
 
       // Safety check if hull exists
       if (hull) {
-        const stats = compileShipStats(hull, dynamicDesign.slots, techLevels);
+        const stats = compileShipStats(hull, dynamicDesign.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
         return {
           id: dynamicDesign.id,
           name: dynamicDesign.name,
@@ -358,7 +360,7 @@ export class FleetCardComponent {
     }
 
     // 2. Fallback to static compiled designs
-    return getDesign(designId);
+    return this.shipDesignRegistry.getDesign(designId);
   }
 
   readonly maxFuel = computed(() => {

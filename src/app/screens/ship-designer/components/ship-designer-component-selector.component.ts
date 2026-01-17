@@ -1,9 +1,9 @@
-import { Component, output, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, output, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TouchClickDirective } from '../../../shared/directives';
 import type { MiniaturizedComponent } from '../../../utils/miniaturization.util';
 import type { SlotDefinition } from '../../../data/tech-atlas.types';
-import { getComponent } from '../../../utils/data-access.util';
+import { DataAccessService } from '../../../services/data/data-access.service';
 
 @Component({
   selector: 'app-ship-designer-component-selector',
@@ -247,6 +247,8 @@ import { getComponent } from '../../../utils/data-access.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShipDesignerComponentSelectorComponent {
+  private readonly dataAccess = inject(DataAccessService);
+
   @Input({ required: true }) components: Array<MiniaturizedComponent> = [];
   @Input({ required: true }) selectedSlotId: string | null = null;
   @Input({ required: true }) selectedSlot: SlotDefinition | null = null;
@@ -343,7 +345,7 @@ export class ShipDesignerComponentSelectorComponent {
   }
 
   getPrimaryStat(component: MiniaturizedComponent): string | null {
-    const base = getComponent(component.id);
+    const base = this.dataAccess.getComponent(component.id);
     if (!base || !base.stats) return null;
 
     // Prefer most relevant stat by type or available fields

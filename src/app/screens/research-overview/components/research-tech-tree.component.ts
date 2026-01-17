@@ -4,7 +4,7 @@ import { GameStateService } from '../../../services/game/game-state.service';
 import { TechService } from '../../../services/tech/tech.service';
 import type { TechField} from '../../../data/tech-tree.data';
 import { TECH_FIELDS, TechLevel } from '../../../data/tech-tree.data';
-import type { TechRequirement } from '../../../data/tech-atlas.data';
+import type { TechRequirement } from '../../../data/tech-atlas.types';
 
 @Component({
   selector: 'app-research-tech-tree',

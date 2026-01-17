@@ -1,7 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
 import { GalaxyFleetStationService } from './galaxy-fleet-station.service';
 import type { Fleet } from '../../../models/game.model';
 
@@ -12,6 +12,7 @@ export class GalaxyFleetFilterService {
   private gs = inject(GameStateService);
   private settings = inject(SettingsService);
   private stations = inject(GalaxyFleetStationService);
+  private shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly filteredFleets = computed(() => {
     const game = this.gs.game();
@@ -47,7 +48,7 @@ export class GalaxyFleetFilterService {
     const designId = fleet.ships[0]?.designId;
     if (!designId) return false;
 
-    const design = getDesign(designId);
+    const design = this.shipDesignRegistry.getDesign(designId);
     if (!design) return false;
 
     const type = design.type ?? 'warship';

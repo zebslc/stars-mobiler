@@ -1,8 +1,8 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import type { PlayerTech, ShipDesign, SlotAssignment, Species } from '../../models/game.model';
 import { compileShipStats } from '../../models/ship-design.model';
 import type { HullTemplate } from '../../data/tech-atlas.types';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../../services/data/data-access.service';
 
 const INITIAL_TECH_LEVELS: PlayerTech = {
   Energy: 0,
@@ -15,6 +15,7 @@ const INITIAL_TECH_LEVELS: PlayerTech = {
   providedIn: 'root',
 })
 export class ShipDesignStore {
+  private readonly dataAccess = inject(DataAccessService);
   private readonly _currentDesign = signal<ShipDesign | null>(null);
   private readonly _techLevels = signal<PlayerTech>({ ...INITIAL_TECH_LEVELS });
   private readonly _playerSpecies = signal<Species | null>(null);
@@ -26,7 +27,7 @@ export class ShipDesignStore {
   readonly currentHull = computed((): HullTemplate | null => {
     const design = this._currentDesign();
     if (!design) return null;
-    return getHull(design.hullId) ?? null;
+    return this.dataAccess.getHull(design.hullId) ?? null;
   });
 
   readonly compiledStats = computed(() => {
@@ -35,7 +36,7 @@ export class ShipDesignStore {
     const techLevels = this._techLevels();
 
     if (!design || !hull) return null;
-    return compileShipStats(hull, design.slots, techLevels);
+    return compileShipStats(hull, design.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
   });
 
   setDesign(design: ShipDesign | null): void {

@@ -1,13 +1,14 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
 import type { Fleet } from '../../../models/game.model';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GalaxyFleetStationService {
   private gs = inject(GameStateService);
+  private shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly stationByStarId = computed(() => {
     const game = this.gs.game();
@@ -38,7 +39,7 @@ export class GalaxyFleetStationService {
       return !!customDesign.spec.isStarbase;
     }
 
-    const design = getDesign(designId);
+    const design = this.shipDesignRegistry.getDesign(designId);
     return design?.isStarbase ?? false;
   }
 
@@ -49,7 +50,7 @@ export class GalaxyFleetStationService {
     const customDesign = game?.shipDesigns.find((design) => design.id === designId);
     if (customDesign) return customDesign.name;
 
-    const design = getDesign(designId);
+    const design = this.shipDesignRegistry.getDesign(designId);
     return design?.name ?? 'Unknown Station';
   }
 }

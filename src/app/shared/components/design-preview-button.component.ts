@@ -4,9 +4,9 @@ import { GameStateService } from '../../services/game/game-state.service';
 import { TechService } from '../../services/tech/tech.service';
 import { HullPreviewModalComponent } from './hull-preview-modal.component';
 import type { HullTemplate } from '../../data/tech-atlas.types';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../../services/data/data-access.service';
+import { ShipDesignRegistry } from '../../services/data/ship-design-registry.service';
 import { compileShipStats } from '../../models/ship-design.model';
-import { getDesign } from '../../data/ships.data';
 import type { ShipDesign } from '../../models/game.model';
 import type { TouchClickEvent } from '../directives';
 import { TouchClickDirective } from '../directives';
@@ -85,6 +85,8 @@ export class DesignPreviewButtonComponent {
 
   private gs = inject(GameStateService);
   private techService = inject(TechService);
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
 
   readonly previewOpen = signal(false);
   readonly previewHull = signal<HullTemplate | null>(null);
@@ -103,14 +105,14 @@ export class DesignPreviewButtonComponent {
     const dynamicDesign = playerDesigns.find((d) => d.id === designId);
 
     if (dynamicDesign) {
-      const hull = getHull(dynamicDesign.hullId);
+      const hull = this.dataAccess.getHull(dynamicDesign.hullId);
       if (hull && hull.id) {
         return `/assets/tech-icons/${hull.id}.png`;
       }
       hullName = hull?.Name || '';
     } else {
       // Fallback to static design
-      const staticDesign = getDesign(designId);
+      const staticDesign = this.shipDesignRegistry.getDesign(designId);
       hullName = staticDesign?.hullName || '';
     }
 
@@ -152,7 +154,7 @@ export class DesignPreviewButtonComponent {
 
     const designId = this.designId();
     const designDetails = this.getDesignDetails(designId);
-    const hull = getHull(designDetails.hullId);
+    const hull = this.dataAccess.getHull(designDetails.hullId);
 
     // Try to find the actual ship design for slot layout
     const playerDesigns = this.gs.getPlayerShipDesigns();
@@ -170,7 +172,7 @@ export class DesignPreviewButtonComponent {
         Propulsion: 0,
         Construction: 0,
       };
-      const stats = compileShipStats(hull, realDesign.slots, techLevels);
+      const stats = compileShipStats(hull, realDesign.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
       this.previewStats.set(stats);
     } else {
       this.previewStats.set(designDetails || null);
@@ -184,7 +186,7 @@ export class DesignPreviewButtonComponent {
     const dynamicDesign = playerDesigns.find((d) => d.id === designId);
 
     if (dynamicDesign) {
-      const hull = getHull(dynamicDesign.hullId);
+      const hull = this.dataAccess.getHull(dynamicDesign.hullId);
       const isStarbase =
         hull?.isStarbase ||
         hull?.type === 'starbase' ||
@@ -206,7 +208,7 @@ export class DesignPreviewButtonComponent {
       };
     }
 
-    const staticDesign = getDesign(designId);
+    const staticDesign = this.shipDesignRegistry.getDesign(designId);
     return {
       ...staticDesign,
       isStarbase: staticDesign?.isStarbase || false,

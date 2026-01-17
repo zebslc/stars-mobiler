@@ -16,7 +16,7 @@ import type {
 import {
   ShipDesignItemComponent
 } from '../../components/ship-design-item/ship-design-item.component';
-import { getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../../services/data/data-access.service';
 import { compileShipStats } from '../../models/ship-design.model';
 import type { ShipDesign } from '../../models/game.model';
 import { HullPreviewModalComponent } from '../../shared/components/hull-preview-modal.component';
@@ -50,6 +50,7 @@ const MAX_STARBASE_DESIGNS = 10;
 export class ShipDesignOverviewComponent {
   private gameState = inject(GameStateService);
   private designer = inject(ShipDesignerService);
+  private dataAccess = inject(DataAccessService);
 
   private readonly mode = signal<DesignerMode>('list');
   readonly isDesignerMode = computed(() => this.mode() === 'designer');
@@ -75,10 +76,10 @@ export class ShipDesignOverviewComponent {
 
     return designs
       .map((design) => {
-        const hull = getHull(design.hullId);
+        const hull = this.dataAccess.getHull(design.hullId);
         if (!hull) return null;
 
-        const stats = compileShipStats(hull, design.slots, techLevels);
+        const stats = compileShipStats(hull, design.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
         return { design, hull, stats };
       })
       .filter(Boolean);
@@ -160,7 +161,7 @@ export class ShipDesignOverviewComponent {
   readonly shipDesignCount = computed(() => {
     const designs = this.gameState.game()?.shipDesigns || [];
     return designs.filter((d) => {
-      const hull = getHull(d.hullId);
+      const hull = this.dataAccess.getHull(d.hullId);
       return hull && !hull.isStarbase && hull.type !== 'starbase';
     }).length;
   });
@@ -168,7 +169,7 @@ export class ShipDesignOverviewComponent {
   readonly starbaseDesignCount = computed(() => {
     const designs = this.gameState.game()?.shipDesigns || [];
     return designs.filter((d) => {
-      const hull = getHull(d.hullId);
+      const hull = this.dataAccess.getHull(d.hullId);
       return hull && (hull.isStarbase || hull.type === 'starbase');
     }).length;
   });
@@ -278,7 +279,7 @@ export class ShipDesignOverviewComponent {
     const designs = this.gameState.game()?.shipDesigns || [];
     const design = designs.find((d) => d.id === designId);
     if (design) {
-      const hull = getHull(design.hullId);
+      const hull = this.dataAccess.getHull(design.hullId);
       if (hull) {
         const isStarbase = hull.isStarbase || hull.type === 'starbase';
         this.designerHullFilter.set(isStarbase ? 'starbases' : 'ships');
@@ -326,7 +327,7 @@ export class ShipDesignOverviewComponent {
     const rawDesign = this.gameState.game()?.shipDesigns.find((d) => d.id === designId);
 
     if (design) {
-      const hull = getHull(design.hullId);
+      const hull = this.dataAccess.getHull(design.hullId);
       this.previewHull.set(hull || null);
       this.previewStats.set(design.stats);
       this.previewDesign.set(rawDesign || null);

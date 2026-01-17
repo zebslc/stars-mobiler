@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { LoggingService } from '../core/logging.service';
+import { DataAccessService } from '../data/data-access.service';
 import type { 
   IShipDesignValidationService, 
   ValidationResult, 
@@ -8,7 +9,6 @@ import type {
 } from '../../models/service-interfaces.model';
 import type { ShipDesign, PlayerTech } from '../../models/game.model';
 import type { HullTemplate } from '../../data/tech-atlas.types';
-import { getHull, getComponent, getPrimaryTechField, getRequiredTechLevel } from '../../utils/data-access.util';
 import { canInstallComponent } from '../../models/ship-design.model';
 import { compileShipStats } from '../../models/ship-design.model';
 
@@ -24,6 +24,7 @@ import { compileShipStats } from '../../models/ship-design.model';
 })
 export class ShipDesignValidationService implements IShipDesignValidationService {
   private readonly loggingService = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
 
   /**
    * Validate a complete ship design
@@ -44,7 +45,7 @@ export class ShipDesignValidationService implements IShipDesignValidationService
 
     try {
       // Get hull for validation
-      const hull = getHull(design.hullId);
+      const hull = this.dataAccess.getHull(design.hullId);
       if (!hull) {
         const error = `Hull ${design.hullId} not found`;
         this.loggingService.error(error, context);
@@ -62,7 +63,7 @@ export class ShipDesignValidationService implements IShipDesignValidationService
       // Validate each slot assignment
       for (const slotAssignment of design.slots) {
         for (const componentAssignment of slotAssignment.components) {
-          const component = getComponent(componentAssignment.componentId);
+          const component = this.dataAccess.getComponent(componentAssignment.componentId);
           if (!component) {
             const error = `Component ${componentAssignment.componentId} not found`;
             errors.push(error);
@@ -173,7 +174,7 @@ export class ShipDesignValidationService implements IShipDesignValidationService
     const warnings: Array<string> = [];
 
     try {
-      const hull = getHull(hullId);
+      const hull = this.dataAccess.getHull(hullId);
       if (!hull) {
         const error = `Hull ${hullId} not found`;
         this.loggingService.error(error, context);
@@ -229,7 +230,7 @@ export class ShipDesignValidationService implements IShipDesignValidationService
    */
   private validateDesignStats(hull: HullTemplate, design: ShipDesign, techLevels: PlayerTech, errors: Array<string>, warnings: Array<string>): void {
     try {
-      const stats = compileShipStats(hull, design.slots, techLevels);
+      const stats = compileShipStats(hull, design.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
       
       if (!stats.isValid) {
         errors.push(...stats.validationErrors);

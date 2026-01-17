@@ -3,7 +3,7 @@ import { GameStateService } from '../../../services/game/game-state.service';
 import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
 import type { Fleet } from '../../../models/game.model';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +12,7 @@ export class GalaxyVisibilityService {
   private gs = inject(GameStateService);
   private settings = inject(SettingsService);
   private fleetPositions = inject(GalaxyFleetPositionService);
+  private shipDesignRegistry = inject(ShipDesignRegistry);
 
   // Helper
   getDistance(p1: { x: number; y: number }, p2: { x: number; y: number }) {
@@ -34,7 +35,7 @@ export class GalaxyVisibilityService {
         cloakedRange = customDesign.spec.canDetectCloaked ? customDesign.spec.scanRange || 0 : 0;
       } else {
         // Fallback for legacy/standard designs if needed
-        const design = getDesign(designId);
+        const design = this.shipDesignRegistry.getDesign(designId);
         if (design) {
           scanRange = design.scannerRange;
           cloakedRange = design.cloakedRange || 0;

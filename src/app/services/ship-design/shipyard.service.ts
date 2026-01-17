@@ -2,16 +2,18 @@ import { Injectable, inject } from '@angular/core';
 import type { GameState, ShipDesign, PlayerTech, Star, Player, CompiledShipStats } from '../../models/game.model';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import type { ShipOption } from '../../components/ship-selector.component';
-import { getComponent, getHull } from '../../utils/data-access.util';
+import { DataAccessService } from '../data/data-access.service';
 import { HullTemplate } from '../../data/tech-atlas.types';
 import { compileShipStats } from '../../models/ship-design.model';
-import type { CompiledDesign } from '../../data/ships.data';
-import { registerCompiledDesign, unregisterCompiledDesign } from '../../data/ships.data';
+import type { CompiledDesign } from '../../services/data/ship-design-registry.service';
+import { ShipDesignRegistry } from '../../services/data/ship-design-registry.service';
 import { LoggingService } from '../core/logging.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShipyardService {
   private readonly logging = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly shipRegistry = inject(ShipDesignRegistry);
   
   constructor() {}
 
@@ -21,8 +23,8 @@ export class ShipyardService {
     let persistedDesign: ShipDesign;
 
     // Compile design stats to determine if it's valid
-    const hull = getHull(design.hullId);
-    const compiledStats = hull ? compileShipStats(hull, design.slots, this.getTechLevelsForPlayer(game, design.playerId)) : null;
+    const hull = this.dataAccess.getHull(design.hullId);
+    const compiledStats = hull ? compileShipStats(hull, design.slots, this.getTechLevelsForPlayer(game, design.playerId), this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup()) : null;
     
     // Set isValid based on compiled stats
     const designWithValidity: ShipDesign = {
@@ -52,7 +54,7 @@ export class ShipyardService {
 
   deleteShipDesign(game: GameState, designId: string): GameState {
     if (this.isDynamicDesign(designId)) {
-      unregisterCompiledDesign(designId);
+      this.shipRegistry.unregister(designId);
     }
 
     const nextDesigns = game.shipDesigns.filter((d) => d.id !== designId);
@@ -79,7 +81,7 @@ export class ShipyardService {
     boranium: number;
     germanium: number;
   } {
-    const hull = getHull(design.hullId);
+    const hull = this.dataAccess.getHull(design.hullId);
     let totalCost = {
       resources: hull?.Cost.Resources ?? 0,
       ironium: hull?.Cost.Ironium ?? 0,
@@ -96,10 +98,12 @@ export class ShipyardService {
 
     for (const slot of design.slots) {
       for (const component of slot.components) {
-        const componentData = getComponent(component.componentId);
+        const componentData = this.dataAccess.getComponent(component.componentId);
 
         if (componentData) {
-          const miniComp = miniaturizeComponent(componentData, techLevels);
+          const primaryField = this.dataAccess.getPrimaryTechField(componentData);
+          const requiredLevel = this.dataAccess.getRequiredTechLevel(componentData);
+          const miniComp = miniaturizeComponent(componentData, techLevels, primaryField, requiredLevel);
           totalCost.resources += (miniComp.cost.resources ?? 0) * component.count;
           totalCost.ironium += (miniComp.cost.ironium ?? 0) * component.count;
           totalCost.boranium += (miniComp.cost.boranium ?? 0) * component.count;
@@ -130,10 +134,17 @@ export class ShipyardService {
 
     const userOptions = userDesigns
       .map((design) => {
-        const hull = getHull(design.hullId);
+        const hull = this.dataAccess.getHull(design.hullId);
         if (!hull) return null;
 
-        const stats = compileShipStats(hull, design.slots, techLevels);
+        const stats = compileShipStats(
+          hull,
+          design.slots,
+          techLevels,
+          this.dataAccess.getComponentsLookup(),
+          this.dataAccess.getTechFieldLookup(),
+          this.dataAccess.getRequiredLevelLookup(),
+        );
         const cost = this.getShipCost(design, techLevels);
 
         const compiled: CompiledDesign = {
@@ -164,9 +175,8 @@ export class ShipyardService {
           components: [],
         };
 
-        if (this.isDynamicDesign(design.id)) {
-          registerCompiledDesign(compiled);
-        }
+        // Note: Registration happens during game load (hydrateCompiledDesignCache)
+        // and on design save (cacheCompiledDesign), not during read operations
 
         // Determine ship type for badge
         let shipType: 'attack' | 'cargo' | 'support' | 'colony' = 'support';
@@ -216,7 +226,7 @@ export class ShipyardService {
 
     const compiled = this.toCompiledDesign(game, design);
     if (compiled) {
-      registerCompiledDesign(compiled);
+      this.shipRegistry.register(compiled);
       this.logging.debug('Registered compiled design', {
         service: 'ShipyardService',
         operation: 'cacheCompiledDesign',
@@ -242,7 +252,7 @@ export class ShipyardService {
   }
 
   private toCompiledDesign(game: GameState, design: ShipDesign): CompiledDesign | null {
-    const hull = getHull(design.hullId);
+    const hull = this.dataAccess.getHull(design.hullId);
     const stats = design.spec ?? this.compileDesignStats(game, design, hull);
     if (!stats || !hull) {
       return null;
@@ -292,14 +302,14 @@ export class ShipyardService {
     design: ShipDesign,
     hull?: HullTemplate,
   ): CompiledShipStats | null {
-    const resolvedHull = hull ?? getHull(design.hullId);
+    const resolvedHull = hull ?? this.dataAccess.getHull(design.hullId);
     if (!resolvedHull) {
       return null;
     }
 
     const owner = this.findDesignOwner(game, design.playerId);
     const techLevels = owner?.techLevels ?? this.createDefaultTechLevels();
-    return compileShipStats(resolvedHull, design.slots, techLevels);
+    return compileShipStats(resolvedHull, design.slots, techLevels, this.dataAccess.getComponentsLookup(), this.dataAccess.getTechFieldLookup(), this.dataAccess.getRequiredLevelLookup());
   }
 
   private findDesignOwner(game: GameState, playerId: string): Player | null {
@@ -321,7 +331,7 @@ export class ShipyardService {
   private extractEngineComponentId(design: ShipDesign): string | undefined {
     for (const slot of design.slots) {
       for (const component of slot.components) {
-        const data = getComponent(component.componentId);
+        const data = this.dataAccess.getComponent(component.componentId);
         if (data?.type?.toLowerCase() === 'engine') {
           return component.componentId;
         }

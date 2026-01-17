@@ -24,6 +24,11 @@ describe('ShipDesignModel', () => {
     const rhinoScanner = SCANNER_COMPONENTS.find(c => c.id === 'scan_rhino');
     expect(rhinoScanner).toBeDefined();
 
+    // Create components lookup
+    const componentsLookup = Object.fromEntries(SCANNER_COMPONENTS.map(c => [c.id, c]));
+    const techFieldLookup = Object.fromEntries(SCANNER_COMPONENTS.map(c => [c.id, 'Energy']));
+    const requiredLevelLookup = Object.fromEntries(SCANNER_COMPONENTS.map(c => [c.id, c.tech?.Energy || 0]));
+
     // Calculate Spec
     const spec = compileShipStats(mockHull, [{
       slotId: 'S',
@@ -31,7 +36,7 @@ describe('ShipDesignModel', () => {
         componentId: 'scan_rhino',
         count: 1
       }]
-    }], mockTech);
+    }], mockTech, componentsLookup, techFieldLookup, requiredLevelLookup);
 
     expect(spec.scanRange).toBe(50);
   });
@@ -52,6 +57,9 @@ describe('ShipDesignModel', () => {
         Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0
     };
 
+    // Create components lookup
+    const componentsLookup = Object.fromEntries(SCANNER_COMPONENTS.map(c => [c.id, c]));
+
     // 2 Rhino Scanners: (50^4 + 50^4)^0.25 = 59.46
     const spec = compileShipStats(mockHull, [{
       slotId: 'S',
@@ -59,7 +67,7 @@ describe('ShipDesignModel', () => {
         componentId: 'scan_rhino',
         count: 2
       }]
-    }], mockTech);
+    }], mockTech, componentsLookup);
 
     expect(spec.scanRange).toBeCloseTo(59.46, 1);
   });

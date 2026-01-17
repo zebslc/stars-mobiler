@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import type { LogContext } from '../../models/service-interfaces.model';
-import { getComponent } from '../../utils/data-access.util';
+import { DataAccessService } from '../data/data-access.service';
 import { ShipSlotOperatorService } from './ship-slot-operator.service';
 import { ShipDesignStateService } from './ship-design-state.service';
 import { LoggingService } from '../core/logging.service';
@@ -17,6 +17,7 @@ export class ShipDesignComponentService {
   private readonly state = inject(ShipDesignStateService);
   private readonly slotOperator = inject(ShipSlotOperatorService);
   private readonly loggingService = inject(LoggingService);
+  private readonly dataAccess = inject(DataAccessService);
 
   setSlotComponent(slotId: string, componentId: string, count: number = 1): boolean {
     const context = this.createContext('setSlotComponent', componentId, { slotId, count });
@@ -92,7 +93,7 @@ export class ShipDesignComponentService {
   }
 
   private getComponentOrError(componentId: string, context: LogContext) {
-    const component = getComponent(componentId);
+    const component = this.dataAccess.getComponent(componentId);
     if (!component) {
       const error = `Component ${componentId} not found`;
       this.loggingService.error(error, context);

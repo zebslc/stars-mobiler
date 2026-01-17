@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { GameState, Fleet, ShipDesign, Star } from '../../../models/game.model';
 import type {
   IFleetOperationsService,
@@ -8,7 +8,7 @@ import {
   ValidationResult
 } from '../../../models/service-interfaces.model';
 import type { CompiledDesign } from '../../../data/ships.data';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../data/ship-design-registry.service';
 import { LoggingService } from '../../core/logging.service';
 import { FleetNamingService } from '../naming/fleet-naming.service';
 import { FleetValidationService } from '../validation/fleet-validation.service';
@@ -24,11 +24,10 @@ export class FleetOperationsService implements IFleetOperationsService {
   readonly MAX_FLEETS = 512;
   readonly MAX_SHIPS_PER_DESIGN = 32000;
 
-  constructor(
-    private logging: LoggingService,
-    private namingService: FleetNamingService,
-    private validationService: FleetValidationService,
-  ) {}
+  private readonly logging = inject(LoggingService);
+  private readonly namingService = inject(FleetNamingService);
+  private readonly validationService = inject(FleetValidationService);
+  private readonly shipDesignRegistry = inject(ShipDesignRegistry);
 
   createFleet(
     game: GameState,
@@ -104,7 +103,7 @@ export class FleetOperationsService implements IFleetOperationsService {
   private resolveDesignInfo(game: GameState, shipDesignId: string) {
     const designId = shipDesignId ?? 'scout';
     const shipDesign = game.shipDesigns.find((d) => d.id === designId);
-    const legacyDesign = !shipDesign ? getDesign(designId) : null;
+    const legacyDesign = !shipDesign ? this.shipDesignRegistry.getDesign(designId) : null;
     const isNewShipStarbase = this.isShipStarbase(game, designId);
     return { shipDesign, legacyDesign, isNewShipStarbase };
   }
@@ -165,7 +164,7 @@ export class FleetOperationsService implements IFleetOperationsService {
 
   private isShipStarbase(game: GameState, designId: string): boolean {
     const d = game.shipDesigns.find((sd) => sd.id === designId);
-    const ld = !d ? getDesign(designId) : null;
+    const ld = !d ? this.shipDesignRegistry.getDesign(designId) : null;
     return d?.spec?.isStarbase ?? ld?.isStarbase ?? false;
   }
 

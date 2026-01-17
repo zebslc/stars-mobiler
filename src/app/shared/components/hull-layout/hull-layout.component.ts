@@ -6,11 +6,12 @@ import {
   input,
   effect,
   output,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { ComponentStats, HullTemplate, SlotDefinition } from '../../../data/tech-atlas.types';
 import type { ShipDesign } from '../../../models/game.model';
-import { getComponent } from '../../../utils/data-access.util';
+import { DataAccessService } from '../../../services/data/data-access.service';
 import type { GridSlot } from './hull-layout.types';
 import { HullSlotComponent } from './hull-slot/hull-slot.component';
 import type { ComponentActionEvent, HullSlotComponentData, SlotTouchEvent } from './hull-slot.types';
@@ -137,6 +138,9 @@ interface SlotHoverPayload {
 })
 
 export class HullLayoutComponent {
+  private readonly dataAccess = inject(DataAccessService);
+  private readonly logging = inject(LoggingService);
+  
   readonly hull = input.required<HullTemplate | null>();
   readonly design = input.required<ShipDesign | null>();
   readonly editable = input(false);
@@ -160,7 +164,6 @@ export class HullLayoutComponent {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private logging: LoggingService,
   ) {
     // Reset zoom and pan when hull changes
     effect(() => {
@@ -190,7 +193,7 @@ export class HullLayoutComponent {
     for (const slot of design.slots) {
       if (slot.components && slot.components.length > 0) {
         const c = slot.components[0];
-        const comp = getComponent(c.componentId);
+        const comp = this.dataAccess.getComponent(c.componentId);
         if (comp) {
           map.set(slot.slotId, { component: comp, count: c.count });
         } else {

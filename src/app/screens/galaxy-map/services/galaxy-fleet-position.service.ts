@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { GameStateService } from '../../../services/game/game-state.service';
 import type { Fleet, FleetOrder, Star } from '../../../models/game.model';
 import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
-import { getDesign } from '../../../data/ships.data';
+import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
 
 interface FleetRangeStats {
   x: number;
@@ -16,6 +16,7 @@ interface FleetRangeStats {
 })
 export class GalaxyFleetPositionService {
   private gs = inject(GameStateService);
+  private shipDesignRegistry = inject(ShipDesignRegistry);
 
   getFleetPosition(fleet: Fleet): { x: number; y: number } | null {
     if (fleet.location.type === 'space') {
@@ -240,7 +241,7 @@ export class GalaxyFleetPositionService {
       };
     }
 
-    const design = getDesign(designId);
+    const design = this.shipDesignRegistry.getDesign(designId);
     return {
       warpSpeed: design.warpSpeed,
       idealWarp: design.idealWarp,

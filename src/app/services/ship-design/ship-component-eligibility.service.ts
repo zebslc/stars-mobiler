@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type {
   ComponentStats,
   HullTemplate,
@@ -6,9 +6,9 @@ import type {
   LesserRacialTrait,
 } from '../../data/tech-atlas.types';
 import { getSlotTypeForComponentType } from '../../data/tech-atlas.types';
-import { ALL_HULLS, getAllComponents } from '../../data/tech-atlas.data';
 import type { PlayerTech, Species } from '../../models/game.model';
-import { getPrimaryTechField, getRequiredTechLevel } from '../../utils/data-access.util';
+import { DataAccessService } from '../data/data-access.service';
+import { TechAtlasService } from '../data/tech-atlas.service';
 import { hasAll, lacksAny } from '../../utils/trait-validation.util';
 import type { MiniaturizedComponent } from '../../utils/miniaturization.util';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
@@ -27,6 +27,9 @@ export type NormalizedHullSlot = {
   providedIn: 'root',
 })
 export class ShipComponentEligibilityService {
+  private dataAccess = inject(DataAccessService);
+  private techAtlas = inject(TechAtlasService);
+
   getAvailableComponentsForSlot(
     hull: HullTemplate | null,
     slotId: string,
@@ -37,9 +40,13 @@ export class ShipComponentEligibilityService {
     const slotDefinition = this.findHullSlotDefinition(hull, slotId);
     if (!slotDefinition) return [];
     const slot = this.normalizeSlot(slotDefinition, slotId);
-    return getAllComponents()
+    return this.techAtlas.getAllComponents()
       .filter((component) => this.isComponentAllowed(component, hull, slot, techLevels, species))
-      .map((component) => miniaturizeComponent(component, techLevels));
+      .map((component) => {
+        const primaryField = this.dataAccess.getPrimaryTechField(component);
+        const requiredLevel = this.dataAccess.getRequiredTechLevel(component);
+        return miniaturizeComponent(component, techLevels, primaryField, requiredLevel);
+      });
   }
 
   getAvailableHulls(
@@ -48,7 +55,7 @@ export class ShipComponentEligibilityService {
     lesserTraits: ReadonlyArray<LesserRacialTrait> | null = null,
   ): Array<HullTemplate> {
     const constructionLevel = techLevels.Construction;
-    return ALL_HULLS.filter((hull) => {
+    return this.techAtlas.getAllHulls().filter((hull) => {
       // Check tech requirement
       if ((hull.techReq?.Construction ?? 0) > constructionLevel) return false;
       // Check racial trait requirements
@@ -89,8 +96,8 @@ export class ShipComponentEligibilityService {
   }
 
   private meetsTechRequirement(component: ComponentStats, techLevels: PlayerTech): boolean {
-    const primaryField = getPrimaryTechField(component);
-    const requiredLevel = getRequiredTechLevel(component);
+    const primaryField = this.dataAccess.getPrimaryTechField(component);
+    const requiredLevel = this.dataAccess.getRequiredTechLevel(component);
     const playerLevel = techLevels[primaryField as keyof PlayerTech] ?? 0;
     return playerLevel >= requiredLevel;
   }
