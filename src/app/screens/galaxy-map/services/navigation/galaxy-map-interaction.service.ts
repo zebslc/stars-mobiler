@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { GalaxyMapStateService } from './galaxy-map-state.service';
-import type { Fleet, FleetOrder } from '../../../models/game.model';
+import { GalaxyMapStateService } from '../state/galaxy-map-state.service';
+import type { Fleet, FleetOrder } from '../../../../models/game.model';
 import { GalaxyWaypointInteractionService } from './galaxy-waypoint-interaction.service';
-import { GalaxyMapMenuService } from './galaxy-map-menu.service';
+import { GalaxyMapMenuService } from '../ui/galaxy-map-menu.service';
 
 const DRAG_START_THRESHOLD_PX = 5;
 const TOUCH_HOLD_CANCEL_DISTANCE_PX = 20;

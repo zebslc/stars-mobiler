@@ -1,12 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { LoggingService } from '../../../services/core/logging.service';
+import { LoggingService } from '../../../../services/core/logging.service';
 import type { 
   IGalaxyCoordinateService, 
   GalaxyMapState, 
   ScreenCoordinate, 
   GalaxyCoordinate,
   LogContext 
-} from '../../../models/service-interfaces.model';
+} from '../../../../models/service-interfaces.model';
 
 @Injectable({
   providedIn: 'root',

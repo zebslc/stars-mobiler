@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { LoggingService } from '../../../services/core/logging.service';
+import { LoggingService } from '../../../../services/core/logging.service';
 import type { 
   IGalaxyInteractionService, 
   InteractionResult, 
@@ -8,7 +8,7 @@ import type {
   TouchEventData, 
   WheelEventData,
   LogContext 
-} from '../../../models/service-interfaces.model';
+} from '../../../../models/service-interfaces.model';
 
 @Injectable({
   providedIn: 'root',

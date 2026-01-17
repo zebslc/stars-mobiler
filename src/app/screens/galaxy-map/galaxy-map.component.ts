@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { GameStateService } from '../../services/game/game-state.service';
+import { GameStateService } from '../../services/game/game-state.service'; // Moved to navigation domain
 import { SettingsService } from '../../services/core/settings.service';
 import type { Star, Fleet, FleetOrder } from '../../models/game.model';
 import { PlanetContextMenuComponent } from '../../components/planet-context-menu.component';
@@ -18,17 +18,17 @@ import { GalaxyStarComponent } from './components/galaxy-star.component';
 import { GalaxyFleetComponent } from './components/galaxy-fleet.component';
 import { GalaxyMapControlsComponent } from './components/galaxy-map-controls.component';
 import { GalaxyMapSettingsComponent } from './components/galaxy-map-settings.component';
-import { GalaxyMapStateService } from './services/galaxy-map-state.service';
-import { GalaxyVisibilityService } from './services/galaxy-visibility.service';
-import { GalaxyFleetFilterService } from './services/galaxy-fleet-filter.service';
-import { GalaxyFleetPositionService } from './services/galaxy-fleet-position.service';
-import { GalaxyFleetStationService } from './services/galaxy-fleet-station.service';
+import { GalaxyMapStateService } from './services/state/galaxy-map-state.service';
+import { GalaxyVisibilityService } from './services/visualization/galaxy-visibility.service';
+import { GalaxyFleetFilterService } from './services/fleet/galaxy-fleet-filter.service';
+import { GalaxyFleetPositionService } from './services/fleet/galaxy-fleet-position.service';
+import { GalaxyFleetStationService } from './services/fleet/galaxy-fleet-station.service';
 import { GalaxyWaypointService } from './services/waypoints/galaxy-waypoint.service';
-import { GalaxySelectionService } from './services/galaxy-selection.service';
-import { GalaxyNavigationService } from './services/galaxy-navigation.service';
+import { GalaxySelectionService } from './services/state/galaxy-selection.service';
+import { GalaxyNavigationService } from './services/navigation/galaxy-navigation.service';
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
-import { GalaxyMapMenuService } from './services/galaxy-map-menu.service';
-import { GalaxyMapInteractionService } from './services/galaxy-map-interaction.service';
+import { GalaxyMapMenuService } from './services/ui/galaxy-map-menu.service';
+import { GalaxyMapInteractionService } from './services/navigation/galaxy-map-interaction.service';
 import { ScanningService } from '../../services/game/scanning.service';
 import type { StarVisibility } from '../../models/scanning.model';
 

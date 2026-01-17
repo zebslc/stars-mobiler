@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { GameStateService } from '../../../services/game/game-state.service';
-import type { Fleet, FleetOrder, Star } from '../../../models/game.model';
-import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
-import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import type { Fleet, FleetOrder, Star } from '../../../../models/game.model';
+import { FLEET_ORDER_TYPE } from '../../../../models/fleet-order.constants';
+import { ShipDesignRegistry } from '../../../../services/data/ship-design-registry.service';
 
 interface FleetRangeStats {
   x: number;

@@ -1,7 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
-import { GalaxyFleetPositionService } from '../galaxy-fleet-position.service';
+import { GalaxyFleetPositionService } from '../fleet/galaxy-fleet-position.service';
 import type { Fleet, GameState, ShipDesign, Star, FleetOrder } from '../../../../models/game.model';
 import type { GalaxyCoordinate, LogContext } from '../../../../models/service-interfaces.model';
 import { FLEET_ORDER_TYPE } from '../../../../models/fleet-order.constants';

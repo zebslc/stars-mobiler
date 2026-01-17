@@ -1,15 +1,15 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { GameStateService } from '../../../services/game/game-state.service';
-import { SettingsService } from '../../../services/core/settings.service';
-import { LoggingService } from '../../../services/core/logging.service';
-import { GalaxyMapStateService } from './galaxy-map-state.service';
-import type { FinalizeWaypointResult } from './waypoints/galaxy-waypoint.service';
-import { GalaxyWaypointService } from './waypoints/galaxy-waypoint.service';
-import { GalaxyFleetPositionService } from './galaxy-fleet-position.service';
-import { FLEET_ORDER_TYPE } from '../../../models/fleet-order.constants';
-import type { Fleet, FleetOrder, GameState, Star } from '../../../models/game.model';
-import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import { SettingsService } from '../../../../services/core/settings.service';
+import { LoggingService } from '../../../../services/core/logging.service';
+import { GalaxyMapStateService } from '../state/galaxy-map-state.service';
+import type { FinalizeWaypointResult } from '../waypoints/galaxy-waypoint.service';
+import { GalaxyWaypointService } from '../waypoints/galaxy-waypoint.service';
+import { GalaxyFleetPositionService } from '../fleet/galaxy-fleet-position.service';
+import { FLEET_ORDER_TYPE } from '../../../../models/fleet-order.constants';
+import type { Fleet, FleetOrder, GameState, Star } from '../../../../models/game.model';
+import { ShipDesignRegistry } from '../../../../services/data/ship-design-registry.service';
 
 export interface MenuAction {
   action: string;

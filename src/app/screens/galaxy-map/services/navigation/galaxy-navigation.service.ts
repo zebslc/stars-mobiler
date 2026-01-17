@@ -1,17 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { GameStateService } from '../../../services/game/game-state.service';
-import { LoggingService } from '../../../services/core/logging.service';
-import { GalaxyMapStateService } from './galaxy-map-state.service';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import { LoggingService } from '../../../../services/core/logging.service';
+import { GalaxyMapStateService } from '../state/galaxy-map-state.service';
 import { GalaxyCoordinateService } from './galaxy-coordinate.service';
 import type { 
   Star, 
   Fleet
-} from '../../../models/game.model';
+} from '../../../../models/game.model';
 import type { 
   GalaxyCoordinate,
   LogContext 
-} from '../../../models/service-interfaces.model';
+} from '../../../../models/service-interfaces.model';
 
 @Injectable({
   providedIn: 'root',

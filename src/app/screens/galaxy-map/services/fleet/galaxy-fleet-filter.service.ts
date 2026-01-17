@@ -1,9 +1,9 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { GameStateService } from '../../../services/game/game-state.service';
-import { SettingsService } from '../../../services/core/settings.service';
-import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import { SettingsService } from '../../../../services/core/settings.service';
+import { ShipDesignRegistry } from '../../../../services/data/ship-design-registry.service';
 import { GalaxyFleetStationService } from './galaxy-fleet-station.service';
-import type { Fleet } from '../../../models/game.model';
+import type { Fleet } from '../../../../models/game.model';
 
 @Injectable({
   providedIn: 'root',

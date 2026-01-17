@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { GameStateService } from '../../../../services/game/game-state.service';
 import { LoggingService } from '../../../../services/core/logging.service';
-import { GalaxyFleetPositionService } from '../galaxy-fleet-position.service';
+import { GalaxyFleetPositionService } from '../fleet/galaxy-fleet-position.service';
 import { GalaxyWaypointVisualService } from './galaxy-waypoint-visual.service';
 import type { DraggedWaypoint, SnapTarget } from './galaxy-waypoint.models';
 import type { Fleet, GameState } from '../../../../models/game.model';

@@ -1,7 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { GameStateService } from '../../../services/game/game-state.service';
-import type { Fleet } from '../../../models/game.model';
-import { ShipDesignRegistry } from '../../../services/data/ship-design-registry.service';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import type { Fleet } from '../../../../models/game.model';
+import { ShipDesignRegistry } from '../../../../services/data/ship-design-registry.service';
 
 @Injectable({
   providedIn: 'root',

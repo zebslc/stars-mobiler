@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { GalaxyWaypointService } from './waypoints/galaxy-waypoint.service';
-import { GalaxyMapMenuService } from './galaxy-map-menu.service';
-import { GameStateService } from '../../../services/game/game-state.service';
-import { GalaxyMapStateService } from './galaxy-map-state.service';
-import type { Fleet, FleetOrder } from '../../../models/game.model';
+import { GalaxyWaypointService } from '../waypoints/galaxy-waypoint.service';
+import { GalaxyMapMenuService } from '../ui/galaxy-map-menu.service';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import { GalaxyMapStateService } from '../state/galaxy-map-state.service';
+import type { Fleet, FleetOrder } from '../../../../models/game.model';
 
 @Injectable({ providedIn: 'root' })
 export class GalaxyWaypointInteractionService {
