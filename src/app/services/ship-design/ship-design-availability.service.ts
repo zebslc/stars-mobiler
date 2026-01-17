@@ -26,6 +26,11 @@ export class ShipDesignAvailabilityService {
   }
 
   getAvailableHulls(): Array<HullTemplate> {
-    return this.eligibility.getAvailableHulls(this.state.getTechLevelSnapshot());
+    const species = this.state.getSpeciesSnapshot();
+    return this.eligibility.getAvailableHulls(
+      this.state.getTechLevelSnapshot(),
+      species?.primaryTraits ?? null,
+      species?.lesserTraits ?? null,
+    );
   }
 }

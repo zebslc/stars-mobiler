@@ -74,7 +74,7 @@ export const SHIELD_COMPONENTS: Array<ComponentStats> = [
     description: 'Heavy-duty deflector array.',
   },
   {
-    id: 'def_elephant',
+    id: 'def_elephant_hide_fortress',
     name: 'Elephant Hide Fortress',
     type: 'Shield',
     tech: { Energy: 18, Kinetics: 0, Propulsion: 0, Construction: 0 },
@@ -117,7 +117,7 @@ export const ARMOR_COMPONENTS: Array<ComponentStats> = [
     description: 'Crystalline lattice armor.',
   },
   {
-    id: 'def_carbonic',
+    id: 'def_carbonic_armor',
     name: 'Carbonic Armor',
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 4 },
@@ -137,7 +137,7 @@ export const ARMOR_COMPONENTS: Array<ComponentStats> = [
     description: 'Advanced metallic compound.',
   },
   {
-    id: 'def_organic',
+    id: 'def_organic_armor',
     name: 'Organic Armor',
     type: 'Armor',
     tech: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 7 },

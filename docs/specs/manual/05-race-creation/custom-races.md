@@ -100,8 +100,6 @@ Choose the major characteristics for your race. Each primary trait gives you a s
 
 - Pick Pocket scanner that sees enemy fleet cargo in same location, allowing you to steal that cargo using the cargo gauge (and transfer - Chameleon scanner with a scanning range of 160|45 plus a 20% cloak - Robber Baron scanner that sees enemy fleet cargo and enemy planet - Shadow Shield with a strength of 75 plus a 35% cloak - Depleted Neutronium with an armor strength of 200 plus a 25% cloak - All ships and starbases built by Super-Stealth races have an inherent 75%
 
-D ESI G NI NG C U STO M R AC ES 20-5
-
 ### Exclusive Abilities
 
 - Travel through opponent’s mine fields at one warp speed faster than the - Gain research by spying and combining it with your own research. Gain resources in each field equal to the average spent in that field by all races (including yourself) while at least one other race exists
@@ -206,7 +204,6 @@ D ESI G NING CU ST OMR AC ES 20-7
 
 - Mineral packets do only 1/3 the normal damage.
 
-D ESI G NI NG CU STO M R AC ES 20-9
 
 ### Interstellar Traveler trait
 
@@ -248,16 +245,20 @@ D ESI G NI NG CU STO M R AC ES 20-9
 ### Jack of All Trades trait
 
 - Tech 3 in all field
+- two scout hulls
+- one colony ship hull
+- one medium freighter hull
+- one mini miner hull
+- one destroyer hull
+
 
 ### Exclusive Components
 
-- Scout, Frigate and Destroyer hulls get a built-in scanner with a range
+- Scout, Frigate and Destroyer hulls get a built-in scanner with a range equal to 2x / x ly where x = 10 * Electronics Tech Level
 
 ### Exclusive Abilities
 
 - Improves all Costs 75% Extra fields to tech level 4 if the box in step 6 is
-
-D ESI GN IN G CU ST OMR ACE S 20-11
 
 Specify/view the lesser traits for your race. You’ll probably find several traits that won’t affect your playing strategy. Each time you choose a trait that prevents you from developing something, you’ll gain advantage points you’ll be able to use elsewhere or, if you’re in the hole, bring the balance closer to being above zero (you have to be above or at zero before you can click on Finish).
 

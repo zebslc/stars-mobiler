@@ -204,7 +204,11 @@ export interface IShipDesignOperationsService {
  * Ship design templates and presets service interface
  */
 export interface IShipDesignTemplateService {
-  getAvailableTemplates(techLevels: PlayerTech): Array<ShipDesignTemplate>;
+  getAvailableTemplates(
+    techLevels: PlayerTech,
+    primaryTraits?: ReadonlyArray<string> | null,
+    lesserTraits?: ReadonlyArray<string> | null,
+  ): Array<ShipDesignTemplate>;
   applyTemplate(templateId: string, techLevels: PlayerTech): ShipDesign;
   saveAsTemplate(design: ShipDesign, name: string): void;
 }

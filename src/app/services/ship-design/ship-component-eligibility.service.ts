@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 import type {
   ComponentStats,
-  HullTemplate} from '../../data/tech-atlas.types';
-import {
-  getSlotTypeForComponentType,
+  HullTemplate,
+  PrimaryRacialTrait,
+  LesserRacialTrait,
 } from '../../data/tech-atlas.types';
+import { getSlotTypeForComponentType } from '../../data/tech-atlas.types';
 import { ALL_HULLS, getAllComponents } from '../../data/tech-atlas.data';
 import type { PlayerTech, Species } from '../../models/game.model';
-import {
-  getPrimaryTechField,
-  getRequiredTechLevel,
-} from '../../utils/data-access.util';
+import { getPrimaryTechField, getRequiredTechLevel } from '../../utils/data-access.util';
+import { hasAll, lacksAny } from '../../utils/trait-validation.util';
 import type { MiniaturizedComponent } from '../../utils/miniaturization.util';
 import { miniaturizeComponent } from '../../utils/miniaturization.util';
 import { canInstallComponent } from '../../models/ship-design.model';
@@ -39,26 +38,30 @@ export class ShipComponentEligibilityService {
     if (!slotDefinition) return [];
     const slot = this.normalizeSlot(slotDefinition, slotId);
     return getAllComponents()
-      .filter((component) =>
-        this.isComponentAllowed(component, hull, slot, techLevels, species),
-      )
+      .filter((component) => this.isComponentAllowed(component, hull, slot, techLevels, species))
       .map((component) => miniaturizeComponent(component, techLevels));
   }
 
-  getAvailableHulls(techLevels: PlayerTech): Array<HullTemplate> {
+  getAvailableHulls(
+    techLevels: PlayerTech,
+    primaryTraits: ReadonlyArray<PrimaryRacialTrait> | null = null,
+    lesserTraits: ReadonlyArray<LesserRacialTrait> | null = null,
+  ): Array<HullTemplate> {
     const constructionLevel = techLevels.Construction;
-    return ALL_HULLS.filter((hull) => (hull.techReq?.Construction ?? 0) <= constructionLevel);
+    return ALL_HULLS.filter((hull) => {
+      // Check tech requirement
+      if ((hull.techReq?.Construction ?? 0) > constructionLevel) return false;
+      // Check racial trait requirements
+      return this.meetsHullTraitRequirements(hull, primaryTraits, lesserTraits);
+    });
   }
 
-  normalizeSlot(
-    hullSlot: HullTemplate['Slots'][number],
-    slotId: string,
-  ): NormalizedHullSlot {
+  normalizeSlot(hullSlot: HullTemplate['Slots'][number], slotId: string): NormalizedHullSlot {
     return {
       id: hullSlot.Code ?? slotId,
-      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as Array<ReturnType<
-        typeof getSlotTypeForComponentType
-      >>,
+      allowedTypes: hullSlot.Allowed.map((type) => getSlotTypeForComponentType(type)) as Array<
+        ReturnType<typeof getSlotTypeForComponentType>
+      >,
       max: hullSlot.Max,
       required: hullSlot.Required,
       editable: hullSlot.Editable,
@@ -66,10 +69,7 @@ export class ShipComponentEligibilityService {
     };
   }
 
-  findHullSlotDefinition(
-    hull: HullTemplate,
-    slotId: string,
-  ): HullTemplate['Slots'][number] | null {
+  findHullSlotDefinition(hull: HullTemplate, slotId: string): HullTemplate['Slots'][number] | null {
     return hull.Slots.find((slot, index) => (slot.Code ?? `slot_${index}`) === slotId) ?? null;
   }
 
@@ -97,10 +97,10 @@ export class ShipComponentEligibilityService {
 
   private meetsTraitRequirements(component: ComponentStats, species: Species | null): boolean {
     if (!species) return true;
-    if (!this.hasAll(species.primaryTraits, component.primaryRacialTraitRequired)) return false;
-    if (!this.lacksAny(species.primaryTraits, component.primaryRacialTraitUnavailable)) return false;
-    if (!this.hasAll(species.lesserTraits, component.lesserRacialTraitRequired)) return false;
-    if (!this.lacksAny(species.lesserTraits, component.lesserRacialTraitUnavailable)) return false;
+    if (!hasAll(species.primaryTraits, component.primaryRacialTraitRequired)) return false;
+    if (!lacksAny(species.primaryTraits, component.primaryRacialTraitUnavailable)) return false;
+    if (!hasAll(species.lesserTraits, component.lesserRacialTraitRequired)) return false;
+    if (!lacksAny(species.lesserTraits, component.lesserRacialTraitUnavailable)) return false;
     return true;
   }
 
@@ -110,21 +110,15 @@ export class ShipComponentEligibilityService {
     return restrictions.includes(hull.Name);
   }
 
-  private hasAll(
-    source: ReadonlyArray<string> | undefined | null,
-    required?: ReadonlyArray<string>,
+  private meetsHullTraitRequirements(
+    hull: HullTemplate,
+    primaryTraits: ReadonlyArray<PrimaryRacialTrait> | null,
+    lesserTraits: ReadonlyArray<LesserRacialTrait> | null,
   ): boolean {
-    if (!required || required.length === 0) return true;
-    if (!source || source.length === 0) return false;
-    return required.every((value) => source.includes(value));
-  }
-
-  private lacksAny(
-    source: ReadonlyArray<string> | undefined | null,
-    forbidden?: ReadonlyArray<string>,
-  ): boolean {
-    if (!forbidden || forbidden.length === 0) return true;
-    if (!source || source.length === 0) return true;
-    return !forbidden.some((value) => source.includes(value));
+    if (!hasAll(primaryTraits, hull.primaryRacialTraitRequired)) return false;
+    if (!lacksAny(primaryTraits, hull.primaryRacialTraitUnavailable)) return false;
+    if (!hasAll(lesserTraits, hull.lesserRacialTraitRequired)) return false;
+    if (!lacksAny(lesserTraits, hull.lesserRacialTraitUnavailable)) return false;
+    return true;
   }
 }

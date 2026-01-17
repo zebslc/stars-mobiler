@@ -403,7 +403,7 @@ export const UTILITY_HULLS: Array<HullTemplate> = [
       Heal: 10,
     },
     techReq: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 3 },
-    id: 'hull-super-fuel-xport',
+    id: 'hull-super-fuel-export',
     type: 'utility',
     description: 'This hull will manufacture 200 units of fuel each year. Ships in the same fleet will heal 10% faster.'
 
