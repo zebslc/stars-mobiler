@@ -13,7 +13,7 @@ describe('BuildPaymentService', () => {
     id: 'star1',
     name: 'Test Star',
     position: { x: 100, y: 100 },
-    ownerId: 'p1',
+    ownerId: 'test-player',
     population: 10000,
     maxPopulation: 1000000,
     resources: 500,

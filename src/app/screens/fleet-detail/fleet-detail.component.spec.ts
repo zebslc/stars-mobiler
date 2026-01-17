@@ -68,7 +68,7 @@ describe('FleetDetailComponent', () => {
   it('should filter out starbases from otherFleets', () => {
     const fleet1 = {
       id: 'fleet1',
-      ownerId: 'p1',
+      ownerId: 'test-player',
       name: 'Fleet 1',
       location: { type: 'orbit', starId: 'p1' },
       ships: [{ designId: 'scout', count: 1 }],
@@ -79,7 +79,7 @@ describe('FleetDetailComponent', () => {
 
     const fleet2 = {
       id: 'fleet2',
-      ownerId: 'p1',
+      ownerId: 'test-player',
       name: 'Fleet 2',
       location: { type: 'orbit', starId: 'p1' }, // Same location
       ships: [{ designId: 'scout', count: 1 }],
@@ -90,7 +90,7 @@ describe('FleetDetailComponent', () => {
 
     const starbase = {
       id: 'sb1',
-      ownerId: 'p1',
+      ownerId: 'test-player',
       name: 'Starbase',
       location: { type: 'orbit', starId: 'p1' }, // Same location
       ships: [{ designId: 'sb_design', count: 1 }],
@@ -109,7 +109,7 @@ describe('FleetDetailComponent', () => {
       shipDesigns: designs,
       stars: [],
     });
-    mockGameStateService.player.set({ id: 'p1' });
+    mockGameStateService.player.set({ id: 'test-player' });
 
     // Trigger change detection
     fixture.detectChanges();
@@ -124,7 +124,7 @@ describe('FleetDetailComponent', () => {
   it('should include fleets at the same deep space location', () => {
     const fleet1 = {
       id: 'fleet1',
-      ownerId: 'p1',
+      ownerId: 'test-player',
       name: 'Fleet 1',
       location: { type: 'space', x: 100, y: 100 },
       ships: [{ designId: 'scout', count: 1 }],
@@ -135,7 +135,7 @@ describe('FleetDetailComponent', () => {
 
     const fleet2 = {
       id: 'fleet2',
-      ownerId: 'p1',
+      ownerId: 'test-player',
       name: 'Fleet 2',
       location: { type: 'space', x: 100, y: 100 }, // Same location
       ships: [{ designId: 'scout', count: 1 }],
@@ -146,7 +146,7 @@ describe('FleetDetailComponent', () => {
 
     const fleet3 = {
       id: 'fleet3',
-      ownerId: 'p1',
+      ownerId: 'test-player',
       name: 'Fleet 3',
       location: { type: 'space', x: 200, y: 200 }, // Different location
       ships: [{ designId: 'scout', count: 1 }],
@@ -164,7 +164,7 @@ describe('FleetDetailComponent', () => {
       shipDesigns: designs,
       stars: [],
     });
-    mockGameStateService.player.set({ id: 'p1' });
+    mockGameStateService.player.set({ id: 'test-player' });
 
     fixture.detectChanges();
 

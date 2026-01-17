@@ -33,6 +33,7 @@ describe('GalaxyWaypointVisualService', () => {
     techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
+    scanReports: {},
   };
 
   const settings: GameSettings = {

@@ -36,6 +36,7 @@ describe('TechService', () => {
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
     ownedStarIds: [],
+    scanReports: {},
   });
 
   const createMockComponent = (overrides: Partial<ComponentStats> = {}): ComponentStats =>

@@ -4,6 +4,7 @@ import type { ResearchService } from '../tech/research.service';
 import type { ColonyService } from '../colony/colony.service';
 import type { FleetService } from '../fleet/core/fleet.service';
 import type { HabitabilityService } from '../colony/habitability.service';
+import type { ScanningService } from './scanning.service';
 import type { GameState, Star, Player } from '../../models/game.model';
 
 describe('TurnService', () => {
@@ -27,6 +28,7 @@ describe('TurnService', () => {
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
     ownedStarIds: [],
+    scanReports: {},
     ...overrides,
   });
 
@@ -76,6 +78,7 @@ describe('TurnService', () => {
     mockColony = jasmine.createSpyObj('ColonyService', ['processBuildQueues', 'processGovernors']);
     mockFleet = jasmine.createSpyObj('FleetService', ['processFleets']);
     mockHab = jasmine.createSpyObj('HabitabilityService', ['calculate']);
+    const mockScanning = jasmine.createSpyObj('ScanningService', ['processScanning']);
 
     // Default mock returns
     mockEconomy.calculateProduction.and.returnValue({
@@ -87,7 +90,7 @@ describe('TurnService', () => {
     mockEconomy.logisticGrowth.and.returnValue(1000);
     mockHab.calculate.and.returnValue(75);
 
-    service = new TurnService(mockEconomy, mockResearch, mockColony, mockFleet, mockHab);
+    service = new TurnService(mockEconomy, mockResearch, mockColony, mockFleet, mockHab, mockScanning);
   });
 
   describe('getOwnedStars', () => {

@@ -1,26 +1,24 @@
 import { FleetCargoService } from './fleet-cargo.service';
 import type { LoggingService } from '../../core/logging.service';
 import type { GameState, Fleet, Player, Star } from '../../../models/game.model';
+import { MockPlayerFactory } from '../../../testing/mock-player.factory';
 
 describe('FleetCargoService', () => {
   let service: FleetCargoService;
   let mockLoggingService: jasmine.SpyObj<LoggingService>;
 
-  const mockPlayer: Player = {
-    id: 'p1',
-    name: 'Human',
-    species: {} as any,
-    techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy',
-    ownedStarIds: [],
-  };
+  const mockPlayer = MockPlayerFactory.withTechLevels({
+    Energy: 0,
+    Kinetics: 0,
+    Propulsion: 0,
+    Construction: 0,
+  });
 
   const mockPlanet: Star = {
     id: 'star1',
     name: 'Earth',
     position: { x: 0, y: 0 },
-    ownerId: 'p1',
+    ownerId: 'test-player',
     temperature: 50,
     atmosphere: 50,
     population: 10000,
@@ -79,7 +77,7 @@ describe('FleetCargoService', () => {
     beforeEach(() => {
       fleet = {
         id: 'f1',
-        ownerId: 'p1',
+        ownerId: 'test-player',
         name: 'Cargo Fleet',
         location: { type: 'orbit', starId: 'star1' },
         ships: [{ designId: 'freighter', count: 1, damage: 0 }],
@@ -197,7 +195,7 @@ describe('FleetCargoService', () => {
     beforeEach(() => {
       fleet = {
         id: 'f1',
-        ownerId: 'p1',
+        ownerId: 'test-player',
         name: 'Cargo Fleet',
         location: { type: 'orbit', starId: 'star1' },
         ships: [{ designId: 'freighter', count: 1, damage: 0 }],

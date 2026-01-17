@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { GalaxyVisibilityService } from './galaxy-visibility.service';
-import { GameStateService } from '../../../services/game/game-state.service';
-import { SettingsService } from '../../../services/core/settings.service';
 import { GalaxyFleetPositionService } from '../fleet/galaxy-fleet-position.service';
-import type { Fleet, GameState, Player, ShipDesign, Star } from '../../../models/game.model';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import { SettingsService } from '../../../../services/core/settings.service';
+import { ShipDesignRegistry } from '../../../../services/data/ship-design-registry.service';
+import type { Fleet, GameState, Player, ShipDesign, Star } from '../../../../models/game.model';
 import { signal } from '@angular/core';
 
 describe('GalaxyVisibilityService', () => {
@@ -13,20 +14,36 @@ describe('GalaxyVisibilityService', () => {
   let mockFleetPositions: any;
 
   const mockPlayer: Player = {
-    id: 'p1',
-    name: 'Human',
-    species: {} as any,
-    techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy',
+    id: 'test-player',
+    name: 'Test Player',
+    species: {
+      id: 'human',
+      name: 'Human',
+      habitat: { idealTemperature: 50, idealAtmosphere: 50, toleranceRadius: 10 },
+      traits: [],
+    } as any,
     ownedStarIds: [],
+    techLevels: {
+      Energy: 1,
+      Kinetics: 1,
+      Propulsion: 1,
+      Construction: 1,
+    },
+    researchProgress: {
+      Energy: 0,
+      Kinetics: 0,
+      Propulsion: 0,
+      Construction: 0,
+    },
+    selectedResearchField: 'Energy',
+    scanReports: {},
   };
 
   const createStar = (overrides: Partial<Star> = {}): Star => ({
     id: 'star1',
     name: 'Test Star',
     position: { x: 100, y: 100 },
-    ownerId: 'p1',
+    ownerId: 'test-player',
     population: 10000,
     maxPopulation: 1000000,
     resources: 1000,
@@ -55,7 +72,7 @@ describe('GalaxyVisibilityService', () => {
     hullId: 'Scout',
     slots: [],
     createdTurn: 0,
-    playerId: 'p1',
+    playerId: 'test-player',
     spec: {
       cost: { resources: 50, ironium: 10, boranium: 0, germanium: 0 },
       isStarbase: false,
@@ -67,7 +84,7 @@ describe('GalaxyVisibilityService', () => {
   const mockFleet: Fleet = {
     id: 'fleet1',
     name: 'Scout Fleet',
-    ownerId: 'p1',
+    ownerId: 'test-player',
     location: { type: 'orbit', starId: 'star1' },
     ships: [{ designId: 'scout', count: 1, damage: 0 }],
     fuel: 100,
@@ -114,6 +131,17 @@ describe('GalaxyVisibilityService', () => {
         { provide: GameStateService, useValue: mockGameStateService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: GalaxyFleetPositionService, useValue: mockFleetPositions },
+        {
+          provide: ShipDesignRegistry,
+          useValue: {
+            getDesign: (designId: string) => {
+              if (designId === 'scout') {
+                return { scannerRange: 50, cloakedRange: 0 };
+              }
+              return null;
+            },
+          },
+        },
       ],
     });
     service = TestBed.inject(GalaxyVisibilityService);

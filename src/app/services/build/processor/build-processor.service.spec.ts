@@ -5,6 +5,7 @@ import type { BuildPaymentService, ResourceAmount } from '../payment/build-payme
 import type { BuildProjectService } from '../project/build-project.service';
 import type { StarbaseUpgradeService, StarbaseUpgradeInfo } from '../../ship-design/starbase-upgrade.service';
 import type { BuildItem, GameState, Player, Star } from '../../../models/game.model';
+import { MockPlayerFactory } from '../../../testing/mock-player.factory';
 
 describe('BuildProcessorService', () => {
   let service: BuildProcessorService;
@@ -14,15 +15,12 @@ describe('BuildProcessorService', () => {
   let mockBuildProject: jasmine.SpyObj<BuildProjectService>;
   let mockStarbaseUpgrade: jasmine.SpyObj<StarbaseUpgradeService>;
 
-  const mockPlayer: Player = {
-    id: 'p1',
-    name: 'Human',
-    species: {} as any,
-    techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy',
-    ownedStarIds: [],
-  };
+  const mockPlayer = MockPlayerFactory.withTechLevels({
+    Energy: 0,
+    Kinetics: 0,
+    Propulsion: 0,
+    Construction: 0,
+  });
 
   const zeroResources = (): ResourceAmount => ({
     resources: 0,
@@ -45,7 +43,7 @@ describe('BuildProcessorService', () => {
     atmosphere: 40,
     mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },
     surfaceMinerals: { ironium: 200, boranium: 150, germanium: 100 },
-    ownerId: 'p1',
+    ownerId: 'test-player',
     population: 10000,
     maxPopulation: 1000000,
     mines: 10,
@@ -113,7 +111,7 @@ describe('BuildProcessorService', () => {
 
   describe('processBuildQueues', () => {
     it('should process only owned planets', () => {
-      const ownedPlanet = createStar({ id: 'planet1', ownerId: 'p1', buildQueue: [] });
+      const ownedPlanet = createStar({ id: 'planet1', ownerId: 'test-player', buildQueue: [] });
       const enemyPlanet = createStar({ id: 'planet2', ownerId: 'enemy', buildQueue: [] });
       const game = createGameState([ownedPlanet, enemyPlanet]);
 

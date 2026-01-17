@@ -9,7 +9,7 @@ describe('BuildProjectService', () => {
   let mockFleetService: jasmine.SpyObj<FleetService>;
 
   const createPlayer = (techOverrides: Partial<PlayerTech> = {}): Player => ({
-    id: 'p1',
+    id: 'test-player',
     name: 'Human',
     species: {
       id: 'human',
@@ -25,12 +25,13 @@ describe('BuildProjectService', () => {
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
     ownedStarIds: [],
+    scanReports: {},
   });
 
   const createStar = (overrides: Partial<Star> = {}): Star => ({
     id: 'planet1',
     name: 'Test Planet',
-    ownerId: 'p1',
+    ownerId: 'test-player',
     position: { x: 0, y: 0 },
     population: 10000,
     maxPopulation: 1000000,

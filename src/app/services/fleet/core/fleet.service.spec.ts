@@ -206,6 +206,7 @@ function createPlayer(overrides: Partial<Player> = {}): Player {
     techLevels: overrides.techLevels ?? { ...BASE_TECH },
     researchProgress: overrides.researchProgress ?? { ...BASE_TECH },
     selectedResearchField: overrides.selectedResearchField ?? 'Energy',
+    scanReports: {},
   };
 }
 

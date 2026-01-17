@@ -4,6 +4,7 @@ import { DataAccessService } from '../data/data-access.service';
 import { ShipDesignRegistry } from '../data/ship-design-registry.service';
 import { LoggingService } from '../core/logging.service';
 import type { GameState, ShipDesign, Player } from '../../models/game.model';
+import { MockPlayerFactory } from '../../testing/mock-player.factory';
 
 describe('ShipyardService', () => {
   let service: ShipyardService;
@@ -11,21 +12,18 @@ describe('ShipyardService', () => {
   let mockRegistry: jasmine.SpyObj<ShipDesignRegistry>;
   let mockLogging: jasmine.SpyObj<LoggingService>;
 
-  const mockPlayer: Player = {
-    id: 'player-1',
-    name: 'Human',
-    species: {} as any,
-    techLevels: { Energy: 5, Kinetics: 3, Propulsion: 7, Construction: 2 },
-    researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy',
-    ownedStarIds: [],
-  };
+  const mockPlayer = MockPlayerFactory.withTechLevels({
+    Energy: 5,
+    Kinetics: 3,
+    Propulsion: 7,
+    Construction: 2,
+  });
 
   const mockShipDesign: ShipDesign = {
     id: 'design-1',
     name: 'Test Design',
     hullId: 'hull-1',
-    playerId: 'player-1',
+    playerId: 'test-player',
     createdTurn: 1,
     slots: [],
     spec: {} as any,
@@ -159,14 +157,14 @@ describe('ShipyardService', () => {
       const multiPlayerState = {
         ...mockGameState,
         shipDesigns: [
-          { ...mockShipDesign, playerId: 'player-1' },
-          { ...mockShipDesign, id: 'design-2', playerId: 'player-2' },
+          { ...mockShipDesign, playerId: 'test-player' },
+          { ...mockShipDesign, id: 'design-2', playerId: 'other-player' },
         ],
       };
 
       const designs = service.getPlayerShipDesigns(multiPlayerState);
 
-      expect(designs.every((d) => d.playerId === 'player-1')).toBe(true);
+      expect(designs.every((d) => d.playerId === 'test-player')).toBe(true);
     });
 
     it('should return empty array for null game state', () => {
@@ -179,9 +177,9 @@ describe('ShipyardService', () => {
       const multiDesignState = {
         ...mockGameState,
         shipDesigns: [
-          { ...mockShipDesign, playerId: 'player-1' },
-          { ...mockShipDesign, id: 'design-2', playerId: 'player-1' },
-          { ...mockShipDesign, id: 'design-3', playerId: 'player-2' },
+          { ...mockShipDesign, playerId: 'test-player' },
+          { ...mockShipDesign, id: 'design-2', playerId: 'test-player' },
+          { ...mockShipDesign, id: 'design-3', playerId: 'other-player' },
         ],
       };
 

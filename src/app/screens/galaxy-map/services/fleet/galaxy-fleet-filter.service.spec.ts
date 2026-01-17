@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { GalaxyFleetFilterService } from './galaxy-fleet-filter.service';
-import { GameStateService } from '../../../services/game/game-state.service';
-import { SettingsService } from '../../../services/core/settings.service';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import { SettingsService } from '../../../../services/core/settings.service';
 import { GalaxyFleetStationService } from './galaxy-fleet-station.service';
-import type { Fleet, GameState, Player } from '../../../models/game.model';
+import type { Fleet, GameState, Player } from '../../../../models/game.model';
 
 describe('GalaxyFleetFilterService', () => {
   let service: GalaxyFleetFilterService;
@@ -16,6 +16,7 @@ describe('GalaxyFleetFilterService', () => {
     researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
     selectedResearchField: 'Energy',
     ownedStarIds: [],
+    scanReports: {},
   };
 
   const fleets: Array<Fleet> = [

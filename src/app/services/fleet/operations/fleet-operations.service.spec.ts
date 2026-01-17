@@ -3,8 +3,10 @@ import { FleetOperationsService } from './fleet-operations.service';
 import { FleetNamingService } from '../naming/fleet-naming.service';
 import { FleetValidationService } from '../validation/fleet-validation.service';
 import { LoggingService } from '../../core/logging.service';
+import { ShipDesignRegistry } from '../../data/ship-design-registry.service';
 import type { GameState, Player, Fleet, ShipDesign, Star } from '../../../models/game.model';
 import { ValidationResult } from '../../../models/service-interfaces.model';
+import { MockPlayerFactory } from '../../../testing/mock-player.factory';
 
 describe('FleetOperationsService', () => {
   let service: FleetOperationsService;
@@ -12,21 +14,18 @@ describe('FleetOperationsService', () => {
   let mockNamingService: jasmine.SpyObj<FleetNamingService>;
   let mockValidationService: jasmine.SpyObj<FleetValidationService>;
 
-  const mockPlayer: Player = {
-    id: 'p1',
-    name: 'Human',
-    species: {} as any,
-    techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy',
-    ownedStarIds: [],
-  };
+  const mockPlayer = MockPlayerFactory.withTechLevels({
+    Energy: 0,
+    Kinetics: 0,
+    Propulsion: 0,
+    Construction: 0,
+  });
 
   const mockPlanet: Star = {
     id: 'planet1',
     name: 'Earth',
     position: { x: 0, y: 0 },
-    ownerId: 'p1',
+    ownerId: 'test-player',
     temperature: 50,
     atmosphere: 50,
     population: 10000,
@@ -49,7 +48,7 @@ describe('FleetOperationsService', () => {
     hullId: 'Scout',
     slots: [],
     createdTurn: 0,
-    playerId: 'p1',
+    playerId: 'test-player',
     spec: {
       cost: { resources: 50, ironium: 10, boranium: 0, germanium: 0 },
       isStarbase: false,
@@ -65,6 +64,7 @@ describe('FleetOperationsService', () => {
     mockValidationService = jasmine.createSpyObj('FleetValidationService', [
       'validateShipAddition',
     ]);
+    const mockShipDesignRegistry = jasmine.createSpyObj('ShipDesignRegistry', ['getDesign']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -72,6 +72,7 @@ describe('FleetOperationsService', () => {
         { provide: LoggingService, useValue: mockLoggingService },
         { provide: FleetNamingService, useValue: mockNamingService },
         { provide: FleetValidationService, useValue: mockValidationService },
+        { provide: ShipDesignRegistry, useValue: mockShipDesignRegistry },
       ],
     });
 
@@ -101,16 +102,16 @@ describe('FleetOperationsService', () => {
     it('should create a fleet with valid parameters', () => {
       const location = { type: 'orbit' as const, starId: 'planet1' };
 
-      const fleet = service.createFleet(mockGame, location, 'p1', 'scout');
+      const fleet = service.createFleet(mockGame, location, 'test-player', 'scout');
 
       expect(fleet).toBeDefined();
       expect(fleet.name).toBe('Scout-1');
-      expect(fleet.ownerId).toBe('p1');
+      expect(fleet.ownerId).toBe('test-player');
       expect(fleet.location).toEqual(location);
       expect(fleet.ships).toEqual([]);
       expect(fleet.fuel).toBe(0);
       expect(mockGame.fleets).toContain(fleet);
-      expect(mockNamingService.generateFleetName).toHaveBeenCalledWith(mockGame, 'p1', 'scout');
+      expect(mockNamingService.generateFleetName).toHaveBeenCalledWith(mockGame, 'test-player', 'scout');
     });
 
     it('should throw error when fleet limit exceeded', () => {
@@ -118,7 +119,7 @@ describe('FleetOperationsService', () => {
       for (let i = 0; i < 512; i++) {
         mockGame.fleets.push({
           id: `f${i}`,
-          ownerId: 'p1',
+          ownerId: 'test-player',
           name: `Fleet ${i}`,
           location: { type: 'orbit', starId: 'planet1' },
           ships: [],
@@ -133,14 +134,14 @@ describe('FleetOperationsService', () => {
       }
 
       expect(() => {
-        service.createFleet(mockGame, { type: 'orbit', starId: 'planet1' }, 'p1', 'scout');
+        service.createFleet(mockGame, { type: 'orbit', starId: 'planet1' }, 'test-player', 'scout');
       }).toThrowError(/Maximum of 512 fleets/);
     });
 
     it('should log fleet creation', () => {
       const location = { type: 'orbit' as const, starId: 'planet1' };
 
-      service.createFleet(mockGame, location, 'p1', 'scout');
+      service.createFleet(mockGame, location, 'test-player', 'scout');
 
       expect(mockLoggingService.debug).toHaveBeenCalledWith(
         'Creating new fleet',
@@ -160,7 +161,7 @@ describe('FleetOperationsService', () => {
     beforeEach(() => {
       fleet = {
         id: 'f1',
-        ownerId: 'p1',
+        ownerId: 'test-player',
         name: 'Fleet 1',
         location: { type: 'orbit', starId: 'planet1' },
         ships: [],
@@ -265,7 +266,7 @@ describe('FleetOperationsService', () => {
       for (let i = 0; i < 10; i++) {
         mockGame.fleets.push({
           id: `f${i}`,
-          ownerId: 'p1',
+          ownerId: 'test-player',
           name: `Fleet ${i}`,
           location: { type: 'orbit', starId: 'planet1' },
           ships: [],
@@ -279,7 +280,7 @@ describe('FleetOperationsService', () => {
         });
       }
 
-      const result = service.validateFleetLimits(mockGame, 'p1');
+      const result = service.validateFleetLimits(mockGame, 'test-player');
 
       expect(result).toBe(true);
     });
@@ -289,7 +290,7 @@ describe('FleetOperationsService', () => {
       for (let i = 0; i < 512; i++) {
         mockGame.fleets.push({
           id: `f${i}`,
-          ownerId: 'p1',
+          ownerId: 'test-player',
           name: `Fleet ${i}`,
           location: { type: 'orbit', starId: 'planet1' },
           ships: [],
@@ -303,7 +304,7 @@ describe('FleetOperationsService', () => {
         });
       }
 
-      const result = service.validateFleetLimits(mockGame, 'p1');
+      const result = service.validateFleetLimits(mockGame, 'test-player');
 
       expect(result).toBe(false);
     });
@@ -313,7 +314,7 @@ describe('FleetOperationsService', () => {
       for (let i = 0; i < 10; i++) {
         mockGame.fleets.push({
           id: `f${i}`,
-          ownerId: 'p1',
+          ownerId: 'test-player',
           name: `Fleet ${i}`,
           location: { type: 'orbit', starId: 'planet1' },
           ships: [],
@@ -344,9 +345,9 @@ describe('FleetOperationsService', () => {
         });
       }
 
-      const result = service.validateFleetLimits(mockGame, 'p1');
+      const result = service.validateFleetLimits(mockGame, 'test-player');
 
-      expect(result).toBe(true); // Only 10 fleets for p1, well under limit
+      expect(result).toBe(true); // Only 10 fleets for test-player, well under limit
     });
   });
 });

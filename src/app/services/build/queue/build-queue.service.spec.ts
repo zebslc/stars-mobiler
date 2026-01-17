@@ -1,26 +1,24 @@
 import { BuildQueueService } from './build-queue.service';
 import type { PlanetUtilityService } from '../../colony/planet-utility.service';
 import type { BuildItem, GameState, Player, Star } from '../../../models/game.model';
+import { MockPlayerFactory } from '../../../testing/mock-player.factory';
 
 describe('BuildQueueService', () => {
   let service: BuildQueueService;
   let mockPlanetUtility: jasmine.SpyObj<PlanetUtilityService>;
 
-  const mockPlayer: Player = {
-    id: 'p1',
-    name: 'Human',
-    species: {} as any,
-    techLevels: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    researchProgress: { Energy: 0, Kinetics: 0, Propulsion: 0, Construction: 0 },
-    selectedResearchField: 'Energy',
-    ownedStarIds: [],
-  };
+  const mockPlayer = MockPlayerFactory.withTechLevels({
+    Energy: 0,
+    Kinetics: 0,
+    Propulsion: 0,
+    Construction: 0,
+  });
 
   const createStar = (overrides: Partial<Star> = {}): Star => ({
     id: 'planet1',
     name: 'Test Planet',
     position: { x: 0, y: 0 },
-    ownerId: 'p1',
+    ownerId: 'test-player',
     temperature: 50,
     atmosphere: 50,
     mineralConcentrations: { ironium: 100, boranium: 100, germanium: 100 },

@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { GalaxyFleetStationService } from './galaxy-fleet-station.service';
-import { GameStateService } from '../../../services/game/game-state.service';
-import type { Fleet, GameState, ShipDesign } from '../../../models/game.model';
+import { GameStateService } from '../../../../services/game/game-state.service';
+import type { Fleet, GameState, ShipDesign } from '../../../../models/game.model';
 
 describe('GalaxyFleetStationService', () => {
   let service: GalaxyFleetStationService;
