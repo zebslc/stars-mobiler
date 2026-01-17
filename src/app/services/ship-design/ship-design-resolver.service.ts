@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import type { CompiledDesign } from '../../data/ships.data';
+import type { CompiledDesign } from '../data/ship-design-registry.service';
 import { compileShipStats } from '../../models/ship-design.model';
 import type { CompiledShipStats, GameState, PlayerTech, ShipDesign } from '../../models/game.model';
 import { DataAccessService } from '../data/data-access.service';

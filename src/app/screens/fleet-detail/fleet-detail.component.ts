@@ -13,7 +13,7 @@ import { GameStateService } from '../../services/game/game-state.service';
 import { ToastService } from '../../services/core/toast.service';
 import { ShipDesignResolverService } from '../../services/ship-design';
 import type { Fleet, Star } from '../../models/game.model';
-import type { CompiledDesign } from '../../data/ships.data';
+import type { CompiledDesign } from '../../services/data/ship-design-registry.service';
 import type { StarOption } from '../../components/star-selector.component';
 import { DesignPreviewButtonComponent } from '../../shared/components/design-preview-button.component';
 import { ShipStatsRowComponent } from '../../shared/components/ship-stats-row/ship-stats-row.component';

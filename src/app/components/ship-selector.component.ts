@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import type { CompiledDesign } from '../data/ships.data';
+import type { CompiledDesign } from '../services/data/ship-design-registry.service';
 import type {
   ShipDesignDisplay} from './ship-design-item/ship-design-item.component';
 import {

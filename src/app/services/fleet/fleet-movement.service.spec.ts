@@ -7,7 +7,7 @@ import { FleetMovementStatsService } from './movement/fleet-movement-stats.servi
 import { FleetFuelCalculatorService } from './fuel/fleet-fuel-calculator.service';
 import { FleetMovementValidatorService } from './movement/fleet-movement-validator.service';
 import { FleetShipDesignService } from './design/fleet-ship-design.service';
-import type { CompiledDesign } from '../../data/ships.data';
+import type { CompiledDesign } from '../data/ship-design-registry.service';
 
 interface FleetMovementTestContext {
   service: FleetMovementService;
