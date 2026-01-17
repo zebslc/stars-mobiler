@@ -138,7 +138,7 @@ export class GalaxyWaypointInteractionService {
       return;
     }
 
-    const result = this.waypoints.finalizeWaypoint();
+    const result = this.waypoints.exitNavigationMode();
     this.menus.showWaypointMenuFromResult(result, this.waypointDropScreenPos);
     this.waypointDropScreenPos = null;
   }

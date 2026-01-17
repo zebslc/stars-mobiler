@@ -1,5 +1,6 @@
 import type { PrimaryRacialTrait, LesserRacialTrait } from '../data/tech-atlas.types';
 import type { FLEET_ORDER_TYPE } from './fleet-order.constants';
+import type { ScanReport } from './scanning.model';
 
 export interface GameSettings {
   galaxySize: 'small' | 'medium' | 'large';
@@ -120,6 +121,7 @@ export interface Player {
   techLevels: PlayerTech;
   researchProgress: PlayerTech; // Accumulated RP toward next level
   selectedResearchField: 'Energy' | 'Kinetics' | 'Propulsion' | 'Construction';
+  scanReports: Record<string, ScanReport>; // Key is starId
 }
 
 export interface AIPlayer extends Player {

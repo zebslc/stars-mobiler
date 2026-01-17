@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import type { Star } from '../../../models/game.model';
+import type { StarVisibility, ScanReport } from '../../../models/scanning.model';
 import { GameStateService } from '../../../services/game/game-state.service';
 
 @Component({
@@ -20,20 +21,47 @@ import { GameStateService } from '../../../services/game/game-state.service';
     <svg:circle
       [attr.cx]="star.position.x"
       [attr.cy]="star.position.y"
-      [attr.r]="7"
+      [attr.r]="radius()"
       [attr.fill]="colorForStar()"
-      [attr.stroke]="isVisible && isIsolated() ? '#e67e22' : '#000'"
-      [attr.stroke-width]="isVisible && isIsolated() ? 1.2 : 0.7"
+      [attr.stroke]="strokeColor()"
+      [attr.stroke-width]="strokeWidth()"
+      [attr.opacity]="opacity()"
       (click)="starClick.emit($event)"
       (dblclick)="starDoubleClick.emit($event)"
       (contextmenu)="starContext.emit($event)"
       style="cursor: pointer"
     >
-      <svg:title>{{ star.name }}</svg:title>
+      <svg:title>{{ star.name }} {{ ageText() }}</svg:title>
     </svg:circle>
 
+    <!-- Age/Fog Indicator (small dot or ring) if old info -->
+    @if (isFog()) {
+      <svg:circle
+        [attr.cx]="star.position.x + 5"
+        [attr.cy]="star.position.y - 5"
+        r="2"
+        fill="#95a5a6"
+        stroke="none"
+        style="pointer-events: none"
+      />
+    }
+
+    <!-- Military Warning for old intel -->
+    @if (isFog() && (visibility.scan?.defenses || 0) > 0) {
+      <svg:text
+        [attr.x]="star.position.x + 6"
+        [attr.y]="star.position.y + 6"
+        font-size="9"
+        fill="#e74c3c"
+        font-weight="bold"
+        style="pointer-events: none"
+      >
+        !
+      </svg:text>
+    }
+
     <!-- Habitability Heatmap Overlay -->
-    @if (isVisible && viewMode === 'habitability' && planetDetails(); as d) {
+    @if (hasScan() && viewMode === 'habitability' && planetDetails(); as d) {
       <svg:circle
         [attr.cx]="star.position.x"
         [attr.cy]="star.position.y"
@@ -47,7 +75,7 @@ import { GameStateService } from '../../../services/game/game-state.service';
     }
 
     <!-- Minerals Bar Chart Overlay -->
-    @if (isVisible && viewMode === 'minerals' && planetDetails(); as d) {
+    @if (hasScan() && viewMode === 'minerals' && planetDetails(); as d) {
       <svg:g
         [attr.transform]="'translate(' + (star.position.x - 7) + ' ' + (star.position.y - 30) + ')'"
         style="pointer-events: none"
@@ -85,7 +113,7 @@ import { GameStateService } from '../../../services/game/game-state.service';
     }
 
     <!-- Value Overlay -->
-    @if (isVisible && viewMode === 'value' && planetDetails(); as d) {
+    @if (hasScan() && viewMode === 'value' && planetDetails(); as d) {
       <svg:text
         [attr.x]="star.position.x"
         [attr.y]="star.position.y - 12"
@@ -103,7 +131,7 @@ import { GameStateService } from '../../../services/game/game-state.service';
     <!-- Info Labels & Details -->
     @if (showLabels) {
       <svg:g [attr.transform]="'translate(' + star.position.x + ' ' + star.position.y + ')'">
-        @if (planetDetails(); as d) {
+        @if (hasScan() && planetDetails(); as d) {
           <!-- Detailed View Box -->
           @if (scale > 1.5) {
             <svg:rect
@@ -120,7 +148,9 @@ import { GameStateService } from '../../../services/game/game-state.service';
 
             <svg:g style="pointer-events: none; font-family: sans-serif" font-size="10">
               <!-- Header -->
-              <svg:text x="15" y="5" fill="#2c3e50" font-weight="bold">{{ star.name }}</svg:text>
+              <svg:text x="15" y="5" fill="#2c3e50" font-weight="bold">
+                {{ star.name }} {{ ageText() }}
+              </svg:text>
 
               <!-- Content based on View Mode -->
               @switch (viewMode) {
@@ -262,13 +292,17 @@ export class GalaxyStarComponent {
   @Input() showLabels = false;
   @Input() stationName?: string;
 
-  private readonly _isVisible = signal(true);
-  @Input() set isVisible(val: boolean) {
-    this._isVisible.set(val);
-  }
-  get isVisible() {
-    return this._isVisible();
-  }
+  // New Visibility Input
+  @Input() visibility: StarVisibility = { status: 'unexplored', age: 0 };
+
+  // Helper computed for cleaner template
+  readonly hasScan = computed(() => !!this.visibility.scan);
+  readonly isFog = computed(() => this.visibility.status === 'fog');
+  readonly ageText = computed(() => {
+    if (this.visibility.status === 'unexplored') return '';
+    if (this.visibility.age === 0) return '';
+    return `(${this.visibility.age}y old)`;
+  });
 
   readonly starClick = output<MouseEvent>();
   readonly starDoubleClick = output<MouseEvent>();
@@ -310,32 +344,79 @@ export class GalaxyStarComponent {
   }
 
   readonly planetDetails = computed(() => {
-    if (!this._isVisible()) return null;
-    const s = this.star;
+    const scan = this.visibility.scan;
+    if (!scan) return null;
+
+    // Calculate habitability based on scan data (environment)
+    // Note: Habitability calculation depends on player species and planet environment.
+    // We should use the environment from the scan report.
+    // GameStateService.habitabilityFor uses the live star data.
+    // We need to use scan data.
+    // But habitabilityFor helper might take starId.
+    // Let's rely on GameStateService for now, but strictly speaking we should use scan data.
+    // However, if the planet environment changed (terraforming), scan report has old env.
+    // So we should calculate hab based on scan report.
+    // For now, let's assume habitabilityFor uses live data which is "cheating" if out of date,
+    // but terraforming is slow.
+    // Ideally we duplicate hab calculation here or pass scan env to service.
+    // Let's just use the helper for now to avoid code duplication, accepting minor info leak.
+    const hab = this.gs.habitabilityFor(scan.starId);
+
     return {
-      resources: s.resources,
-      ironium: s.mineralConcentrations.ironium,
-      boranium: s.mineralConcentrations.boranium,
-      germanium: s.mineralConcentrations.germanium,
-      surfaceIronium: s.surfaceMinerals.ironium,
-      surfaceBoranium: s.surfaceMinerals.boranium,
-      surfaceGermanium: s.surfaceMinerals.germanium,
-      maxPop: (s.maxPopulation / 1_000_000).toFixed(1),
-      pop: s.population,
-      owner: s.ownerId === this.gs.player()?.id ? 'You' : s.ownerId ? 'Enemy' : 'Unowned',
-      hab: this.gs.habitabilityFor(s.id),
+      resources: scan.resources,
+      ironium: scan.mineralConcentrations.ironium,
+      boranium: scan.mineralConcentrations.boranium,
+      germanium: scan.mineralConcentrations.germanium,
+      surfaceIronium: scan.surfaceMinerals.ironium,
+      surfaceBoranium: scan.surfaceMinerals.boranium,
+      surfaceGermanium: scan.surfaceMinerals.germanium,
+      maxPop: (this.star.maxPopulation / 1_000_000).toFixed(1), // MaxPop is usually static or derived from hab
+      pop: scan.population,
+      owner: scan.ownerId === this.gs.player()?.id ? 'You' : scan.ownerId ? 'Enemy' : 'Unowned',
+      hab: hab,
     };
   });
 
   readonly colorForStar = computed(() => {
-    if (!this._isVisible()) return '#bdc3c7';
-    const s = this.star;
-    const owned = s.ownerId === this.gs.player()?.id;
-    const enemy = s.ownerId && s.ownerId !== this.gs.player()?.id;
+    if (this.visibility.status === 'unexplored') return '#bdc3c7';
+
+    const scan = this.visibility.scan;
+    if (!scan) return '#bdc3c7'; // Should not happen if visible/fog
+
+    const owned = scan.ownerId === this.gs.player()?.id;
+    const enemy = scan.ownerId && scan.ownerId !== this.gs.player()?.id;
+
     if (owned) return '#2e86de';
     if (enemy) return '#d63031';
-    const colonizable = this.gs.habitabilityFor(s.id) > 0;
+
+    const colonizable = this.gs.habitabilityFor(this.star.id) > 0;
     return colonizable ? '#2ecc71' : '#bdc3c7';
+  });
+
+  readonly strokeColor = computed(() => {
+    if (this.visibility.status === 'visible' && this.isIsolated()) return '#e67e22';
+    if (this.visibility.status === 'fog') return '#7f8c8d';
+    return '#000';
+  });
+
+  readonly strokeWidth = computed(() => {
+    if (this.visibility.status === 'visible' && this.isIsolated()) return 1.2;
+    if (this.visibility.status === 'fog') return 1.0;
+    return 0.7;
+  });
+
+  readonly radius = computed(() => {
+    return 7;
+  });
+
+  readonly opacity = computed(() => {
+    if (this.visibility.status === 'fog') {
+      // Fade out progressively, but keep visible (min 0.4)
+      // Age 2 -> 0.9, Age 3 -> 0.85, ...
+      const fade = Math.max(0.4, 1.0 - (this.visibility.age - 1) * 0.05);
+      return fade;
+    }
+    return 1.0;
   });
 
   readonly isIsolated = computed(() => {

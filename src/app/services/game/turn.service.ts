@@ -5,6 +5,7 @@ import { ResearchService } from '../tech/research.service';
 import { ColonyService } from '../colony/colony.service';
 import { FleetService } from '../fleet/core/fleet.service';
 import { HabitabilityService } from '../colony/habitability.service';
+import { ScanningService } from './scanning.service';
 
 @Injectable({ providedIn: 'root' })
 export class TurnService {
@@ -14,6 +15,7 @@ export class TurnService {
     private colony: ColonyService,
     private fleet: FleetService,
     private hab: HabitabilityService,
+    private scanning: ScanningService,
   ) {}
 
   endTurn(game: GameState): GameState {
@@ -24,6 +26,7 @@ export class TurnService {
     this.processPopulation(ownedStars, game.humanPlayer);
     this.processColonies(game);
     this.processFleets(game);
+    this.scanning.processScanning(game);
 
     return this.createNextGameState(game);
   }

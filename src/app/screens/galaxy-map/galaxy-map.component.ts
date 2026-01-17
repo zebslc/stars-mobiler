@@ -29,6 +29,8 @@ import { GalaxyNavigationService } from './services/galaxy-navigation.service';
 import { GALAXY_SIZES } from '../../core/constants/galaxy.constants';
 import { GalaxyMapMenuService } from './services/galaxy-map-menu.service';
 import { GalaxyMapInteractionService } from './services/galaxy-map-interaction.service';
+import { ScanningService } from '../../services/game/scanning.service';
+import type { StarVisibility } from '../../models/scanning.model';
 
 @Component({
   standalone: true,
@@ -51,6 +53,7 @@ export class GalaxyMapComponent implements OnInit {
   // Core services
   private readonly gs = inject(GameStateService);
   private readonly route = inject(ActivatedRoute);
+  private readonly scanning = inject(ScanningService);
 
   // Public services for template binding
   readonly settings = inject(SettingsService);
@@ -103,6 +106,18 @@ export class GalaxyMapComponent implements OnInit {
   readonly snapTarget = this.waypoints.snapTarget;
   readonly navigationModeFleetId = this.waypoints.navigationModeFleetId;
   readonly fleetWaypoints = this.waypoints.fleetWaypoints;
+
+  // Star visibility for fog of war
+  readonly starVisibilityMap = computed(() => {
+    const game = this.gs.game();
+    if (!game) return new Map<string, StarVisibility>();
+
+    const map = new Map<string, StarVisibility>();
+    game.stars.forEach(star => {
+      map.set(star.id, this.scanning.getStarVisibility(game, game.humanPlayer.id, star.id));
+    });
+    return map;
+  });
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {

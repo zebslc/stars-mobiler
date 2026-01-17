@@ -227,7 +227,7 @@
               app-galaxy-star
               [star]="star"
               [scale]="state.scale()"
-              [isVisible]="visibility.visibleStars().has(star.id)"
+              [visibility]="starVisibilityMap().get(star.id) || { status: 'unexplored', age: 0 }"
               [viewMode]="settings.viewMode()"
               [showLabels]="settings.showLabels()"
               [stationName]="fleetStations.stationByStarId().get(star.id)"

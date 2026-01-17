@@ -14,12 +14,14 @@ import { SPECIES } from '../../data/species.data';
 import { DataAccessService } from '../data/data-access.service';
 import { createEmptyDesign } from '../../models/ship-design.model';
 import { LoggingService } from '../core/logging.service';
+import { ScanningService } from './scanning.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameInitializerService {
   private readonly galaxy = inject(GalaxyGeneratorService);
   private readonly logging = inject(LoggingService);
   private readonly dataAccess = inject(DataAccessService);
+  private readonly scanning = inject(ScanningService);
 
   initializeGame(settings: GameSettings): GameState {
     const starCount =
@@ -52,6 +54,7 @@ export class GameInitializerService {
         Construction: 0,
       },
       selectedResearchField: 'Propulsion',
+      scanReports: {},
     };
     const ai: AIPlayer = {
       id: 'ai-1',
@@ -72,6 +75,7 @@ export class GameInitializerService {
       },
       selectedResearchField: 'Propulsion',
       brain: { personality: 'expansionist', difficulty: settings.aiDifficulty },
+      scanReports: {},
     };
 
     this.galaxy.assignStartPositions(
@@ -146,7 +150,7 @@ export class GameInitializerService {
     } else {
       this.logging.warn('Space Station hull not found, creating legacy fallback design', {
         service: 'GameInitializerService',
-        operation: 'createInitialShipDesigns'
+        operation: 'createInitialShipDesigns',
       });
       ssDesign = {
         id: ssDesignId,
@@ -222,7 +226,7 @@ export class GameInitializerService {
       },
       shipDesigns: [ssDesign],
     };
-    
+
     return state;
   }
 }
