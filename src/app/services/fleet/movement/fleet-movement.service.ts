@@ -11,6 +11,7 @@ import { FleetMovementOrderService } from './fleet-movement-order.service';
 import { FleetMovementStatsService } from './fleet-movement-stats.service';
 import { FleetFuelCalculatorService } from '../fuel/fleet-fuel-calculator.service';
 import { FleetMovementValidatorService } from './fleet-movement-validator.service';
+import { FleetShipDesignService } from '../design/fleet-ship-design.service';
 import type { MovementRequirement } from './fleet-movement.types';
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +22,7 @@ export class FleetMovementService implements IFleetMovementService {
     private statsService: FleetMovementStatsService,
     private fuelCalculator: FleetFuelCalculatorService,
     private validator: FleetMovementValidatorService,
+    private shipDesigns: FleetShipDesignService,
   ) {}
 
   moveFleet(game: GameState, fleetId: string, destination: FleetLocation): void {
@@ -44,6 +46,8 @@ export class FleetMovementService implements IFleetMovementService {
     if (this.isFleetEmpty(fleet, context)) {
       return 0;
     }
+
+    this.validateEngineConfiguration(fleet, context);
 
     const stats = this.statsService.calculateMovementStats(fleet);
     const requirement = this.fuelCalculator.buildMovementRequirement(fleet, stats.maxWarp, distance);
@@ -102,6 +106,15 @@ export class FleetMovementService implements IFleetMovementService {
       this.logging.warn('Fleet has no ships for fuel calculation', context);
     }
     return isEmpty;
+  }
+
+  private validateEngineConfiguration(fleet: Fleet, context: LogContext): void {
+    for (const stack of fleet.ships) {
+      const design = this.shipDesigns.getDesign(stack.designId);
+      if (!design.engine) {
+        throw new Error(`Ship design ${stack.designId} missing engine configuration`);
+      }
+    }
   }
 
   private logFuelConsumption(context: LogContext, warp: number, requirement: MovementRequirement): void {

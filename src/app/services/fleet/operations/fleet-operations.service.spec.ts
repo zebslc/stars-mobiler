@@ -1,7 +1,8 @@
+import { TestBed } from '@angular/core/testing';
 import { FleetOperationsService } from './fleet-operations.service';
-import type { FleetNamingService } from '../naming/fleet-naming.service';
-import type { FleetValidationService } from '../validation/fleet-validation.service';
-import type { LoggingService } from '../../core/logging.service';
+import { FleetNamingService } from '../naming/fleet-naming.service';
+import { FleetValidationService } from '../validation/fleet-validation.service';
+import { LoggingService } from '../../core/logging.service';
 import type { GameState, Player, Fleet, ShipDesign, Star } from '../../../models/game.model';
 import { ValidationResult } from '../../../models/service-interfaces.model';
 
@@ -65,11 +66,16 @@ describe('FleetOperationsService', () => {
       'validateShipAddition',
     ]);
 
-    service = new FleetOperationsService(
-      mockLoggingService,
-      mockNamingService,
-      mockValidationService,
-    );
+    TestBed.configureTestingModule({
+      providers: [
+        FleetOperationsService,
+        { provide: LoggingService, useValue: mockLoggingService },
+        { provide: FleetNamingService, useValue: mockNamingService },
+        { provide: FleetValidationService, useValue: mockValidationService },
+      ],
+    });
+
+    service = TestBed.inject(FleetOperationsService);
   });
 
   describe('createFleet', () => {

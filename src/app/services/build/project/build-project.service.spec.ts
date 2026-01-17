@@ -1,5 +1,6 @@
+import { TestBed } from '@angular/core/testing';
 import { BuildProjectService } from './build-project.service';
-import type { FleetService } from '../../fleet/core/fleet.service';
+import { FleetService } from '../../fleet/core/fleet.service';
 import type { BuildItem, GameState, Player, PlayerTech, Star } from '../../../models/game.model';
 import type { TechRequirement } from '../../../data/tech-atlas.types';
 
@@ -92,7 +93,10 @@ describe('BuildProjectService', () => {
 
   beforeEach(() => {
     mockFleetService = jasmine.createSpyObj('FleetService', ['addShipToFleet']);
-    service = new BuildProjectService(mockFleetService);
+    TestBed.configureTestingModule({
+      providers: [BuildProjectService, { provide: FleetService, useValue: mockFleetService }],
+    });
+    service = TestBed.inject(BuildProjectService);
   });
 
   describe('executeBuildProject', () => {
@@ -145,7 +149,7 @@ describe('BuildProjectService', () => {
 
       it('should handle undefined research', () => {
         const star = createStar();
-        ((star as any)).research = undefined;
+        (star as any).research = undefined;
         const game = createGameState(star);
         const item = createBuildItem({ project: 'research' });
 

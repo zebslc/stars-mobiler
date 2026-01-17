@@ -26,17 +26,18 @@ export class EconomyService {
     planet.surfaceMinerals.ironium += Math.floor(extraction.ironium);
     planet.surfaceMinerals.boranium += Math.floor(extraction.boranium);
     planet.surfaceMinerals.germanium += Math.floor(extraction.germanium);
+    // Deplete concentrations based on extraction (each unit extracted reduces concentration by 0.1%)
     planet.mineralConcentrations.ironium = Math.max(
       0,
-      Math.round(planet.mineralConcentrations.ironium - extraction.ironium * 0.01)
+      Math.round(planet.mineralConcentrations.ironium - extraction.ironium * 0.1)
     );
     planet.mineralConcentrations.boranium = Math.max(
       0,
-      Math.round(planet.mineralConcentrations.boranium - extraction.boranium * 0.01)
+      Math.round(planet.mineralConcentrations.boranium - extraction.boranium * 0.1),
     );
     planet.mineralConcentrations.germanium = Math.max(
       0,
-      Math.round(planet.mineralConcentrations.germanium - extraction.germanium * 0.01)
+      Math.round(planet.mineralConcentrations.germanium - extraction.germanium * 0.1),
     );
   }
 

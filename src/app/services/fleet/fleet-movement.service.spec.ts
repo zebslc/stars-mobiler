@@ -1,6 +1,14 @@
+/// <reference types="jasmine" />
 import { FleetMovementService } from './movement/fleet-movement.service';
 import type { LoggingService } from '../core/logging.service';
-import type { Fleet, GameSettings, GameState, Player, Species, Star } from '../../models/game.model';
+import type {
+  Fleet,
+  GameSettings,
+  GameState,
+  Player,
+  Species,
+  Star,
+} from '../../models/game.model';
 import type { FleetLocation } from '../../models/service-interfaces.model';
 import { FleetMovementOrderService } from './movement/fleet-movement-order.service';
 import { FleetMovementStatsService } from './movement/fleet-movement-stats.service';
@@ -13,7 +21,7 @@ interface FleetMovementTestContext {
   service: FleetMovementService;
   logging: jasmine.SpyObj<LoggingService>;
   orderService: FleetMovementOrderService;
-  shipDesignService: FleetShipDesignService;
+  shipDesignService: jasmine.SpyObj<FleetShipDesignService>;
   statsService: FleetMovementStatsService;
   fuelCalculator: FleetFuelCalculatorService;
   validator: FleetMovementValidatorService;
@@ -60,7 +68,10 @@ describe('FleetMovementService moveFleet', () => {
 
     ctx.service.moveFleet(mockGame, 'nonexistent', destination);
 
-    expect(ctx.logging.error).toHaveBeenCalledWith('Fleet not found: nonexistent', jasmine.any(Object));
+    expect(ctx.logging.error).toHaveBeenCalledWith(
+      'Fleet not found: nonexistent',
+      jasmine.any(Object),
+    );
   });
 
   it('logs the movement request', () => {
@@ -68,7 +79,10 @@ describe('FleetMovementService moveFleet', () => {
 
     ctx.service.moveFleet(mockGame, fleet.id, destination);
 
-    expect(ctx.logging.debug).toHaveBeenCalledWith('Moving fleet f1 to destination', jasmine.any(Object));
+    expect(ctx.logging.debug).toHaveBeenCalledWith(
+      'Moving fleet f1 to destination',
+      jasmine.any(Object),
+    );
     expect(ctx.logging.info).toHaveBeenCalledWith(
       'Fleet Test Fleet ordered to move to space location',
       jasmine.any(Object),
@@ -101,7 +115,10 @@ describe('FleetMovementService calculateFuelConsumption', () => {
     const consumption = ctx.service.calculateFuelConsumption(fleet, 100);
 
     expect(consumption).toBe(0);
-    expect(ctx.logging.warn).toHaveBeenCalledWith('Fleet has no ships for fuel calculation', jasmine.any(Object));
+    expect(ctx.logging.warn).toHaveBeenCalledWith(
+      'Fleet has no ships for fuel calculation',
+      jasmine.any(Object),
+    );
   });
 
   it('scales fuel consumption with distance', () => {
@@ -114,7 +131,10 @@ describe('FleetMovementService calculateFuelConsumption', () => {
   it('logs fuel calculations', () => {
     ctx.service.calculateFuelConsumption(fleet, 100);
 
-    expect(ctx.logging.debug).toHaveBeenCalledWith('Calculating fuel consumption for 100 LY', jasmine.any(Object));
+    expect(ctx.logging.debug).toHaveBeenCalledWith(
+      'Calculating fuel consumption for 100 LY',
+      jasmine.any(Object),
+    );
   });
 
   it('throws when no engine configuration is available', () => {
@@ -123,7 +143,9 @@ describe('FleetMovementService calculateFuelConsumption', () => {
       return { ...design, engine: undefined as unknown as CompiledDesign['engine'] };
     });
 
-    expect(() => ctx.service.calculateFuelConsumption(fleet, 10)).toThrowError(/missing engine configuration/i);
+    expect(() => ctx.service.calculateFuelConsumption(fleet, 10)).toThrowError(
+      /missing engine configuration/i,
+    );
   });
 });
 
@@ -206,14 +228,27 @@ describe('FleetMovementService validateMovement', () => {
 
     ctx.service.validateMovement(fleet, destination);
 
-    expect(ctx.logging.debug).toHaveBeenCalledWith('Validating fleet movement', jasmine.any(Object));
+    expect(ctx.logging.debug).toHaveBeenCalledWith(
+      'Validating fleet movement',
+      jasmine.any(Object),
+    );
   });
 });
 
 function createTestContext(): FleetMovementTestContext {
-  const logging = jasmine.createSpyObj<LoggingService>('LoggingService', ['debug', 'info', 'warn', 'error']);
+  const logging = jasmine.createSpyObj<LoggingService>('LoggingService', [
+    'debug',
+    'info',
+    'warn',
+    'error',
+  ]);
   const orderService = new FleetMovementOrderService();
-  const shipDesignService = new FleetShipDesignService();
+  const shipDesignService = jasmine.createSpyObj<FleetShipDesignService>('FleetShipDesignService', [
+    'getDesign',
+  ]);
+  const designSpy = shipDesignService.getDesign.and.callFake((designId: string) =>
+    createCompiledDesign({ id: designId, engine: { id: 'eng_fuel_mizer' } }),
+  );
   const statsService = new FleetMovementStatsService(shipDesignService);
   const fuelCalculator = new FleetFuelCalculatorService(logging, shipDesignService);
   const validator = new FleetMovementValidatorService(fuelCalculator);
@@ -221,15 +256,13 @@ function createTestContext(): FleetMovementTestContext {
   const player = createPlayer(species);
   const star = createStar(player.id);
   const settings = createSettings(species.id);
-  const designSpy = spyOn(shipDesignService, 'getDesign').and.callFake((designId: string) =>
-    createCompiledDesign({ id: designId, engine: { id: 'eng_fuel_mizer' } }),
-  );
   const service = new FleetMovementService(
     logging,
     orderService,
     statsService,
     fuelCalculator,
     validator,
+    shipDesignService,
   );
 
   return {
@@ -391,4 +424,3 @@ function createCompiledDesign(overrides: Partial<CompiledDesign> = {}): Compiled
     engine: overrides.engine ?? base.engine,
   };
 }
-

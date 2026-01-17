@@ -60,7 +60,16 @@ describe('FleetCargoService', () => {
 
   beforeEach(() => {
     mockLoggingService = jasmine.createSpyObj('LoggingService', ['debug', 'info', 'warn', 'error']);
-    service = new FleetCargoService(mockLoggingService);
+    const mockShipDesignResolver = jasmine.createSpyObj('ShipDesignResolverService', ['resolve']);
+    // Mock resolve to return a design with cargo capacity
+    mockShipDesignResolver.resolve.and.callFake((designId: string) => ({
+      id: designId,
+      name: 'Freighter',
+      cargoCapacity: 100,
+      mass: 50,
+      fuelCapacity: 200,
+    }));
+    service = new FleetCargoService(mockLoggingService, mockShipDesignResolver);
   });
 
   describe('loadCargo', () => {

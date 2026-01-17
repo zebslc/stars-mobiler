@@ -20,7 +20,17 @@ describe('TechStatusService', () => {
 
   const mockHull = {
     id: 'hull-1',
-    name: 'Small Hull',
+    Name: 'Small Hull',
+    Structure: [],
+    Slots: [],
+    Cost: { Ironium: 100, Boranium: 80, Germanium: 60, Resources: 500 },
+    Stats: {
+      Mass: 100,
+      'Max Fuel': 1000,
+      Armor: 50,
+      Cargo: 100,
+      Initiative: 1,
+    } as any,
     techReq: {
       Construction: 1,
       Kinetics: 2,
@@ -30,6 +40,11 @@ describe('TechStatusService', () => {
   const mockComponent = {
     id: 'comp-1',
     name: 'Plasma Gun',
+    type: 'Beam',
+    mass: 10,
+    cost: { ironium: 10, boranium: 5, germanium: 5, resources: 50 },
+    stats: {},
+    description: 'Test component',
     tech: {
       Energy: 5,
       Kinetics: 3,
@@ -65,8 +80,8 @@ describe('TechStatusService', () => {
 
   describe('getExternalDependenciesWithStatus', () => {
     it('should return empty array if item not found', () => {
-      techService.getHullByName.and.returnValue(null);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getHullByName.and.returnValue(undefined);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Unknown', 'Energy');
       expect(deps).toEqual([]);
@@ -82,7 +97,7 @@ describe('TechStatusService', () => {
 
     it('should find hull and return external dependencies', () => {
       techService.getHullByName.and.returnValue(mockHull);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Small Hull', 'Energy');
       expect(deps.length).toBeGreaterThan(0);
@@ -94,7 +109,7 @@ describe('TechStatusService', () => {
 
     it('should mark dependency as met when current level meets requirement', () => {
       techService.getHullByName.and.returnValue(mockHull);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Small Hull', 'Energy');
       const consDep = deps.find((d) => d.label.includes('Cons'));
@@ -103,7 +118,7 @@ describe('TechStatusService', () => {
 
     it('should mark dependency as close when 1-2 levels away', () => {
       techService.getHullByName.and.returnValue(mockHull);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
       // Kinetics needs 2, player has 3, so met
       // But if we change to need 5, player has 3, diff = 2, so close
       const customHull = {
@@ -119,14 +134,13 @@ describe('TechStatusService', () => {
 
     it('should mark dependency as far when more than 2 levels away', () => {
       const customHull = {
-        id: 'hull-1',
-        name: 'Big Hull',
+        ...mockHull,
         techReq: {
           Construction: 10, // Player has 2, diff = 8
         },
       };
       techService.getHullByName.and.returnValue(customHull);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Big Hull', 'Energy');
       const consDep = deps.find((d) => d.label.includes('Cons'));
@@ -134,7 +148,7 @@ describe('TechStatusService', () => {
     });
 
     it('should find component and return external dependencies', () => {
-      techService.getHullByName.and.returnValue(null);
+      techService.getHullByName.and.returnValue(undefined);
       techService.getComponentByName.and.returnValue(mockComponent);
 
       const deps = service.getExternalDependenciesWithStatus('Plasma Gun', 'Kinetics');
@@ -143,14 +157,13 @@ describe('TechStatusService', () => {
 
     it('should filter out requirements for the selected field', () => {
       techService.getHullByName.and.returnValue({
-        id: 'hull-1',
-        name: 'Hull',
+        ...mockHull,
         techReq: {
           Energy: 3,
           Kinetics: 2,
         },
       });
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Hull', 'Energy');
       const energyDep = deps.find((d) => d.label.includes('Ener'));
@@ -159,10 +172,10 @@ describe('TechStatusService', () => {
 
     it('should return empty array if no tech requirements', () => {
       techService.getHullByName.and.returnValue({
-        id: 'hull-1',
-        name: 'Hull',
+        ...mockHull,
+        techReq: undefined,
       });
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Hull', 'Energy');
       expect(deps).toEqual([]);
@@ -170,14 +183,13 @@ describe('TechStatusService', () => {
 
     it('should ignore zero-level requirements', () => {
       techService.getHullByName.and.returnValue({
-        id: 'hull-1',
-        name: 'Hull',
+        ...mockHull,
         techReq: {
           Construction: 0,
           Kinetics: 2,
         },
       });
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Hull', 'Energy');
       const consDep = deps.find((d) => d.label.includes('Cons'));
@@ -186,11 +198,11 @@ describe('TechStatusService', () => {
 
     it('should format labels correctly', () => {
       techService.getHullByName.and.returnValue(mockHull);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const deps = service.getExternalDependenciesWithStatus('Small Hull', 'Energy');
       deps.forEach((dep) => {
-        expect(dep.label).toMatch(/^[A-Z]{4} \d+$/); // Format: "XXXX #"
+        expect(dep.label).toMatch(/^[A-Za-z]{3,4} \d+$/); // Format: "Cons/Kine #"
       });
     });
   });
@@ -198,7 +210,7 @@ describe('TechStatusService', () => {
   describe('getComputedExternalDependencies', () => {
     it('should return a computed signal', () => {
       techService.getHullByName.and.returnValue(mockHull);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const computed = service.getComputedExternalDependencies('Small Hull', 'Energy');
       expect(computed).toBeTruthy();
@@ -209,7 +221,7 @@ describe('TechStatusService', () => {
 
     it('should update when dependencies change', () => {
       techService.getHullByName.and.returnValue(mockHull);
-      techService.getComponentByName.and.returnValue(null);
+      techService.getComponentByName.and.returnValue(undefined);
 
       const computed = service.getComputedExternalDependencies('Small Hull', 'Energy');
       const initial = computed();

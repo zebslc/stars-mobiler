@@ -59,6 +59,8 @@ describe('ShipDesignModel', () => {
 
     // Create components lookup
     const componentsLookup = Object.fromEntries(SCANNER_COMPONENTS.map(c => [c.id, c]));
+    const techFieldLookup = Object.fromEntries(SCANNER_COMPONENTS.map(c => [c.id, 'Energy']));
+    const requiredLevelLookup = Object.fromEntries(SCANNER_COMPONENTS.map(c => [c.id, c.tech?.Energy || 0]));
 
     // 2 Rhino Scanners: (50^4 + 50^4)^0.25 = 59.46
     const spec = compileShipStats(mockHull, [{
@@ -67,7 +69,7 @@ describe('ShipDesignModel', () => {
         componentId: 'scan_rhino',
         count: 2
       }]
-    }], mockTech, componentsLookup);
+    }], mockTech, componentsLookup, techFieldLookup, requiredLevelLookup);
 
     expect(spec.scanRange).toBeCloseTo(59.46, 1);
   });

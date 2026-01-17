@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { EndTurnCommand } from './turn-commands';
 import { TurnService } from '../../services/game/turn.service';
 import type { GameState } from '../../models/game.model';
@@ -19,7 +18,6 @@ describe('EndTurnCommand', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideZonelessChangeDetection(),
         { provide: TurnService, useValue: turnServiceSpy },
       ],
     });

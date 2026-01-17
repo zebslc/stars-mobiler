@@ -276,7 +276,7 @@ describe('ShipComponentEligibilityService - Hull Trait Filtering', () => {
       expect(metaMorph).toBeUndefined();
 
       // Should see regular hulls
-      const colonyShip = hulls.find((h) => h.id === 'hull-colony-ship');
+      const colonyShip = hulls.find((h) => h.id === 'hull-colony');
       expect(colonyShip).toBeDefined();
     });
   });

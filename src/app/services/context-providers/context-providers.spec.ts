@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { BrowserContextProvider } from './browser-context.provider';
 import { GameContextProvider } from './game-context.provider';
 import { AngularContextProvider } from './angular-context.provider';
@@ -43,7 +42,6 @@ describe('Context Providers', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideZonelessChangeDetection(),
         BrowserContextProvider,
         GameContextProvider,
         AngularContextProvider,

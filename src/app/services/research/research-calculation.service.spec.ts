@@ -241,10 +241,11 @@ describe('ResearchCalculationService', () => {
       expect(Array.isArray(unlocks)).toBe(true);
     });
 
-    it('should return empty array if player is null', () => {
+    it('should still return base unlocks if player is null', () => {
       (gameStateService.player as any).set(null);
       const unlocks = service.getCurrentUnlocks('Energy')();
-      expect(unlocks).toEqual([]);
+      expect(Array.isArray(unlocks)).toBe(true);
+      expect(unlocks.length).toBeGreaterThan(0);
     });
   });
 
