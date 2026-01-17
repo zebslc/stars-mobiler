@@ -441,7 +441,7 @@ export class ShipDesignItemComponent {
     return '/assets/tech-icons/hull-scout.png';
   }
 
-  onImageError(event: any) {
-    event.target.src = '/assets/tech-icons/hull-scout.png';
+  onImageError(event: Event) {
+    (event.target as HTMLImageElement).src = '/assets/tech-icons/hull-scout.png';
   }
 }
